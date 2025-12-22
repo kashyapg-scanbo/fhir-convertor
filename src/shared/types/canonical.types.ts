@@ -300,6 +300,7 @@ export type CanonicalDocumentReference = {
       url?: string;
       title?: string;
       data?: string;
+      format?: string; // Legacy format hint (e.g., 'pdf', 'dicom', 'jpeg')
     };
   }>;
   description?: string;

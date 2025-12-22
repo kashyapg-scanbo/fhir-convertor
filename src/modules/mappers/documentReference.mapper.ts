@@ -3,6 +3,7 @@ import documentReferenceTemplate from '../../shared/templates/documentReference.
 import type { CanonicalDocumentReference, OperationType } from '../../shared/types/canonical.types.js';
 import { FullUrlRegistry } from './fullUrlRegistry.js';
 import { makeNarrative } from './utils.js';
+import { mapDocumentContent, mapDocumentAttachment } from './documentType.mapper.js';
 
 interface DocumentReferenceMapperArgs {
   documentReferences?: CanonicalDocumentReference[];
@@ -78,8 +79,11 @@ export function mapDocumentReferences({
       documentReference.custodian.reference = resolveRef('Organization', source.custodian) || `Organization/${source.custodian}`;
     }
 
+    // Map document content with automatic legacy type detection and conversion
     if (source.content) {
-      documentReference.content = source.content;
+      // Use the document type mapper to automatically detect and convert legacy types
+      // This handles legacy format detection from contentType, url, or format fields
+      documentReference.content = mapDocumentContent(source.content);
     }
 
     if (source.context) {
