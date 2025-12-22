@@ -1,5 +1,6 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter } from '../../shared/types/canonical.types.js';
+import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
     const msh = parsed.MSH?.[0];
@@ -75,32 +76,155 @@ export function buildCanonical(parsed: any) {
 
     /* ───── Encounter ───── */
     // Only include encounter if PV1 segment exists
-    let encounter: { class: string } | undefined;
+    let encounter: CanonicalEncounter | undefined;
     if (pv1) {
         const encounterClass = pv1?.[1]?.[0]?.[0] === 'I' ? 'IMP' : 'AMB';
+        const encounterId = pv1?.[18]?.[0]?.[0];
         encounter = {
+            id: encounterId,
             class: encounterClass
         };
     }
 
-    /* ───── Observations (OBX) ───── */
-    // Only include observations if OBX segments exist
-    const observations: CanonicalObservation[] = obxSegments.length > 0
-        ? obxSegments
-            .map((obx: any): CanonicalObservation | null => {
-                // OBX-1: Set ID
-                const setId = obx?.[0]?.[0]?.[0];
+    /* ───── Observations and DocumentReferences (OBX) ───── */
+    // Separate OBX segments into Observations and DocumentReferences
+    // OBX segments with ED (Encapsulated Data) type become DocumentReferences
+    const observations: CanonicalObservation[] = [];
+    const documentReferences: CanonicalDocumentReference[] = [];
 
-                // OBX-2: Value Type
-                const valueType = obx?.[1]?.[0]?.[0];
+    if (obxSegments.length > 0) {
+        for (const obx of obxSegments) {
+            // OBX-1: Set ID
+            const setId = obx?.[0]?.[0]?.[0];
 
-                // OBX-3: Observation Identifier (code^display^system)
-                const codeParts = obx?.[2]?.[0] ?? [];
-                const observationCode = codeParts[0];
-                const observationDisplay = codeParts[1];
-                const observationSystem = codeParts[2];
+            // OBX-2: Value Type
+            const valueType = obx?.[1]?.[0]?.[0];
 
-                if (!observationCode) return null; // Skip if no code
+            // OBX-3: Observation Identifier (code^display^system)
+            const codeParts = obx?.[2]?.[0] ?? [];
+            const observationCode = codeParts[0];
+            const observationDisplay = codeParts[1];
+            const observationSystem = codeParts[2];
+
+            if (!observationCode) continue; // Skip if no code
+
+            // Check if this is an ED (Encapsulated Data) type - should be DocumentReference
+            if (valueType?.toUpperCase() === 'ED') {
+                // Parse ED format: OBX-5 contains ^type^encoding^data
+                // Format: ^PDF^Base64^JVBERi0xLjQKJcfs...
+                const rawValueField = obx?.[4];
+                let documentData: string | undefined;
+                let documentType: string | undefined;
+                let encoding: string | undefined;
+
+                if (Array.isArray(rawValueField) && rawValueField.length > 0) {
+                    // Join all repetitions to get the full value
+                    const fullValue = rawValueField
+                        .map((rep: any) => Array.isArray(rep) ? rep.join('^') : String(rep))
+                        .join('~');
+
+                    // Parse ED format: ^type^encoding^data
+                    // Handle cases where it might start with ^ or not
+                    const parts = fullValue.split('^');
+                    if (parts.length >= 4) {
+                        // Format: ^type^encoding^data
+                        documentType = parts[1]?.trim();
+                        encoding = parts[2]?.trim();
+                        documentData = parts.slice(3).join('^'); // Rejoin in case data contains ^
+                    } else if (parts.length === 3) {
+                        // Format: type^encoding^data (no leading ^)
+                        documentType = parts[0]?.trim();
+                        encoding = parts[1]?.trim();
+                        documentData = parts[2]?.trim();
+                    } else if (fullValue.trim()) {
+                        // Fallback: treat entire value as base64 data, try to detect type from code
+                        documentData = fullValue.trim();
+                        // Try to infer type from observation code or display
+                        if (observationDisplay?.toLowerCase().includes('pdf')) {
+                            documentType = 'PDF';
+                        } else if (observationDisplay?.toLowerCase().includes('image')) {
+                            documentType = 'JPEG';
+                        } else {
+                            documentType = 'PDF'; // Default
+                        }
+                        encoding = 'Base64';
+                    }
+                }
+
+                // Only create DocumentReference if we have data
+                if (documentData) {
+                    // OBX-14: Date/Time of the Observation (index 13 in 0-based)
+                    const documentDate = toFHIRDate(obx?.[13]?.[0]?.[0]) || toFHIRDateTime(obx?.[13]?.[0]?.[0]);
+
+                    // OBX-16: Responsible Observer (index 15) - can be author
+                    const observerReps = obx?.[15] ?? [];
+                    const authorIds: string[] = observerReps
+                        .map((rep: any[]) => {
+                            if (!Array.isArray(rep)) return null;
+                            return rep[0]; // First component is ID
+                        })
+                        .filter(Boolean);
+
+                    // OBX-22: Performing Organization Name (index 21) - can be custodian
+                    const performerOrgName = obx?.[21]?.[0]?.[0];
+                    const custodianId = performerOrgName;
+
+                    const docRef: CanonicalDocumentReference = {
+                        id: setId || `DOC-${observationCode}`,
+                        identifier: setId || observationCode,
+                        status: 'current',
+                        subject: patientId,
+                        date: documentDate,
+                        description: observationDisplay || observationCode,
+                        author: authorIds.length > 0 ? authorIds : undefined,
+                        custodian: custodianId,
+                        type: {
+                            coding: [{
+                                system: mapCodingSystem(observationSystem),
+                                code: observationCode,
+                                display: observationDisplay
+                            }]
+                        },
+                        content: [{
+                            attachment: {
+                                contentType: getFhirContentType(documentType || 'pdf') || 'application/octet-stream',
+                                data: documentData,
+                                title: observationDisplay || `${documentType || 'Document'} Report`,
+                                format: documentType // Legacy format field for backward compatibility
+                            }
+                        }]
+                    };
+
+                    documentReferences.push(docRef);
+                }
+                continue; // Skip adding as observation
+            }
+
+            // Regular observation processing (non-ED types)
+            // const observation = processObservationSegment(obx, patientId, encounter?.id);
+            const observation = processObservationSegment(obx, patientId);
+
+            if (observation) {
+                observations.push(observation);
+            }
+        }
+    }
+
+    // Helper function to process regular observation segments
+    function processObservationSegment(obx: any, patientId?: string): CanonicalObservation | null {
+        // OBX-1: Set ID
+        const setId = obx?.[0]?.[0]?.[0];
+
+        // OBX-2: Value Type
+        const valueType = obx?.[1]?.[0]?.[0];
+
+        // OBX-3: Observation Identifier (code^display^system)
+        const codeParts = obx?.[2]?.[0] ?? [];
+        const observationCode = codeParts[0];
+        const observationDisplay = codeParts[1];
+        const observationSystem = codeParts[2];
+
+        if (!observationCode) return null; // Skip if no code
 
                 // OBX-5: Observation Value (can have multiple values separated by ~)
                 // Structure: obx[4] is array of repetitions, each repetition is array of components
@@ -263,9 +387,7 @@ export function buildCanonical(parsed: any) {
                 if (interpretation && interpretation.length > 0) result.interpretation = interpretation;
 
                 return result;
-            })
-            .filter((o: CanonicalObservation | null): o is CanonicalObservation => o !== null && Boolean(o.code && typeof o.code === 'object' && !Array.isArray(o.code) && o.code.code))
-        : [];
+    }
 
 
     const result: any = {
@@ -291,6 +413,11 @@ export function buildCanonical(parsed: any) {
     // Only include observations if OBX segments were present
     if (observations.length > 0) {
       result.observations = observations;
+    }
+
+    // Only include document references if ED type OBX segments were present
+    if (documentReferences.length > 0) {
+      result.documentReferences = documentReferences;
     }
 
     /* ───── Organizations (from MSH, ORC) ───── */
@@ -506,10 +633,11 @@ export function buildCanonical(parsed: any) {
 }
 
 function mapCodingSystem(system?: string) {
-    if (!system) return 'http://loinc.org';
-    if (system === 'LN') return 'http://loinc.org';
-    if (system === 'SNOMED') return 'http://snomed.info/sct';
-    return 'urn:hl7-org:v2';
+    if (!system) return undefined;
+    const normalized = system.toUpperCase();
+    if (normalized === 'LN' || normalized === 'LOINC') return 'http://loinc.org';
+    if (normalized === 'SNOMED' || normalized === 'SCT') return 'http://snomed.info/sct';
+    return undefined;
 }
 
 
@@ -537,4 +665,22 @@ function mapObservationStatus(status?: string): string {
     if (statusUpper === 'X' || statusUpper === 'CANCELLED') return 'cancelled';
     if (statusUpper === 'S' || statusUpper === 'STATUS') return 'final'; // S typically means status/signed
     return 'final';
+}
+
+function toFHIRDateTime(dateTime?: string) {
+    if (!dateTime || dateTime.length < 8) return undefined;
+    // Handle formats: YYYYMMDD, YYYYMMDDHH, YYYYMMDDHHMM, YYYYMMDDHHMMSS
+    if (dateTime.length === 8) {
+        return `${dateTime.slice(0, 4)}-${dateTime.slice(4, 6)}-${dateTime.slice(6, 8)}`;
+    }
+    if (dateTime.length >= 10) {
+        const year = dateTime.slice(0, 4);
+        const month = dateTime.slice(4, 6);
+        const day = dateTime.slice(6, 8);
+        const hour = dateTime.slice(8, 10) || '00';
+        const minute = dateTime.length >= 12 ? dateTime.slice(10, 12) : '00';
+        const second = dateTime.length >= 14 ? dateTime.slice(12, 14) : '00';
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
+    }
+    return undefined;
 }

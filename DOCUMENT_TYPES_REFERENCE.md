@@ -2,6 +2,8 @@
 
 This document provides a comprehensive list of legacy document types commonly used in global healthcare systems and their corresponding FHIR R5 `contentType` mappings for `DocumentReference.content.attachment.contentType`.
 
+Note: `contentType` is resolved dynamically at runtime based on the input (format name, file extension, URL, or MIME type). The mapper normalizes and converts to the correct FHIR value using `getFhirContentType`, with a fallback to `application/octet-stream` when unknown.
+
 ## Quick Reference Table
 
 ### Document Formats
@@ -171,4 +173,3 @@ The document types are organized into the following categories:
 - FHIR R5 compliant contentTypes for `DocumentReference.content.attachment.contentType`
 - Case-insensitive lookup (e.g., 'PDF', 'pdf', '.pdf' all work)
 - Extensible - new formats can be added to the mapping array
-

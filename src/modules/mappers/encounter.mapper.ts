@@ -72,11 +72,7 @@ export function mapEncounter({
       coding: [
         {
           system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
-          code: classCode
-        },
-        {
-          system: 'https://terminology.hl7.org/CodeSystem/encounter-class',
-          code: mappedClass,
+          code: classCode,
           display: mappedClass
         }
       ]
@@ -100,26 +96,26 @@ export function mapEncounter({
 
   const entries: any[] = [encounterEntry];
 
-  if (canonicalEncounter.class) {
-    const encounterClassCodeSystem = {
-      resourceType: 'CodeSystem',
-      id: crypto.randomUUID(),
-      url: 'https://terminology.hl7.org/CodeSystem/encounter-class',
-      status: 'active',
-      content: 'complete',
-      caseSensitive: false,
-      concept: [
-        { code: 'inpatient', display: 'inpatient', definition: 'An encounter during which the patient is admitted to the facility.' },
-        { code: 'outpatient', display: 'outpatient', definition: 'An encounter where the patient is seen without being admitted.' },
-        { code: 'ambulatory', display: 'ambulatory', definition: 'An ambulatory encounter where the patient visits a clinic or office.' },
-        { code: 'virtual', display: 'virtual', definition: 'An encounter that is conducted virtually/telehealth.' }
-      ]
-    };
+  // if (canonicalEncounter.class) {
+  //   const encounterClassCodeSystem = {
+  //     resourceType: 'CodeSystem',
+  //     id: crypto.randomUUID(),
+  //     url: 'https://terminology.hl7.org/CodeSystem/encounter-class',
+  //     status: 'active',
+  //     content: 'complete',
+  //     caseSensitive: false,
+  //     concept: [
+  //       { code: 'inpatient', display: 'inpatient', definition: 'An encounter during which the patient is admitted to the facility.' },
+  //       { code: 'outpatient', display: 'outpatient', definition: 'An encounter where the patient is seen without being admitted.' },
+  //       { code: 'ambulatory', display: 'ambulatory', definition: 'An ambulatory encounter where the patient visits a clinic or office.' },
+  //       { code: 'virtual', display: 'virtual', definition: 'An encounter that is conducted virtually/telehealth.' }
+  //     ]
+  //   };
 
-    const encounterClassFullUrl = `urn:uuid:${encounterClassCodeSystem.id}`;
-    registry.register('CodeSystem', { identifier: 'encounter-class', id: encounterClassCodeSystem.id }, encounterClassFullUrl);
-    entries.push({ resource: encounterClassCodeSystem, fullUrl: encounterClassFullUrl });
-  }
+  //   const encounterClassFullUrl = `urn:uuid:${encounterClassCodeSystem.id}`;
+  //   registry.register('CodeSystem', { identifier: 'encounter-class', id: encounterClassCodeSystem.id }, encounterClassFullUrl);
+  //   entries.push({ resource: encounterClassCodeSystem, fullUrl: encounterClassFullUrl });
+  // }
 
   return { entries, encounterFullUrl };
 }
