@@ -89,6 +89,7 @@ const CustomJSONSchema = z.object({
     title: z.string().optional(),
     description: z.string().optional(),
     contentType: z.string().optional(),
+    format: z.string().optional(), // Legacy format hint (e.g., 'pdf', 'dicom', 'jpeg', 'document.pdf')
     data: z.string().optional(),
     url: z.string().optional(),
     subjectId: z.string().optional(),
@@ -324,7 +325,8 @@ function buildCanonicalDocumentReference(doc: any, patientId?: string, encounter
         contentType: doc.contentType,
         data: doc.data,
         url: doc.url,
-        title: doc.title
+        title: doc.title,
+        format: doc.format // Support legacy format field (e.g., 'pdf', 'dicom', 'jpeg')
       }
     }],
     context: encounterId ? { encounter: [encounterId] } : undefined
