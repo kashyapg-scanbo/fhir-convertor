@@ -1,0 +1,21 @@
+{
+  "resourceType": "PractitionerRole",
+  "id": "",
+  "identifier": [],
+  "active": true,
+  "period": {
+    "start": "",
+    "end": ""
+  },
+  "practitioner": {
+    "reference": ""
+  },
+  "organization": {
+    "reference": ""
+  },
+  "code": [],
+  "specialty": [],
+  "location": [],
+  "availability": [],
+  "endpoint": []
+}

@@ -1,0 +1,19 @@
+{
+  "resourceType": "Medication",
+  "id": "",
+  "identifier": [],
+  "code": {
+    "coding": [],
+    "text": ""
+  },
+  "status": "active",
+  "marketingAuthorizationHolder": {
+    "reference": ""
+  },
+  "doseForm": {
+    "coding": []
+  },
+  "totalVolume": {},
+  "ingredient": [],
+  "batch": {}
+}

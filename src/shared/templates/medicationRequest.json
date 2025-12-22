@@ -1,0 +1,45 @@
+{
+  "resourceType": "MedicationRequest",
+  "id": "",
+  "identifier": [],
+  "status": "active",
+  "statusReason": {
+    "coding": []
+  },
+  "intent": "order",
+  "category": [],
+  "priority": "routine",
+  "doNotPerform": false,
+  "medication": {
+    "concept": {
+      "coding": [],
+      "text": ""
+    },
+    "reference": {
+      "reference": ""
+    }
+  },
+  "subject": {
+    "reference": ""
+  },
+  "encounter": {
+    "reference": ""
+  },
+  "authoredOn": "",
+  "requester": {
+    "reference": ""
+  },
+  "performer": {
+    "reference": ""
+  },
+  "performerType": {
+    "coding": []
+  },
+  "recorder": {
+    "reference": ""
+  },
+  "reason": [],
+  "dosageInstruction": [],
+  "dispenseRequest": {},
+  "substitution": {}
+}

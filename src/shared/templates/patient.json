@@ -1,0 +1,32 @@
+{
+  "resourceType": "Patient",
+  "id": "",
+  "active": true,
+
+  "identifier": [
+    {
+      "use": "official",
+      "system": "urn:hl7-org:v2",
+      "value": ""
+    }
+  ],
+
+  "name": [
+    {
+      "use": "official",
+      "family": "",
+      "given": []
+    }
+  ],
+
+  "telecom": [],
+
+  "gender": "unknown",
+  "birthDate": "",
+
+  "address": [],
+  "contact": [],
+  "managingOrganization": {
+    "reference": ""
+  }
+}

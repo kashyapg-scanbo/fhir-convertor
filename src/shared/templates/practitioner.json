@@ -1,0 +1,27 @@
+{
+  "resourceType": "Practitioner",
+  "id": "",
+  "identifier": [
+    {
+      "use": "official",
+      "system": "urn:hl7-org:v2",
+      "value": ""
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "",
+      "given": [],
+      "prefix": [],
+      "suffix": []
+    }
+  ],
+  "telecom": [],
+  "address": [],
+  "gender": "unknown",
+  "birthDate": "",
+  "qualification": []
+}
+
