@@ -1,5 +1,5 @@
 import express from 'express';
-import { convertLegacyData, InputFormat } from './modules/pipeline/convert.pipeline.js';
+import { convertLegacyData, InputFormat, FhirOutputVersion } from './modules/pipeline/convert.pipeline.js';
 
 const app = express();
 app.use(express.json());
@@ -21,18 +21,22 @@ app.post('/convert', async (req, res) => {
   try {
     let input: string;
     let format: InputFormat | undefined;
+    let fhirVersion: FhirOutputVersion | undefined;
 
     // Check if request is JSON body with input field
     if (req.body && typeof req.body === 'object' && 'input' in req.body) {
       input = req.body.input;
       format = req.body.format as InputFormat;
+      fhirVersion = req.body.fhirVersion as FhirOutputVersion;
+      fhirVersion = fhirVersion || 'r5';
     }
     // Check if request is raw text/XML body
     else if (typeof req.body === 'string') {
       input = req.body;
       // Try to get format from query param or Content-Type header
       format = req.query.format as InputFormat;
-
+      fhirVersion = req.query.fhirVersion as FhirOutputVersion;
+      fhirVersion = fhirVersion || 'r5';
       if (!format) {
         const contentType = req.get('Content-Type') || '';
         if (contentType.includes('xml')) {
@@ -52,7 +56,7 @@ app.post('/convert', async (req, res) => {
     }
 
     console.log('Converting input format:', format || 'auto-detect');
-    const result = await convertLegacyData(input, format);
+    const result = await convertLegacyData(input, format, fhirVersion);
     res.json(result);
   } catch (e: any) {
     console.error('Conversion error:', e);
@@ -68,36 +72,18 @@ app.post('/convert', async (req, res) => {
 app.post('/convert/hl7', async (req, res) => {
   try {
     const input = typeof req.body === 'string' ? req.body : req.body.input;
+    let fhirVersion = (req.query.fhirVersion || req.body?.fhirVersion) as FhirOutputVersion | undefined;
+    fhirVersion = fhirVersion || 'r5';
     // if (!input) {
     //   return res.status(400).json({ error: 'Input is required' });
     // }
 
     // Auto-detect HL7 version (v2 vs v3)
     // The detectInputFormat will identify hl7v2 or hl7v3
-    const result = await convertLegacyData(input, 'hl7v3');
+    const result = await convertLegacyData(input, 'hl7v3', fhirVersion);
     res.json(result);
   } catch (e: any) {
     console.error('HL7 Conversion error:', e);
     res.status(400).json({ error: e.message });
   }
 });
-
-/**
- * POST /convert/hl7v2
- * Legacy endpoint for HL7v2 conversion (backward compatibility)
- * @deprecated Use /convert/hl7 instead
- */
-app.post('/convert/hl7v2', async (req, res) => {
-  try {
-    const input = typeof req.body === 'string' ? req.body : req.body.input;
-    if (!input) {
-      return res.status(400).json({ error: 'Input is required' });
-    }
-    const result = await convertLegacyData(input, 'hl7v2');
-    res.json(result);
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
-app.listen(3000, () => console.log('FHIR Converter running on :3000'));

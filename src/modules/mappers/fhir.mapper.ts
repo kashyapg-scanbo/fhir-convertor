@@ -11,7 +11,9 @@ import { mapMedicationRequests } from './medicationRequest.mapper.js';
 import { mapMedications } from './medication.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
 
-export function mapCanonicalToFHIR(canonical: CanonicalModel) {
+export type FhirVersion = 'r5' | 'r6';
+
+export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   const operation = canonical.operation;
   const bundleType = operation ? 'transaction' : 'collection';
   const bundle: any = {
@@ -129,4 +131,11 @@ export function mapCanonicalToFHIR(canonical: CanonicalModel) {
     });
 
   return bundle;
+}
+
+export function mapCanonicalToFHIR(canonical: CanonicalModel, version: FhirVersion = 'r5') {
+  if (version === 'r5') {
+    return mapCanonicalToFHIRR5(canonical);
+  }
+  throw new Error(`FHIR version not supported yet: ${version}`);
 }

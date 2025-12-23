@@ -2,7 +2,7 @@ import { parseHL7 } from '../parsers/hl7.parser.js';
 import { buildCanonical } from '../builders/canonical.builder.js';
 import { parseCDA } from '../parsers/cda.parser.js';
 import { parseCustomJSON } from '../parsers/json.parser.js';
-import { mapCanonicalToFHIR } from '../mappers/fhir.mapper.js';
+import { mapCanonicalToFHIR, FhirVersion } from '../mappers/fhir.mapper.js';
 import { CanonicalModel } from '../../shared/types/canonical.types.js';
 import { parseR4 } from '../parsers/r4.parser.js';
 import { parseHL7v3 } from '../parsers/hl7v3.parser.js';
@@ -10,6 +10,7 @@ import { parseBinary } from '../parsers/binary.parser.js';
 import { isLegacyTypeSupported } from '../../shared/types/documentTypes.mapping.js';
 
 export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | string;
+export type FhirOutputVersion = FhirVersion;
 
 /**
  * Detect input format based on content
@@ -49,7 +50,11 @@ export function detectInputFormat(input: string): InputFormat {
 /**
  * Convert legacy data (HL7v2, CDA, or JSON) to FHIR Bundle
  */
-export async function convertLegacyData(input: string, format?: InputFormat): Promise<any> {
+export async function convertLegacyData(
+  input: string,
+  format?: InputFormat,
+  fhirVersion: FhirOutputVersion = 'r5'
+): Promise<any> {
   const detectedFormat = format || detectInputFormat(input);
 
   console.log(detectedFormat, 'detectedFormat')
@@ -88,5 +93,5 @@ export async function convertLegacyData(input: string, format?: InputFormat): Pr
       }
   }
 
-  return mapCanonicalToFHIR(canonical);
+  return mapCanonicalToFHIR(canonical, fhirVersion);
 }
