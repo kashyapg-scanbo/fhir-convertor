@@ -26,13 +26,13 @@ app.post('/convert', async (req, res) => {
     if (req.body && typeof req.body === 'object' && 'input' in req.body) {
       input = req.body.input;
       format = req.body.format as InputFormat;
-    } 
+    }
     // Check if request is raw text/XML body
     else if (typeof req.body === 'string') {
       input = req.body;
       // Try to get format from query param or Content-Type header
       format = req.query.format as InputFormat;
-      
+
       if (!format) {
         const contentType = req.get('Content-Type') || '';
         if (contentType.includes('xml')) {
@@ -42,8 +42,8 @@ app.post('/convert', async (req, res) => {
         }
       }
     } else {
-      return res.status(400).json({ 
-        error: 'Invalid request body. Expected { input: string, format?: string } or raw text/XML body' 
+      return res.status(400).json({
+        error: 'Invalid request body. Expected { input: string, format?: string } or raw text/XML body'
       });
     }
 

@@ -1,0 +1,334 @@
+
+import {
+    CanonicalModel,
+    CanonicalPatient,
+    CanonicalEncounter,
+    CanonicalObservation,
+    CanonicalPractitioner,
+    CanonicalPractitionerRole,
+    CanonicalOrganization,
+    CanonicalMedication,
+    CanonicalMedicationRequest,
+    CanonicalDocumentReference
+} from '../../shared/types/canonical.types.js';
+
+/**
+ * Parse FHIR R4 JSON input into Canonical Model
+ * This allows R4 data to be normalized and re-mapped to R5 consistent with other formats
+ */
+export function parseR4(input: string): CanonicalModel {
+    let data: any;
+    try {
+        data = JSON.parse(input);
+    } catch (e) {
+        throw new Error('Invalid JSON input for R4 parser');
+    }
+
+    const model: CanonicalModel = {
+        messageType: 'R4-IMPORT',
+        patient: { name: {} }, // Default empty patient
+        observations: [],
+        medications: [],
+        medicationRequests: [],
+        practitioners: [],
+        practitionerRoles: [],
+        organizations: [],
+        documentReferences: [],
+        allergies: [],
+        diagnoses: []
+    };
+
+    // Handle Bundle or Single Resource
+    const resources = data.resourceType === 'Bundle' && data.entry
+        ? data.entry.map((e: any) => e.resource).filter(Boolean)
+        : [data];
+
+    for (const res of resources) {
+        if (!res || !res.resourceType) continue;
+
+        switch (res.resourceType) {
+            case 'Patient':
+                model.patient = mapR4Patient(res);
+                break;
+            case 'Encounter':
+                model.encounter = mapR4Encounter(res);
+                break;
+            case 'Observation':
+                const obs = mapR4Observation(res);
+                if (obs) model.observations?.push(obs);
+                break;
+            case 'Practitioner':
+                const pract = mapR4Practitioner(res);
+                if (pract) model.practitioners?.push(pract);
+                break;
+            case 'PractitionerRole':
+                const role = mapR4PractitionerRole(res);
+                if (role) model.practitionerRoles?.push(role);
+                break;
+            case 'Organization':
+                const org = mapR4Organization(res);
+                if (org) model.organizations?.push(org);
+                break;
+            case 'Medication':
+                const med = mapR4Medication(res);
+                if (med) model.medications?.push(med);
+                break;
+            case 'MedicationRequest':
+                const medReq = mapR4MedicationRequest(res);
+                if (medReq) model.medicationRequests?.push(medReq);
+                break;
+            case 'DocumentReference':
+                const docRef = mapR4DocumentReference(res);
+                if (docRef) model.documentReferences?.push(docRef);
+                break;
+        }
+    }
+
+    return model;
+}
+
+function mapR4Patient(pt: any): CanonicalPatient {
+    const name = pt.name?.[0] || {};
+    return {
+        id: pt.id,
+        identifier: pt.identifier?.[0]?.value,
+        name: {
+            family: name.family,
+            given: name.given
+        },
+        gender: pt.gender,
+        birthDate: pt.birthDate,
+        address: pt.address?.map((a: any) => ({
+            line: a.line,
+            city: a.city,
+            state: a.state,
+            postalCode: a.postalCode,
+            country: a.country,
+            use: a.use
+        })),
+        telecom: pt.telecom?.map((t: any) => ({
+            system: t.system,
+            value: t.value,
+            use: t.use
+        })),
+        active: pt.active
+    };
+}
+
+function mapR4Encounter(enc: any): CanonicalEncounter {
+    return {
+        id: enc.id,
+        class: enc.class?.code,
+        status: enc.status,
+        start: enc.period?.start,
+        location: enc.location?.[0]?.location?.display
+    };
+}
+
+function mapR4Observation(obs: any): CanonicalObservation {
+    return {
+        valueType: obs.valueQuantity ? 'NM' : 'ST',
+        code: {
+            system: obs.code?.coding?.[0]?.system,
+            code: obs.code?.coding?.[0]?.code,
+            display: obs.code?.coding?.[0]?.display
+        },
+        value: obs.valueQuantity?.value ?? obs.valueString,
+        unit: obs.valueQuantity?.unit,
+        status: obs.status,
+        date: obs.effectiveDateTime,
+        referenceRange: obs.referenceRange?.[0]?.text,
+        abnormalFlags: obs.interpretation?.map((i: any) => i.coding?.[0]?.code).filter(Boolean)
+    };
+}
+
+function mapR4Practitioner(pract: any): CanonicalPractitioner {
+    const name = pract.name?.[0] || {};
+    return {
+        id: pract.id,
+        identifier: pract.identifier?.[0]?.value,
+        name: {
+            family: name.family,
+            given: name.given,
+            prefix: name.prefix,
+            suffix: name.suffix
+        },
+        telecom: pract.telecom?.map((t: any) => ({
+            system: t.system,
+            value: t.value,
+            use: t.use
+        })),
+        address: pract.address?.map((a: any) => ({
+            line: a.line,
+            city: a.city,
+            state: a.state,
+            postalCode: a.postalCode,
+            country: a.country,
+            use: a.use
+        })),
+        gender: pract.gender,
+        birthDate: pract.birthDate,
+        qualification: pract.qualification?.map((q: any) => ({
+            code: {
+                system: q.code?.coding?.[0]?.system,
+                code: q.code?.coding?.[0]?.code,
+                display: q.code?.coding?.[0]?.display
+            }
+        })),
+        active: pract.active
+    };
+}
+
+function mapR4PractitionerRole(role: any): CanonicalPractitionerRole {
+    return {
+        id: role.id,
+        practitionerId: role.practitioner?.reference?.replace('Practitioner/', ''),
+        organizationId: role.organization?.reference?.replace('Organization/', ''),
+        code: role.code?.map((c: any) => ({
+            system: c.coding?.[0]?.system,
+            code: c.coding?.[0]?.code,
+            display: c.coding?.[0]?.display
+        })),
+        specialty: role.specialty?.map((s: any) => ({
+            system: s.coding?.[0]?.system,
+            code: s.coding?.[0]?.code,
+            display: s.coding?.[0]?.display
+        })),
+        period: role.period ? {
+            start: role.period.start,
+            end: role.period.end
+        } : undefined,
+        active: role.active
+    };
+}
+
+function mapR4Organization(org: any): CanonicalOrganization {
+    return {
+        id: org.id,
+        identifier: org.identifier?.[0]?.value,
+        name: org.name,
+        alias: org.alias,
+        type: org.type?.map((t: any) => ({
+            system: t.coding?.[0]?.system,
+            code: t.coding?.[0]?.code,
+            display: t.coding?.[0]?.display
+        })),
+        telecom: org.telecom?.map((t: any) => ({
+            system: t.system,
+            value: t.value,
+            use: t.use
+        })),
+        address: org.address?.map((a: any) => ({
+            line: a.line,
+            city: a.city,
+            state: a.state,
+            postalCode: a.postalCode,
+            country: a.country,
+            use: a.use
+        })),
+        partOf: org.partOf?.reference?.replace('Organization/', ''),
+        active: org.active
+    };
+}
+
+function mapR4Medication(med: any): CanonicalMedication {
+    return {
+        id: med.id,
+        identifier: med.identifier?.[0]?.value,
+        code: med.code ? {
+            coding: med.code.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            })),
+            text: med.code.text
+        } : undefined,
+        form: med.form ? {
+            coding: med.form.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            }))
+        } : undefined,
+        manufacturer: med.manufacturer?.reference?.replace('Organization/', ''),
+        amount: med.amount ? {
+            value: med.amount.numerator?.value,
+            unit: med.amount.numerator?.unit
+        } : undefined,
+        status: med.status,
+        active: med.status === 'active'
+    };
+}
+
+function mapR4MedicationRequest(medReq: any): CanonicalMedicationRequest {
+    return {
+        id: medReq.id,
+        identifier: medReq.identifier?.[0]?.value,
+        status: medReq.status,
+        intent: medReq.intent,
+        medicationCodeableConcept: medReq.medicationCodeableConcept ? {
+            coding: medReq.medicationCodeableConcept.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            })),
+            text: medReq.medicationCodeableConcept.text
+        } : undefined,
+        medicationReference: medReq.medicationReference?.reference?.replace('Medication/', ''),
+        subject: medReq.subject?.reference?.replace('Patient/', ''),
+        encounter: medReq.encounter?.reference?.replace('Encounter/', ''),
+        authoredOn: medReq.authoredOn,
+        requester: medReq.requester?.reference?.replace('Practitioner/', ''),
+        performer: medReq.performer?.reference?.replace('Practitioner/', ''),
+        dosageInstruction: medReq.dosageInstruction?.map((d: any) => ({
+            text: d.text,
+            timing: d.timing,
+            doseQuantity: d.doseAndRate?.[0]?.doseQuantity ? {
+                value: d.doseAndRate[0].doseQuantity.value,
+                unit: d.doseAndRate[0].doseQuantity.unit
+            } : undefined
+        })),
+        active: medReq.status === 'active'
+    };
+}
+
+function mapR4DocumentReference(docRef: any): CanonicalDocumentReference {
+    return {
+        id: docRef.id,
+        identifier: docRef.identifier?.[0]?.value,
+        status: docRef.status,
+        type: docRef.type ? {
+            coding: docRef.type.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            }))
+        } : undefined,
+        category: docRef.category?.map((cat: any) => ({
+            coding: cat.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            }))
+        })),
+        subject: docRef.subject?.reference?.replace('Patient/', ''),
+        date: docRef.date,
+        author: docRef.author?.map((a: any) => a.reference?.replace(/^(Practitioner|Organization)\//, '')),
+        custodian: docRef.custodian?.reference?.replace('Organization/', ''),
+        content: docRef.content?.map((c: any) => ({
+            attachment: {
+                contentType: c.attachment?.contentType,
+                url: c.attachment?.url,
+                title: c.attachment?.title,
+                data: c.attachment?.data,
+                format: c.format?.code
+            }
+        })),
+        description: docRef.description,
+        context: docRef.context ? {
+            encounter: docRef.context.encounter?.map((e: any) => e.reference?.replace('Encounter/', '')),
+            period: docRef.context.period
+        } : undefined,
+        active: docRef.status === 'current'
+    };
+}

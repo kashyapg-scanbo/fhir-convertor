@@ -4,8 +4,12 @@ import { parseCDA } from '../parsers/cda.parser.js';
 import { parseCustomJSON } from '../parsers/json.parser.js';
 import { mapCanonicalToFHIR } from '../mappers/fhir.mapper.js';
 import { CanonicalModel } from '../../shared/types/canonical.types.js';
+import { parseR4 } from '../parsers/r4.parser.js';
+import { parseHL7v3 } from '../parsers/hl7v3.parser.js';
+import { parseBinary } from '../parsers/binary.parser.js';
+import { isLegacyTypeSupported } from '../../shared/types/documentTypes.mapping.js';
 
-export type InputFormat = 'hl7v2' | 'cda' | 'json';
+export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | string;
 
 /**
  * Detect input format based on content
@@ -23,6 +27,16 @@ export function detectInputFormat(input: string): InputFormat {
     return 'json';
   }
 
+  // R4 Detection
+  if (trimmed.includes('"resourceType"')) {
+    return 'fhir-r4';
+  }
+
+  // HL7 v3 (non-CDA) - usually has PRPA or other interaction IDs, and no ClinicalDocument
+  if (trimmed.startsWith('<?xml') && !trimmed.includes('<ClinicalDocument') && trimmed.includes('urn:hl7-org:v3')) {
+    return 'hl7v3';
+  }
+
   // HL7 v2 typically starts with MSH|
   if (trimmed.startsWith('MSH|') || trimmed.split('\n').some(line => line.trim().match(/^[A-Z]{2,4}\|/))) {
     return 'hl7v2';
@@ -37,33 +51,36 @@ export function detectInputFormat(input: string): InputFormat {
  */
 export async function convertLegacyData(input: string, format?: InputFormat): Promise<any> {
   const detectedFormat = format || detectInputFormat(input);
+
+  console.log(detectedFormat, 'detectedFormat')
   let canonical: CanonicalModel;
 
   switch (detectedFormat) {
     case 'hl7v2':
+      console.log("comehere")
       // // Create 
       //       input =`MSH|^~\\&|ADT1|MCM|LABADT|MCM|198808181126|SECURITY|ADT^A01|MSG00001|P|2.2
       // PID|1||PATID1234^5^M11||JONES^WILLIAM^A^III||19610615|M-||2106-3|1200 N ELM STREET^^GREENSBORO^NC^27401-1020|GL|(919)379-1212|(919)271-3434||S||PATID12345001^2^M10|123456789|987654^NC|
       // PV1|1|I|2000^2012^01||||004777^LEBAUER^SIDNEY^J.|||SUR||-||1|A0-`
 
-      input=`MSH|^~\&|LABSYS|HOSPITAL|FHIR|SERVER|202512191230||ORU^R01|MSG00001|P|2.5
+      input = `MSH|^~\&|LABSYS|HOSPITAL|FHIR|SERVER|202512191230||ORU^R01|MSG00001|P|2.5
 PID|1||PAT1001^^^HOSPITAL||DOE^JOHN||19800101|M
 PV1|1|O|OPD^01
 OBR|1||ORD1001|RPT^Patient PDF Report
 OBX|1|ED|PDFRPT^Patient Report||^PDF^Base64^JVBERi0xLjQKJcfs`
 
-//       input =`MSH|^~\&|MONITOR|HOSPITAL|FHIR|CONVERTER|202512180845||ORU^R01|MSG00002|P|2.5
-// PID|1||MRN123456^^^HOSPITAL||Sharma^Amit||19900510|M
-// OBR|1|||8867-4^Heart rate^LN|||202512180845
-// OBX|1|NM|8867-4^Heart rate^LN||78|/min|60-100|N|||F`
+      //       input =`MSH|^~\&|MONITOR|HOSPITAL|FHIR|CONVERTER|202512180845||ORU^R01|MSG00002|P|2.5
+      // PID|1||MRN123456^^^HOSPITAL||Sharma^Amit||19900510|M
+      // OBR|1|||8867-4^Heart rate^LN|||202512180845
+      // OBX|1|NM|8867-4^Heart rate^LN||78|/min|60-100|N|||F`
 
-// input =`MSH|^~\&|EHR|HOSPITAL|PHARMACY|HOSPITAL|202512181230||RDE^O11|MSG00011|P|2.5
-// PID|1||PAT67890^^^HOSPITAL^MR||PATEL^RAJ||19790210|M
-// PV1|1|O|OPD^202^02||||5678^KUMAR^ANIL
-// ORC|NW|ORD67890|||
-// RXO|860975^Metformin 500 MG Oral Tablet^RXNORM|500|MG|TAB|PO|BID
-// RXR|PO^Oral^HL70162
-// RXE|1|860975^Metformin 500 MG Oral Tablet^RXNORM|500|MG|BID|||30|TAB`
+      // input =`MSH|^~\&|EHR|HOSPITAL|PHARMACY|HOSPITAL|202512181230||RDE^O11|MSG00011|P|2.5
+      // PID|1||PAT67890^^^HOSPITAL^MR||PATEL^RAJ||19790210|M
+      // PV1|1|O|OPD^202^02||||5678^KUMAR^ANIL
+      // ORC|NW|ORD67890|||
+      // RXO|860975^Metformin 500 MG Oral Tablet^RXNORM|500|MG|TAB|PO|BID
+      // RXR|PO^Oral^HL70162
+      // RXE|1|860975^Metformin 500 MG Oral Tablet^RXNORM|500|MG|BID|||30|TAB`
       // // Update 
       //   input =`MSH|^~\&|ADT1|MCM|LABADT|MCM|202512170930||ADT^A08|MSG00002|P|2.2
       // PID|1||PATID1234^5^M11||SMITH^JOHN^B||19610615|M||2106-3|221B BAKER STREET^^LONDON^LDN^NW1 6XE|GL|(919)379-1212|(919)271-3434||S||PATID12345001^2^M10|123456789|987654^NC`
@@ -108,8 +125,127 @@ OBX|1|ED|PDFRPT^Patient Report||^PDF^Base64^JVBERi0xLjQKJcfs`
       canonical = parseCustomJSON(input);
       break;
 
+    case 'fhir-r4':
+      canonical = parseR4(input);
+      break;
+
+    case 'hl7v3':
+      input = `<PRPA_IN101001UV01 xmlns="urn:hl7-org:v3">
+  <!-- Message Header -->
+  <id root="2.16.840.1.113883.1.6" extension="MSG00001"/>
+  <creationTime value="198808181126"/>
+  <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN101001UV01"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+
+  <!-- Receiver -->
+  <receiver>
+    <device>
+      <id root="LABADT"/>
+    </device>
+  </receiver>
+
+  <!-- Sender -->
+  <sender>
+    <device>
+      <id root="ADT1"/>
+    </device>
+  </sender>
+
+  <!-- Control Act -->
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject typeCode="SUBJ">
+      <registrationEvent classCode="REG" moodCode="EVN">
+        <statusCode code="active"/>
+
+        <!-- Patient -->
+        <subject1 typeCode="SBJ">
+          <patient classCode="PAT">
+            <id root="2.16.840.1.113883.19.5" extension="PATID1234"/>
+
+            <patientPerson classCode="PSN" determinerCode="INSTANCE">
+              <name>
+                <family>JONES</family>
+                <given>WILLIAM</given>
+                <given>A</given>
+                <suffix>III</suffix>
+              </name>
+
+              <administrativeGenderCode code="M"/>
+              <birthTime value="19610615"/>
+
+              <addr use="H">
+                <streetAddressLine>1200 N ELM STREET</streetAddressLine>
+                <city>GREENSBORO</city>
+                <state>NC</state>
+                <postalCode>27401-1020</postalCode>
+                <country>US</country>
+              </addr>
+
+              <telecom value="tel:+1-919-379-1212" use="HP"/>
+              <telecom value="tel:+1-919-271-3434" use="WP"/>
+
+              <maritalStatusCode code="S"/>
+
+              <ethnicGroupCode code="2106-3"
+                codeSystem="2.16.840.1.113883.6.238"
+                displayName="White"/>
+            </patientPerson>
+          </patient>
+        </subject1>
+      </registrationEvent>
+    </subject>
+
+    <!-- Encounter / Admission -->
+    <subject typeCode="SUBJ">
+      <encounterEvent classCode="ENC" moodCode="EVN">
+        <id root="2.16.840.1.113883.19.6" extension="PV1-1"/>
+        <statusCode code="active"/>
+
+        <code code="IMP" displayName="Inpatient"/>
+
+        <location>
+          <healthCareFacility>
+            <id root="2.16.840.1.113883.19.7"/>
+            <location>
+              <pointOfCare>2000</pointOfCare>
+              <room>2012</room>
+              <bed>01</bed>
+            </location>
+          </healthCareFacility>
+        </location>
+
+        <responsibleParty>
+          <assignedEntity>
+            <id extension="004777"/>
+            <assignedPerson>
+              <name>
+                <family>LEBAUER</family>
+                <given>SIDNEY</given>
+                <given>J</given>
+              </name>
+            </assignedPerson>
+          </assignedEntity>
+        </responsibleParty>
+
+        <admissionTypeCode code="SUR" displayName="Surgical"/>
+      </encounterEvent>
+    </subject>
+
+  </controlActProcess>
+</PRPA_IN101001UV01>
+`
+      canonical = parseHL7v3(input);
+      break;
+
     default:
-      throw new Error(`Unsupported input format: ${detectedFormat}`);
+      // Check if it's a supported binary/legacy type
+      if (isLegacyTypeSupported(detectedFormat)) {
+        canonical = parseBinary(input, detectedFormat);
+      } else {
+        throw new Error(`Unsupported input format: ${detectedFormat}`);
+      }
   }
 
   return mapCanonicalToFHIR(canonical);
@@ -120,5 +256,5 @@ OBX|1|ED|PDFRPT^Patient Report||^PDF^Base64^JVBERi0xLjQKJcfs`
  * @deprecated Use convertLegacyData instead
  */
 export async function convertHL7(input: string) {
-  return convertLegacyData(input, 'hl7v2');
+  return convertLegacyData(input, 'hl7v3');
 }
