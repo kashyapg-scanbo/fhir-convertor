@@ -6,7 +6,9 @@ import {
     CanonicalEncounter,
     CanonicalPractitioner,
     CanonicalOrganization,
-    CanonicalObservation
+    CanonicalObservation,
+    CanonicalMedication,
+    CanonicalMedicationRequest
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -18,7 +20,6 @@ const parser = new XMLParser({
 /**
  * Parse generic HL7 v3 XML messages (PRPA, etc.) into Canonical Model
  * Note: This is a best-effort parser for generic V3 messages
- * For CDA documents, use the dedicated CDA parser
  */
 export function parseHL7v3(input: string): CanonicalModel {
     let xml: any;
@@ -37,8 +38,8 @@ export function parseHL7v3(input: string): CanonicalModel {
     }
 
     const model: CanonicalModel = {
-        messageType: rootKey, // e.g., PRPA_IN201305UV02
-        patient: { name: {} },
+        messageType: rootKey,
+        patient: { name: {} }, // Default
         observations: [],
         medications: [],
         medicationRequests: [],
@@ -50,19 +51,14 @@ export function parseHL7v3(input: string): CanonicalModel {
         diagnoses: []
     };
 
-    // Generic traversal to find Subject/Patient Role
-    // HL7 v3 messages typically follow ControlAct -> Subject -> RegistrationEvent -> Subject1 -> Patient
-
     const controlAct = root.controlActProcess || root.ControlActProcess;
     if (controlAct) {
         const subject = controlAct.subject || controlAct.Subject;
-        // Handle array of subjects or single
         const subjects = Array.isArray(subject) ? subject : [subject];
 
         for (const sub of subjects) {
             if (!sub) continue;
 
-            // Try to find Patient in common locations
             const registrationEvent = sub.registrationEvent || sub.RegistrationEvent;
             if (registrationEvent) {
                 const ptSubject = registrationEvent.subject1 || registrationEvent.Subject1;
@@ -71,7 +67,6 @@ export function parseHL7v3(input: string): CanonicalModel {
                     model.patient = mapV3Patient(patient);
                 }
 
-                // Extract custodian organization if present
                 const custodian = registrationEvent.custodian || registrationEvent.Custodian;
                 if (custodian) {
                     const org = mapV3Organization(custodian);
@@ -79,16 +74,33 @@ export function parseHL7v3(input: string): CanonicalModel {
                 }
             }
 
-            // Try observation event
+            const encounterEvent = sub.encounterEvent || sub.EncounterEvent;
+            if (encounterEvent) {
+                const encounter = mapV3Encounter(encounterEvent);
+                if (encounter) model.encounter = encounter;
+
+                const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
+                if (responsibleParty) {
+                    const pract = mapV3PractitionerFromResponsible(responsibleParty);
+                    if (pract) model.practitioners?.push(pract);
+                }
+            }
+
             const observationEvent = sub.observationEvent || sub.ObservationEvent;
             if (observationEvent) {
                 const obs = mapV3Observation(observationEvent);
                 if (obs) model.observations?.push(obs);
             }
+
+            const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
+            if (substanceAdministration) {
+                const { medication, medicationRequest } = mapV3Medication(substanceAdministration);
+                if (medication) model.medications?.push(medication);
+                if (medicationRequest) model.medicationRequests?.push(medicationRequest);
+            }
         }
     }
 
-    // Extract author/provider information
     const author = root.author || root.Author;
     if (author) {
         const authors = Array.isArray(author) ? author : [author];
@@ -113,7 +125,6 @@ function mapV3Patient(pt: any): CanonicalPatient {
     const addr = pt.addr || pt.Addr;
     const telecom = pt.telecom || pt.Telecom;
 
-    // Name handling (HL7 v3 name parts have 'use' and 'part' with types)
     let family = '';
     let given: string[] = [];
 
@@ -134,6 +145,7 @@ function mapV3Patient(pt: any): CanonicalPatient {
 
     const ids = pt.id || pt.Id;
     const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+    const genderCode = person?.administrativeGenderCode?.['@_code'];
 
     return {
         identifier: identifier,
@@ -141,11 +153,45 @@ function mapV3Patient(pt: any): CanonicalPatient {
             family: family,
             given: given
         },
-        gender: person?.administrativeGenderCode?.['@_code'],
+        gender: mapGenderCode(genderCode),
         birthDate: formatV3Date(person?.birthTime?.['@_value']),
         address: addr ? [mapV3Address(addr)] : undefined,
         telecom: telecom ? mapV3Telecom(telecom) : undefined,
         active: pt.statusCode?.['@_code'] === 'active'
+    };
+}
+
+function mapV3Encounter(encounterEvent: any): CanonicalEncounter | undefined {
+    const ids = encounterEvent.id || encounterEvent.Id;
+    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+
+    const code = encounterEvent.code || encounterEvent.Code;
+    const encounterClass = code?.['@_code'];
+
+    const effectiveTime = encounterEvent.effectiveTime || encounterEvent.EffectiveTime;
+    const startTime = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+
+    const location = encounterEvent.location || encounterEvent.Location;
+    const facility = location?.healthCareFacility || location?.HealthCareFacility;
+    const locationDetail = facility?.location || facility?.Location;
+
+    let locationStr = '';
+    if (locationDetail) {
+        const parts = [];
+        if (locationDetail.pointOfCare) parts.push(extractText(locationDetail.pointOfCare));
+        if (locationDetail.room) parts.push('Room ' + extractText(locationDetail.room));
+        if (locationDetail.bed) parts.push('Bed ' + extractText(locationDetail.bed));
+        locationStr = parts.join(', ');
+    }
+
+    const status = mapEncounterStatus(encounterEvent.statusCode?.['@_code']);
+
+    return {
+        id: identifier,
+        class: mapEncounterClass(encounterClass),
+        status: status,
+        start: formatV3DateTime(startTime),
+        location: locationStr || undefined
     };
 }
 
@@ -155,6 +201,38 @@ function mapV3Practitioner(assignedAuthor: any): CanonicalPractitioner | undefin
 
     const name = person.name || person.Name;
     const ids = assignedAuthor.id || assignedAuthor.Id;
+    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+
+    let family = '';
+    let given: string[] = [];
+
+    if (name) {
+        family = extractText(name.family || name.Family);
+        const givenParts = name.given || name.Given;
+        given = Array.isArray(givenParts)
+            ? givenParts.map(extractText).filter(Boolean)
+            : givenParts ? [extractText(givenParts)] : [];
+    }
+
+    return {
+        id: identifier,
+        identifier: identifier,
+        name: {
+            family: family,
+            given: given
+        }
+    };
+}
+
+function mapV3PractitionerFromResponsible(responsibleParty: any): CanonicalPractitioner | undefined {
+    const assignedEntity = responsibleParty.assignedEntity || responsibleParty.AssignedEntity;
+    if (!assignedEntity) return undefined;
+
+    const person = assignedEntity.assignedPerson || assignedEntity.AssignedPerson;
+    if (!person) return undefined;
+
+    const name = person.name || person.Name;
+    const ids = assignedEntity.id || assignedEntity.Id;
     const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
 
     let family = '';
@@ -230,6 +308,40 @@ function mapV3Observation(obsEvent: any): CanonicalObservation | undefined {
     };
 }
 
+function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedication, medicationRequest?: CanonicalMedicationRequest } {
+    const consumable = substanceAdmin.consumable || substanceAdmin.Consumable;
+    const manufacturedProduct = consumable?.manufacturedProduct || consumable?.ManufacturedProduct;
+    const manufacturedMaterial = manufacturedProduct?.manufacturedMaterial || manufacturedProduct?.ManufacturedMaterial;
+    const code = manufacturedMaterial?.code || manufacturedMaterial?.Code;
+
+    const medCode = code?.['@_code'];
+    const medDisplay = code?.['@_displayName'];
+
+    if (!medCode) return {};
+
+    const medication: CanonicalMedication = {
+        id: medCode,
+        identifier: medCode,
+        code: {
+            coding: [{
+                system: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+                code: medCode,
+                display: medDisplay
+            }],
+            text: medDisplay
+        }
+    };
+
+    const medicationRequest: CanonicalMedicationRequest = {
+        id: `MEDREQ-${medCode}`,
+        status: 'active',
+        intent: 'order',
+        medicationReference: medCode
+    };
+
+    return { medication, medicationRequest };
+}
+
 function mapV3Address(addr: any): any {
     const addrObj = Array.isArray(addr) ? addr[0] : addr;
     return {
@@ -250,6 +362,7 @@ function mapV3Telecom(telecom: any): any[] {
     })).filter(t => t.value);
 }
 
+// Helper functions (extractText, formatV3Date, etc.)
 function extractText(value: any): string {
     if (!value) return '';
     if (typeof value === 'string') return value;
@@ -279,11 +392,54 @@ function cleanTelecomValue(value: string): string {
 }
 
 function formatV3Date(value?: string): string | undefined {
-    if (!value) return undefined;
-    // V3 dates are typically YYYYMMDD or YYYYMMDDHHMMSS
-    const match = value.match(/^(\d{4})(\d{2})(\d{2})/);
-    if (match) {
-        return `${match[1]}-${match[2]}-${match[3]}`;
+    if (value && value.length >= 8) {
+        return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
     }
     return undefined;
+}
+
+function formatV3DateTime(value?: string): string | undefined {
+    if (value && value.length >= 8) {
+        let date = `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+        if (value.length >= 14) {
+            date += `T${value.slice(8, 10)}:${value.slice(10, 12)}:${value.slice(12, 14)}Z`;
+        } else {
+            date += `T00:00:00Z`;
+        }
+        return date;
+    }
+    return undefined;
+}
+
+function mapGenderCode(code?: string): string {
+    if (!code) return 'unknown';
+    const c = code.toUpperCase();
+    if (c === 'M' || c === 'MALE') return 'male';
+    if (c === 'F' || c === 'FEMALE') return 'female';
+    return 'unknown';
+}
+
+function mapEncounterStatus(status?: string): string {
+    if (!status) return 'unknown';
+    const s = status.toLowerCase();
+
+    // FHIR R5 Status validation
+    if (s === 'active') return 'in-progress';
+    if (s === 'completed' || s === 'finished') return 'completed';
+    if (s === 'aborted' || s === 'cancelled') return 'cancelled';
+    if (s === 'planned' || s === 'new') return 'planned';
+
+    return 'unknown';
+}
+
+function mapEncounterClass(code?: string): string {
+    if (!code) return 'AMB';
+    const codeUpper = code.toUpperCase();
+
+    if (codeUpper === 'IMP' || codeUpper === 'INPATIENT') return 'IMP';
+    if (codeUpper === 'AMB' || codeUpper === 'AMBULATORY') return 'AMB';
+    if (codeUpper === 'EMER' || codeUpper === 'EMERGENCY') return 'EMER';
+    if (codeUpper === 'VR' || codeUpper === 'VIRTUAL') return 'VR';
+
+    return 'AMB';
 }

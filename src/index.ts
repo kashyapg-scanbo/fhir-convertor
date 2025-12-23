@@ -61,15 +61,38 @@ app.post('/convert', async (req, res) => {
 });
 
 /**
- * POST /convert/hl7v2
- * Legacy endpoint for HL7v2 conversion (backward compatibility)
+ * POST /convert/hl7
+ * Unified endpoint for all HL7 versions (v2, v3)
+ * Automatically detects the version based on input format
  */
-app.post('/convert/hl7v2', async (req, res) => {
+app.post('/convert/hl7', async (req, res) => {
   try {
     const input = typeof req.body === 'string' ? req.body : req.body.input;
     // if (!input) {
     //   return res.status(400).json({ error: 'Input is required' });
     // }
+
+    // Auto-detect HL7 version (v2 vs v3)
+    // The detectInputFormat will identify hl7v2 or hl7v3
+    const result = await convertLegacyData(input, 'hl7v3');
+    res.json(result);
+  } catch (e: any) {
+    console.error('HL7 Conversion error:', e);
+    res.status(400).json({ error: e.message });
+  }
+});
+
+/**
+ * POST /convert/hl7v2
+ * Legacy endpoint for HL7v2 conversion (backward compatibility)
+ * @deprecated Use /convert/hl7 instead
+ */
+app.post('/convert/hl7v2', async (req, res) => {
+  try {
+    const input = typeof req.body === 'string' ? req.body : req.body.input;
+    if (!input) {
+      return res.status(400).json({ error: 'Input is required' });
+    }
     const result = await convertLegacyData(input, 'hl7v2');
     res.json(result);
   } catch (e: any) {
