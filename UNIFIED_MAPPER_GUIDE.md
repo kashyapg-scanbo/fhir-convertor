@@ -173,3 +173,5 @@ Automatically detects the input format.
 
 The system is already designed as a unified mapper that can handle any type of document data and convert it to FHIR!
 
+
+

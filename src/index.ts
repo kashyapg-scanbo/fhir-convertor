@@ -1,9 +1,12 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
 import { convertLegacyData, InputFormat, FhirOutputVersion } from './modules/pipeline/convert.pipeline.js';
 
 const app = express();
 app.use(express.json());
 app.use(express.text({ type: ['text/xml', 'application/xml', 'text/plain'] }));
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * POST /convert
@@ -60,6 +63,52 @@ app.post('/convert', async (req, res) => {
     res.json(result);
   } catch (e: any) {
     console.error('Conversion error:', e);
+    res.status(400).json({ error: e.message });
+  }
+});
+
+/**
+ * POST /convert/upload
+ *
+ * Accepts multipart/form-data with a file field named "file".
+ * Optional form field: format (csv, xlsx, xls, hl7v2, cda, json, etc.)
+ * Optional form field: fhirVersion (r4, r5)
+ */
+app.post('/convert/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'File is required' });
+    }
+
+    const requestedFormat = req.body?.format as InputFormat | undefined;
+    let fhirVersion = req.body?.fhirVersion as FhirOutputVersion | undefined;
+    fhirVersion = fhirVersion || 'r5';
+    const ext = path.extname(file.originalname || '').toLowerCase();
+
+    let format = requestedFormat;
+    if (!format) {
+      if (ext === '.csv') format = 'csv';
+      else if (ext === '.xlsx') format = 'xlsx';
+      else if (ext === '.xls') format = 'xls';
+      else if (ext === '.xml') format = 'cda';
+      else if (ext === '.hl7' || ext === '.txt') format = 'hl7v2';
+    }
+
+    if (!format) {
+      return res.status(400).json({
+        error: 'Format is required (e.g., csv, xlsx, xls) or use a known extension.'
+      });
+    }
+
+    const input = (format === 'xlsx' || format === 'xls')
+      ? file.buffer.toString('base64')
+      : file.buffer.toString('utf8');
+
+    const result = await convertLegacyData(input, format, fhirVersion);
+    res.json(result);
+  } catch (e: any) {
+    console.error('Upload conversion error:', e);
     res.status(400).json({ error: e.message });
   }
 });
