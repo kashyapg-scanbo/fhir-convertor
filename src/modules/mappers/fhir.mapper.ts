@@ -17,6 +17,11 @@ export function mapCanonicalToFHIR(canonical: CanonicalModel) {
   const bundle: any = {
     resourceType: 'Bundle',
     type: bundleType,
+    meta: {
+      profile: ['http://hl7.org/fhir/StructureDefinition/Bundle'],
+      versionId: '1'
+    },
+    timestamp: new Date().toISOString(),
     entry: []
   };
 

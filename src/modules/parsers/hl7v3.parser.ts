@@ -5,6 +5,7 @@ import {
     CanonicalPatient,
     CanonicalEncounter,
     CanonicalPractitioner,
+    CanonicalPractitionerRole,
     CanonicalOrganization,
     CanonicalObservation,
     CanonicalMedication,
@@ -75,16 +76,19 @@ export function parseHL7v3(input: string): CanonicalModel {
             }
 
             const encounterEvent = sub.encounterEvent || sub.EncounterEvent;
-            if (encounterEvent) {
-                const encounter = mapV3Encounter(encounterEvent);
-                if (encounter) model.encounter = encounter;
+                if (encounterEvent) {
+                    const encounter = mapV3Encounter(encounterEvent);
+                    if (encounter) model.encounter = encounter;
 
-                const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
-                if (responsibleParty) {
-                    const pract = mapV3PractitionerFromResponsible(responsibleParty);
-                    if (pract) model.practitioners?.push(pract);
+                    const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
+                    if (responsibleParty) {
+                        const pract = mapV3PractitionerFromResponsible(responsibleParty);
+                        if (pract) model.practitioners?.push(pract);
+
+                        const role = mapV3PractitionerRoleFromResponsible(responsibleParty);
+                        if (role) model.practitionerRoles?.push(role);
+                    }
                 }
-            }
 
             const observationEvent = sub.observationEvent || sub.ObservationEvent;
             if (observationEvent) {
@@ -112,6 +116,9 @@ export function parseHL7v3(input: string): CanonicalModel {
 
                 const org = mapV3OrganizationFromAssigned(assignedAuthor);
                 if (org) model.organizations?.push(org);
+
+                const role = mapV3PractitionerRoleFromAssigned(assignedAuthor);
+                if (role) model.practitionerRoles?.push(role);
             }
         }
     }
@@ -144,18 +151,19 @@ function mapV3Patient(pt: any): CanonicalPatient {
     }
 
     const ids = pt.id || pt.Id;
-    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+    const idInfo = pickV3Id(ids);
     const genderCode = person?.administrativeGenderCode?.['@_code'];
 
     return {
-        identifier: identifier,
+        id: idInfo.id,
+        identifier: idInfo.identifier,
         name: {
             family: family,
             given: given
         },
         gender: mapGenderCode(genderCode),
         birthDate: formatV3Date(person?.birthTime?.['@_value']),
-        address: addr ? [mapV3Address(addr)] : undefined,
+        address: addr ? mapV3Addresses(addr) : undefined,
         telecom: telecom ? mapV3Telecom(telecom) : undefined,
         active: pt.statusCode?.['@_code'] === 'active'
     };
@@ -163,7 +171,7 @@ function mapV3Patient(pt: any): CanonicalPatient {
 
 function mapV3Encounter(encounterEvent: any): CanonicalEncounter | undefined {
     const ids = encounterEvent.id || encounterEvent.Id;
-    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+    const idInfo = pickV3Id(ids);
 
     const code = encounterEvent.code || encounterEvent.Code;
     const encounterClass = code?.['@_code'];
@@ -187,7 +195,7 @@ function mapV3Encounter(encounterEvent: any): CanonicalEncounter | undefined {
     const status = mapEncounterStatus(encounterEvent.statusCode?.['@_code']);
 
     return {
-        id: identifier,
+        id: idInfo.id,
         class: mapEncounterClass(encounterClass),
         status: status,
         start: formatV3DateTime(startTime),
@@ -201,10 +209,14 @@ function mapV3Practitioner(assignedAuthor: any): CanonicalPractitioner | undefin
 
     const name = person.name || person.Name;
     const ids = assignedAuthor.id || assignedAuthor.Id;
-    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+    const idInfo = pickV3Id(ids);
+    const telecom = assignedAuthor.telecom || assignedAuthor.Telecom;
+    const addr = assignedAuthor.addr || assignedAuthor.Addr;
 
     let family = '';
     let given: string[] = [];
+    let prefix: string[] = [];
+    let suffix: string[] = [];
 
     if (name) {
         family = extractText(name.family || name.Family);
@@ -212,15 +224,27 @@ function mapV3Practitioner(assignedAuthor: any): CanonicalPractitioner | undefin
         given = Array.isArray(givenParts)
             ? givenParts.map(extractText).filter(Boolean)
             : givenParts ? [extractText(givenParts)] : [];
+        const prefixParts = name.prefix || name.Prefix;
+        prefix = Array.isArray(prefixParts)
+            ? prefixParts.map(extractText).filter(Boolean)
+            : prefixParts ? [extractText(prefixParts)] : [];
+        const suffixParts = name.suffix || name.Suffix;
+        suffix = Array.isArray(suffixParts)
+            ? suffixParts.map(extractText).filter(Boolean)
+            : suffixParts ? [extractText(suffixParts)] : [];
     }
 
     return {
-        id: identifier,
-        identifier: identifier,
+        id: idInfo.id,
+        identifier: idInfo.identifier,
         name: {
             family: family,
-            given: given
-        }
+            given: given,
+            prefix: prefix,
+            suffix: suffix
+        },
+        telecom: telecom ? mapV3Telecom(telecom) : undefined,
+        address: addr ? mapV3Addresses(addr) : undefined
     };
 }
 
@@ -233,10 +257,14 @@ function mapV3PractitionerFromResponsible(responsibleParty: any): CanonicalPract
 
     const name = person.name || person.Name;
     const ids = assignedEntity.id || assignedEntity.Id;
-    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
+    const idInfo = pickV3Id(ids);
+    const telecom = assignedEntity.telecom || assignedEntity.Telecom;
+    const addr = assignedEntity.addr || assignedEntity.Addr;
 
     let family = '';
     let given: string[] = [];
+    let prefix: string[] = [];
+    let suffix: string[] = [];
 
     if (name) {
         family = extractText(name.family || name.Family);
@@ -244,15 +272,27 @@ function mapV3PractitionerFromResponsible(responsibleParty: any): CanonicalPract
         given = Array.isArray(givenParts)
             ? givenParts.map(extractText).filter(Boolean)
             : givenParts ? [extractText(givenParts)] : [];
+        const prefixParts = name.prefix || name.Prefix;
+        prefix = Array.isArray(prefixParts)
+            ? prefixParts.map(extractText).filter(Boolean)
+            : prefixParts ? [extractText(prefixParts)] : [];
+        const suffixParts = name.suffix || name.Suffix;
+        suffix = Array.isArray(suffixParts)
+            ? suffixParts.map(extractText).filter(Boolean)
+            : suffixParts ? [extractText(suffixParts)] : [];
     }
 
     return {
-        id: identifier,
-        identifier: identifier,
+        id: idInfo.id,
+        identifier: idInfo.identifier,
         name: {
             family: family,
-            given: given
-        }
+            given: given,
+            prefix: prefix,
+            suffix: suffix
+        },
+        telecom: telecom ? mapV3Telecom(telecom) : undefined,
+        address: addr ? mapV3Addresses(addr) : undefined
     };
 }
 
@@ -262,31 +302,14 @@ function mapV3Organization(custodian: any): CanonicalOrganization | undefined {
         assignedCustodian?.RepresentedCustodianOrganization;
 
     if (!org) return undefined;
-
-    const ids = org.id || org.Id;
-    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
-    const name = extractText(org.name || org.Name);
-
-    return {
-        id: identifier || name,
-        identifier: identifier,
-        name: name
-    };
+    return mapV3OrganizationNode(org);
 }
 
 function mapV3OrganizationFromAssigned(assignedAuthor: any): CanonicalOrganization | undefined {
     const org = assignedAuthor.representedOrganization || assignedAuthor.RepresentedOrganization;
     if (!org) return undefined;
 
-    const ids = org.id || org.Id;
-    const identifier = Array.isArray(ids) ? ids[0]?.['@_extension'] : ids?.['@_extension'];
-    const name = extractText(org.name || org.Name);
-
-    return {
-        id: identifier || name,
-        identifier: identifier,
-        name: name
-    };
+    return mapV3OrganizationNode(org);
 }
 
 function mapV3Observation(obsEvent: any): CanonicalObservation | undefined {
@@ -295,6 +318,10 @@ function mapV3Observation(obsEvent: any): CanonicalObservation | undefined {
 
     const code = obs.code || obs.Code;
     const value = obs.value || obs.Value;
+    const effectiveTime = obs.effectiveTime || obs.EffectiveTime;
+    const performer = obs.performer || obs.Performer;
+    const method = obs.methodCode || obs.MethodCode;
+    const targetSite = obs.targetSiteCode || obs.TargetSiteCode;
 
     return {
         code: {
@@ -302,9 +329,19 @@ function mapV3Observation(obsEvent: any): CanonicalObservation | undefined {
             code: code?.['@_code'],
             display: code?.['@_displayName']
         },
-        value: value?.['@_value'] || extractText(value),
+        value: readV3Value(value),
         unit: value?.['@_unit'],
-        status: 'final'
+        status: 'final',
+        date: formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']),
+        method: method ? {
+            code: method?.['@_code'],
+            description: method?.['@_displayName']
+        } : undefined,
+        site: targetSite ? {
+            code: targetSite?.['@_code'],
+            display: targetSite?.['@_displayName']
+        } : undefined,
+        observer: mapV3Observers(performer)
     };
 }
 
@@ -339,6 +376,27 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
         medicationReference: medCode
     };
 
+    const dose = substanceAdmin.doseQuantity || substanceAdmin.DoseQuantity;
+    const route = substanceAdmin.routeCode || substanceAdmin.RouteCode;
+    const timing = substanceAdmin.effectiveTime || substanceAdmin.EffectiveTime;
+    if (dose || route || timing) {
+        const doseQuantity = dose ? {
+            value: dose?.['@_value'] ? Number(dose['@_value']) : undefined,
+            unit: dose?.['@_unit']
+        } : undefined;
+        medicationRequest.dosageInstruction = [{
+            text: buildV3DoseText(dose, route),
+            timing: timing ? { event: [formatV3DateTime(timing?.['@_value'] || timing?.low?.['@_value'])].filter(Boolean) } : undefined,
+            doseQuantity: doseQuantity,
+            route: route ? {
+                coding: [{
+                    code: route?.['@_code'],
+                    display: route?.['@_displayName']
+                }]
+            } : undefined
+        }];
+    }
+
     return { medication, medicationRequest };
 }
 
@@ -349,7 +407,8 @@ function mapV3Address(addr: any): any {
         city: extractText(addrObj.city || addrObj.City),
         state: extractText(addrObj.state || addrObj.State),
         postalCode: extractText(addrObj.postalCode || addrObj.PostalCode),
-        country: extractText(addrObj.country || addrObj.Country)
+        country: extractText(addrObj.country || addrObj.Country),
+        use: addrObj['@_use']
     };
 }
 
@@ -360,6 +419,78 @@ function mapV3Telecom(telecom: any): any[] {
         value: cleanTelecomValue(t['@_value']),
         use: t['@_use']
     })).filter(t => t.value);
+}
+
+function mapV3Addresses(addr: any): any[] {
+    const addrs = Array.isArray(addr) ? addr : [addr];
+    return addrs.map(mapV3Address).filter(a => a.line?.length || a.city || a.state || a.postalCode || a.country);
+}
+
+function mapV3OrganizationNode(org: any): CanonicalOrganization | undefined {
+    if (!org) return undefined;
+    const ids = org.id || org.Id;
+    const idInfo = pickV3Id(ids);
+    const name = extractText(org.name || org.Name);
+    const telecom = org.telecom || org.Telecom;
+    const addr = org.addr || org.Addr;
+    const code = org.code || org.Code;
+
+    return {
+        id: idInfo.id || name,
+        identifier: idInfo.identifier,
+        name: name,
+        telecom: telecom ? mapV3Telecom(telecom) : undefined,
+        address: addr ? mapV3Addresses(addr) : undefined,
+        type: code ? [{
+            system: code?.['@_codeSystem'],
+            code: code?.['@_code'],
+            display: code?.['@_displayName']
+        }] : undefined
+    };
+}
+
+function mapV3PractitionerRoleFromAssigned(assignedAuthor: any): CanonicalPractitionerRole | undefined {
+    const assignedPerson = assignedAuthor.assignedPerson || assignedAuthor.AssignedPerson;
+    if (!assignedPerson) return undefined;
+    const ids = assignedAuthor.id || assignedAuthor.Id;
+    const idInfo = pickV3Id(ids);
+    const org = assignedAuthor.representedOrganization || assignedAuthor.RepresentedOrganization;
+    const orgIdInfo = org ? pickV3Id(org.id || org.Id) : { id: undefined, identifier: undefined };
+    const code = assignedAuthor.code || assignedAuthor.Code;
+
+    if (!idInfo.id && !idInfo.identifier) return undefined;
+    return {
+        id: idInfo.identifier || idInfo.id,
+        practitionerId: idInfo.identifier || idInfo.id,
+        organizationId: orgIdInfo.identifier || orgIdInfo.id,
+        code: code ? [{
+            system: code?.['@_codeSystem'],
+            code: code?.['@_code'],
+            display: code?.['@_displayName']
+        }] : undefined
+    };
+}
+
+function mapV3PractitionerRoleFromResponsible(responsibleParty: any): CanonicalPractitionerRole | undefined {
+    const assignedEntity = responsibleParty.assignedEntity || responsibleParty.AssignedEntity;
+    if (!assignedEntity) return undefined;
+    const ids = assignedEntity.id || assignedEntity.Id;
+    const idInfo = pickV3Id(ids);
+    const org = assignedEntity.representedOrganization || assignedEntity.RepresentedOrganization;
+    const orgIdInfo = org ? pickV3Id(org.id || org.Id) : { id: undefined, identifier: undefined };
+    const code = assignedEntity.code || assignedEntity.Code;
+
+    if (!idInfo.id && !idInfo.identifier) return undefined;
+    return {
+        id: idInfo.identifier || idInfo.id,
+        practitionerId: idInfo.identifier || idInfo.id,
+        organizationId: orgIdInfo.identifier || orgIdInfo.id,
+        code: code ? [{
+            system: code?.['@_codeSystem'],
+            code: code?.['@_code'],
+            display: code?.['@_displayName']
+        }] : undefined
+    };
 }
 
 // Helper functions (extractText, formatV3Date, etc.)
@@ -374,6 +505,39 @@ function extractTextArray(value: any): string[] {
     if (!value) return [];
     if (Array.isArray(value)) return value.map(extractText).filter(Boolean);
     return [extractText(value)].filter(Boolean);
+}
+
+function readV3Value(value: any): string | number | Array<string | number> | undefined {
+    if (!value) return undefined;
+    if (Array.isArray(value)) {
+        return value.map(readV3Value).filter(v => v !== undefined) as Array<string | number>;
+    }
+    if (value['@_value'] !== undefined) return value['@_value'];
+    if (value['@_code'] !== undefined) return value['@_code'];
+    return extractText(value);
+}
+
+function mapV3Observers(performer: any): Array<{ id?: string; name?: string; qualification?: string; }> | undefined {
+    if (!performer) return undefined;
+    const performers = Array.isArray(performer) ? performer : [performer];
+    const observers = performers.map(p => {
+        const assignedEntity = p.assignedEntity || p.AssignedEntity;
+        const assignedPerson = assignedEntity?.assignedPerson || assignedEntity?.AssignedPerson;
+        const ids = assignedEntity?.id || assignedEntity?.Id;
+        const idInfo = pickV3Id(ids);
+        const nameNode = assignedPerson?.name || assignedPerson?.Name;
+        const family = extractText(nameNode?.family || nameNode?.Family);
+        const givenParts = nameNode?.given || nameNode?.Given;
+        const given = Array.isArray(givenParts)
+            ? givenParts.map(extractText).filter(Boolean).join(' ')
+            : extractText(givenParts);
+        const displayName = [given, family].filter(Boolean).join(' ').trim();
+        return {
+            id: idInfo.identifier || idInfo.id,
+            name: displayName || undefined
+        };
+    }).filter(o => o.id || o.name);
+    return observers.length > 0 ? observers : undefined;
 }
 
 function inferTelecomSystem(value: string): 'phone' | 'email' | 'fax' | 'url' | 'other' {
@@ -417,6 +581,28 @@ function mapGenderCode(code?: string): string {
     if (c === 'M' || c === 'MALE') return 'male';
     if (c === 'F' || c === 'FEMALE') return 'female';
     return 'unknown';
+}
+
+function pickV3Id(ids: any): { id?: string; identifier?: string } {
+    if (!ids) return {};
+    const first = Array.isArray(ids) ? ids[0] : ids;
+    const extension = first?.['@_extension'];
+    const root = first?.['@_root'];
+    const idValue = extension || root;
+    return {
+        id: idValue,
+        identifier: idValue
+    };
+}
+
+function buildV3DoseText(dose: any, route: any): string | undefined {
+    const doseValue = dose?.['@_value'];
+    const doseUnit = dose?.['@_unit'];
+    const routeDisplay = route?.['@_displayName'] || route?.['@_code'];
+    const parts = [];
+    if (doseValue) parts.push(`${doseValue}${doseUnit ? ' ' + doseUnit : ''}`);
+    if (routeDisplay) parts.push(`via ${routeDisplay}`);
+    return parts.length > 0 ? parts.join(' ') : undefined;
 }
 
 function mapEncounterStatus(status?: string): string {
