@@ -87,3 +87,5 @@ app.post('/convert/hl7', async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
+
+app.listen(3000, () => console.log('FHIR Converter running on :3000'));
