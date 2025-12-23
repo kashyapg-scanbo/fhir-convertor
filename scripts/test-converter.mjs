@@ -14,12 +14,34 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
+import * as XLSX from 'xlsx';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const LOCAL_CONVERTER = process.env.LOCAL_URL || 'http://localhost:3000/convert';
 const VALIDATOR_URL = 'https://validator.fhir.org/validate';
+
+function buildXlsxExample() {
+  const rows = [{
+    patient_id: 'P100',
+    patient_first_name: 'Jane',
+    patient_last_name: 'Doe',
+    patient_gender: 'female',
+    patient_birth_date: '1985-02-15',
+    observation_code: '8867-4',
+    observation_code_system: 'http://loinc.org',
+    observation_display: 'Heart rate',
+    observation_value: 72,
+    observation_unit: '/min',
+    observation_date: '2024-01-20T09:30:00Z'
+  }];
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  return XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' });
+}
 
 // Example inputs for testing
 const EXAMPLES = {
@@ -87,7 +109,12 @@ OBX|1|ED|DICOM^DICOM Study||^DICOM^URI^https://example.com/images/ct-chest-scan.
       </patient>
     </patientRole>
   </recordTarget>
-</ClinicalDocumnt>`
+</ClinicalDocumnt>`,
+
+  csv: `patient_id,patient_first_name,patient_last_name,patient_gender,patient_birth_date,observation_code,observation_code_system,observation_display,observation_value,observation_unit,observation_date
+P100,Jane,Doe,female,1985-02-15,8867-4,http://loinc.org,Heart rate,72,/min,2024-01-20T09:30:00Z`,
+
+  xlsx: buildXlsxExample()
 };
 
 async function convertInput(input, format) {
@@ -236,10 +263,10 @@ Usage:
   node scripts/test-converter.mjs --example=<format> [options]
 
 Options:
-  --format=<format>     Force format: hl7v2, cda, or json (auto-detected if not provided)
+  --format=<format>     Force format: hl7v2, cda, json, csv, xlsx (auto-detected if not provided)
   --validate            Validate output with FHIR Validator
   --output=<file>      Save output to file (default: tmp/test-bundle.json)
-  --example=<format>    Use example input (hl7v2, json, or cda)
+  --example=<format>    Use example input (hl7v2, json, cda, csv, xlsx)
 
 Examples:
   # Test with HL7v2 file
@@ -247,6 +274,12 @@ Examples:
 
   # Test with JSON file
   node scripts/test-converter.mjs input.json --format=json --validate
+
+  # Test with CSV file
+  node scripts/test-converter.mjs input.csv --format=csv --validate
+
+  # Test with Excel file
+  node scripts/test-converter.mjs input.xlsx --format=xlsx --validate
 
   # Use example and validate
   node scripts/test-converter.mjs --example=hl7v2 --validate
@@ -299,7 +332,13 @@ async function main() {
     // Read from file
     try {
       const inputPath = path.isAbsolute(input) ? input : path.join(process.cwd(), input);
-      input = fs.readFileSync(inputPath, 'utf-8');
+      const ext = path.extname(inputPath).toLowerCase();
+      if (format === 'xlsx' || format === 'xls' || ext === '.xlsx' || ext === '.xls') {
+        input = fs.readFileSync(inputPath).toString('base64');
+        format = format || 'xlsx';
+      } else {
+        input = fs.readFileSync(inputPath, 'utf-8');
+      }
       console.log(`📄 Read input from: ${inputPath}`);
     } catch (error) {
       console.error(`❌ Failed to read input file: ${error.message}`);
@@ -342,4 +381,3 @@ async function main() {
 }
 
 main();
-

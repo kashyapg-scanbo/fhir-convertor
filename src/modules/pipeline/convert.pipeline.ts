@@ -8,8 +8,11 @@ import { parseR4 } from '../parsers/r4.parser.js';
 import { parseHL7v3 } from '../parsers/hl7v3.parser.js';
 import { parseBinary } from '../parsers/binary.parser.js';
 import { isLegacyTypeSupported } from '../../shared/types/documentTypes.mapping.js';
+import { parseCsv } from '../parsers/csv.parser.js';
+import { parseExcel } from '../parsers/excel.parser.js';
 
-export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | string;
+export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | 'csv' | 'xlsx' | 'xls' | string;
+
 export type FhirOutputVersion = FhirVersion;
 
 /**
@@ -31,6 +34,17 @@ export function detectInputFormat(input: string): InputFormat {
   // JSON typically starts with { or [
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     return 'json';
+  }
+
+  // CSV typically has commas and newlines with no XML/HL7 markers
+  if (
+    trimmed.includes(',') &&
+    trimmed.includes('\n') &&
+    !trimmed.startsWith('<') &&
+    !trimmed.startsWith('MSH|') &&
+    !trimmed.split('\n').some(line => line.trim().match(/^[A-Z]{2,4}\|/))
+  ) {
+    return 'csv';
   }
 
   // HL7 v3 (non-CDA) - usually has PRPA or other interaction IDs, and no ClinicalDocument
@@ -82,6 +96,15 @@ export async function convertLegacyData(
     case 'hl7v3':
 
       canonical = parseHL7v3(input);
+      break;
+
+    case 'csv':
+      canonical = parseCsv(input);
+      break;
+
+    case 'xlsx':
+    case 'xls':
+      canonical = parseExcel(input);
       break;
 
     default:
