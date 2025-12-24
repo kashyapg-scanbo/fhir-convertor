@@ -21,7 +21,8 @@ const loincVitalSigns = new Set([
   '8302-2',
   '3141-9',
   '8331-1',
-  '59408-5'
+  '59408-5',
+  '39156-5'
 ]);
 
 const allowedInterpretationCodes = new Set(['L', 'LL', 'H', 'HH', 'A', 'AA', 'N', 'S', 'R', 'I']);
@@ -69,11 +70,13 @@ function isLoincCode(code?: string) {
 
 function absoluteSystem(system?: string) {
   if (!system) return undefined;
-  return /^https?:\/\//i.test(system) ? system : undefined;
+  return /^(https?:\/\/|urn:)/i.test(system) ? system : undefined;
 }
 
 function normalizeSystem(system?: string) {
   if (!system) return undefined;
+  if (system.startsWith('urn:oid:2.16.840.1.113883.6.1')) return 'http://loinc.org';
+  if (system.startsWith('urn:oid:2.16.840.1.113883.6.96')) return 'http://snomed.info/sct';
   if (/^https?:\/\//i.test(system) || /^urn:/i.test(system)) return system;
   const upper = system.toUpperCase();
   if (upper === 'LN' || system.toLowerCase().includes('loinc')) return 'http://loinc.org';
@@ -478,7 +481,8 @@ export function mapObservations({
     if ((!resource.category || resource.category.length === 0) && primaryCoding) {
       const sys = String(primaryCoding.system || '').toLowerCase();
       const code = String(primaryCoding.code || '');
-      if ((sys.includes('loinc') && loincVitalSigns.has(code)) ||
+      const isLoinc = sys.includes('loinc') || sys.includes('urn:oid:2.16.840.1.113883.6.1');
+      if ((isLoinc && loincVitalSigns.has(code)) ||
         /heart|pulse|temperature|respiratory|blood pressure|bp|oxygen/i.test(String(primaryCoding.display || ''))) {
         resource.category = [{
           coding: [{

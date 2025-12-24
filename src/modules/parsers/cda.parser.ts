@@ -202,7 +202,7 @@ function extractAddresses(addr: any): CanonicalModel['patient']['address'] {
       state: extractText(a.state || a['cda:state']),
       postalCode: extractText(a.postalCode || a['cda:postalCode']),
       country: extractText(a.country || a['cda:country']),
-      use: extractAttribute(a, '@_use'),
+      use: mapAddressUse(extractAttribute(a, '@_use')),
     };
   }).filter(a => a.line?.length || a.city || a.state || a.postalCode);
 }
@@ -214,7 +214,7 @@ function extractTelecom(telecom: any): CanonicalModel['patient']['telecom'] {
   
   return telecomArray.map((t: any) => {
     const value = extractAttribute(t, '@_value') || '';
-    const use = extractAttribute(t, '@_use') || 'home';
+    const use = mapTelecomUse(extractAttribute(t, '@_use')) || 'home';
     
     let system: 'phone' | 'email' | 'fax' | 'url' | 'other' = 'other';
     let cleanValue = value;
@@ -238,6 +238,31 @@ function extractTelecom(telecom: any): CanonicalModel['patient']['telecom'] {
     
     return { system, value: cleanValue, use };
   }).filter(t => t.value);
+}
+
+type CanonicalTelecomUse = NonNullable<CanonicalModel['patient']['telecom']>[number]['use'];
+type CanonicalAddressUse = NonNullable<CanonicalModel['patient']['address']>[number]['use'];
+
+function mapTelecomUse(use?: string): CanonicalTelecomUse | undefined {
+  if (!use) return undefined;
+  const normalized = use.toUpperCase();
+  if (normalized === 'MC' || normalized === 'MOBILE') return 'mobile';
+  if (normalized === 'WP' || normalized === 'DIR' || normalized === 'WORK') return 'work';
+  if (normalized === 'H' || normalized === 'HP' || normalized === 'HV' || normalized === 'HOME') return 'home';
+  if (normalized === 'TMP' || normalized === 'TEMP') return 'temp';
+  if (normalized === 'OLD') return 'old';
+  return undefined;
+}
+
+function mapAddressUse(use?: string): CanonicalAddressUse | undefined {
+  if (!use) return undefined;
+  const normalized = use.toUpperCase();
+  if (normalized === 'WP' || normalized === 'WORK') return 'work';
+  if (normalized === 'H' || normalized === 'HP' || normalized === 'HV' || normalized === 'HOME') return 'home';
+  if (normalized === 'TMP' || normalized === 'TEMP') return 'temp';
+  if (normalized === 'OLD' || normalized === 'BAD') return 'old';
+  if (normalized === 'BILL' || normalized === 'B') return 'billing';
+  return undefined;
 }
 
 function iterateSectionEntries(clinicalDocument: any, handler: (entry: any, section?: any) => void) {
@@ -656,6 +681,9 @@ function mapEncounterClass(code?: string): string {
 function mapCodeSystem(system?: string): string {
   if (!system) return 'http://loinc.org';
   // Common CDA code systems
+  if (/^https?:\/\//i.test(system)) {
+    return system;
+  }
   const systemLower = system.toLowerCase();
   if (systemLower.includes('loinc') || system === '2.16.840.1.113883.6.1') {
     return 'http://loinc.org';
@@ -671,6 +699,9 @@ function mapCodeSystem(system?: string): string {
   }
   if (system === '2.16.840.1.113883.6.88') {
     return 'http://www.nlm.nih.gov/research/umls/rxnorm';
+  }
+  if (/^\d+(\.\d+)+$/.test(system)) {
+    return `urn:oid:${system}`;
   }
   return system;
 }

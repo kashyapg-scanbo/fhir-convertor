@@ -125,7 +125,7 @@ export function mapMedicationRequests({
     }
 
     medicationRequest.dosageInstruction = source.dosageInstruction?.length
-      ? source.dosageInstruction
+      ? source.dosageInstruction.map(dosage => mapDosageInstruction(dosage))
       : undefined;
 
     medicationRequest.statusReason = undefined;
@@ -176,4 +176,25 @@ export function mapMedicationRequests({
   }
 
   return entries;
+}
+
+type CanonicalDosageInstruction = NonNullable<CanonicalMedicationRequest['dosageInstruction']>[number];
+
+function mapDosageInstruction(dosage: CanonicalDosageInstruction) {
+  const mapped: any = {
+    text: dosage.text,
+    timing: dosage.timing,
+    route: dosage.route
+  };
+
+  if (dosage.doseQuantity) {
+    mapped.doseAndRate = [{
+      doseQuantity: {
+        value: dosage.doseQuantity.value,
+        unit: dosage.doseQuantity.unit
+      }
+    }];
+  }
+
+  return mapped;
 }

@@ -4,9 +4,10 @@ import path from 'path';
 import { convertLegacyData, InputFormat, FhirOutputVersion } from './modules/pipeline/convert.pipeline.js';
 
 const app = express();
-app.use(express.json());
-app.use(express.text({ type: ['text/xml', 'application/xml', 'text/plain'] }));
-const upload = multer({ storage: multer.memoryStorage() });
+const bodyLimit = '50mb';
+app.use(express.json({ limit: bodyLimit }));
+app.use(express.text({ type: ['text/xml', 'application/xml', 'text/plain'], limit: bodyLimit }));
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
 /**
  * POST /convert

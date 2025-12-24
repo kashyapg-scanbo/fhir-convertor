@@ -40,8 +40,18 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
 
   patient.gender = canonicalPatient?.gender || undefined;
   patient.birthDate = canonicalPatient?.birthDate || undefined;
-  patient.address = canonicalPatient?.address?.length ? canonicalPatient.address : undefined;
-  patient.telecom = canonicalPatient?.telecom?.length ? canonicalPatient.telecom : undefined;
+  patient.address = canonicalPatient?.address?.length
+    ? canonicalPatient.address.map(address => ({
+        ...address,
+        use: mapAddressUse(address.use)
+      }))
+    : undefined;
+  patient.telecom = canonicalPatient?.telecom?.length
+    ? canonicalPatient.telecom.map(telecom => ({
+        ...telecom,
+        use: mapTelecomUse(telecom.use)
+      }))
+    : undefined;
   patient.deceasedBoolean = undefined;
   patient.deceasedDateTime = undefined;
   patient.maritalStatus = undefined;
@@ -91,4 +101,29 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   }
 
   return { entry: patientEntry, patientFullUrl };
+}
+
+type CanonicalTelecomUse = NonNullable<CanonicalPatient['telecom']>[number]['use'];
+type CanonicalAddressUse = NonNullable<CanonicalPatient['address']>[number]['use'];
+
+function mapTelecomUse(use?: string): CanonicalTelecomUse | undefined {
+  if (!use) return undefined;
+  const normalized = use.toUpperCase();
+  if (normalized === 'MC' || normalized === 'MOBILE') return 'mobile';
+  if (normalized === 'WP' || normalized === 'DIR' || normalized === 'WORK') return 'work';
+  if (normalized === 'H' || normalized === 'HP' || normalized === 'HV' || normalized === 'HOME') return 'home';
+  if (normalized === 'TMP' || normalized === 'TEMP') return 'temp';
+  if (normalized === 'OLD') return 'old';
+  return use;
+}
+
+function mapAddressUse(use?: string): CanonicalAddressUse | undefined {
+  if (!use) return undefined;
+  const normalized = use.toUpperCase();
+  if (normalized === 'WP' || normalized === 'WORK') return 'work';
+  if (normalized === 'H' || normalized === 'HP' || normalized === 'HV' || normalized === 'HOME') return 'home';
+  if (normalized === 'TMP' || normalized === 'TEMP') return 'temp';
+  if (normalized === 'OLD' || normalized === 'BAD') return 'old';
+  if (normalized === 'BILL' || normalized === 'B') return 'billing';
+  return use;
 }
