@@ -121,6 +121,7 @@ app.post('/convert/upload', upload.single('file'), async (req, res) => {
 app.post('/convert/hl7', async (req, res) => {
   try {
     const input = typeof req.body === 'string' ? req.body : req.body.input;
+    const format = (req.query.format || req.body?.format) as InputFormat | undefined;
     let fhirVersion = (req.query.fhirVersion || req.body?.fhirVersion) as FhirOutputVersion | undefined;
     fhirVersion = fhirVersion || 'r5';
     // if (!input) {
@@ -129,7 +130,7 @@ app.post('/convert/hl7', async (req, res) => {
 
     // Auto-detect HL7 version (v2 vs v3)
     // The detectInputFormat will identify hl7v2 or hl7v3
-    const result = await convertLegacyData(input, 'hl7v3', fhirVersion);
+    const result = await convertLegacyData(input, format, fhirVersion);
     res.json(result);
   } catch (e: any) {
     console.error('HL7 Conversion error:', e);

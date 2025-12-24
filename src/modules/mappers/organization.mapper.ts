@@ -25,23 +25,30 @@ export function mapOrganizations({
   for (let index = 0; index < organizations.length; index++) {
     const source = organizations[index];
     const organization = structuredClone(organizationTemplate) as any;
+    const identifierSystem = 'urn:hl7-org:v2';
 
     organization.id = crypto.randomUUID();
-    organization.identifier[0].value = source.identifier || source.id || organization.id;
-    organization.name = source.name || '';
-    organization.alias = source.alias || [];
+    const identifierValue = source.identifier || source.id || organization.id;
+    organization.identifier = identifierValue ? [{
+      system: identifierSystem,
+      value: identifierValue
+    }] : undefined;
+    organization.name = source.name || undefined;
+    organization.alias = source.alias?.length ? source.alias : undefined;
     if ((source.telecom && source.telecom.length > 0) || (source.address && source.address.length > 0)) {
       organization.contact = [{
         telecom: source.telecom || [],
         address: source.address || []
       }];
+    } else {
+      organization.contact = undefined;
     }
 
     const fullUrl = `urn:uuid:${organization.id}`;
     registry.register(
       'Organization',
       {
-        identifier: organization.identifier[0].value,
+        identifier: identifierValue,
         id: organization.id
       },
       fullUrl
@@ -59,15 +66,29 @@ export function mapOrganizations({
           display: t.display
         }]
       }));
+    } else {
+      organization.type = undefined;
     }
 
     if (source.partOf) {
-      organization.partOf.reference = resolveRef('Organization', source.partOf) || `Organization/${source.partOf}`;
+      organization.partOf = {
+        reference: resolveRef('Organization', source.partOf) || `Organization/${source.partOf}`
+      };
+    } else {
+      organization.partOf = undefined;
     }
 
     if (operation === 'delete' || source.active === false) {
       organization.active = false;
+    } else if (source.active === true) {
+      organization.active = true;
+    } else {
+      organization.active = undefined;
     }
+
+    organization.description = undefined;
+    organization.endpoint = undefined;
+    organization.qualification = undefined;
 
     const entry: any = {
       resource: organization,
@@ -77,7 +98,7 @@ export function mapOrganizations({
     if (operation === 'create') {
       entry.request = {
         method: 'PUT',
-        url: `Organization?identifier=${organizationTemplate.identifier[0].system}|${organization.identifier[0].value}`
+        url: `Organization?identifier=${identifierSystem}|${identifierValue}`
       };
     } else if (operation === 'update' || operation === 'delete') {
       entry.request = {

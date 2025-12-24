@@ -24,8 +24,14 @@ export function mapPractitionerRoles({
   for (let index = 0; index < practitionerRoles.length; index++) {
     const role = practitionerRoles[index];
     const practitionerRole = structuredClone(practitionerRoleTemplate) as any;
+    const identifierSystem = 'urn:hl7-org:v2';
+    const identifierValue = role.id;
 
     practitionerRole.id = crypto.randomUUID();
+    practitionerRole.identifier = identifierValue ? [{
+      system: identifierSystem,
+      value: identifierValue
+    }] : undefined;
     const fullUrl = `urn:uuid:${practitionerRole.id}`;
     registry.register(
       'PractitionerRole',
@@ -37,10 +43,18 @@ export function mapPractitionerRoles({
     );
 
     if (role.practitionerId) {
-      practitionerRole.practitioner.reference = resolveRef('Practitioner', role.practitionerId);
+      practitionerRole.practitioner = {
+        reference: resolveRef('Practitioner', role.practitionerId)
+      };
+    } else {
+      practitionerRole.practitioner = undefined;
     }
     if (role.organizationId) {
-      practitionerRole.organization.reference = resolveRef('Organization', role.organizationId);
+      practitionerRole.organization = {
+        reference: resolveRef('Organization', role.organizationId)
+      };
+    } else {
+      practitionerRole.organization = undefined;
     }
 
     if (role.code) {
@@ -51,16 +65,46 @@ export function mapPractitionerRoles({
           display: c.display
         }]
       }));
+    } else {
+      practitionerRole.code = undefined;
+    }
+
+    if (role.specialty) {
+      practitionerRole.specialty = role.specialty.map((s: any) => ({
+        coding: [{
+          system: s.system,
+          code: s.code,
+          display: s.display
+        }]
+      }));
+    } else {
+      practitionerRole.specialty = undefined;
     }
 
     if (role.period) {
-      practitionerRole.period.start = role.period.start || '';
-      practitionerRole.period.end = role.period.end || '';
+      practitionerRole.period = {
+        start: role.period.start || undefined,
+        end: role.period.end || undefined
+      };
+    } else {
+      practitionerRole.period = undefined;
     }
 
     if (operation === 'delete' || role.active === false) {
       practitionerRole.active = false;
+    } else if (role.active === true) {
+      practitionerRole.active = true;
+    } else {
+      practitionerRole.active = undefined;
     }
+
+    practitionerRole.location = undefined;
+    practitionerRole.healthcareService = undefined;
+    practitionerRole.contact = undefined;
+    practitionerRole.characteristic = undefined;
+    practitionerRole.communication = undefined;
+    practitionerRole.availability = undefined;
+    practitionerRole.endpoint = undefined;
 
     const entry: any = {
       resource: practitionerRole,
@@ -70,7 +114,7 @@ export function mapPractitionerRoles({
     if (operation === 'create') {
       entry.request = {
         method: 'PUT',
-        url: `PractitionerRole?identifier=urn:hl7-org:v2|${practitionerRole.id}`
+        url: `PractitionerRole?identifier=${identifierSystem}|${identifierValue || practitionerRole.id}`
       };
     } else if (operation === 'update' || operation === 'delete') {
       entry.request = {

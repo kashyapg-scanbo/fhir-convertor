@@ -29,9 +29,16 @@ export function mapMedicationRequests({
   for (let index = 0; index < medicationRequests.length; index++) {
     const source = medicationRequests[index];
     const medicationRequest = structuredClone(medicationRequestTemplate) as any;
+    const identifierSystem = 'urn:hl7-org:v2';
+    const identifierValue = source.identifier || source.id;
 
     medicationRequest.id = crypto.randomUUID();
     const fullUrl = `urn:uuid:${medicationRequest.id}`;
+    medicationRequest.identifier = identifierValue ? [{
+      system: identifierSystem,
+      value: identifierValue
+    }] : undefined;
+
     registry.register(
       'MedicationRequest',
       {
@@ -79,15 +86,21 @@ export function mapMedicationRequests({
     }
 
     if (source.subject) {
-      medicationRequest.subject.reference = resolveRef('Patient', source.subject) || `Patient/${source.subject}`;
+      medicationRequest.subject = {
+        reference: resolveRef('Patient', source.subject) || `Patient/${source.subject}`
+      };
     } else {
-      medicationRequest.subject.reference = patientFullUrl;
+      medicationRequest.subject = { reference: patientFullUrl };
     }
 
     if (source.encounter) {
-      medicationRequest.encounter.reference = resolveRef('Encounter', source.encounter) || `Encounter/${source.encounter}`;
+      medicationRequest.encounter = {
+        reference: resolveRef('Encounter', source.encounter) || `Encounter/${source.encounter}`
+      };
     } else if (encounterFullUrl) {
-      medicationRequest.encounter.reference = encounterFullUrl;
+      medicationRequest.encounter = { reference: encounterFullUrl };
+    } else {
+      medicationRequest.encounter = undefined;
     }
 
     medicationRequest.authoredOn = source.authoredOn || '';
@@ -96,12 +109,47 @@ export function mapMedicationRequests({
     if (medReqSummary) medicationRequest.text = makeNarrative('MedicationRequest', medReqSummary);
 
     if (source.requester) {
-      medicationRequest.requester.reference = resolveRef('Practitioner', source.requester) || `Practitioner/${source.requester}`;
+      medicationRequest.requester = {
+        reference: resolveRef('Practitioner', source.requester) || `Practitioner/${source.requester}`
+      };
+    } else {
+      medicationRequest.requester = undefined;
     }
 
-    if (source.dosageInstruction) {
-      medicationRequest.dosageInstruction = source.dosageInstruction;
+    if (source.performer) {
+      medicationRequest.performer = [{
+        reference: resolveRef('Practitioner', source.performer) || `Practitioner/${source.performer}`
+      }];
+    } else {
+      medicationRequest.performer = undefined;
     }
+
+    medicationRequest.dosageInstruction = source.dosageInstruction?.length
+      ? source.dosageInstruction
+      : undefined;
+
+    medicationRequest.statusReason = undefined;
+    medicationRequest.statusChanged = undefined;
+    medicationRequest.category = undefined;
+    medicationRequest.priority = undefined;
+    medicationRequest.doNotPerform = undefined;
+    medicationRequest.informationSource = undefined;
+    medicationRequest.supportingInformation = undefined;
+    medicationRequest.reported = undefined;
+    medicationRequest.performerType = undefined;
+    medicationRequest.device = undefined;
+    medicationRequest.recorder = undefined;
+    medicationRequest.reason = undefined;
+    medicationRequest.courseOfTherapyType = undefined;
+    medicationRequest.insurance = undefined;
+    medicationRequest.renderedDosageInstruction = undefined;
+    medicationRequest.effectiveDosePeriod = undefined;
+    medicationRequest.dispenseRequest = undefined;
+    medicationRequest.substitution = undefined;
+    medicationRequest.eventHistory = undefined;
+    if (!medicationRequest.note?.length) medicationRequest.note = undefined;
+    if (!medicationRequest.medication) medicationRequest.medication = undefined;
+    if (!medicationRequest.authoredOn) medicationRequest.authoredOn = undefined;
 
     if (operation === 'delete') {
       medicationRequest.status = 'cancelled';
@@ -115,7 +163,7 @@ export function mapMedicationRequests({
     if (operation === 'create') {
       entry.request = {
         method: 'PUT',
-        url: `MedicationRequest?identifier=urn:hl7-org:v2|${medicationRequest.id}`
+        url: `MedicationRequest?identifier=${identifierSystem}|${identifierValue || medicationRequest.id}`
       };
     } else if (operation === 'update' || operation === 'delete') {
       entry.request = {

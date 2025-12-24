@@ -33,6 +33,14 @@ const ucumUnitMap: Record<string, string> = {
   '/min': '/min'
 };
 
+const systolicCode = '8480-6';
+const diastolicCode = '8462-4';
+const bpPanelCode = '85354-9';
+
+function getPrimaryCoding(obs: CanonicalObservation) {
+  return Array.isArray(obs.code) ? obs.code[0] : obs.code;
+}
+
 function absoluteSystem(system?: string) {
   if (!system) return undefined;
   return /^https?:\/\//i.test(system) ? system : undefined;
@@ -69,23 +77,150 @@ export function mapObservations({
     return [];
   }
 
+  const usedObservations = new Set<CanonicalObservation>();
+  const bpGroups = new Map<string, { systolic?: CanonicalObservation; diastolic?: CanonicalObservation }>();
+
+  observations.forEach(obs => {
+    const coding = getPrimaryCoding(obs);
+    const code = coding?.code;
+    if (code !== systolicCode && code !== diastolicCode) return;
+    const key = obs.date || 'unknown-date';
+    const group = bpGroups.get(key) || {};
+    if (code === systolicCode) group.systolic = obs;
+    if (code === diastolicCode) group.diastolic = obs;
+    bpGroups.set(key, group);
+  });
+
   const entries: any[] = [];
+  bpGroups.forEach(group => {
+    if (!group.systolic || !group.diastolic) return;
+    const bpResource = structuredClone(observationTemplate) as any;
+    bpResource.id = crypto.randomUUID();
+    bpResource.status = group.systolic.status || group.diastolic.status || 'final';
+    bpResource.subject = { reference: patientFullUrl };
+    bpResource.encounter = encounterFullUrl ? { reference: encounterFullUrl } : undefined;
+    bpResource.effectiveDateTime = group.systolic.date || group.diastolic.date || new Date().toISOString();
+    bpResource.category = [{
+      coding: [{
+        system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+        code: 'vital-signs',
+        display: 'Vital Signs'
+      }]
+    }];
+    bpResource.code = {
+      coding: [{
+        system: 'http://loinc.org',
+        code: bpPanelCode,
+        display: 'Blood pressure panel with all children optional'
+      }]
+    };
+
+    const systolicValue = Array.isArray(group.systolic.value)
+      ? group.systolic.value[0]
+      : group.systolic.value;
+    const diastolicValue = Array.isArray(group.diastolic.value)
+      ? group.diastolic.value[0]
+      : group.diastolic.value;
+
+    bpResource.component = [
+      {
+        code: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: systolicCode,
+            display: 'Systolic blood pressure'
+          }]
+        },
+        valueQuantity: buildQuantity(systolicValue as string | number, group.systolic.unit, group.systolic.unitCode)
+      },
+      {
+        code: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: diastolicCode,
+            display: 'Diastolic blood pressure'
+          }]
+        },
+        valueQuantity: buildQuantity(diastolicValue as string | number, group.diastolic.unit, group.diastolic.unitCode)
+      }
+    ];
+
+    const bpFullUrl = `urn:uuid:${bpResource.id}`;
+    registry.register(
+      'Observation',
+      {
+        identifier: String(group.systolic.setId ?? bpResource.id),
+        id: bpResource.id
+      },
+      bpFullUrl
+    );
+
+    bpResource.identifier = undefined;
+    bpResource.instantiatesCanonical = undefined;
+    bpResource.instantiatesReference = undefined;
+    bpResource.basedOn = undefined;
+    bpResource.triggeredBy = undefined;
+    bpResource.partOf = undefined;
+    bpResource.focus = undefined;
+    bpResource.effectivePeriod = undefined;
+    bpResource.effectiveTiming = undefined;
+    bpResource.effectiveInstant = undefined;
+    bpResource.issued = undefined;
+    bpResource.performer = undefined;
+    bpResource.valueQuantity = undefined;
+    bpResource.valueCodeableConcept = undefined;
+    bpResource.valueString = undefined;
+    bpResource.valueBoolean = undefined;
+    bpResource.valueInteger = undefined;
+    bpResource.valueRange = undefined;
+    bpResource.valueRatio = undefined;
+    bpResource.valueSampledData = undefined;
+    bpResource.valueTime = undefined;
+    bpResource.valueDateTime = undefined;
+    bpResource.valuePeriod = undefined;
+    bpResource.valueAttachment = undefined;
+    bpResource.valueReference = undefined;
+    bpResource.dataAbsentReason = undefined;
+    bpResource.interpretation = undefined;
+    bpResource.note = undefined;
+    bpResource.bodySite = undefined;
+    bpResource.bodyStructure = undefined;
+    bpResource.method = undefined;
+    bpResource.specimen = undefined;
+    bpResource.device = undefined;
+    bpResource.referenceRange = undefined;
+    bpResource.hasMember = undefined;
+    bpResource.derivedFrom = undefined;
+
+    entries.push({ resource: bpResource, fullUrl: bpFullUrl });
+    usedObservations.add(group.systolic);
+    usedObservations.add(group.diastolic);
+  });
+
   for (let index = 0; index < observations.length; index++) {
     const obs = observations[index];
+    if (usedObservations.has(obs)) {
+      continue;
+    }
     const resource = structuredClone(observationTemplate) as any;
 
     resource.id = crypto.randomUUID();
+    resource.category = undefined;
+    resource.component = undefined;
     if (obs.setId) {
-      if (!resource.identifier) resource.identifier = [];
-      resource.identifier.push({ system: 'urn:hl7-org:v2', value: String(obs.setId) });
+      resource.identifier = [{ system: 'urn:hl7-org:v2', value: String(obs.setId) }];
+    } else {
+      resource.identifier = undefined;
     }
 
-    resource.subject.reference = patientFullUrl;
+    resource.subject = { reference: patientFullUrl };
     if (encounterFullUrl) {
       resource.encounter = { reference: encounterFullUrl };
+    } else {
+      resource.encounter = undefined;
     }
 
-    const primaryCode = Array.isArray(obs.code) ? obs.code[0] : obs.code;
+    const primaryCode = getPrimaryCoding(obs);
     const obsSummary = primaryCode?.code || primaryCode?.display || '';
     if (obsSummary) resource.text = makeNarrative('Observation', String(obsSummary));
 
@@ -94,16 +229,20 @@ export function mapObservations({
 
     if (obs.code) {
       const codes = Array.isArray(obs.code) ? obs.code : [obs.code];
-      resource.code.coding = codes.map((coding: any) => {
-        const result: any = {
-          system: normalizeSystem(coding.system) || 'http://loinc.org',
-          code: coding.code || ''
-        };
-        if (coding.display && !result.system.includes('loinc')) {
-          result.display = coding.display;
-        }
-        return result;
-      });
+      resource.code = {
+        coding: codes.map((coding: any) => {
+          const result: any = {
+            system: normalizeSystem(coding.system) || 'http://loinc.org',
+            code: coding.code || ''
+          };
+          if (coding.display && !result.system.includes('loinc')) {
+            result.display = coding.display;
+          }
+          return result;
+        })
+      };
+    } else {
+      resource.code = undefined;
     }
 
     if (obs.value !== undefined) {
@@ -118,6 +257,14 @@ export function mapObservations({
             text: `Additional values: ${obs.value.slice(1).join(', ')}`
           });
         }
+      } else if (obs.valueType === 'CWE') {
+        resource.valueCodeableConcept = {
+          coding: [{
+            system: normalizeSystem(obs.unitSystem),
+            code: String(obs.value),
+            display: obs.unit
+          }]
+        };
       } else {
         const valueType = obs.valueType || 'NM';
         if (valueType === 'NM' || valueType === 'SN' || !isNaN(Number(obs.value))) {
@@ -273,7 +420,7 @@ export function mapObservations({
     }
 
     const primaryCoding = Array.isArray(resource.code?.coding) ? resource.code.coding[0] : null;
-    if (!resource.category && primaryCoding) {
+    if ((!resource.category || resource.category.length === 0) && primaryCoding) {
       const sys = String(primaryCoding.system || '').toLowerCase();
       const code = String(primaryCoding.code || '');
       if ((sys.includes('loinc') && loincVitalSigns.has(code)) ||
@@ -289,8 +436,7 @@ export function mapObservations({
     }
 
     if (obs.components) {
-      if (!resource.component) resource.component = [];
-      resource.component = resource.component.concat(obs.components
+      resource.component = obs.components
         .map((c: any) => {
           if (!c.code?.code) return null;
           return {
@@ -306,7 +452,7 @@ export function mapObservations({
               : undefined
           };
         })
-        .filter(Boolean));
+        .filter(Boolean);
     }
 
     const obsFullUrl = `urn:uuid:${resource.id}`;
@@ -318,6 +464,43 @@ export function mapObservations({
       },
       obsFullUrl
     );
+
+    resource.instantiatesCanonical = undefined;
+    resource.instantiatesReference = undefined;
+    resource.basedOn = undefined;
+    resource.triggeredBy = undefined;
+    resource.partOf = undefined;
+    resource.focus = undefined;
+    resource.effectivePeriod = undefined;
+    resource.effectiveTiming = undefined;
+    resource.effectiveInstant = undefined;
+    resource.issued = undefined;
+    resource.dataAbsentReason = undefined;
+    resource.bodyStructure = undefined;
+    resource.specimen = undefined;
+    resource.hasMember = undefined;
+    resource.derivedFrom = undefined;
+    if (!resource.note?.length) resource.note = undefined;
+    if (!resource.interpretation?.length) resource.interpretation = undefined;
+    if (!resource.category?.length) resource.category = undefined;
+    if (!resource.referenceRange?.length) resource.referenceRange = undefined;
+    if (!resource.performer?.length) resource.performer = undefined;
+    if (!resource.component?.length) resource.component = undefined;
+
+    if (!resource.valueQuantity) resource.valueQuantity = undefined;
+    if (!resource.valueCodeableConcept) resource.valueCodeableConcept = undefined;
+    if (!resource.valueString) resource.valueString = undefined;
+    resource.valueBoolean = undefined;
+    resource.valueInteger = undefined;
+    resource.valueRange = undefined;
+    resource.valueRatio = undefined;
+    resource.valueSampledData = undefined;
+    resource.valueTime = undefined;
+    resource.valueDateTime = undefined;
+    resource.valuePeriod = undefined;
+    resource.valueAttachment = undefined;
+    resource.valueReference = undefined;
+
     entries.push({ resource, fullUrl: obsFullUrl });
   }
 

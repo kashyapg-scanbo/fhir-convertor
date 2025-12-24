@@ -1,45 +1,53 @@
 {
   "resourceType": "MedicationRequest",
-  "id": "",
   "identifier": [],
-  "status": "active",
-  "statusReason": {
-    "coding": []
-  },
-  "intent": "order",
+  "basedOn": [],
+  "priorPrescription": {},
+  "groupIdentifier": {},
+  "status": "",
+  "statusReason": {},
+  "statusChanged": "",
+  "intent": "",
   "category": [],
-  "priority": "routine",
+  "priority": "",
   "doNotPerform": false,
-  "medication": {
-    "concept": {
-      "coding": [],
-      "text": ""
-    },
-    "reference": {
-      "reference": ""
-    }
-  },
-  "subject": {
-    "reference": ""
-  },
-  "encounter": {
-    "reference": ""
-  },
+  "medication": {},
+  "subject": {},
+  "informationSource": [],
+  "encounter": {},
+  "supportingInformation": [],
   "authoredOn": "",
-  "requester": {
-    "reference": ""
-  },
-  "performer": {
-    "reference": ""
-  },
-  "performerType": {
-    "coding": []
-  },
-  "recorder": {
-    "reference": ""
-  },
+  "requester": {},
+  "reported": false,
+  "performerType": {},
+  "performer": [],
+  "device": [],
+  "recorder": {},
   "reason": [],
+  "courseOfTherapyType": {},
+  "insurance": [],
+  "note": [],
+  "renderedDosageInstruction": "",
+  "effectiveDosePeriod": {},
   "dosageInstruction": [],
-  "dispenseRequest": {},
-  "substitution": {}
+  "dispenseRequest": {
+    "initialFill": {
+      "quantity": {},
+      "duration": {}
+    },
+    "dispenseInterval": {},
+    "validityPeriod": {},
+    "numberOfRepeatsAllowed": "",
+    "quantity": {},
+    "expectedSupplyDuration": {},
+    "dispenser": {},
+    "dispenserInstruction": [],
+    "doseAdministrationAid": {}
+  },
+  "substitution": {
+    "allowedBoolean": false,
+    "allowedCodeableConcept": {},
+    "reason": {}
+  },
+  "eventHistory": []
 }

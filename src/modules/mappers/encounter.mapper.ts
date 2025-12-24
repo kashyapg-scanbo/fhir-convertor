@@ -21,11 +21,11 @@ function mapEncounterClass(code: string) {
   const normalized = code.toUpperCase();
   switch (normalized) {
     case 'IMP':
-      return 'inpatient';
+      return 'inpatient encounter';
     case 'AMB':
       return 'ambulatory';
     case 'SS':
-      return 'short-stay';
+      return 'short stay';
     case 'EMER':
     case 'EMERGENCY':
       return 'emergency';
@@ -50,10 +50,16 @@ export function mapEncounter({
 
   const encounterResource = structuredClone(encounterTemplate) as any;
   const encounterIdentifier = canonicalEncounter.id;
+  const identifierSystem = 'urn:hl7-org:v2';
 
   encounterResource.id = crypto.randomUUID();
   encounterResource.status = canonicalEncounter.status || 'in-progress';
   const encounterFullUrl = `urn:uuid:${encounterResource.id}`;
+
+  encounterResource.identifier = encounterIdentifier ? [{
+    system: identifierSystem,
+    value: encounterIdentifier
+  }] : undefined;
 
   registry.register(
     'Encounter',
@@ -64,7 +70,7 @@ export function mapEncounter({
     encounterFullUrl
   );
 
-  encounterResource.subject.reference = patientFullUrl;
+  encounterResource.subject = { reference: patientFullUrl };
   if (canonicalEncounter.class) {
     const classCode = String(canonicalEncounter.class);
     const mappedClass = mapEncounterClass(classCode) || 'inpatient';
@@ -82,6 +88,43 @@ export function mapEncounter({
     encounterResource.class = undefined;
   }
 
+  if (canonicalEncounter.start) {
+    encounterResource.actualPeriod = { start: canonicalEncounter.start };
+  } else {
+    encounterResource.actualPeriod = undefined;
+  }
+
+  if (canonicalEncounter.location) {
+    encounterResource.location = [{
+      location: { display: canonicalEncounter.location }
+    }];
+  } else {
+    encounterResource.location = undefined;
+  }
+
+  encounterResource.priority = undefined;
+  encounterResource.type = undefined;
+  encounterResource.serviceType = undefined;
+  encounterResource.subjectStatus = undefined;
+  encounterResource.episodeOfCare = undefined;
+  encounterResource.basedOn = undefined;
+  encounterResource.careTeam = undefined;
+  encounterResource.partOf = undefined;
+  encounterResource.serviceProvider = undefined;
+  encounterResource.participant = undefined;
+  encounterResource.appointment = undefined;
+  encounterResource.virtualService = undefined;
+  encounterResource.plannedStartDate = undefined;
+  encounterResource.plannedEndDate = undefined;
+  encounterResource.length = undefined;
+  encounterResource.reason = undefined;
+  encounterResource.diagnosis = undefined;
+  encounterResource.account = undefined;
+  encounterResource.dietPreference = undefined;
+  encounterResource.specialArrangement = undefined;
+  encounterResource.specialCourtesy = undefined;
+  encounterResource.admission = undefined;
+
   const encounterEntry: any = {
     resource: encounterResource,
     fullUrl: encounterFullUrl
@@ -90,7 +133,7 @@ export function mapEncounter({
   if (operation === 'create' && encounterIdentifier) {
     encounterEntry.request = {
       method: 'PUT',
-      url: `Encounter?identifier=urn:hl7-org:v2|${encounterIdentifier}`
+      url: `Encounter?identifier=${identifierSystem}|${encounterIdentifier}`
     };
   }
 

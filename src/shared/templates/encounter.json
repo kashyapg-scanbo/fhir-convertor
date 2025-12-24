@@ -1,21 +1,61 @@
 {
   "resourceType": "Encounter",
-  "id": "",
-  "status": "in-progress",
-  "class": [
+  "identifier": [],
+  "status": "",
+  "class": [],
+  "priority": {},
+  "type": [],
+  "serviceType": [],
+  "subject": {},
+  "subjectStatus": {},
+  "episodeOfCare": [],
+  "basedOn": [],
+  "careTeam": [],
+  "partOf": {},
+  "serviceProvider": {},
+  "participant": [
     {
-      "coding": [
-        {
-          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-          "code": "IMP"
-        },
-        {
-          "system": "https://terminology.hl7.org/CodeSystem/encounter-class",
-          "code": "inpatient",
-          "display": "inpatient"
-        }
-      ]
+      "type": [],
+      "period": {},
+      "actor": {}
     }
   ],
-  "subject": { "reference": "" }
+  "appointment": [],
+  "virtualService": [],
+  "actualPeriod": {},
+  "plannedStartDate": "",
+  "plannedEndDate": "",
+  "length": {},
+  "reason": [
+    {
+      "use": [],
+      "value": []
+    }
+  ],
+  "diagnosis": [
+    {
+      "condition": [],
+      "use": []
+    }
+  ],
+  "account": [],
+  "dietPreference": [],
+  "specialArrangement": [],
+  "specialCourtesy": [],
+  "admission": {
+    "preAdmissionIdentifier": {},
+    "origin": {},
+    "admitSource": {},
+    "reAdmission": {},
+    "destination": {},
+    "dischargeDisposition": {}
+  },
+  "location": [
+    {
+      "location": {},
+      "status": "",
+      "form": {},
+      "period": {}
+    }
+  ]
 }

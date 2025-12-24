@@ -241,6 +241,14 @@ export type CanonicalMedicationRequest = {
       value?: number;
       unit?: string;
     };
+    route?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
   }>;
   active?: boolean;
 };

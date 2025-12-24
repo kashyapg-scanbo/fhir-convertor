@@ -1,21 +1,17 @@
 {
   "resourceType": "PractitionerRole",
-  "id": "",
   "identifier": [],
-  "active": true,
-  "period": {
-    "start": "",
-    "end": ""
-  },
-  "practitioner": {
-    "reference": ""
-  },
-  "organization": {
-    "reference": ""
-  },
+  "active": false,
+  "period": {},
+  "practitioner": {},
+  "organization": {},
   "code": [],
   "specialty": [],
   "location": [],
+  "healthcareService": [],
+  "contact": [],
+  "characteristic": [],
+  "communication": [],
   "availability": [],
   "endpoint": []
 }

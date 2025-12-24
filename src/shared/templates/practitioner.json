@@ -1,27 +1,27 @@
 {
   "resourceType": "Practitioner",
-  "id": "",
-  "identifier": [
-    {
-      "use": "official",
-      "system": "urn:hl7-org:v2",
-      "value": ""
-    }
-  ],
-  "active": true,
-  "name": [
-    {
-      "use": "official",
-      "family": "",
-      "given": [],
-      "prefix": [],
-      "suffix": []
-    }
-  ],
+  "identifier": [],
+  "active": false,
+  "name": [],
   "telecom": [],
-  "address": [],
-  "gender": "unknown",
+  "gender": "",
   "birthDate": "",
-  "qualification": []
+  "deceasedBoolean": false,
+  "deceasedDateTime": "",
+  "address": [],
+  "photo": [],
+  "qualification": [
+    {
+      "identifier": [],
+      "code": {},
+      "period": {},
+      "issuer": {}
+    }
+  ],
+  "communication": [
+    {
+      "language": {},
+      "preferred": false
+    }
+  ]
 }
-

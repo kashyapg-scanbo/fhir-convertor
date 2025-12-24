@@ -1,20 +1,22 @@
 {
   "resourceType": "Organization",
-  "id": "",
-  "identifier": [
-    {
-      "use": "official",
-      "system": "urn:hl7-org:v2",
-      "value": ""
-    }
-  ],
-  "active": true,
+  "identifier": [],
+  "active": false,
   "type": [],
   "name": "",
-  "alias": [],
-  "partOf": {
-    "reference": ""
-  },
+  "alias": [
+    ""
+  ],
+  "description": "",
   "contact": [],
-  "endpoint": []
+  "partOf": {},
+  "endpoint": [],
+  "qualification": [
+    {
+      "identifier": [],
+      "code": {},
+      "period": {},
+      "issuer": {}
+    }
+  ]
 }

@@ -28,9 +28,15 @@ export function mapDocumentReferences({
   for (let index = 0; index < documentReferences.length; index++) {
     const source = documentReferences[index];
     const documentReference = structuredClone(documentReferenceTemplate) as any;
+    const identifierSystem = 'urn:hl7-org:v2';
+    const identifierValue = source.identifier || source.id;
 
     documentReference.id = crypto.randomUUID();
     const fullUrl = `urn:uuid:${documentReference.id}`;
+    documentReference.identifier = identifierValue ? [{
+      system: identifierSystem,
+      value: identifierValue
+    }] : undefined;
 
     registry.register(
       'DocumentReference',
@@ -44,25 +50,35 @@ export function mapDocumentReferences({
     documentReference.status = source.status || 'current';
 
     if (source.type) {
-      documentReference.type.coding = source.type.coding || [];
+      documentReference.type = {
+        coding: source.type.coding || []
+      };
+    } else {
+      documentReference.type = undefined;
     }
 
     if (source.category) {
       documentReference.category = source.category.map((cat: any) => ({
         coding: cat.coding || []
       }));
+    } else {
+      documentReference.category = undefined;
     }
 
     if (source.subject) {
-      documentReference.subject.reference = resolveRef('Patient', source.subject) || `Patient/${source.subject}`;
+      documentReference.subject = {
+        reference: resolveRef('Patient', source.subject) || `Patient/${source.subject}`
+      };
     } else {
-      documentReference.subject.reference = patientFullUrl;
+      documentReference.subject = { reference: patientFullUrl };
     }
 
-    documentReference.date = source.date || '';
+    documentReference.date = source.date || undefined;
     if (source.description) {
       documentReference.text = makeNarrative('DocumentReference', source.description);
       documentReference.description = source.description;
+    } else {
+      documentReference.description = undefined;
     }
 
     if (source.author && source.author.length > 0) {
@@ -73,10 +89,16 @@ export function mapDocumentReferences({
         const reference = resolveRef('Practitioner', auth) || resolveRef('Organization', auth);
         return { reference: reference || `Practitioner/${auth}` };
       });
+    } else {
+      documentReference.author = undefined;
     }
 
     if (source.custodian) {
-      documentReference.custodian.reference = resolveRef('Organization', source.custodian) || `Organization/${source.custodian}`;
+      documentReference.custodian = {
+        reference: resolveRef('Organization', source.custodian) || `Organization/${source.custodian}`
+      };
+    } else {
+      documentReference.custodian = undefined;
     }
 
     // Map document content with automatic legacy type detection and conversion
@@ -84,6 +106,8 @@ export function mapDocumentReferences({
       // Use the document type mapper to automatically detect and convert legacy types
       // This handles legacy format detection from contentType, url, or format fields
       documentReference.content = mapDocumentContent(source.content);
+    } else {
+      documentReference.content = undefined;
     }
 
     if (source.context) {
@@ -95,11 +119,26 @@ export function mapDocumentReferences({
       if (source.context.period) {
         documentReference.period = source.context.period;
       }
+    } else {
+      documentReference.context = undefined;
+      documentReference.period = undefined;
     }
 
     if (operation === 'delete') {
       documentReference.status = 'superseded';
     }
+
+    documentReference.version = undefined;
+    documentReference.basedOn = undefined;
+    documentReference.docStatus = undefined;
+    documentReference.modality = undefined;
+    documentReference.event = undefined;
+    documentReference.bodySite = undefined;
+    documentReference.facilityType = undefined;
+    documentReference.practiceSetting = undefined;
+    documentReference.attester = undefined;
+    documentReference.relatesTo = undefined;
+    documentReference.securityLabel = undefined;
 
     const entry: any = {
       resource: documentReference,
@@ -109,12 +148,12 @@ export function mapDocumentReferences({
     if (operation === 'create') {
       entry.request = {
         method: 'PUT',
-        url: `DocumentReference?identifier=urn:hl7-org:v2|${source.id}`
+        url: `DocumentReference?identifier=${identifierSystem}|${identifierValue || documentReference.id}`
       };
     } else if (operation === 'update' || operation === 'delete') {
       entry.request = {
         method: 'PUT',
-        url: `DocumentReference/${source.id}`
+        url: `DocumentReference/${identifierValue || documentReference.id}`
       };
     }
 

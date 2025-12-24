@@ -520,6 +520,9 @@ function buildDocumentReference({
   const typeId = clinicalDocument.typeId || clinicalDocument['cda:typeId'];
   const typeSystem = extractAttribute(typeId, '@_root');
   const typeCode = extractAttribute(typeId, '@_extension');
+  const codeNode = clinicalDocument.code || clinicalDocument['cda:code'];
+  const docCode = extractAttribute(codeNode, '@_code');
+  const docCodeSystem = extractAttribute(codeNode, '@_codeSystem');
   const effectiveTime = extractAttribute(
     clinicalDocument.effectiveTime || clinicalDocument['cda:effectiveTime'],
     '@_value'
@@ -536,7 +539,9 @@ function buildDocumentReference({
     date: formatCDADateTime(effectiveTime),
     author: authorIds && authorIds.length ? authorIds : undefined,
     custodian: custodianId,
-    type: typeSystem || typeCode ? { coding: [{ system: typeSystem, code: typeCode }] } : undefined,
+    type: docCode || docCodeSystem
+      ? { coding: [{ system: mapCodeSystem(docCodeSystem), code: docCode }] }
+      : (typeSystem || typeCode ? { coding: [{ system: normalizeCodeSystem(typeSystem), code: typeCode }] } : undefined),
     content: [{
       attachment: {
         contentType: 'text/xml',
@@ -546,6 +551,14 @@ function buildDocumentReference({
     }],
     context: encounterId ? { encounter: [encounterId] } : undefined
   };
+}
+
+function normalizeCodeSystem(system?: string): string | undefined {
+  if (!system) return undefined;
+  if (/^\d+(\.\d+)+$/.test(system)) {
+    return `urn:oid:${system}`;
+  }
+  return mapCodeSystem(system);
 }
 
 function mapCDAGender(code?: string): string {

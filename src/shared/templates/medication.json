@@ -1,19 +1,23 @@
 {
   "resourceType": "Medication",
-  "id": "",
   "identifier": [],
-  "code": {
-    "coding": [],
-    "text": ""
-  },
-  "status": "active",
-  "marketingAuthorizationHolder": {
-    "reference": ""
-  },
-  "doseForm": {
-    "coding": []
-  },
+  "code": {},
+  "status": "",
+  "marketingAuthorizationHolder": {},
+  "doseForm": {},
   "totalVolume": {},
-  "ingredient": [],
-  "batch": {}
+  "ingredient": [
+    {
+      "item": {},
+      "isActive": false,
+      "strengthRatio": {},
+      "strengthCodeableConcept": {},
+      "strengthQuantity": {}
+    }
+  ],
+  "batch": {
+    "lotNumber": "",
+    "expirationDate": ""
+  },
+  "definition": {}
 }

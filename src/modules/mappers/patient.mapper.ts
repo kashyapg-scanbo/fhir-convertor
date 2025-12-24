@@ -19,12 +19,13 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   const patient = structuredClone(patientTemplate) as any;
   const patientId = canonicalPatient?.id;
   const patientIdentifier = canonicalPatient?.identifier ?? patientId;
+  const identifierSystem = 'urn:hl7-org:v2';
 
   patient.id = crypto.randomUUID();
 
   if (patientIdentifier) {
     patient.identifier = [{
-      ...patientTemplate.identifier[0],
+      system: identifierSystem,
       value: patientIdentifier
     }];
   } else {
@@ -33,7 +34,6 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
 
   const hasNameData = Boolean(canonicalPatient?.name?.family || canonicalPatient?.name?.given?.length);
   patient.name = hasNameData ? [{
-    ...patientTemplate.name[0],
     family: canonicalPatient?.name?.family,
     given: canonicalPatient?.name?.given
   }] : undefined;
@@ -42,6 +42,17 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   patient.birthDate = canonicalPatient?.birthDate || undefined;
   patient.address = canonicalPatient?.address?.length ? canonicalPatient.address : undefined;
   patient.telecom = canonicalPatient?.telecom?.length ? canonicalPatient.telecom : undefined;
+  patient.deceasedBoolean = undefined;
+  patient.deceasedDateTime = undefined;
+  patient.maritalStatus = undefined;
+  patient.multipleBirthBoolean = undefined;
+  patient.multipleBirthInteger = undefined;
+  patient.photo = undefined;
+  patient.contact = undefined;
+  patient.communication = undefined;
+  patient.generalPractitioner = undefined;
+  patient.managingOrganization = undefined;
+  patient.link = undefined;
 
   const primaryName = Array.isArray(patient.name) ? patient.name[0] : undefined;
   const patientSummary = `${primaryName?.family ?? ''} ${primaryName?.given?.join(' ') ?? ''}`.trim();
@@ -70,7 +81,7 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   if (operation === 'create' && patientIdentifier) {
     patientEntry.request = {
       method: 'PUT',
-      url: `Patient?identifier=${patientTemplate.identifier[0].system}|${patientIdentifier}`
+      url: `Patient?identifier=${identifierSystem}|${patientIdentifier}`
     };
   } else if ((operation === 'update' || operation === 'delete') && patientId) {
     patientEntry.request = {

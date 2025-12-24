@@ -1,32 +1,41 @@
 {
   "resourceType": "Patient",
-  "id": "",
-  "active": true,
-
-  "identifier": [
-    {
-      "use": "official",
-      "system": "urn:hl7-org:v2",
-      "value": ""
-    }
-  ],
-
-  "name": [
-    {
-      "use": "official",
-      "family": "",
-      "given": []
-    }
-  ],
-
+  "identifier": [],
+  "active": false,
+  "name": [],
   "telecom": [],
-
-  "gender": "unknown",
+  "gender": "",
   "birthDate": "",
-
+  "deceasedBoolean": false,
+  "deceasedDateTime": "",
   "address": [],
-  "contact": [],
-  "managingOrganization": {
-    "reference": ""
-  }
+  "maritalStatus": {},
+  "multipleBirthBoolean": false,
+  "multipleBirthInteger": 0,
+  "photo": [],
+  "contact": [
+    {
+      "relationship": [],
+      "name": {},
+      "telecom": [],
+      "address": {},
+      "gender": "",
+      "organization": {},
+      "period": {}
+    }
+  ],
+  "communication": [
+    {
+      "language": {},
+      "preferred": false
+    }
+  ],
+  "generalPractitioner": [],
+  "managingOrganization": {},
+  "link": [
+    {
+      "other": {},
+      "type": ""
+    }
+  ]
 }
