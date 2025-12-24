@@ -126,11 +126,16 @@ export function buildCanonical(parsed: any) {
                     // Parse ED format: ^type^encoding^data
                     // Handle cases where it might start with ^ or not
                     const parts = fullValue.split('^');
-                    if (parts.length >= 4) {
+                    if (parts.length >= 5) {
+                        // Format: ^type^subtype^encoding^data (ED datatype)
+                        documentType = parts[2]?.trim() || parts[1]?.trim();
+                        encoding = parts[3]?.trim();
+                        documentData = parts.slice(4).join('^'); // Rejoin in case data contains ^
+                    } else if (parts.length === 4) {
                         // Format: ^type^encoding^data
                         documentType = parts[1]?.trim();
                         encoding = parts[2]?.trim();
-                        documentData = parts.slice(3).join('^'); // Rejoin in case data contains ^
+                        documentData = parts.slice(3).join('^');
                     } else if (parts.length === 3) {
                         // Format: type^encoding^data (no leading ^)
                         documentType = parts[0]?.trim();
@@ -592,7 +597,6 @@ export function buildCanonical(parsed: any) {
           }] : [],
           text: giveCode[1]
         },
-        authoredOn: toFHIRDate(rxe?.[4]?.[0]?.[0]), // RXE-5: Give Amount
         dosageInstruction: rxe?.[5]?.[0]?.[0] ? [{
           text: rxe[5][0][0] // RXE-6: Give Units
         }] : []
@@ -637,6 +641,7 @@ function mapCodingSystem(system?: string) {
     const normalized = system.toUpperCase();
     if (normalized === 'LN' || normalized === 'LOINC') return 'http://loinc.org';
     if (normalized === 'SNOMED' || normalized === 'SCT') return 'http://snomed.info/sct';
+    if (normalized === 'L' || normalized === 'LOCAL') return 'urn:hl7-org:local';
     return undefined;
 }
 

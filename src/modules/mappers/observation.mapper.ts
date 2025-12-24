@@ -48,19 +48,24 @@ function absoluteSystem(system?: string) {
 
 function normalizeSystem(system?: string) {
   if (!system) return undefined;
-  if (/^https?:\/\//i.test(system)) return system;
-  if (system.toUpperCase() === 'LN' || system.toLowerCase().includes('loinc')) return 'http://loinc.org';
+  if (/^https?:\/\//i.test(system) || /^urn:/i.test(system)) return system;
+  const upper = system.toUpperCase();
+  if (upper === 'LN' || system.toLowerCase().includes('loinc')) return 'http://loinc.org';
+  if (upper === 'L' || upper === 'LOCAL') return 'urn:hl7-org:local';
   return undefined;
 }
 
 function resolveUnitCode(unit?: string, unitCode?: string) {
   const key = (unitCode || unit || '').toLowerCase();
-  return ucumUnitMap[key] || unitCode || unit || '1';
+  if (!key) return undefined;
+  return ucumUnitMap[key] || unitCode || unit;
 }
 
 function buildQuantity(value: string | number, unit?: string, unitCode?: string) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return undefined;
   return {
-    value: Number(value),
+    value: num,
     unit: unit || undefined,
     system: 'http://unitsofmeasure.org',
     code: resolveUnitCode(unit, unitCode)
@@ -221,6 +226,7 @@ export function mapObservations({
     }
 
     const primaryCode = getPrimaryCoding(obs);
+    const isVitalSign = Boolean(primaryCode?.code && loincVitalSigns.has(primaryCode.code));
     const obsSummary = primaryCode?.code || primaryCode?.display || '';
     if (obsSummary) resource.text = makeNarrative('Observation', String(obsSummary));
 
@@ -231,11 +237,12 @@ export function mapObservations({
       const codes = Array.isArray(obs.code) ? obs.code : [obs.code];
       resource.code = {
         coding: codes.map((coding: any) => {
+          const normalizedSystem = normalizeSystem(coding.system);
           const result: any = {
-            system: normalizeSystem(coding.system) || 'http://loinc.org',
+            system: normalizedSystem ?? (coding.system ? undefined : 'http://loinc.org'),
             code: coding.code || ''
           };
-          if (coding.display && !result.system.includes('loinc')) {
+          if (coding.display && (!result.system || !result.system.includes('loinc'))) {
             result.display = coding.display;
           }
           return result;
@@ -249,7 +256,12 @@ export function mapObservations({
       if (Array.isArray(obs.value)) {
         const firstValue = obs.value.find(v => v !== undefined && v !== null);
         if (firstValue !== undefined) {
-          resource.valueQuantity = buildQuantity(firstValue, obs.unit, obs.unitCode);
+          const quantity = buildQuantity(firstValue, obs.unit, obs.unitCode);
+          if (quantity) {
+            resource.valueQuantity = quantity;
+          } else if (!isVitalSign) {
+            resource.valueString = String(firstValue);
+          }
         }
         if (obs.value.length > 1) {
           if (!resource.note) resource.note = [];
@@ -268,11 +280,24 @@ export function mapObservations({
       } else {
         const valueType = obs.valueType || 'NM';
         if (valueType === 'NM' || valueType === 'SN' || !isNaN(Number(obs.value))) {
-          resource.valueQuantity = buildQuantity(obs.value as string | number, obs.unit, obs.unitCode);
+          const quantity = buildQuantity(obs.value as string | number, obs.unit, obs.unitCode);
+          if (quantity) {
+            resource.valueQuantity = quantity;
+          } else if (!isVitalSign) {
+            resource.valueString = String(obs.value);
+          }
         } else {
-          resource.valueString = String(obs.value);
+          if (!isVitalSign) {
+            resource.valueString = String(obs.value);
+          }
         }
       }
+    }
+
+    if (resource.valueQuantity && primaryCode?.code === '8867-4') {
+      if (!resource.valueQuantity.unit) resource.valueQuantity.unit = 'beats/min';
+      if (!resource.valueQuantity.code) resource.valueQuantity.code = '/min';
+      if (!resource.valueQuantity.system) resource.valueQuantity.system = 'http://unitsofmeasure.org';
     }
 
     if (obs.referenceRange) {
@@ -500,6 +525,19 @@ export function mapObservations({
     resource.valuePeriod = undefined;
     resource.valueAttachment = undefined;
     resource.valueReference = undefined;
+
+    if (!resource.component?.length
+      && !resource.valueQuantity
+      && !resource.valueCodeableConcept
+      && !resource.valueString) {
+      resource.dataAbsentReason = {
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason',
+          code: 'unknown',
+          display: 'Unknown'
+        }]
+      };
+    }
 
     entries.push({ resource, fullUrl: obsFullUrl });
   }
