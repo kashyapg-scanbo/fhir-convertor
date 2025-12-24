@@ -638,11 +638,12 @@ export function buildCanonical(parsed: any) {
 
 function mapCodingSystem(system?: string) {
     if (!system) return undefined;
+    if (/^https?:\/\//i.test(system) || /^urn:/i.test(system)) return system;
     const normalized = system.toUpperCase();
     if (normalized === 'LN' || normalized === 'LOINC') return 'http://loinc.org';
     if (normalized === 'SNOMED' || normalized === 'SCT') return 'http://snomed.info/sct';
     if (normalized === 'L' || normalized === 'LOCAL') return 'urn:hl7-org:local';
-    return undefined;
+    return 'urn:hl7-org:local';
 }
 
 

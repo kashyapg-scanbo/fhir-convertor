@@ -30,7 +30,28 @@ const ucumUnitMap: Record<string, string> = {
   'beat/min': '/min',
   'bpm': '/min',
   'beats per minute': '/min',
-  '/min': '/min'
+  '/min': '/min',
+  'percent': '%',
+  '%': '%',
+  'femtoliter': 'fL',
+  'fL': 'fL',
+  'grams per deciliter': 'g/dL',
+  'g/dl': 'g/dL',
+  'g/l-1': 'g/L',
+  'g.l-1': 'g/L',
+  'grams per milliliter': 'g/mL',
+  'g/ml': 'g/mL',
+  'picograms per cell': 'pg',
+  'pg/cell': 'pg',
+  'cells per microliter': '/uL',
+  'cells/ul': '/uL',
+  'cells per ul': '/uL',
+  'million per microliter': '10*6/uL',
+  'millions/ul': '10*6/uL',
+  'thousand per microliter': '10*3/uL',
+  'thousands/ul': '10*3/uL',
+  'giga.l-1': '10*9/L',
+  'tera.l-1': '10*12/L'
 };
 
 const systolicCode = '8480-6';
@@ -39,6 +60,11 @@ const bpPanelCode = '85354-9';
 
 function getPrimaryCoding(obs: CanonicalObservation) {
   return Array.isArray(obs.code) ? obs.code[0] : obs.code;
+}
+
+function isLoincCode(code?: string) {
+  if (!code) return false;
+  return /^\d{1,7}-\d{1,2}$/.test(code);
 }
 
 function absoluteSystem(system?: string) {
@@ -64,11 +90,12 @@ function resolveUnitCode(unit?: string, unitCode?: string) {
 function buildQuantity(value: string | number, unit?: string, unitCode?: string) {
   const num = Number(value);
   if (!Number.isFinite(num)) return undefined;
+  const code = resolveUnitCode(unit, unitCode);
   return {
     value: num,
     unit: unit || undefined,
-    system: 'http://unitsofmeasure.org',
-    code: resolveUnitCode(unit, unitCode)
+    system: code ? 'http://unitsofmeasure.org' : undefined,
+    code
   };
 }
 
@@ -238,8 +265,11 @@ export function mapObservations({
       resource.code = {
         coding: codes.map((coding: any) => {
           const normalizedSystem = normalizeSystem(coding.system);
+          const fallbackSystem = coding.system
+            ? undefined
+            : (isLoincCode(coding.code) ? 'http://loinc.org' : 'urn:hl7-org:local');
           const result: any = {
-            system: normalizedSystem ?? (coding.system ? undefined : 'http://loinc.org'),
+            system: normalizedSystem ?? fallbackSystem,
             code: coding.code || ''
           };
           if (coding.display && (!result.system || !result.system.includes('loinc'))) {
