@@ -45,8 +45,17 @@ export function mapMedications({
     );
 
     if (source.code) {
+      const coding = (source.code.coding || []).map((c: any) => {
+        const system = String(c.system || '');
+        const isRxNorm = system.includes('rxnorm');
+        return {
+          system: c.system,
+          code: c.code,
+          display: isRxNorm ? undefined : c.display
+        };
+      });
       medication.code = {
-        coding: source.code.coding || [],
+        coding,
         text: source.code.text || undefined
       };
     } else {

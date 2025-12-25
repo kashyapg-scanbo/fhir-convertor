@@ -19,6 +19,7 @@ const loincVitalSigns = new Set([
   '8462-4',
   '85354-9',
   '8302-2',
+  '29463-7',
   '3141-9',
   '8331-1',
   '59408-5',
@@ -82,6 +83,11 @@ function normalizeSystem(system?: string) {
   if (upper === 'LN' || system.toLowerCase().includes('loinc')) return 'http://loinc.org';
   if (upper === 'L' || upper === 'LOCAL') return 'urn:hl7-org:local';
   return undefined;
+}
+
+function hasLoincCode(coding: any[] | undefined, code: string) {
+  if (!Array.isArray(coding)) return false;
+  return coding.some(c => normalizeSystem(c.system) === 'http://loinc.org' && c.code === code);
 }
 
 function resolveUnitCode(unit?: string, unitCode?: string) {
@@ -263,7 +269,7 @@ export function mapObservations({
     resource.status = obs.status || 'final';
     resource.effectiveDateTime = obs.date || new Date().toISOString();
 
-    if (obs.code) {
+  if (obs.code) {
       const codes = Array.isArray(obs.code) ? obs.code : [obs.code];
       resource.code = {
         coding: codes.map((coding: any) => {
@@ -283,6 +289,20 @@ export function mapObservations({
       };
     } else {
       resource.code = undefined;
+    }
+
+    if (resource.code?.coding) {
+      const displayLower = String(primaryCode?.display || '').toLowerCase();
+      const codeLower = String(primaryCode?.code || '').toLowerCase();
+      const isWeightDisplay = displayLower.includes('weight') || displayLower.includes('body wt') || displayLower === 'wt';
+      const isWeightCodeAlias = codeLower === 'wt' || codeLower === 'bodyweight' || codeLower === 'body-weight';
+      if ((isWeightDisplay || isWeightCodeAlias) && !hasLoincCode(resource.code.coding, '29463-7')) {
+        resource.code.coding.unshift({
+          system: 'http://loinc.org',
+          code: '29463-7',
+          display: 'Body weight'
+        });
+      }
     }
 
     if (obs.value !== undefined) {

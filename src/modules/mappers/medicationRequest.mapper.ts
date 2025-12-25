@@ -55,8 +55,17 @@ export function mapMedicationRequests({
     if (source.medicationCodeableConcept || source.medicationReference) {
       medicationRequest.medication = {};
       if (source.medicationCodeableConcept) {
+        const coding = (source.medicationCodeableConcept.coding || []).map((c: any) => {
+          const system = String(c.system || '');
+          const isRxNorm = system.includes('rxnorm');
+          return {
+            system: c.system,
+            code: c.code,
+            display: isRxNorm ? undefined : c.display
+          };
+        });
         medicationRequest.medication.concept = {
-          coding: source.medicationCodeableConcept.coding || [],
+          coding,
           text: source.medicationCodeableConcept.text || ''
         };
       }
@@ -187,7 +196,8 @@ function mapDosageInstruction(dosage: CanonicalDosageInstruction) {
     route: dosage.route
   };
 
-  if (dosage.doseQuantity) {
+  if (dosage.doseQuantity && (dosage.doseQuantity.value !== undefined || dosage.doseQuantity.unit)) {
+    // FHIR R5 expects doseQuantity under doseAndRate, not directly on Dosage.
     mapped.doseAndRate = [{
       doseQuantity: {
         value: dosage.doseQuantity.value,
