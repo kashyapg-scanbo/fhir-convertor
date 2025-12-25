@@ -116,12 +116,19 @@ function mapR4Patient(pt: any): CanonicalPatient {
 }
 
 function mapR4Encounter(enc: any): CanonicalEncounter {
+    const participantIds = (enc.participant || [])
+        .map((p: any) => p.individual?.reference || p.actor?.reference)
+        .map((ref: string | undefined) => ref?.replace('Practitioner/', ''))
+        .filter(Boolean);
+
     return {
         id: enc.id,
         class: enc.class?.code,
         status: enc.status,
         start: enc.period?.start,
-        location: enc.location?.[0]?.location?.display
+        location: enc.location?.[0]?.location?.display,
+        participantPractitionerIds: participantIds.length > 0 ? participantIds : undefined,
+        serviceProviderOrganizationId: enc.serviceProvider?.reference?.replace('Organization/', '')
     };
 }
 

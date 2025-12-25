@@ -34,6 +34,8 @@ export type CanonicalEncounter = {
   start?: string;
   location?: string;
   status?: string;
+  participantPractitionerIds?: string[];
+  serviceProviderOrganizationId?: string;
 };
 
 export type CanonicalObservation = {

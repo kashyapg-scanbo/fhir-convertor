@@ -37,7 +37,38 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   const patientFullUrl = patientResult.patientFullUrl;
   bundle.entry.push(patientResult.entry);
 
-  const encounterResult = mapEncounter({ encounter: canonical.encounter, operation, registry, patientFullUrl });
+  const practitionerEntries = mapPractitioners({ practitioners: canonical.practitioners, operation, registry });
+  if (practitionerEntries.length > 0) {
+    bundle.entry.push(...practitionerEntries);
+  }
+
+  const organizationEntries = mapOrganizations({
+    organizations: canonical.organizations,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (organizationEntries.length > 0) {
+    bundle.entry.push(...organizationEntries);
+  }
+
+  const practitionerRoleEntries = mapPractitionerRoles({
+    practitionerRoles: canonical.practitionerRoles,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (practitionerRoleEntries.length > 0) {
+    bundle.entry.push(...practitionerRoleEntries);
+  }
+
+  const encounterResult = mapEncounter({
+    encounter: canonical.encounter,
+    operation,
+    registry,
+    patientFullUrl,
+    resolveRef
+  });
   if (encounterResult.entries.length > 0) {
     bundle.entry.push(...encounterResult.entries);
   }
@@ -51,31 +82,6 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (observationEntries.length > 0) {
     bundle.entry.push(...observationEntries);
-  }
-
-  const practitionerEntries = mapPractitioners({ practitioners: canonical.practitioners, operation, registry });
-  if (practitionerEntries.length > 0) {
-    bundle.entry.push(...practitionerEntries);
-  }
-
-  const practitionerRoleEntries = mapPractitionerRoles({
-    practitionerRoles: canonical.practitionerRoles,
-    operation,
-    registry,
-    resolveRef
-  });
-  if (practitionerRoleEntries.length > 0) {
-    bundle.entry.push(...practitionerRoleEntries);
-  }
-
-  const organizationEntries = mapOrganizations({
-    organizations: canonical.organizations,
-    operation,
-    registry,
-    resolveRef
-  });
-  if (organizationEntries.length > 0) {
-    bundle.entry.push(...organizationEntries);
   }
 
   const medicationRequestEntries = mapMedicationRequests({

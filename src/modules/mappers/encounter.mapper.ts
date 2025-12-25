@@ -9,6 +9,7 @@ interface EncounterMapperArgs {
   operation?: OperationType;
   registry: FullUrlRegistry;
   patientFullUrl: string;
+  resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined;
 }
 
 export interface EncounterMappingResult {
@@ -42,7 +43,8 @@ export function mapEncounter({
   encounter: canonicalEncounter,
   operation,
   registry,
-  patientFullUrl
+  patientFullUrl,
+  resolveRef
 }: EncounterMapperArgs): EncounterMappingResult {
   if (!canonicalEncounter) {
     return { entries: [] };
@@ -102,6 +104,24 @@ export function mapEncounter({
     encounterResource.location = undefined;
   }
 
+  if (canonicalEncounter.serviceProviderOrganizationId) {
+    encounterResource.serviceProvider = {
+      reference: resolveRef('Organization', canonicalEncounter.serviceProviderOrganizationId)
+    };
+  } else {
+    encounterResource.serviceProvider = undefined;
+  }
+
+  if (canonicalEncounter.participantPractitionerIds?.length) {
+    encounterResource.participant = canonicalEncounter.participantPractitionerIds.map(practitionerId => ({
+      actor: {
+        reference: resolveRef('Practitioner', practitionerId)
+      }
+    }));
+  } else {
+    encounterResource.participant = undefined;
+  }
+
   encounterResource.priority = undefined;
   encounterResource.type = undefined;
   encounterResource.serviceType = undefined;
@@ -110,8 +130,6 @@ export function mapEncounter({
   encounterResource.basedOn = undefined;
   encounterResource.careTeam = undefined;
   encounterResource.partOf = undefined;
-  encounterResource.serviceProvider = undefined;
-  encounterResource.participant = undefined;
   encounterResource.appointment = undefined;
   encounterResource.virtualService = undefined;
   encounterResource.plannedStartDate = undefined;

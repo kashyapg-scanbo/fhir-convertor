@@ -67,12 +67,28 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
 
   const encounterId = readValue(firstRow, ['encounter_id', 'visit_id']);
   if (encounterId) {
+    const participantIdsRaw = readValue(firstRow, [
+      'encounter_practitioner_id',
+      'encounter_participant_id',
+      'encounter_practitioner_ids'
+    ]);
+    const participantIds = participantIdsRaw
+      ? participantIdsRaw.split(',').map(v => v.trim()).filter(Boolean)
+      : undefined;
+    const serviceProviderOrganizationId = readValue(firstRow, [
+      'encounter_service_provider_id',
+      'service_provider_id',
+      'service_provider_organization_id'
+    ]);
+
     canonical.encounter = {
       id: encounterId,
       class: readValue(firstRow, ['encounter_class', 'encounter_type']),
       start: readValue(firstRow, ['encounter_start', 'encounter_start_time']),
       location: readValue(firstRow, ['encounter_location']),
-      status: readValue(firstRow, ['encounter_status'])
+      status: readValue(firstRow, ['encounter_status']),
+      participantPractitionerIds: participantIds && participantIds.length > 0 ? participantIds : undefined,
+      serviceProviderOrganizationId: serviceProviderOrganizationId || undefined
     };
   }
 

@@ -80,9 +80,28 @@ export function buildCanonical(parsed: any) {
   if (pv1) {
     const encounterClass = pv1?.[1]?.[0]?.[0] === 'I' ? 'IMP' : 'AMB';
     const encounterId = pv1?.[18]?.[0]?.[0];
+    const encounterParticipants = new Set<string>();
+
+    const participantFields = [6, 7, 8, 16]; // PV1-7/8/9/17
+    for (const fieldIndex of participantFields) {
+      const reps = pv1?.[fieldIndex] ?? [];
+      for (const rep of reps) {
+        const participantId = Array.isArray(rep) ? rep[0] : undefined;
+        if (participantId) encounterParticipants.add(participantId);
+      }
+    }
+
+    const serviceProviderOrgId =
+      pv1?.[2]?.[0]?.[3] || // PV1-3.4: Facility
+      pv1?.[38]?.[0]?.[0]; // PV1-39: Servicing Facility
+
     encounter = {
       id: encounterId,
-      class: encounterClass
+      class: encounterClass,
+      participantPractitionerIds: encounterParticipants.size > 0
+        ? Array.from(encounterParticipants)
+        : undefined,
+      serviceProviderOrganizationId: serviceProviderOrgId
     };
   }
 
@@ -472,6 +491,15 @@ export function buildCanonical(parsed: any) {
         }]
       });
     }
+  }
+
+  if (encounter?.serviceProviderOrganizationId) {
+    registerOrganization({
+      id: `PV1-FAC-${encounter.serviceProviderOrganizationId}`,
+      identifier: encounter.serviceProviderOrganizationId,
+      name: encounter.serviceProviderOrganizationId,
+      active: isDelete ? false : undefined
+    });
   }
 
   if (organizations.length > 0) {

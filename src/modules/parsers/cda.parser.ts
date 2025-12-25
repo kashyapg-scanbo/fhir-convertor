@@ -140,10 +140,18 @@ function buildEncounterFromCDA(clinicalDocument: any): CanonicalModel['encounter
     extractAttribute(effectiveTimeObj, '@_value') ||
     extractAttribute(effectiveTimeObj?.low, '@_value');
 
+  const responsibleParty = encounterNode.responsibleParty || encounterNode['cda:responsibleParty'];
+  const assignedEntity = responsibleParty?.assignedEntity || responsibleParty?.['cda:assignedEntity'];
+  const responsiblePractitionerId = extractId(assignedEntity?.id || assignedEntity?.['cda:id']);
+  const representedOrg = assignedEntity?.representedOrganization || assignedEntity?.['cda:representedOrganization'];
+  const responsibleOrgId = extractId(representedOrg?.id || representedOrg?.['cda:id']);
+
   return {
     id: encounterId,
     class: encounterClass,
-    start: formatCDADateTime(startValue)
+    start: formatCDADateTime(startValue),
+    participantPractitionerIds: responsiblePractitionerId ? [responsiblePractitionerId] : undefined,
+    serviceProviderOrganizationId: responsibleOrgId
   };
 }
 

@@ -29,7 +29,9 @@ const CustomJSONSchema = z.object({
     classCode: z.string().optional(),
     startDateTime: z.string().optional(),
     location: z.string().optional(),
-    status: z.string().optional()
+    status: z.string().optional(),
+    participantPractitionerIds: z.array(z.string()).optional(),
+    serviceProviderOrganizationId: z.string().optional()
   }).optional(),
   observations: z.array(z.object({
     id: z.string().optional(),
@@ -207,7 +209,9 @@ function buildCanonicalEncounter(encounter: any) {
     class: encounter.classCode,
     start: encounter.startDateTime,
     location: encounter.location,
-    status: encounter.status
+    status: encounter.status,
+    participantPractitionerIds: encounter.participantPractitionerIds,
+    serviceProviderOrganizationId: encounter.serviceProviderOrganizationId
   };
 }
 

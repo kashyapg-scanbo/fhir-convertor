@@ -193,13 +193,21 @@ function mapV3Encounter(encounterEvent: any): CanonicalEncounter | undefined {
     }
 
     const status = mapEncounterStatus(encounterEvent.statusCode?.['@_code']);
+    const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
+    const assignedEntity = responsibleParty?.assignedEntity || responsibleParty?.AssignedEntity;
+    const assignedEntityIdInfo = assignedEntity ? pickV3Id(assignedEntity.id || assignedEntity.Id) : { id: undefined, identifier: undefined };
+    const representedOrg = assignedEntity?.representedOrganization || assignedEntity?.RepresentedOrganization;
+    const representedOrgIdInfo = representedOrg ? pickV3Id(representedOrg.id || representedOrg.Id) : { id: undefined, identifier: undefined };
+    const participantId = assignedEntityIdInfo.identifier || assignedEntityIdInfo.id;
 
     return {
         id: idInfo.id,
         class: mapEncounterClass(encounterClass),
         status: status,
         start: formatV3DateTime(startTime),
-        location: locationStr || undefined
+        location: locationStr || undefined,
+        participantPractitionerIds: participantId ? [participantId] : undefined,
+        serviceProviderOrganizationId: representedOrgIdInfo.identifier || representedOrgIdInfo.id
     };
 }
 
