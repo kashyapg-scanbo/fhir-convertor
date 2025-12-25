@@ -11,20 +11,38 @@ interface ObservationMapperArgs {
   encounterFullUrl?: string;
 }
 
-const loincVitalSigns = new Set([
-  '8867-4',
-  '9279-1',
-  '8310-5',
-  '8480-6',
-  '8462-4',
-  '85354-9',
-  '8302-2',
-  '29463-7',
-  '3141-9',
-  '8331-1',
-  '59408-5',
-  '39156-5'
-]);
+const vitalSignLoincMap: Record<string, string> = {
+  '85353-1': 'Vital signs, weight, height, head circumference, oxygen saturation and BMI panel',
+  '9279-1': 'Respiratory rate',
+  '8867-4': 'Heart rate',
+  '2708-6': 'Oxygen saturation in Arterial blood',
+  '8310-5': 'Body temperature',
+  '8302-2': 'Body height',
+  '9843-4': 'Head Occipital-frontal circumference',
+  '29463-7': 'Body weight',
+  '39156-5': 'Body mass index (BMI) [Ratio]',
+  '85354-9': 'Blood pressure panel with all children optional',
+  '8480-6': 'Systolic blood pressure',
+  '8462-4': 'Diastolic blood pressure',
+  '8478-0': 'Mean blood pressure'
+};
+const loincVitalSigns = new Set(Object.keys(vitalSignLoincMap));
+
+const vitalSignAliases: Array<{ code: string; match: RegExp }> = [
+  { code: '29463-7', match: /\b(body\s*weight|weight|wt)\b/i },
+  { code: '8302-2', match: /\b(body\s*height|height|ht)\b/i },
+  { code: '9843-4', match: /\b(head\s*circumference|occipital|frontal)\b/i },
+  { code: '39156-5', match: /\b(body\s*mass\s*index|bmi)\b/i },
+  { code: '8867-4', match: /\b(heart\s*rate|pulse)\b/i },
+  { code: '9279-1', match: /\b(resp(iratory)?\s*rate|rr)\b/i },
+  { code: '2708-6', match: /\b(oxygen\s*saturation|spo2|o2\s*sat)\b/i },
+  { code: '8310-5', match: /\b(temperature|temp)\b/i },
+  { code: '8480-6', match: /\b(systolic)\b/i },
+  { code: '8462-4', match: /\b(diastolic)\b/i },
+  { code: '8478-0', match: /\b(mean\s*blood\s*pressure|map)\b/i },
+  { code: '85354-9', match: /\b(blood\s*pressure|bp)\b/i },
+  { code: '85353-1', match: /\b(vital\s*signs?)\b/i }
+];
 
 const allowedInterpretationCodes = new Set(['L', 'LL', 'H', 'HH', 'A', 'AA', 'N', 'S', 'R', 'I']);
 const ucumUnitMap: Record<string, string> = {
@@ -88,6 +106,36 @@ function normalizeSystem(system?: string) {
 function hasLoincCode(coding: any[] | undefined, code: string) {
   if (!Array.isArray(coding)) return false;
   return coding.some(c => normalizeSystem(c.system) === 'http://loinc.org' && c.code === code);
+}
+
+function inferVitalSignCode(primaryCode?: { code?: string; display?: string }) {
+  const code = String(primaryCode?.code || '');
+  if (loincVitalSigns.has(code)) return code;
+  const text = `${primaryCode?.code || ''} ${primaryCode?.display || ''}`.trim();
+  if (!text) return undefined;
+  for (const alias of vitalSignAliases) {
+    if (alias.match.test(text)) return alias.code;
+  }
+  return undefined;
+}
+
+function applyVitalSignCoding(resource: any, primaryCode?: { code?: string; display?: string }) {
+  if (!resource?.code?.coding) return;
+  const inferred = inferVitalSignCode(primaryCode);
+  if (inferred && !hasLoincCode(resource.code.coding, inferred)) {
+    resource.code.coding.unshift({
+      system: 'http://loinc.org',
+      code: inferred,
+      display: vitalSignLoincMap[inferred]
+    });
+  }
+  resource.code.coding = resource.code.coding.map((c: any) => {
+    const system = normalizeSystem(c.system);
+    if (system === 'http://loinc.org' && !c.display && vitalSignLoincMap[c.code]) {
+      return { ...c, display: vitalSignLoincMap[c.code] };
+    }
+    return c;
+  });
 }
 
 function resolveUnitCode(unit?: string, unitCode?: string) {
@@ -291,19 +339,7 @@ export function mapObservations({
       resource.code = undefined;
     }
 
-    if (resource.code?.coding) {
-      const displayLower = String(primaryCode?.display || '').toLowerCase();
-      const codeLower = String(primaryCode?.code || '').toLowerCase();
-      const isWeightDisplay = displayLower.includes('weight') || displayLower.includes('body wt') || displayLower === 'wt';
-      const isWeightCodeAlias = codeLower === 'wt' || codeLower === 'bodyweight' || codeLower === 'body-weight';
-      if ((isWeightDisplay || isWeightCodeAlias) && !hasLoincCode(resource.code.coding, '29463-7')) {
-        resource.code.coding.unshift({
-          system: 'http://loinc.org',
-          code: '29463-7',
-          display: 'Body weight'
-        });
-      }
-    }
+    applyVitalSignCoding(resource, primaryCode);
 
     if (obs.value !== undefined) {
       if (Array.isArray(obs.value)) {
