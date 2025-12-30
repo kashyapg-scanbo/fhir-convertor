@@ -30,9 +30,9 @@ export function parseHL7v3(input: string): CanonicalModel {
         throw new Error('Invalid XML input for HL7v3 parser');
     }
 
-    // Detect root element name (could be generic)
-    const rootKey = Object.keys(xml)[0];
-    const root = xml[rootKey];
+    // Detect root element name (skip XML declarations / processing instructions)
+    const rootKey = Object.keys(xml).find(key => !key.startsWith('?'));
+    const root = rootKey ? xml[rootKey] : undefined;
 
     if (!root) {
         throw new Error('Empty or invalid HL7v3 message');
