@@ -1,29 +1,43 @@
-<?xml version="1.0"?>
-<PRPA_IN101001>
-  <controlActProcess>
-    
-<subject>
-  <registrationEvent>
-    <subject1>
-      <patient>
-        <id extension="PATV3G-1"/>
-        <patientPerson>
-          <name><family>Doe1</family><given>Jordan1</given></name>
-        </patientPerson>
-      </patient>
-    </subject1>
-    <custodian>
-      <assignedCustodian>
-        <representedCustodianOrganization>
-          <id extension="ORGV3C-1"/>
-          <name>General Hospital 1</name>
-          <code code="prov" displayName="Provider" codeSystem="http://terminology.hl7.org/CodeSystem/organization-type"/>
-        </representedCustodianOrganization>
-      </assignedCustodian>
-    </custodian>
-  </registrationEvent>
-</subject>
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id root="2.16.840.1.113883.3.72.5.9.1" extension="MSG-V3-ORG-1"/>
+  <creationTime value="20240101103000"/>
+  <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <receiver typeCode="RCV">
+    <device classCode="DEV" determinerCode="INSTANCE">
+      <id root="2.16.840.1.113883.3.72.5.9.2"/>
+    </device>
+  </receiver>
+  <sender typeCode="SND">
+    <device classCode="DEV" determinerCode="INSTANCE">
+      <id root="2.16.840.1.113883.3.72.5.9.3"/>
+    </device>
+  </sender>
+  <controlActProcess classCode="CACT" moodCode="EVN">
 
+    <subject>
+      <registrationEvent>
+        <subject1>
+          <patient>
+            <id extension="PATV3G-1"/>
+            <patientPerson>
+              <name><family>Doe1</family><given>Jordan1</given></name>
+            </patientPerson>
+          </patient>
+        </subject1>
+        <custodian>
+          <assignedCustodian>
+            <representedCustodianOrganization>
+              <id extension="ORGV3C-1"/>
+              <name>General Hospital 1</name>
+              <code code="prov" displayName="Provider" codeSystem="http://terminology.hl7.org/CodeSystem/organization-type"/>
+            </representedCustodianOrganization>
+          </assignedCustodian>
+        </custodian>
+      </registrationEvent>
+    </subject>
   </controlActProcess>
-  
 </PRPA_IN101001>

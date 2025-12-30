@@ -1,27 +1,41 @@
-<?xml version="1.0"?>
-<PRPA_IN101001>
-  <controlActProcess>
-    
-<subject>
-  <registrationEvent>
-    <subject1>
-      <patient>
-        <id extension="PATV3D-1"/>
-        <patientPerson>
-          <name><family>Doe1</family><given>Taylor1</given></name>
-        </patientPerson>
-      </patient>
-    </subject1>
-  </registrationEvent>
-  <observationEvent>
-    <observation>
-      <code code="DOCV3-1" displayName="Document 1"/>
-      <value value="dGVzdA==" mediaType="application/pdf"/>
-      <effectiveTime value="20240101090000"/>
-    </observation>
-  </observationEvent>
-</subject>
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id root="2.16.840.1.113883.3.72.5.9.1" extension="MSG-V3-DOC-1"/>
+  <creationTime value="20240101103000"/>
+  <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <receiver typeCode="RCV">
+    <device classCode="DEV" determinerCode="INSTANCE">
+      <id root="2.16.840.1.113883.3.72.5.9.2"/>
+    </device>
+  </receiver>
+  <sender typeCode="SND">
+    <device classCode="DEV" determinerCode="INSTANCE">
+      <id root="2.16.840.1.113883.3.72.5.9.3"/>
+    </device>
+  </sender>
+  <controlActProcess classCode="CACT" moodCode="EVN">
 
+    <subject>
+      <registrationEvent>
+        <subject1>
+          <patient>
+            <id extension="PATV3D-1"/>
+            <patientPerson>
+              <name><family>Doe1</family><given>Taylor1</given></name>
+            </patientPerson>
+          </patient>
+        </subject1>
+      </registrationEvent>
+      <observationEvent>
+        <observation>
+          <code code="DOCV3-1" displayName="Document 1"/>
+          <value value="dGVzdA==" mediaType="application/pdf"/>
+          <effectiveTime value="20240101090000"/>
+        </observation>
+      </observationEvent>
+    </subject>
   </controlActProcess>
-  
 </PRPA_IN101001>

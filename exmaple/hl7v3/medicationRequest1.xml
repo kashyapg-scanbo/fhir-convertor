@@ -1,32 +1,46 @@
-<?xml version="1.0"?>
-<PRPA_IN101001>
-  <controlActProcess>
-    
-<subject>
-  <registrationEvent>
-    <subject1>
-      <patient>
-        <id extension="PATV3MR-1"/>
-        <patientPerson>
-          <name><family>Doe1</family><given>Sam1</given></name>
-        </patientPerson>
-      </patient>
-    </subject1>
-  </registrationEvent>
-  <substanceAdministration>
-    <consumable>
-      <manufacturedProduct>
-        <manufacturedMaterial>
-          <code code="MEDV3R-1" displayName="Medication Request 1"/>
-        </manufacturedMaterial>
-      </manufacturedProduct>
-    </consumable>
-    <doseQuantity value="2" unit="tab"/>
-    <routeCode code="PO" displayName="Oral"/>
-    <effectiveTime value="20240101080000"/>
-  </substanceAdministration>
-</subject>
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id root="2.16.840.1.113883.3.72.5.9.1" extension="MSG-V3-MREQ-1"/>
+  <creationTime value="20240101103000"/>
+  <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <receiver typeCode="RCV">
+    <device classCode="DEV" determinerCode="INSTANCE">
+      <id root="2.16.840.1.113883.3.72.5.9.2"/>
+    </device>
+  </receiver>
+  <sender typeCode="SND">
+    <device classCode="DEV" determinerCode="INSTANCE">
+      <id root="2.16.840.1.113883.3.72.5.9.3"/>
+    </device>
+  </sender>
+  <controlActProcess classCode="CACT" moodCode="EVN">
 
+    <subject>
+      <registrationEvent>
+        <subject1>
+          <patient>
+            <id extension="PATV3MR-1"/>
+            <patientPerson>
+              <name><family>Doe1</family><given>Sam1</given></name>
+            </patientPerson>
+          </patient>
+        </subject1>
+      </registrationEvent>
+      <substanceAdministration>
+        <consumable>
+          <manufacturedProduct>
+            <manufacturedMaterial>
+              <code code="MEDV3R-1" displayName="Medication Request 1"/>
+            </manufacturedMaterial>
+          </manufacturedProduct>
+        </consumable>
+        <doseQuantity value="2" unit="tab"/>
+        <routeCode code="PO" displayName="Oral"/>
+        <effectiveTime value="20240101080000"/>
+      </substanceAdministration>
+    </subject>
   </controlActProcess>
-  
 </PRPA_IN101001>

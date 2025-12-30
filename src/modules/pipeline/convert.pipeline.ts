@@ -48,8 +48,12 @@ export function detectInputFormat(input: string): InputFormat {
     return 'csv';
   }
 
-  // HL7 v3 (non-CDA) - usually has PRPA or other interaction IDs and v3 namespace
-  if (trimmed.startsWith('<?xml') && trimmed.includes('urn:hl7-org:v3')) {
+  // HL7 v3 (non-CDA) - XML with v3 namespace or known interaction roots (PRPA_, etc.)
+  const v3RootMatch = trimmed.match(/<([A-Za-z0-9_:-]+)\b/);
+  const v3Root = v3RootMatch ? v3RootMatch[1] : '';
+  const v3RootName = v3Root.split(':').pop() || '';
+  const v3RootIsKnown = /^(PRPA|PORR|PRSC|POOR|QUPC|QUDT|QUPA|QUQI|MCCI|MFMI|MFMX|RCMR|RCCT|REPC|REPS)_/i.test(v3RootName);
+  if (trimmed.startsWith('<?xml') && (trimmed.includes('urn:hl7-org:v3') || v3RootIsKnown)) {
     return 'hl7v3';
   }
 
