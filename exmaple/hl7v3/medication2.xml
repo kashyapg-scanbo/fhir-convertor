@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3M-2"/>
+        <patientPerson>
+          <name><family>Doe2</family><given>Alex2</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <substanceAdministration>
+    <consumable>
+      <manufacturedProduct>
+        <manufacturedMaterial>
+          <code code="MEDV3-2" displayName="Medication 2"/>
+        </manufacturedMaterial>
+      </manufacturedProduct>
+    </consumable>
+  </substanceAdministration>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

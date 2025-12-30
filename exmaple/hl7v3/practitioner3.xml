@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3P-3"/>
+        <patientPerson>
+          <name><family>Doe3</family><given>Jamie3</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+</subject>
+
+  </controlActProcess>
+  
+<author>
+  <assignedAuthor>
+    <id extension="PRACV3A-3"/>
+    <assignedPerson>
+      <name><family>Nguyen3</family><given>Ava3</given></name>
+    </assignedPerson>
+    <telecom value="tel:+1555013"/>
+  </assignedAuthor>
+</author>
+
+</PRPA_IN101001>

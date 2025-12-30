@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3E-1"/>
+        <patientPerson>
+          <name><family>Lee1</family><given>Alex1</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <encounterEvent>
+    <id extension="ENCV3-1"/>
+    <code code="IMP"/>
+    <effectiveTime value="20240101103000"/>
+    <statusCode code="active"/>
+    <responsibleParty>
+      <assignedEntity>
+        <id extension="PRACV3-1"/>
+        <assignedPerson>
+          <name><family>Smith1</family><given>Sam1</given></name>
+        </assignedPerson>
+        <representedOrganization>
+          <id extension="ORGV3-1"/>
+        </representedOrganization>
+      </assignedEntity>
+    </responsibleParty>
+  </encounterEvent>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3-1"/>
+        <patientPerson>
+          <name>
+            <family>Doe1</family>
+            <given>Jane1</given>
+          </name>
+          <administrativeGenderCode code="F"/>
+          <birthTime value="19900101"/>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+</subject>
+
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3E-1"/>
+        <patientPerson>
+          <name><family>Lee1</family><given>Alex1</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <encounterEvent>
+    <id extension="ENCV3-1"/>
+    <code code="IMP"/>
+    <effectiveTime value="20240101103000"/>
+    <statusCode code="active"/>
+    <responsibleParty>
+      <assignedEntity>
+        <id extension="PRACV3-1"/>
+        <assignedPerson>
+          <name><family>Smith1</family><given>Sam1</given></name>
+        </assignedPerson>
+        <representedOrganization>
+          <id extension="ORGV3-1"/>
+        </representedOrganization>
+      </assignedEntity>
+    </responsibleParty>
+  </encounterEvent>
+</subject>
+
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3O-1"/>
+        <patientPerson>
+          <name><family>Doe1</family><given>Riley1</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <observationEvent>
+    <observation>
+      <code code="8867-4" codeSystem="http://loinc.org" displayName="Heart rate"/>
+      <value value="71" unit="/min"/>
+      <effectiveTime value="20240101120000"/>
+      <methodCode code="MAN" displayName="Manual"/>
+    </observation>
+  </observationEvent>
+</subject>
+
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3M-1"/>
+        <patientPerson>
+          <name><family>Doe1</family><given>Alex1</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <substanceAdministration>
+    <consumable>
+      <manufacturedProduct>
+        <manufacturedMaterial>
+          <code code="MEDV3-1" displayName="Medication 1"/>
+        </manufacturedMaterial>
+      </manufacturedProduct>
+    </consumable>
+  </substanceAdministration>
+</subject>
+
+  </controlActProcess>
+  
+<author>
+  <assignedAuthor>
+    <id extension="PRACV3A-1"/>
+    <assignedPerson>
+      <name><family>Nguyen1</family><given>Ava1</given></name>
+    </assignedPerson>
+    <telecom value="tel:+1555011"/>
+  </assignedAuthor>
+</author>
+
+<author>
+  <assignedAuthor>
+    <id extension="PRACV3R-1"/>
+    <assignedPerson>
+      <name><family>Stone1</family><given>Rory1</given></name>
+    </assignedPerson>
+    <representedOrganization>
+      <id extension="ORGV3R-1"/>
+      <name>Clinic1</name>
+    </representedOrganization>
+    <code code="ROLE1" displayName="Role 1" codeSystem="http://example.org"/>
+  </assignedAuthor>
+</author>
+
+</PRPA_IN101001>

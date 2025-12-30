@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3O-3"/>
+        <patientPerson>
+          <name><family>Doe3</family><given>Riley3</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <observationEvent>
+    <observation>
+      <code code="8867-4" codeSystem="http://loinc.org" displayName="Heart rate"/>
+      <value value="73" unit="/min"/>
+      <effectiveTime value="20240103120000"/>
+      <methodCode code="MAN" displayName="Manual"/>
+    </observation>
+  </observationEvent>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

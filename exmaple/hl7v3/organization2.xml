@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3G-2"/>
+        <patientPerson>
+          <name><family>Doe2</family><given>Jordan2</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+    <custodian>
+      <assignedCustodian>
+        <representedCustodianOrganization>
+          <id extension="ORGV3C-2"/>
+          <name>General Hospital 2</name>
+          <code code="prov" displayName="Provider" codeSystem="http://terminology.hl7.org/CodeSystem/organization-type"/>
+        </representedCustodianOrganization>
+      </assignedCustodian>
+    </custodian>
+  </registrationEvent>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

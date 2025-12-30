@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
+<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3"
+  xmlns:voc="urn:hl7-org:v3/voc" xmlns:sdtc="urn:hl7-org:sdtc">
+  <realmCode code="US"/>
+  <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+  <id extension="PAT-CDA-practitioner-3" root="2.16.840.1.113883.19.5.99999.1"/>
+  <code code="34133-9" displayName="Summary of episode note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Practitioner Example 3</title>
+  <effectiveTime value="202401011030-0800"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-CDA-practitioner-3" root="2.16.840.1.113883.4.1"/>
+      <patient>
+        <name><family>Doe3</family><given>Casey3</given></name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19900303"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+
+  <author>
+    <assignedAuthor>
+      <id extension="PRAC-CDA-3"/>
+      <assignedPerson>
+        <name><family>Nguyen3</family><given>Ava3</given></name>
+      </assignedPerson>
+      <code code="ROLE3" displayName="Role"/>
+    </assignedAuthor>
+  </author>
+</ClinicalDocument>

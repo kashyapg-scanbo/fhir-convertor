@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3-3"/>
+        <patientPerson>
+          <name>
+            <family>Doe3</family>
+            <given>Jane3</given>
+          </name>
+          <administrativeGenderCode code="F"/>
+          <birthTime value="19900303"/>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

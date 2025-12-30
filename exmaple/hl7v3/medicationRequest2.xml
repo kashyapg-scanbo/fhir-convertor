@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3MR-2"/>
+        <patientPerson>
+          <name><family>Doe2</family><given>Sam2</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <substanceAdministration>
+    <consumable>
+      <manufacturedProduct>
+        <manufacturedMaterial>
+          <code code="MEDV3R-2" displayName="Medication Request 2"/>
+        </manufacturedMaterial>
+      </manufacturedProduct>
+    </consumable>
+    <doseQuantity value="2" unit="tab"/>
+    <routeCode code="PO" displayName="Oral"/>
+    <effectiveTime value="20240102080000"/>
+  </substanceAdministration>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

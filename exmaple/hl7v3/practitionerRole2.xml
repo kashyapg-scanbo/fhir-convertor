@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3-2"/>
+        <patientPerson>
+          <name>
+            <family>Doe2</family>
+            <given>Jane2</given>
+          </name>
+          <administrativeGenderCode code="F"/>
+          <birthTime value="19900202"/>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+</subject>
+
+  </controlActProcess>
+  
+<author>
+  <assignedAuthor>
+    <id extension="PRACV3R-2"/>
+    <assignedPerson>
+      <name><family>Stone2</family><given>Rory2</given></name>
+    </assignedPerson>
+    <representedOrganization>
+      <id extension="ORGV3R-2"/>
+      <name>Clinic2</name>
+    </representedOrganization>
+    <code code="ROLE2" displayName="Role 2" codeSystem="http://example.org"/>
+  </assignedAuthor>
+</author>
+
+</PRPA_IN101001>

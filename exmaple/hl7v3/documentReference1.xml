@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<PRPA_IN101001>
+  <controlActProcess>
+    
+<subject>
+  <registrationEvent>
+    <subject1>
+      <patient>
+        <id extension="PATV3D-1"/>
+        <patientPerson>
+          <name><family>Doe1</family><given>Taylor1</given></name>
+        </patientPerson>
+      </patient>
+    </subject1>
+  </registrationEvent>
+  <observationEvent>
+    <observation>
+      <code code="DOCV3-1" displayName="Document 1"/>
+      <value value="dGVzdA==" mediaType="application/pdf"/>
+      <effectiveTime value="20240101090000"/>
+    </observation>
+  </observationEvent>
+</subject>
+
+  </controlActProcess>
+  
+</PRPA_IN101001>

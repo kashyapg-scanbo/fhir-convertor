@@ -20,9 +20,10 @@ export type FhirOutputVersion = FhirVersion;
  */
 export function detectInputFormat(input: string): InputFormat {
   const trimmed = input.trim();
+  const hasClinicalDocument = /<([A-Za-z0-9_-]+:)?ClinicalDocument\b/.test(trimmed);
 
-  // CDA typically starts with XML declaration or <ClinicalDocument
-  if (trimmed.startsWith('<?xml') || trimmed.startsWith('<ClinicalDocument') || trimmed.includes('<ClinicalDocument')) {
+  // CDA should explicitly include a ClinicalDocument root element
+  if (hasClinicalDocument) {
     return 'cda';
   }
 
@@ -47,8 +48,8 @@ export function detectInputFormat(input: string): InputFormat {
     return 'csv';
   }
 
-  // HL7 v3 (non-CDA) - usually has PRPA or other interaction IDs, and no ClinicalDocument
-  if (trimmed.startsWith('<?xml') && !trimmed.includes('<ClinicalDocument') && trimmed.includes('urn:hl7-org:v3')) {
+  // HL7 v3 (non-CDA) - usually has PRPA or other interaction IDs and v3 namespace
+  if (trimmed.startsWith('<?xml') && trimmed.includes('urn:hl7-org:v3')) {
     return 'hl7v3';
   }
 
