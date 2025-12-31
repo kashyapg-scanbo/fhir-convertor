@@ -10,7 +10,7 @@ interface DocumentReferenceMapperArgs {
   operation?: OperationType;
   registry: FullUrlRegistry;
   resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined;
-  patientFullUrl: string;
+  patientFullUrl?: string;
 }
 
 export function mapDocumentReferences({
@@ -69,8 +69,10 @@ export function mapDocumentReferences({
       documentReference.subject = {
         reference: resolveRef('Patient', source.subject) || `Patient/${source.subject}`
       };
-    } else {
+    } else if (patientFullUrl) {
       documentReference.subject = { reference: patientFullUrl };
+    } else {
+      documentReference.subject = undefined;
     }
 
     documentReference.date = source.date || undefined;

@@ -7,7 +7,7 @@ import { makeNarrative, mapAbnormalFlag } from './utils.js';
 interface ObservationMapperArgs {
   observations?: CanonicalObservation[];
   registry: FullUrlRegistry;
-  patientFullUrl: string;
+  patientFullUrl?: string;
   encounterFullUrl?: string;
 }
 
@@ -186,7 +186,7 @@ export function mapObservations({
     const bpResource = structuredClone(observationTemplate) as any;
     bpResource.id = crypto.randomUUID();
     bpResource.status = group.systolic.status || group.diastolic.status || 'final';
-    bpResource.subject = { reference: patientFullUrl };
+    bpResource.subject = patientFullUrl ? { reference: patientFullUrl } : undefined;
     bpResource.encounter = encounterFullUrl ? { reference: encounterFullUrl } : undefined;
     bpResource.effectiveDateTime = group.systolic.date || group.diastolic.date || new Date().toISOString();
     bpResource.category = [{
@@ -302,7 +302,7 @@ export function mapObservations({
       resource.identifier = undefined;
     }
 
-    resource.subject = { reference: patientFullUrl };
+      resource.subject = patientFullUrl ? { reference: patientFullUrl } : undefined;
     if (encounterFullUrl) {
       resource.encounter = { reference: encounterFullUrl };
     } else {
@@ -384,9 +384,9 @@ export function mapObservations({
     }
 
     if (resource.valueQuantity && primaryCode?.code === '8867-4') {
-      if (!resource.valueQuantity.unit) resource.valueQuantity.unit = 'beats/min';
-      if (!resource.valueQuantity.code) resource.valueQuantity.code = '/min';
-      if (!resource.valueQuantity.system) resource.valueQuantity.system = 'http://unitsofmeasure.org';
+      resource.valueQuantity.unit = 'beats/min';
+      resource.valueQuantity.code = '/min';
+      resource.valueQuantity.system = 'http://unitsofmeasure.org';
     }
 
     if (obs.referenceRange) {

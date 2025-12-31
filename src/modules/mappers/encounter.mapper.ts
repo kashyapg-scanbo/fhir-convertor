@@ -8,7 +8,7 @@ interface EncounterMapperArgs {
   encounter?: CanonicalEncounter;
   operation?: OperationType;
   registry: FullUrlRegistry;
-  patientFullUrl: string;
+  patientFullUrl?: string;
   resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined;
 }
 
@@ -72,7 +72,7 @@ export function mapEncounter({
     encounterFullUrl
   );
 
-  encounterResource.subject = { reference: patientFullUrl };
+  encounterResource.subject = patientFullUrl ? { reference: patientFullUrl } : undefined;
   if (canonicalEncounter.class) {
     const classCode = String(canonicalEncounter.class);
     const mappedClass = mapEncounterClass(classCode) || 'inpatient';

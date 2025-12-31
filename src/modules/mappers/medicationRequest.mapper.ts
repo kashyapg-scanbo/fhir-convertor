@@ -9,7 +9,7 @@ interface MedicationRequestMapperArgs {
   operation?: OperationType;
   registry: FullUrlRegistry;
   resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined;
-  patientFullUrl: string;
+  patientFullUrl?: string;
   encounterFullUrl?: string;
 }
 
@@ -98,8 +98,10 @@ export function mapMedicationRequests({
       medicationRequest.subject = {
         reference: resolveRef('Patient', source.subject) || `Patient/${source.subject}`
       };
-    } else {
+    } else if (patientFullUrl) {
       medicationRequest.subject = { reference: patientFullUrl };
+    } else {
+      medicationRequest.subject = undefined;
     }
 
     if (source.encounter) {

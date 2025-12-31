@@ -33,9 +33,13 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
     return registry.resolve(resourceType, idOrIdentifier) || `${resourceType}/${idOrIdentifier}`;
   };
 
-  const patientResult = mapPatient({ patient: canonical.patient, operation, registry });
-  const patientFullUrl = patientResult.patientFullUrl;
-  bundle.entry.push(patientResult.entry);
+  const patientResult = canonical.patient
+    ? mapPatient({ patient: canonical.patient, operation, registry })
+    : undefined;
+  const patientFullUrl = patientResult?.patientFullUrl;
+  if (patientResult?.entry) {
+    bundle.entry.push(patientResult.entry);
+  }
 
   const practitionerEntries = mapPractitioners({ practitioners: canonical.practitioners, operation, registry });
   if (practitionerEntries.length > 0) {

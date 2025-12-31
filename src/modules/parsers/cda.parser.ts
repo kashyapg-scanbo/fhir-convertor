@@ -464,9 +464,9 @@ function extractPractitionerData(clinicalDocument: any) {
           practitionerId,
           organizationId: organization.id,
           code: [{
-            system: 'http://terminology.hl7.org/CodeSystem/practitioner-role',
-            code: 'author',
-            display: 'Document author'
+            system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType',
+            code: 'AUT',
+            display: 'author'
           }]
         });
       }
