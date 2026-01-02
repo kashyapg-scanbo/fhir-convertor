@@ -28,7 +28,7 @@
         <section>
           <entry>
             <observation classCode="OBS" moodCode="EVN">
-              <code code="DOC-CDA-3" displayName="Document"/>
+              <code code="34133-9" codeSystem="2.16.840.1.113883.6.1" displayName="Summary of episode note"/>
               <value mediaType="application/pdf" value="dGVzdA=="/>
             </observation>
           </entry>
