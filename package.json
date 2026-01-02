@@ -12,7 +12,11 @@
     "test:convert": "node ./scripts/test-converter.mjs",
     "test:example:hl7": "node ./scripts/test-converter.mjs --example=hl7v2 --validate",
     "test:example:json": "node ./scripts/test-converter.mjs --example=json --validate",
-    "test:example:cda": "node ./scripts/test-converter.mjs --example=cda --validate"
+    "test:example:cda": "node ./scripts/test-converter.mjs --example=cda --validate",
+    "regression:baseline": "tsx scripts/run-regression.ts --out=golden",
+    "regression:run": "tsx scripts/run-regression.ts --out=tmp/regression",
+    "regression:compare": "tsx scripts/compare-regression.ts --baseline=golden --current=tmp/regression",
+    "regression": "npm run regression:run && npm run regression:compare"
   },
   "dependencies": {
     "express": "^4.19.2",
