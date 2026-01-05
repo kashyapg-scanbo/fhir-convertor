@@ -2,12 +2,39 @@ import { CanonicalModel } from '../../shared/types/canonical.types.js';
 
 export type TabularRow = Record<string, string>;
 
+const HEADER_ALIASES: Record<string, string[]> = {
+  patient_id: ['patient_identifier', 'patient_mrn', 'mrn', 'medical_record_number', 'patientid'],
+  patient_first_name: ['first_name', 'firstname', 'given_name', 'given', 'patient_given_name'],
+  patient_middle_name: ['middle_name', 'middlename'],
+  patient_last_name: ['last_name', 'lastname', 'family_name', 'surname', 'patient_family_name'],
+  patient_name: ['name', 'patientname', 'full_name', 'patient_full_name', 'pt_name'],
+  patient_gender: ['gender', 'sex', 'gndr'],
+  patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate'],
+  patient_phone: ['phone', 'phone_number', 'mobile', 'cell', 'cell_phone', 'patient_phone_number'],
+  patient_email: ['email', 'email_address'],
+  patient_address_line1: ['address', 'address1', 'address_line1', 'street', 'street_address'],
+  patient_address_line2: ['address2', 'address_line2', 'street2', 'street_address_2'],
+  patient_city: ['city', 'town'],
+  patient_state: ['state', 'province', 'region'],
+  patient_postal_code: ['zip', 'zipcode', 'postal', 'postal_code'],
+  patient_country: ['country']
+};
+
+function applyHeaderAliases(normalized: string): string {
+  for (const [canonical, aliases] of Object.entries(HEADER_ALIASES)) {
+    if (normalized === canonical) return canonical;
+    if (aliases.includes(normalized)) return canonical;
+  }
+  return normalized;
+}
+
 export function normalizeHeader(value: string): string {
-  return value
+  const normalized = value
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '_')
     .replace(/[^a-z0-9_]/g, '_');
+  return applyHeaderAliases(normalized);
 }
 
 function readValue(row: TabularRow, keys: string[]): string | undefined {
@@ -25,13 +52,41 @@ function readNumber(row: TabularRow, keys: string[]): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
+function splitFullName(fullName?: string): { given?: string[]; family?: string } | undefined {
+  if (!fullName) return undefined;
+  const trimmed = fullName.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.includes(',')) {
+    const [familyPart, givenPart] = trimmed.split(',', 2).map(part => part.trim()).filter(Boolean);
+    const givenTokens = givenPart ? givenPart.split(/\s+/).filter(Boolean) : [];
+    return {
+      family: familyPart || undefined,
+      given: givenTokens.length > 0 ? givenTokens : undefined
+    };
+  }
+  const tokens = trimmed.split(/\s+/).filter(Boolean);
+  if (tokens.length === 1) {
+    return { family: tokens[0] };
+  }
+  return {
+    family: tokens[tokens.length - 1],
+    given: tokens.slice(0, -1)
+  };
+}
+
 export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
   const firstRow = rows[0] || {};
 
   const patientId = readValue(firstRow, ['patient_id', 'patient_identifier', 'patient_mrn']);
   const patientFirst = readValue(firstRow, ['patient_first_name', 'patient_given', 'patient_given_name']);
   const patientMiddle = readValue(firstRow, ['patient_middle_name']);
-  const patientLast = readValue(firstRow, ['patient_last_name', 'patient_family', 'patient_family_name']);
+  let patientLast = readValue(firstRow, ['patient_last_name', 'patient_family', 'patient_family_name']);
+  let fullNameGiven: string[] | undefined;
+  if (!patientFirst && !patientLast) {
+    const nameFromFull = splitFullName(readValue(firstRow, ['patient_name']));
+    if (nameFromFull?.family) patientLast = nameFromFull.family;
+    if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
+  }
 
   const addressLine1 = readValue(firstRow, ['patient_address_line1', 'patient_address_1']);
   const addressLine2 = readValue(firstRow, ['patient_address_line2', 'patient_address_2']);
@@ -49,6 +104,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   if (phone) telecom.push({ system: 'phone', value: phone });
   if (email) telecom.push({ system: 'email', value: email });
 
+  const givenValues = (fullNameGiven ?? [patientFirst, patientMiddle].filter(Boolean)) as string[];
   const canonical: CanonicalModel = {
     messageType,
     patient: {
@@ -56,7 +112,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       identifier: patientId,
       name: {
         family: patientLast,
-        given: [patientFirst, patientMiddle].filter(Boolean) as string[] || undefined
+        given: givenValues.length > 0 ? givenValues : undefined
       },
       gender: readValue(firstRow, ['patient_gender', 'patient_sex']),
       birthDate: readValue(firstRow, ['patient_birth_date', 'patient_dob']),
