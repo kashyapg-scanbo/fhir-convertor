@@ -1,24 +1,7 @@
+import { HEADER_ALIASES } from '../../shared/header-aliases.js';
 import { CanonicalModel } from '../../shared/types/canonical.types.js';
 
 export type TabularRow = Record<string, string>;
-
-const HEADER_ALIASES: Record<string, string[]> = {
-  patient_id: ['patient_identifier', 'patient_mrn', 'mrn', 'medical_record_number', 'patientid'],
-  patient_first_name: ['first_name', 'firstname', 'given_name', 'given', 'patient_given_name'],
-  patient_middle_name: ['middle_name', 'middlename'],
-  patient_last_name: ['last_name', 'lastname', 'family_name', 'surname', 'patient_family_name'],
-  patient_name: ['name', 'patientname', 'full_name', 'patient_full_name', 'pt_name'],
-  patient_gender: ['gender', 'sex', 'gndr'],
-  patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate'],
-  patient_phone: ['phone', 'phone_number', 'mobile', 'cell', 'cell_phone', 'patient_phone_number'],
-  patient_email: ['email', 'email_address'],
-  patient_address_line1: ['address', 'address1', 'address_line1', 'street', 'street_address'],
-  patient_address_line2: ['address2', 'address_line2', 'street2', 'street_address_2'],
-  patient_city: ['city', 'town'],
-  patient_state: ['state', 'province', 'region'],
-  patient_postal_code: ['zip', 'zipcode', 'postal', 'postal_code'],
-  patient_country: ['country']
-};
 
 function applyHeaderAliases(normalized: string): string {
   for (const [canonical, aliases] of Object.entries(HEADER_ALIASES)) {
@@ -50,6 +33,15 @@ function readNumber(row: TabularRow, keys: string[]): number | undefined {
   if (value === undefined) return undefined;
   const parsed = Number(value);
   return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function readBoolean(row: TabularRow, keys: string[]): boolean | undefined {
+  const value = readValue(row, keys);
+  if (value === undefined) return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (['true', 't', 'yes', 'y', '1'].includes(normalized)) return true;
+  if (['false', 'f', 'no', 'n', '0'].includes(normalized)) return false;
+  return undefined;
 }
 
 function splitFullName(fullName?: string): { given?: string[]; family?: string } | undefined {
@@ -237,6 +229,146 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     };
   }).filter(Boolean);
   if (documentReferences.length > 0) canonical.documentReferences = documentReferences as any[];
+
+  const practitioners = rows.map(row => {
+    const practitionerId = readValue(row, ['practitioner_id', 'practitioner_identifier']);
+    const practitionerFirst = readValue(row, ['practitioner_first_name', 'practitioner_given', 'practitioner_given_name']);
+    const practitionerMiddle = readValue(row, ['practitioner_middle_name']);
+    let practitionerLast = readValue(row, ['practitioner_last_name', 'practitioner_family', 'practitioner_family_name']);
+    let fullNameGiven: string[] | undefined;
+    if (!practitionerFirst && !practitionerLast) {
+      const nameFromFull = splitFullName(readValue(row, ['practitioner_name']));
+      if (nameFromFull?.family) practitionerLast = nameFromFull.family;
+      if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
+    }
+
+    const addressLine1 = readValue(row, ['practitioner_address_line1', 'practitioner_address_1']);
+    const addressLine2 = readValue(row, ['practitioner_address_line2', 'practitioner_address_2']);
+    const address = (addressLine1 || addressLine2 || readValue(row, ['practitioner_city'])) ? [{
+      line: [addressLine1, addressLine2].filter(Boolean) as string[],
+      city: readValue(row, ['practitioner_city']),
+      state: readValue(row, ['practitioner_state', 'practitioner_province']),
+      postalCode: readValue(row, ['practitioner_postal_code', 'practitioner_zip']),
+      country: readValue(row, ['practitioner_country'])
+    }] : undefined;
+
+    const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
+    const phone = readValue(row, ['practitioner_phone', 'practitioner_mobile', 'practitioner_home_phone']);
+    const email = readValue(row, ['practitioner_email']);
+    if (phone) telecom.push({ system: 'phone', value: phone });
+    if (email) telecom.push({ system: 'email', value: email });
+
+    const givenValues = (fullNameGiven ?? [practitionerFirst, practitionerMiddle].filter(Boolean)) as string[];
+    const qualificationCode = readValue(row, ['practitioner_qualification_code']);
+    const qualification = qualificationCode ? [{
+      code: {
+        system: readValue(row, ['practitioner_qualification_system']),
+        code: qualificationCode,
+        display: readValue(row, ['practitioner_qualification_display'])
+      }
+    }] : undefined;
+
+    if (!practitionerId && !practitionerLast && !givenValues.length && !telecom.length && !address) {
+      return null;
+    }
+
+    return {
+      id: practitionerId,
+      identifier: practitionerId,
+      name: {
+        family: practitionerLast,
+        given: givenValues.length > 0 ? givenValues : undefined
+      },
+      gender: readValue(row, ['practitioner_gender', 'practitioner_sex']),
+      birthDate: readValue(row, ['practitioner_birth_date', 'practitioner_dob']),
+      address,
+      telecom: telecom.length > 0 ? telecom : undefined,
+      qualification,
+      active: readBoolean(row, ['practitioner_active'])
+    };
+  }).filter(Boolean);
+  if (practitioners.length > 0) canonical.practitioners = practitioners as any[];
+
+  const practitionerRoles = rows.map(row => {
+    const roleId = readValue(row, ['practitioner_role_id', 'role_id']);
+    const practitionerId = readValue(row, ['practitioner_role_practitioner_id', 'practitioner_id']);
+    const organizationId = readValue(row, ['practitioner_role_organization_id', 'organization_id']);
+    const roleCode = readValue(row, ['practitioner_role_code', 'role_code']);
+    const specialtyCode = readValue(row, ['practitioner_role_specialty', 'specialty_code']);
+    const periodStart = readValue(row, ['practitioner_role_period_start']);
+    const periodEnd = readValue(row, ['practitioner_role_period_end']);
+
+    if (!roleId && !practitionerId && !organizationId && !roleCode && !specialtyCode) {
+      return null;
+    }
+
+    return {
+      id: roleId,
+      practitionerId,
+      organizationId,
+      code: roleCode ? [{
+        system: readValue(row, ['practitioner_role_code_system']),
+        code: roleCode,
+        display: readValue(row, ['practitioner_role_code_display'])
+      }] : undefined,
+      specialty: specialtyCode ? [{
+        system: readValue(row, ['practitioner_role_specialty_system']),
+        code: specialtyCode,
+        display: readValue(row, ['practitioner_role_specialty_display'])
+      }] : undefined,
+      period: (periodStart || periodEnd) ? {
+        start: periodStart,
+        end: periodEnd
+      } : undefined,
+      active: readBoolean(row, ['practitioner_role_active'])
+    };
+  }).filter(Boolean);
+  if (practitionerRoles.length > 0) canonical.practitionerRoles = practitionerRoles as any[];
+
+  const organizations = rows.map(row => {
+    const organizationId = readValue(row, ['organization_id', 'org_id']);
+    const organizationName = readValue(row, ['organization_name', 'org_name']);
+    const aliasRaw = readValue(row, ['organization_alias', 'org_alias']);
+    const aliases = aliasRaw ? aliasRaw.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+    const typeCode = readValue(row, ['organization_type_code', 'org_type_code']);
+
+    const addressLine1 = readValue(row, ['organization_address_line1', 'organization_address_1']);
+    const addressLine2 = readValue(row, ['organization_address_line2', 'organization_address_2']);
+    const address = (addressLine1 || addressLine2 || readValue(row, ['organization_city'])) ? [{
+      line: [addressLine1, addressLine2].filter(Boolean) as string[],
+      city: readValue(row, ['organization_city']),
+      state: readValue(row, ['organization_state', 'organization_province']),
+      postalCode: readValue(row, ['organization_postal_code', 'organization_zip']),
+      country: readValue(row, ['organization_country'])
+    }] : undefined;
+
+    const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
+    const phone = readValue(row, ['organization_phone', 'organization_phone_number']);
+    const email = readValue(row, ['organization_email']);
+    if (phone) telecom.push({ system: 'phone', value: phone });
+    if (email) telecom.push({ system: 'email', value: email });
+
+    if (!organizationId && !organizationName && !aliases?.length && !typeCode && !address && !telecom.length) {
+      return null;
+    }
+
+    return {
+      id: organizationId,
+      identifier: organizationId,
+      name: organizationName,
+      alias: aliases && aliases.length > 0 ? aliases : undefined,
+      type: typeCode ? [{
+        system: readValue(row, ['organization_type_system']),
+        code: typeCode,
+        display: readValue(row, ['organization_type_display'])
+      }] : undefined,
+      telecom: telecom.length > 0 ? telecom : undefined,
+      address,
+      partOf: readValue(row, ['organization_part_of']),
+      active: readBoolean(row, ['organization_active'])
+    };
+  }).filter(Boolean);
+  if (organizations.length > 0) canonical.organizations = organizations as any[];
 
   return canonical;
 }
