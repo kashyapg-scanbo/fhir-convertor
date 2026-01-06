@@ -1,4 +1,6 @@
 import { CanonicalModel } from '../../shared/types/canonical.types.js';
+import { HEADER_ALIAS_SECTIONS } from '../../shared/header-aliases.js';
+import { mapTabularRowsToCanonical, normalizeHeader, TabularRow } from './tabular.utils.js';
 import { z } from 'zod';
 
 const LegacyCustomJSONSchema = z.object({
@@ -130,14 +132,94 @@ const GlobalAddressSchema = z.object({
   country: z.string().optional()
 }).optional();
 
-const GlobalPatientSchema = z.object({
-  patient_id: GlobalIdSchema.optional(),
-  ihi: GlobalIdSchema.optional(),
-  name: z.object({
+const PATIENT_NAME_ALIASES = {
+  first: ['patient_first_name', ...HEADER_ALIAS_SECTIONS.patient.patient_first_name],
+  middle: ['patient_middle_name', ...HEADER_ALIAS_SECTIONS.patient.patient_middle_name],
+  last: ['patient_last_name', ...HEADER_ALIAS_SECTIONS.patient.patient_last_name]
+};
+
+const PRACTITIONER_NAME_ALIASES = {
+  first: ['practitioner_first_name', ...HEADER_ALIAS_SECTIONS.practitioner.practitioner_first_name],
+  middle: ['practitioner_middle_name', ...HEADER_ALIAS_SECTIONS.practitioner.practitioner_middle_name],
+  last: ['practitioner_last_name', ...HEADER_ALIAS_SECTIONS.practitioner.practitioner_last_name]
+};
+
+function normalizeAliasKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '_');
+}
+
+function buildAliasLookup(map: Record<string, string[]>) {
+  const lookup = new Map<string, string>();
+  for (const [canonical, aliases] of Object.entries(map)) {
+    lookup.set(normalizeAliasKey(canonical), canonical);
+    for (const alias of aliases) {
+      lookup.set(normalizeAliasKey(alias), canonical);
+    }
+  }
+  return lookup;
+}
+
+const SECTION_ALIAS_LOOKUPS = Object.fromEntries(
+  Object.entries(HEADER_ALIAS_SECTIONS).map(([section, map]) => [section, buildAliasLookup(map)])
+) as Record<keyof typeof HEADER_ALIAS_SECTIONS, Map<string, string>>;
+
+function getAliasValue(record: Record<string, unknown>, aliases: string[]) {
+  const aliasSet = new Set(aliases.map(alias => normalizeAliasKey(alias)));
+  for (const [key, value] of Object.entries(record)) {
+    if (aliasSet.has(normalizeAliasKey(key))) return value;
+  }
+  return undefined;
+}
+
+function normalizePersonNameAliases(value: unknown, aliases: { first: string[]; middle: string[]; last: string[] }) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const record = value as Record<string, unknown>;
+  const normalized: Record<string, unknown> = { ...record };
+
+  if (normalized.first_name === undefined) {
+    const first = getAliasValue(record, aliases.first);
+    if (first !== undefined) normalized.first_name = first;
+  }
+
+  if (normalized.middle_name === undefined) {
+    const middle = getAliasValue(record, aliases.middle);
+    if (middle !== undefined) normalized.middle_name = middle;
+  }
+
+  if (normalized.last_name === undefined) {
+    const last = getAliasValue(record, aliases.last);
+    if (last !== undefined) normalized.last_name = last;
+  }
+
+  return normalized;
+}
+
+const GlobalPatientNameSchema = z.preprocess(
+  (value) => normalizePersonNameAliases(value, PATIENT_NAME_ALIASES),
+  z.object({
     first_name: z.string().optional(),
     middle_name: z.string().optional(),
     last_name: z.string().optional()
-  }).optional(),
+  })
+);
+
+const GlobalPractitionerNameSchema = z.preprocess(
+  (value) => normalizePersonNameAliases(value, PRACTITIONER_NAME_ALIASES),
+  z.object({
+    first_name: z.string().optional(),
+    middle_name: z.string().optional(),
+    last_name: z.string().optional()
+  })
+);
+
+const GlobalPatientSchema = z.object({
+  patient_id: GlobalIdSchema.optional(),
+  ihi: GlobalIdSchema.optional(),
+  name: GlobalPatientNameSchema.optional(),
   date_of_birth: z.string().optional(),
   gender: z.string().optional(),
   contact_info: z.object({
@@ -262,11 +344,7 @@ const GlobalMedicationRequestSchema = z.object({
 
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
-  name: z.object({
-    first_name: z.string().optional(),
-    middle_name: z.string().optional(),
-    last_name: z.string().optional()
-  }).optional(),
+  name: GlobalPractitionerNameSchema.optional(),
   date_of_birth: z.string().optional(),
   gender: z.string().optional(),
   contact_info: z.object({
@@ -374,6 +452,631 @@ const GlobalCustomJSONSchema = z.object({
 export type CustomJSONInput = z.infer<typeof LegacyCustomJSONSchema>;
 export type GlobalJSONInput = z.infer<typeof GlobalCustomJSONSchema>;
 
+const TABULAR_HEADER_SET = new Set(
+  Object.values(HEADER_ALIAS_SECTIONS).flatMap(section => [
+    ...Object.keys(section),
+    ...Object.values(section).flat()
+  ]).map(key => normalizeHeader(key))
+);
+
+const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
+  patient: 'patient',
+  encounter: 'encounter',
+  observations: 'observation',
+  medications: 'medication',
+  medicationRequests: 'medicationRequest',
+  practitioners: 'practitioner',
+  practitionerRoles: 'practitionerRole',
+  organizations: 'organization',
+  documentReferences: 'documentReference'
+};
+
+const SECTION_CANONICAL_KEYS: Record<keyof typeof HEADER_ALIAS_SECTIONS, Set<string>> = Object
+  .fromEntries(
+    Object.entries(HEADER_ALIAS_SECTIONS).map(([section, map]) => ([
+      section,
+      new Set(Object.keys(map).map(key => normalizeHeader(key)))
+    ]))
+  ) as Record<keyof typeof HEADER_ALIAS_SECTIONS, Set<string>>;
+
+const PATIENT_ALIAS_LOOKUP = new Map<string, string>(
+  Object.entries(HEADER_ALIAS_SECTIONS.patient).flatMap(([canonical, aliases]) => ([
+    [normalizeHeader(canonical), canonical],
+    ...aliases.map(alias => [normalizeHeader(alias), canonical])
+  ]))
+);
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeAliasValue(value: unknown): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : undefined;
+  }
+  if (typeof value === 'number') return String(value);
+  return undefined;
+}
+
+function splitNameParts(fullName: string) {
+  const tokens = fullName.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return {};
+  if (tokens.length === 1) return { last: tokens[0] };
+  return {
+    first: tokens.slice(0, -1).join(' '),
+    last: tokens[tokens.length - 1]
+  };
+}
+
+function readSectionAliasValue(record: Record<string, unknown>, section: keyof typeof HEADER_ALIAS_SECTIONS, canonicalKey: string) {
+  const lookup = SECTION_ALIAS_LOOKUPS[section];
+  for (const [key, value] of Object.entries(record)) {
+    const mapped = lookup.get(normalizeAliasKey(key));
+    if (mapped === canonicalKey) return value;
+  }
+  return undefined;
+}
+
+function normalizeGlobalPatientAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
+  const contactInfo = isPlainRecord(normalized.contact_info) ? { ...normalized.contact_info } : {};
+  const address = isPlainRecord(contactInfo.address) ? { ...contactInfo.address } : {};
+
+  const patientId = readSectionAliasValue(value, 'patient', 'patient_id');
+  if (normalized.patient_id === undefined && patientId !== undefined) {
+    normalized.patient_id = patientId;
+  }
+
+  const firstRaw = readSectionAliasValue(value, 'patient', 'patient_first_name');
+  const first = normalizeAliasValue(firstRaw);
+  if (first && name.first_name === undefined) name.first_name = first;
+
+  const middleRaw = readSectionAliasValue(value, 'patient', 'patient_middle_name');
+  const middle = normalizeAliasValue(middleRaw);
+  if (middle && name.middle_name === undefined) name.middle_name = middle;
+
+  const lastRaw = readSectionAliasValue(value, 'patient', 'patient_last_name');
+  const last = normalizeAliasValue(lastRaw);
+  if (last && name.last_name === undefined) name.last_name = last;
+
+  const fullNameRaw = readSectionAliasValue(value, 'patient', 'patient_name');
+  if (typeof fullNameRaw === 'string' && fullNameRaw.trim()) {
+    const parts = splitNameParts(fullNameRaw.trim());
+    if (parts.first && name.first_name === undefined) name.first_name = parts.first;
+    if (parts.last && name.last_name === undefined) name.last_name = parts.last;
+  }
+
+  const gender = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_gender'));
+  if (gender && normalized.gender === undefined) normalized.gender = gender;
+
+  const birthDate = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_birth_date'));
+  if (birthDate && normalized.date_of_birth === undefined) normalized.date_of_birth = birthDate;
+
+  const phone = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_phone'));
+  if (phone && contactInfo.phone === undefined) contactInfo.phone = phone;
+
+  const email = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_email'));
+  if (email && contactInfo.email === undefined) contactInfo.email = email;
+
+  const street1 = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_address_line1'));
+  if (street1 && address.street === undefined) address.street = street1;
+
+  const street2 = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_address_line2'));
+  if (street2) {
+    if (address.street === undefined) {
+      address.street = street2;
+    } else if (typeof address.street === 'string' && !address.street.includes(street2)) {
+      address.street = `${address.street}, ${street2}`;
+    }
+  }
+
+  const city = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_city'));
+  if (city && address.city === undefined) address.city = city;
+
+  const state = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_state'));
+  if (state && address.state === undefined) address.state = state;
+
+  const postal = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_postal_code'));
+  if (postal && address.postal_code === undefined) address.postal_code = postal;
+
+  const country = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_country'));
+  if (country && address.country === undefined) address.country = country;
+
+  if (Object.keys(name).length > 0) normalized.name = name;
+  if (Object.keys(address).length > 0) {
+    contactInfo.address = address;
+  }
+  if (Object.keys(contactInfo).length > 0) normalized.contact_info = contactInfo;
+
+  return normalized;
+}
+
+function normalizeGlobalEncounterAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const location = isPlainRecord(normalized.location) ? { ...normalized.location } : {};
+
+  const encounterId = readSectionAliasValue(value, 'encounter', 'encounter_id');
+  if (normalized.encounter_id === undefined && encounterId !== undefined) {
+    normalized.encounter_id = encounterId;
+  }
+
+  const classValue = normalizeAliasValue(readSectionAliasValue(value, 'encounter', 'encounter_class'));
+  if (classValue && normalized.encounter_type === undefined) normalized.encounter_type = classValue;
+
+  const start = normalizeAliasValue(readSectionAliasValue(value, 'encounter', 'encounter_start'));
+  if (start && normalized.start_date === undefined) normalized.start_date = start;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'encounter', 'encounter_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const practitionerId = normalizeAliasValue(readSectionAliasValue(value, 'encounter', 'encounter_practitioner_id'));
+  if (practitionerId && normalized.practitioner_id === undefined) normalized.practitioner_id = practitionerId;
+
+  const locationValue = normalizeAliasValue(readSectionAliasValue(value, 'encounter', 'encounter_location'));
+  if (locationValue) {
+    if (location.facility_name === undefined) {
+      location.facility_name = locationValue;
+    } else if (location.room === undefined) {
+      location.room = locationValue;
+    }
+  }
+
+  if (Object.keys(location).length > 0) normalized.location = location;
+  return normalized;
+}
+
+function normalizeGlobalMedicationAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const medId = readSectionAliasValue(value, 'medication', 'medication_id');
+  if (normalized.medication_id === undefined && medId !== undefined) {
+    normalized.medication_id = medId;
+  }
+
+  const display = normalizeAliasValue(readSectionAliasValue(value, 'medication', 'medication_display'));
+  if (display && normalized.name === undefined) normalized.name = display;
+
+  return normalized;
+}
+
+function normalizeGlobalMedicationRequestAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const dosage = isPlainRecord(normalized.dosage_instruction) ? { ...normalized.dosage_instruction } : {};
+
+  const requestId = readSectionAliasValue(value, 'medicationRequest', 'medication_request_id');
+  if (normalized.medication_request_id === undefined && requestId !== undefined) {
+    normalized.medication_request_id = requestId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const authoredOn = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_authored_on'));
+  if (authoredOn && normalized.authored_on === undefined) normalized.authored_on = authoredOn;
+
+  const dose = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_dose'));
+  if (dose && dosage.dose === undefined) dosage.dose = dose;
+
+  const doseUnit = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_dose_unit'));
+  if (doseUnit && typeof dosage.dose === 'string' && !dosage.dose.includes(doseUnit)) {
+    dosage.dose = `${dosage.dose} ${doseUnit}`;
+  }
+
+  const route = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_route'));
+  const routeDisplay = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_route_display'));
+  if (route && dosage.route === undefined) dosage.route = route;
+  if (routeDisplay && dosage.route === undefined) dosage.route = routeDisplay;
+
+  const sig = normalizeAliasValue(readSectionAliasValue(value, 'medicationRequest', 'medication_sig'));
+  if (sig && normalized.note === undefined) normalized.note = sig;
+
+  if (Object.keys(dosage).length > 0) normalized.dosage_instruction = dosage;
+
+  return normalized;
+}
+
+function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
+  const contactInfo = isPlainRecord(normalized.contact_info) ? { ...normalized.contact_info } : {};
+  const address = isPlainRecord(contactInfo.address) ? { ...contactInfo.address } : {};
+
+  const practitionerId = readSectionAliasValue(value, 'practitioner', 'practitioner_id');
+  if (normalized.practitioner_id === undefined && practitionerId !== undefined) {
+    normalized.practitioner_id = practitionerId;
+  }
+
+  const first = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_first_name'));
+  if (first && name.first_name === undefined) name.first_name = first;
+
+  const middle = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_middle_name'));
+  if (middle && name.middle_name === undefined) name.middle_name = middle;
+
+  const last = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_last_name'));
+  if (last && name.last_name === undefined) name.last_name = last;
+
+  const fullNameRaw = readSectionAliasValue(value, 'practitioner', 'practitioner_name');
+  if (typeof fullNameRaw === 'string' && fullNameRaw.trim()) {
+    const parts = splitNameParts(fullNameRaw.trim());
+    if (parts.first && name.first_name === undefined) name.first_name = parts.first;
+    if (parts.last && name.last_name === undefined) name.last_name = parts.last;
+  }
+
+  const gender = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_gender'));
+  if (gender && normalized.gender === undefined) normalized.gender = gender;
+
+  const birthDate = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_birth_date'));
+  if (birthDate && normalized.date_of_birth === undefined) normalized.date_of_birth = birthDate;
+
+  const phone = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_phone'));
+  if (phone && contactInfo.phone === undefined) contactInfo.phone = phone;
+
+  const email = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_email'));
+  if (email && contactInfo.email === undefined) contactInfo.email = email;
+
+  const street1 = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_address_line1'));
+  if (street1 && address.street === undefined) address.street = street1;
+
+  const street2 = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_address_line2'));
+  if (street2) {
+    if (address.street === undefined) {
+      address.street = street2;
+    } else if (typeof address.street === 'string' && !address.street.includes(street2)) {
+      address.street = `${address.street}, ${street2}`;
+    }
+  }
+
+  const city = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_city'));
+  if (city && address.city === undefined) address.city = city;
+
+  const state = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_state'));
+  if (state && address.state === undefined) address.state = state;
+
+  const postal = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_postal_code'));
+  if (postal && address.postal_code === undefined) address.postal_code = postal;
+
+  const country = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_country'));
+  if (country && address.country === undefined) address.country = country;
+
+  if (Object.keys(name).length > 0) normalized.name = name;
+  if (Object.keys(address).length > 0) {
+    contactInfo.address = address;
+  }
+  if (Object.keys(contactInfo).length > 0) normalized.contact_info = contactInfo;
+
+  return normalized;
+}
+
+function normalizeGlobalPractitionerRoleAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const servicePeriod = isPlainRecord(normalized.service_period) ? { ...normalized.service_period } : {};
+
+  const roleId = readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_id');
+  if (normalized.practitioner_role_id === undefined && roleId !== undefined) {
+    normalized.practitioner_role_id = roleId;
+  }
+
+  const practitionerId = normalizeAliasValue(readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_practitioner_id'));
+  if (practitionerId && normalized.practitioner_id === undefined) normalized.practitioner_id = practitionerId;
+
+  const orgId = normalizeAliasValue(readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_organization_id'));
+  if (orgId && normalized.organization_id === undefined) normalized.organization_id = orgId;
+
+  const role = normalizeAliasValue(readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_code'));
+  if (role && normalized.role === undefined) normalized.role = role;
+
+  const specialty = normalizeAliasValue(readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_specialty'));
+  if (specialty && normalized.specialty === undefined) normalized.specialty = specialty;
+
+  const periodStart = normalizeAliasValue(readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_period_start'));
+  if (periodStart && servicePeriod.start_date === undefined) servicePeriod.start_date = periodStart;
+
+  const periodEnd = normalizeAliasValue(readSectionAliasValue(value, 'practitionerRole', 'practitioner_role_period_end'));
+  if (periodEnd && servicePeriod.end_date === undefined) servicePeriod.end_date = periodEnd;
+
+  if (Object.keys(servicePeriod).length > 0) normalized.service_period = servicePeriod;
+
+  return normalized;
+}
+
+function normalizeGlobalOrganizationAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const contactInfo = isPlainRecord(normalized.contact_info) ? { ...normalized.contact_info } : {};
+  const address = isPlainRecord(contactInfo.address) ? { ...contactInfo.address } : {};
+
+  const orgId = readSectionAliasValue(value, 'organization', 'organization_id');
+  if (normalized.organization_id === undefined && orgId !== undefined) {
+    normalized.organization_id = orgId;
+  }
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_type_code'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const phone = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_phone'));
+  if (phone && contactInfo.phone === undefined) contactInfo.phone = phone;
+
+  const email = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_email'));
+  if (email && contactInfo.email === undefined) contactInfo.email = email;
+
+  const street1 = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_address_line1'));
+  if (street1 && address.street === undefined) address.street = street1;
+
+  const street2 = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_address_line2'));
+  if (street2) {
+    if (address.street === undefined) {
+      address.street = street2;
+    } else if (typeof address.street === 'string' && !address.street.includes(street2)) {
+      address.street = `${address.street}, ${street2}`;
+    }
+  }
+
+  const city = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_city'));
+  if (city && address.city === undefined) address.city = city;
+
+  const state = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_state'));
+  if (state && address.state === undefined) address.state = state;
+
+  const postal = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_postal_code'));
+  if (postal && address.postal_code === undefined) address.postal_code = postal;
+
+  const country = normalizeAliasValue(readSectionAliasValue(value, 'organization', 'organization_country'));
+  if (country && address.country === undefined) address.country = country;
+
+  if (Object.keys(address).length > 0) {
+    contactInfo.address = address;
+  }
+  if (Object.keys(contactInfo).length > 0) normalized.contact_info = contactInfo;
+
+  return normalized;
+}
+
+function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEADER_ALIAS_SECTIONS) {
+  if (!value) return value;
+  if (Array.isArray(value)) {
+    return value.map(item => (isPlainRecord(item) ? normalizeGlobalSectionPayload(item, section) : item));
+  }
+  if (!isPlainRecord(value)) return value;
+
+  switch (section) {
+    case 'patient':
+      return normalizeGlobalPatientAliases(value);
+    case 'encounter':
+      return normalizeGlobalEncounterAliases(value);
+    case 'medication':
+      return normalizeGlobalMedicationAliases(value);
+    case 'medicationRequest':
+      return normalizeGlobalMedicationRequestAliases(value);
+    case 'practitioner':
+      return normalizeGlobalPractitionerAliases(value);
+    case 'practitionerRole':
+      return normalizeGlobalPractitionerRoleAliases(value);
+    case 'organization':
+      return normalizeGlobalOrganizationAliases(value);
+    default:
+      return value;
+  }
+}
+
+function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...payload };
+  const mapping: Array<[keyof typeof HEADER_ALIAS_SECTIONS, string]> = [
+    ['patient', 'patient'],
+    ['encounter', 'encounter'],
+    ['medication', 'medication'],
+    ['medicationRequest', 'medication_request'],
+    ['practitioner', 'practitioner'],
+    ['practitionerRole', 'practitioner_role'],
+    ['organization', 'organization']
+  ];
+
+  for (const [section, key] of mapping) {
+    if (key in normalized) {
+      normalized[key] = normalizeGlobalSectionPayload(normalized[key], section);
+    }
+  }
+
+  return normalized;
+}
+
+function coerceTabularRows(payload: unknown): TabularRow[] | null {
+  if (Array.isArray(payload)) {
+    const rows = payload.filter(isPlainRecord);
+    if (!rows.length) return null;
+    return rows.map(toTabularRow).filter(row => Object.keys(row).length > 0);
+  }
+
+  if (isPlainRecord(payload)) {
+    if (Array.isArray(payload.rows)) {
+      const rows = payload.rows.filter(isPlainRecord);
+      if (!rows.length) return null;
+      return rows.map(toTabularRow).filter(row => Object.keys(row).length > 0);
+    }
+
+    return [toTabularRow(payload)].filter(row => Object.keys(row).length > 0);
+  }
+
+  return null;
+}
+
+function toTabularRow(source: Record<string, unknown>): TabularRow {
+  const row: TabularRow = {};
+  for (const [key, value] of Object.entries(source)) {
+    const normalized = normalizeHeader(String(key));
+    if (!TABULAR_HEADER_SET.has(normalized)) continue;
+    row[normalized] = value === undefined || value === null ? '' : String(value).trim();
+  }
+  return row;
+}
+
+function looksLikeTabularJson(payload: unknown): boolean {
+  const rows = coerceTabularRows(payload);
+  if (!rows || rows.length === 0) return false;
+  return rows.some(row => Object.keys(row).length > 0);
+}
+
+function looksLikeStructuredAliasJson(payload: unknown): boolean {
+  if (!isPlainRecord(payload)) return false;
+  return Object.entries(SECTION_NAME_MAP).some(([sectionKey, aliasSection]) => {
+    const value = (payload as Record<string, unknown>)[sectionKey];
+    const canonicalKeys = SECTION_CANONICAL_KEYS[aliasSection];
+    if (!canonicalKeys) return false;
+    if (Array.isArray(value)) {
+      return value.some(item => isPlainRecord(item) && hasAliasKey(item, canonicalKeys));
+    }
+    if (isPlainRecord(value)) {
+      return hasAliasKey(value, canonicalKeys);
+    }
+    return false;
+  });
+}
+
+function hasAliasKey(value: Record<string, unknown>, canonicalKeys: Set<string>): boolean {
+  return Object.keys(value).some(key => canonicalKeys.has(normalizeHeader(key)));
+}
+
+function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): TabularRow[] {
+  const baseRow: TabularRow = {};
+  const rows: TabularRow[] = [];
+
+  const patientRow = toSectionRow('patient', payload.patient);
+  const encounterRow = toSectionRow('encounter', payload.encounter);
+  Object.assign(baseRow, patientRow, encounterRow);
+
+  const arraySections: Array<keyof typeof SECTION_NAME_MAP> = [
+    'observations',
+    'medications',
+    'medicationRequests',
+    'documentReferences',
+    'practitioners',
+    'practitionerRoles',
+    'organizations'
+  ];
+
+  for (const sectionKey of arraySections) {
+    const items = payload[sectionKey];
+    if (!Array.isArray(items)) continue;
+    const aliasSection = SECTION_NAME_MAP[sectionKey];
+    for (const item of items) {
+      if (!isPlainRecord(item)) continue;
+      const sectionRow = toSectionRow(aliasSection, item);
+      const merged = { ...baseRow, ...sectionRow };
+      if (Object.keys(merged).length > 0) rows.push(merged);
+    }
+  }
+
+  if (rows.length === 0 && Object.keys(baseRow).length > 0) {
+    rows.push(baseRow);
+  }
+
+  return rows;
+}
+
+function toSectionRow(sectionKey: keyof typeof SECTION_CANONICAL_KEYS, value: unknown): TabularRow {
+  if (!isPlainRecord(value)) return {};
+  const canonicalKeys = SECTION_CANONICAL_KEYS[sectionKey];
+  const row: TabularRow = {};
+  for (const [key, rawValue] of Object.entries(value)) {
+    const normalized = normalizeHeader(String(key));
+    if (!canonicalKeys.has(normalized)) continue;
+    row[normalized] = rawValue === undefined || rawValue === null ? '' : String(rawValue).trim();
+  }
+  return row;
+}
+
+function applyLegacyPatientAliases(payload: unknown): void {
+  if (!isPlainRecord(payload)) return;
+  const patient = payload.patient;
+  if (!isPlainRecord(patient)) return;
+
+  const resolved: Record<string, unknown> = { ...patient };
+  const address: Record<string, string> = isPlainRecord(patient.address)
+    ? { ...(patient.address as Record<string, string>) }
+    : {};
+  const contacts: Array<{ type?: string; value: string }> = Array.isArray(patient.contacts)
+    ? [...patient.contacts]
+    : [];
+
+  for (const [key, rawValue] of Object.entries(patient)) {
+    const normalized = normalizeHeader(key);
+    const canonical = PATIENT_ALIAS_LOOKUP.get(normalized);
+    if (!canonical) continue;
+    const value = rawValue === undefined || rawValue === null ? undefined : String(rawValue).trim();
+    if (!value) continue;
+
+    switch (canonical) {
+      case 'patient_id':
+        if (!resolved.id) resolved.id = value;
+        break;
+      case 'patient_first_name':
+        if (!resolved.firstName) resolved.firstName = value;
+        break;
+      case 'patient_middle_name':
+        if (!resolved.middleName) resolved.middleName = value;
+        break;
+      case 'patient_last_name':
+        if (!resolved.lastName) resolved.lastName = value;
+        break;
+      case 'patient_name':
+        if (!resolved.firstName || !resolved.lastName) {
+          const tokens = value.split(/\s+/).filter(Boolean);
+          if (tokens.length === 1) {
+            if (!resolved.lastName) resolved.lastName = tokens[0];
+          } else if (tokens.length > 1) {
+            if (!resolved.firstName) resolved.firstName = tokens.slice(0, -1).join(' ');
+            if (!resolved.lastName) resolved.lastName = tokens[tokens.length - 1];
+          }
+        }
+        break;
+      case 'patient_gender':
+        if (!resolved.gender) resolved.gender = value;
+        break;
+      case 'patient_birth_date':
+        if (!resolved.birthDate) resolved.birthDate = value;
+        break;
+      case 'patient_phone':
+        if (!contacts.some(c => c.type?.toLowerCase().includes('phone'))) {
+          contacts.push({ type: 'mobile', value });
+        }
+        break;
+      case 'patient_email':
+        if (!contacts.some(c => c.type?.toLowerCase().includes('mail'))) {
+          contacts.push({ type: 'email', value });
+        }
+        break;
+      case 'patient_address_line1':
+        if (!address.line1) address.line1 = value;
+        break;
+      case 'patient_address_line2':
+        if (!address.line2) address.line2 = value;
+        break;
+      case 'patient_city':
+        if (!address.city) address.city = value;
+        break;
+      case 'patient_state':
+        if (!address.state) address.state = value;
+        break;
+      case 'patient_postal_code':
+        if (!address.postalCode) address.postalCode = value;
+        break;
+      case 'patient_country':
+        if (!address.country) address.country = value;
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (Object.keys(address).length > 0) resolved.address = address;
+  if (contacts.length > 0) resolved.contacts = contacts;
+  payload.patient = resolved;
+}
+
 /**
  * Parse custom JSON to Canonical Model
  * The JSON structure should match the canonical model
@@ -393,10 +1096,20 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     parsed = jsonInput;
   }
 
+  if (looksLikeTabularJson(parsed)) {
+    const rows = coerceTabularRows(parsed) || [];
+    if (rows.length > 0) return mapTabularRowsToCanonical(rows, 'JSON');
+  }
+
+  applyLegacyPatientAliases(parsed);
+
   const wrappedGlobal = wrapGlobalPayload(parsed);
   if (wrappedGlobal) {
     try {
-      const validatedGlobal = GlobalCustomJSONSchema.parse(wrappedGlobal);
+      const normalizedGlobal = isPlainRecord(wrappedGlobal)
+        ? normalizeGlobalPayloadAliases(wrappedGlobal)
+        : wrappedGlobal;
+      const validatedGlobal = GlobalCustomJSONSchema.parse(normalizedGlobal);
       return buildCanonicalFromGlobal(validatedGlobal);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -412,6 +1125,10 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     const validatedLegacy = LegacyCustomJSONSchema.parse(parsed);
     return buildCanonicalFromLegacy(validatedLegacy);
   } catch (error) {
+    if (looksLikeStructuredAliasJson(parsed)) {
+      const rows = buildRowsFromStructuredAliasJson(parsed);
+      if (rows.length > 0) return mapTabularRowsToCanonical(rows, 'JSON');
+    }
     if (error instanceof z.ZodError) {
       throw new Error(
         `JSON validation failed: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`

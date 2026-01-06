@@ -550,15 +550,20 @@ components:
       properties:
         patient_id:
           type: string
+          description: "Aliases: patient_identifier, patient_mrn, mrn, medical_record_number, patientid."
         ihi:
           type: string
         name:
-          $ref: '#/components/schemas/CustomPatientName'
+          allOf:
+            - $ref: '#/components/schemas/CustomPatientName'
+          description: "Aliases: name, patientname, full_name, patient_full_name, pt_name (parsed into first/last when possible)."
         date_of_birth:
           type: string
           format: date
+          description: "Aliases: dob, birth_date, birthdate."
         gender:
           type: string
+          description: "Aliases: sex, gndr."
         contact_info:
           $ref: '#/components/schemas/CustomPatientContactInfo'
         marital_status:
@@ -578,19 +583,26 @@ components:
       properties:
         first_name:
           type: string
+          description: "Aliases: first_name, firstname, given_name, given, patient_given_name."
         middle_name:
           type: string
+          description: "Aliases: middle_name, middlename."
         last_name:
           type: string
+          description: "Aliases: last_name, lastname, family_name, surname, patient_family_name."
     CustomPatientContactInfo:
       type: object
       properties:
         phone:
           type: string
+          description: "Aliases: phone, phone_number, mobile, cell, cell_phone, patient_phone_number."
         email:
           type: string
+          description: "Aliases: email, email_address."
         address:
-          $ref: '#/components/schemas/CustomAddress'
+          allOf:
+            - $ref: '#/components/schemas/CustomAddress'
+          description: "Aliases for patient address fields - street: address, address1, address_line1, street, street_address; city: city, town; state: state, province, region; postal_code: zip, zipcode, postal, postal_code; country: country."
     CustomPatientEmergencyContact:
       type: object
       properties:
