@@ -120,18 +120,21 @@ const bundle = await convertLegacyData(hl7Input);
 ```typescript
 const jsonInput = JSON.stringify({
   patient: {
-    firstName: "John",
-    lastName: "Doe"
+    patient_id: "P1",
+    name: {
+      first_name: "John",
+      last_name: "Doe"
+    }
   },
-  documentReferences: [{
-    format: 'pdf',  // Legacy format field
-    url: 'https://example.com/report.pdf',
-    date: '2024-01-15'
-  }]
+  encounter: {
+    encounter_id: "ENC-1",
+    encounter_type: "AMB",
+    start_date: "2024-01-15T10:00:00Z"
+  }
 });
 
 const bundle = await convertLegacyData(jsonInput, 'json');
-// Automatically detects 'pdf' format → converts to application/pdf
+// Converts global custom JSON into a FHIR R5 Bundle
 ```
 
 ### Example 3: CDA with Image Document
@@ -172,7 +175,6 @@ Automatically detects the input format.
 - ✅ **One function handles everything** - `convertLegacyData()` is your overall mapper
 
 The system is already designed as a unified mapper that can handle any type of document data and convert it to FHIR!
-
 
 
 

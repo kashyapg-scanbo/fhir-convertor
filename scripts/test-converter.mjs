@@ -52,38 +52,63 @@ OBX|1|ED|DICOM^DICOM Study||^DICOM^URI^https://example.com/images/ct-chest-scan.
 
   json: JSON.stringify({
     patient: {
-      id: 'P1',
-      firstName: 'John',
-      lastName: 'Doe',
-      gender: 'male',
-      birthDate: '1980-01-01',
-      address: {
-        line1: '123 Main St',
-        city: 'Springfield',
-        state: 'IL',
-        postalCode: '62701',
-        country: 'USA'
+      patient_id: 'P1',
+      name: {
+        first_name: 'John',
+        last_name: 'Doe'
       },
-      contacts: [
-        { type: 'phone', value: '555-1234' },
-        { type: 'email', value: 'john.doe@example.com' }
-      ]
+      gender: 'male',
+      date_of_birth: '1980-01-01',
+      contact_info: {
+        phone: '555-1234',
+        email: 'john.doe@example.com',
+        address: {
+          street: '123 Main St',
+          city: 'Springfield',
+          state: 'IL',
+          postal_code: '62701',
+          country: 'USA'
+        }
+      }
     },
-    documentReferences: [{
-      id: 'DOC1',
-      format: 'pdf',
-      url: 'https://example.com/report.pdf',
-      date: '2024-01-15',
-      description: 'Medical Report'
-    }],
-    observations: [{
-      code: '8867-4',
-      codeSystem: 'LOINC',
-      display: 'Heart rate',
-      value: 78,
-      unit: '/min',
-      recordedDateTime: '2024-01-15T10:00:00Z'
-    }]
+    encounter: {
+      encounter_id: 'ENC-1',
+      encounter_type: 'AMB',
+      start_date: '2024-01-15T10:00:00Z',
+      practitioner_id: 'PRAC-1'
+    },
+    medication: {
+      medication_id: 'MED-1',
+      name: 'Atorvastatin',
+      strength: '20 mg'
+    },
+    medication_request: {
+      medication_request_id: 'MEDREQ-1',
+      patient_id: 'P1',
+      practitioner_id: 'PRAC-1',
+      dosage_instruction: {
+        dose: '1',
+        route: 'oral',
+        frequency: 'daily'
+      },
+      medication: {
+        medication_id: 'MED-1',
+        name: 'Atorvastatin',
+        strength: '20 mg'
+      }
+    },
+    practitioner: {
+      practitioner_id: 'PRAC-1',
+      name: {
+        first_name: 'Emily',
+        last_name: 'Smith'
+      }
+    },
+    organization: {
+      organization_id: 'ORG-1',
+      name: 'Healthy Heart Clinic',
+      type: 'clinic'
+    }
   }, null, 2),
 
   cda: `<?xml version="1.0" encoding="UTF-8"?>
@@ -381,7 +406,6 @@ async function main() {
 }
 
 main();
-
 
 
 

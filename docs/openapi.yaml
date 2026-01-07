@@ -17,7 +17,7 @@ paths:
       tags: [Custom JSON]
       summary: Convert custom JSON to FHIR R5 Bundle
       description: |
-        Accepts global custom JSON (snake_case). Legacy camelCase payloads are still supported for backward compatibility.
+        Accepts global custom JSON (snake_case).
       requestBody:
         required: true
         content:

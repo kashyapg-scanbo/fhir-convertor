@@ -89,29 +89,48 @@ Example:
 ```json
 {
   "patient": {
-    "id": "P1",
-    "firstName": "John",
-    "lastName": "Doe",
+    "patient_id": "P1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    },
     "gender": "male",
-    "birthDate": "1980-01-01",
-    "address": {
-      "line1": "123 Main St",
-      "city": "Springfield",
-      "state": "IL",
-      "postalCode": "62701"
+    "date_of_birth": "1980-01-01",
+    "contact_info": {
+      "phone": "555-1234",
+      "email": "john.doe@example.com",
+      "address": {
+        "street": "123 Main St",
+        "city": "Springfield",
+        "state": "IL",
+        "postal_code": "62701"
+      }
     }
   },
-  "documentReferences": [{
-    "format": "pdf",
-    "url": "https://example.com/report.pdf",
-    "date": "2024-01-15"
-  }]
+  "encounter": {
+    "encounter_id": "ENC-1",
+    "encounter_type": "AMB",
+    "start_date": "2024-01-15T10:00:00Z"
+  }
 }
 ```
 
 Save as `.json` file.
 
-### 3. CDA (XML)
+### 3. CSV/XLSX (Tabular)
+
+Flexible Column Naming: You do not need exact column names. The system works with a dictionary of over 120+ aliases.
+Example: Patient ID can be MRN, mrn, patient_id, Medical Record Number, or PatientID.
+Example: Date of Birth can be DOB, dob, birth_date, or patient_dob.
+
+Automatic Normalization: It automatically handles:
+Case insensitivity (Mrn = mrn).
+Spaces vs. Underscores (First Name = first_name).
+Special Characters (User-ID = user_id).
+
+Smart Parsing: It includes logic to split certain fields, like splitting Patient Name ("Doe, John") into Family and Given names automatically if separate columns aren't found.
+
+### 4. CDA (XML)
 
 Example:
 ```xml
@@ -205,7 +224,7 @@ curl -X POST http://localhost:3000/convert \
 curl -X POST http://localhost:3000/convert \
   -H "Content-Type: application/json" \
   -d '{
-    "input": "{\"patient\":{\"firstName\":\"John\",\"lastName\":\"Doe\"}}",
+    "input": "{\"patient\":{\"patient_id\":\"P1\",\"name\":{\"first_name\":\"John\",\"last_name\":\"Doe\"}}}",
     "format": "json"
   }'
 ```
@@ -270,8 +289,6 @@ For issues or questions:
 - Check the [UNIFIED_MAPPER_GUIDE.md](./UNIFIED_MAPPER_GUIDE.md) for architecture details
 - Review [DOCUMENT_TYPES_REFERENCE.md](./DOCUMENT_TYPES_REFERENCE.md) for document type mappings
 - Check test files in `tests/` directory for examples
-
-
 
 
 

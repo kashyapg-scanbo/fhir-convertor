@@ -41,8 +41,7 @@ All errors return HTTP 400 with:
 
 ## Custom JSON schema (accepted by `POST /json`)
 
-This endpoint accepts the **global custom JSON** (snake_case) below. Legacy camelCase
-payloads are still supported for backward compatibility.
+This endpoint accepts the **global custom JSON** (snake_case) below.
 
 At least one resource section is required:
 - `patient`, `encounter`, `medication`, `medication_request`, `practitioner`, `practitioner_role`, `organization`
