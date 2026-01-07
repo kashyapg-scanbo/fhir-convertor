@@ -356,6 +356,20 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   documentReferences: 'documentReference'
 };
 
+const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
+  ...SECTION_NAME_MAP,
+  medication_request: 'medicationRequest',
+  medication_requests: 'medicationRequest',
+  practitioner_role: 'practitionerRole',
+  practitioner_roles: 'practitionerRole',
+  document_reference: 'documentReference',
+  document_references: 'documentReference'
+};
+
+const STRUCTURED_SECTION_LOOKUP = new Map<string, keyof typeof HEADER_ALIAS_SECTIONS>(
+  Object.entries(SECTION_KEY_ALIASES).map(([key, section]) => [normalizeAliasKey(key), section])
+);
+
 const SECTION_CANONICAL_KEYS: Record<keyof typeof HEADER_ALIAS_SECTIONS, Set<string>> = Object
   .fromEntries(
     Object.entries(HEADER_ALIAS_SECTIONS).map(([section, map]) => ([
@@ -366,6 +380,59 @@ const SECTION_CANONICAL_KEYS: Record<keyof typeof HEADER_ALIAS_SECTIONS, Set<str
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
+  patient: 'patient',
+  patients: 'patient',
+  encounter: 'encounter',
+  encounters: 'encounter',
+  medication: 'medication',
+  medications: 'medication',
+  medication_request: 'medication_request',
+  medication_requests: 'medication_request',
+  medicationrequest: 'medication_request',
+  medicationrequests: 'medication_request',
+  practitioner: 'practitioner',
+  practitioners: 'practitioner',
+  practitioner_role: 'practitioner_role',
+  practitioner_roles: 'practitioner_role',
+  practitionerrole: 'practitioner_role',
+  practitionerroles: 'practitioner_role',
+  organization: 'organization',
+  organizations: 'organization',
+  operation: 'operation',
+  messagetype: 'messageType',
+  message_type: 'messageType'
+};
+
+function normalizeJsonKeys(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeJsonKeys(item));
+  }
+
+  if (!isPlainRecord(value)) return value;
+
+  const normalized: Record<string, unknown> = {};
+  for (const [key, rawValue] of Object.entries(value)) {
+    const normalizedKey = normalizeAliasKey(key);
+    const normalizedValue = normalizeJsonKeys(rawValue);
+    if (!(normalizedKey in normalized) || normalized[normalizedKey] === undefined || normalized[normalizedKey] === null || normalized[normalizedKey] === '') {
+      normalized[normalizedKey] = normalizedValue;
+    }
+  }
+  return normalized;
+}
+
+function normalizeGlobalPayload(value: unknown): unknown {
+  if (!isPlainRecord(value)) return value;
+  const normalized = normalizeJsonKeys(value) as Record<string, unknown>;
+  const remapped: Record<string, unknown> = {};
+  for (const [key, rawValue] of Object.entries(normalized)) {
+    const canonicalKey = GLOBAL_TOP_LEVEL_KEY_MAP[key] ?? key;
+    remapped[canonicalKey] = rawValue;
+  }
+  return remapped;
 }
 
 function normalizeAliasValue(value: unknown): string | undefined {
@@ -800,8 +867,9 @@ function looksLikeTabularJson(payload: unknown): boolean {
 
 function looksLikeStructuredAliasJson(payload: unknown): boolean {
   if (!isPlainRecord(payload)) return false;
-  return Object.entries(SECTION_NAME_MAP).some(([sectionKey, aliasSection]) => {
-    const value = (payload as Record<string, unknown>)[sectionKey];
+  return Object.entries(payload).some(([key, value]) => {
+    const aliasSection = STRUCTURED_SECTION_LOOKUP.get(normalizeAliasKey(key));
+    if (!aliasSection) return false;
     const canonicalKeys = SECTION_CANONICAL_KEYS[aliasSection];
     if (!canonicalKeys) return false;
     if (Array.isArray(value)) {
@@ -814,6 +882,23 @@ function looksLikeStructuredAliasJson(payload: unknown): boolean {
   });
 }
 
+function getStructuredSectionValues(payload: Record<string, unknown>, section: keyof typeof HEADER_ALIAS_SECTIONS) {
+  const matches: unknown[] = [];
+  for (const [key, value] of Object.entries(payload)) {
+    const mapped = STRUCTURED_SECTION_LOOKUP.get(normalizeAliasKey(key));
+    if (mapped === section) matches.push(value);
+  }
+  return matches;
+}
+
+function getStructuredSectionValue(payload: Record<string, unknown>, section: keyof typeof HEADER_ALIAS_SECTIONS) {
+  for (const [key, value] of Object.entries(payload)) {
+    const mapped = STRUCTURED_SECTION_LOOKUP.get(normalizeAliasKey(key));
+    if (mapped === section) return value;
+  }
+  return undefined;
+}
+
 function hasAliasKey(value: Record<string, unknown>, canonicalKeys: Set<string>): boolean {
   return Object.keys(value).some(key => canonicalKeys.has(normalizeHeader(key)));
 }
@@ -822,27 +907,34 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
   const baseRow: TabularRow = {};
   const rows: TabularRow[] = [];
 
-  const patientRow = toSectionRow('patient', payload.patient);
-  const encounterRow = toSectionRow('encounter', payload.encounter);
+  const patientRow = toSectionRow('patient', getStructuredSectionValue(payload, 'patient'));
+  const encounterRow = toSectionRow('encounter', getStructuredSectionValue(payload, 'encounter'));
   Object.assign(baseRow, patientRow, encounterRow);
 
-  const arraySections: Array<keyof typeof SECTION_NAME_MAP> = [
-    'observations',
-    'medications',
-    'medicationRequests',
-    'documentReferences',
-    'practitioners',
-    'practitionerRoles',
-    'organizations'
+  const arraySections: Array<keyof typeof HEADER_ALIAS_SECTIONS> = [
+    'observation',
+    'medication',
+    'medicationRequest',
+    'documentReference',
+    'practitioner',
+    'practitionerRole',
+    'organization'
   ];
 
-  for (const sectionKey of arraySections) {
-    const items = payload[sectionKey];
-    if (!Array.isArray(items)) continue;
-    const aliasSection = SECTION_NAME_MAP[sectionKey];
-    for (const item of items) {
-      if (!isPlainRecord(item)) continue;
-      const sectionRow = toSectionRow(aliasSection, item);
+  for (const aliasSection of arraySections) {
+    const sectionValues = getStructuredSectionValues(payload, aliasSection);
+    for (const sectionValue of sectionValues) {
+      if (Array.isArray(sectionValue)) {
+        for (const item of sectionValue) {
+          if (!isPlainRecord(item)) continue;
+          const sectionRow = toSectionRow(aliasSection, item);
+          const merged = { ...baseRow, ...sectionRow };
+          if (Object.keys(merged).length > 0) rows.push(merged);
+        }
+        continue;
+      }
+      if (!isPlainRecord(sectionValue)) continue;
+      const sectionRow = toSectionRow(aliasSection, sectionValue);
       const merged = { ...baseRow, ...sectionRow };
       if (Object.keys(merged).length > 0) rows.push(merged);
     }
@@ -891,7 +983,8 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     if (rows.length > 0) return mapTabularRowsToCanonical(rows, 'JSON');
   }
 
-  const wrappedGlobal = wrapGlobalPayload(parsed);
+  const normalizedGlobalCandidate = isPlainRecord(parsed) ? normalizeGlobalPayload(parsed) : parsed;
+  const wrappedGlobal = wrapGlobalPayload(normalizedGlobalCandidate);
   if (wrappedGlobal) {
     try {
       const normalizedGlobal = isPlainRecord(wrappedGlobal)
