@@ -76,19 +76,19 @@ export function parseHL7v3(input: string): CanonicalModel {
             }
 
             const encounterEvent = sub.encounterEvent || sub.EncounterEvent;
-                if (encounterEvent) {
-                    const encounter = mapV3Encounter(encounterEvent);
-                    if (encounter) model.encounter = encounter;
+            if (encounterEvent) {
+                const encounter = mapV3Encounter(encounterEvent);
+                if (encounter) model.encounter = encounter;
 
-                    const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
-                    if (responsibleParty) {
-                        const pract = mapV3PractitionerFromResponsible(responsibleParty);
-                        if (pract) model.practitioners?.push(pract);
+                const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
+                if (responsibleParty) {
+                    const pract = mapV3PractitionerFromResponsible(responsibleParty);
+                    if (pract) model.practitioners?.push(pract);
 
-                        const role = mapV3PractitionerRoleFromResponsible(responsibleParty);
-                        if (role) model.practitionerRoles?.push(role);
-                    }
+                    const role = mapV3PractitionerRoleFromResponsible(responsibleParty);
+                    if (role) model.practitionerRoles?.push(role);
                 }
+            }
 
             const observationEvent = sub.observationEvent || sub.ObservationEvent;
             if (observationEvent) {
@@ -505,7 +505,8 @@ function mapV3PractitionerRoleFromResponsible(responsibleParty: any): CanonicalP
 function extractText(value: any): string {
     if (!value) return '';
     if (typeof value === 'string') return value;
-    if (value['#text']) return value['#text'];
+    if (typeof value === 'number') return String(value);
+    if (value['#text']) return String(value['#text']);
     return '';
 }
 

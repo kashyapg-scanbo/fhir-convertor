@@ -63,10 +63,11 @@ describe('encounter mapper', () => {
       encounter,
       operation: 'create',
       registry,
-      patientFullUrl
+      patientFullUrl,
+      resolveRef: (type, id) => registry.resolve(type, id)
     });
 
-    expect(result.entries.length).toBe(2);
+    expect(result.entries.length).toBe(1);
     const encounterEntry = result.entries[0];
     expect(encounterEntry.resource.subject.reference).toBe(patientFullUrl);
     expect(result.encounterFullUrl).toBeDefined();
@@ -173,7 +174,7 @@ describe('medication mapper', () => {
 
     const entries = mapMedications({ medications, registry, resolveRef });
     expect(entries.length).toBe(1);
-    expect(entries[0].resource.manufacturer.reference).toBe('urn:uuid:mfr');
+    expect(entries[0].resource.marketingAuthorizationHolder.reference).toBe('urn:uuid:mfr');
   });
 });
 

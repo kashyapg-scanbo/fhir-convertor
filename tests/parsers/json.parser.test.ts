@@ -90,12 +90,12 @@ describe('parseCustomJSON', () => {
     const canonical = parseCustomJSON(input);
 
     // Patient mapping
-    expect(canonical.patient.id).toBe('PAT-1');
-    expect(canonical.patient.name.family).toBe('Doe');
-    expect(canonical.patient.name.given?.[0]).toBe('Jane');
-    expect(canonical.patient.gender).toBe('female');
-    expect(canonical.patient.address?.[0]?.city).toBe('Centerville');
-    expect(canonical.patient.telecom?.[0]?.value).toBe('+15551230000');
+    expect(canonical.patient!.id).toBe('PAT-1');
+    expect(canonical.patient!.name.family).toBe('Doe');
+    expect(canonical.patient!.name.given?.[0]).toBe('Jane');
+    expect(canonical.patient!.gender).toBe('female');
+    expect(canonical.patient!.address?.[0]?.city).toBe('Centerville');
+    expect(canonical.patient!.telecom?.[0]?.value).toBe('+15551230000');
 
     // Encounter mapping
     expect(canonical.encounter?.id).toBe('ENC-1');
@@ -103,7 +103,7 @@ describe('parseCustomJSON', () => {
     expect(canonical.encounter?.start).toBe('2024-01-01T10:00:00Z');
 
     // Observation mapping
-    expect(canonical.observations?.[0]?.code).toBe('8867-4');
+    expect((canonical.observations?.[0]?.code as any)?.code).toBe('8867-4');
     expect(canonical.observations?.[0]?.value).toBe(80);
     expect(canonical.observations?.[0]?.unit).toBe('/min');
 

@@ -30,7 +30,17 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   const registry = new FullUrlRegistry();
   const resolveRef = (resourceType: string, idOrIdentifier?: string) => {
     if (!idOrIdentifier) return undefined;
-    return registry.resolve(resourceType, idOrIdentifier) || `${resourceType}/${idOrIdentifier}`;
+    // Try direct lookup
+    let resolved = registry.resolve(resourceType, idOrIdentifier);
+    if (resolved) return resolved;
+
+    // Try stripping resource type prefix (e.g. "Patient/123" -> "123")
+    const prefix = `${resourceType}/`;
+    if (idOrIdentifier.startsWith(prefix)) {
+      const id = idOrIdentifier.slice(prefix.length);
+      resolved = registry.resolve(resourceType, id);
+    }
+    return resolved;
   };
 
   const patientResult = canonical.patient
@@ -88,6 +98,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
     bundle.entry.push(...observationEntries);
   }
 
+  const medicationEntries = mapMedications({
+    medications: canonical.medications,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (medicationEntries.length > 0) {
+    bundle.entry.push(...medicationEntries);
+  }
+
   const medicationRequestEntries = mapMedicationRequests({
     medicationRequests: canonical.medicationRequests,
     operation,
@@ -98,16 +118,6 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (medicationRequestEntries.length > 0) {
     bundle.entry.push(...medicationRequestEntries);
-  }
-
-  const medicationEntries = mapMedications({
-    medications: canonical.medications,
-    operation,
-    registry,
-    resolveRef
-  });
-  if (medicationEntries.length > 0) {
-    bundle.entry.push(...medicationEntries);
   }
 
   const documentReferenceEntries = mapDocumentReferences({

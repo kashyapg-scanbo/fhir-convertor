@@ -113,8 +113,9 @@ export function mapDocumentReferences({
     }
 
     if (source.context) {
+      documentReference.context = {};
       if (source.context.encounter) {
-        documentReference.context = source.context.encounter.map((enc: string) => ({
+        documentReference.context.encounter = source.context.encounter.map((enc: string) => ({
           reference: resolveRef('Encounter', enc) || `Encounter/${enc}`
         }));
       }
