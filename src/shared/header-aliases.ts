@@ -4,9 +4,9 @@ export type HeaderAliasSections = Record<string, HeaderAliasMap>;
 export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
   patient: {
     patient_id: ['patient_identifier', 'patient_mrn', 'mrn', 'medical_record_number', 'patientid'],
-    patient_first_name: ['first_name', 'firstname', 'given_name', 'given', 'patient_given', 'patient_given_name'],
+    patient_first_name: ['first_name', 'fname', 'given_name', 'given', 'patient_given', 'patient_given_name'],
     patient_middle_name: ['middle_name', 'middlename'],
-    patient_last_name: ['last_name', 'lastname', 'family_name', 'surname', 'patient_family', 'patient_family_name'],
+    patient_last_name: ['last_name', 'lname', 'family_name', 'surname', 'patient_family', 'patient_family_name'],
     patient_name: ['name', 'patientname', 'full_name', 'patient_full_name', 'pt_name'],
     patient_gender: ['gender', 'sex', 'gndr'],
     patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate'],

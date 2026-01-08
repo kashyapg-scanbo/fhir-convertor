@@ -781,7 +781,7 @@ function normalizeGlobalOrganizationAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
-function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEADER_ALIAS_SECTIONS) {
+function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEADER_ALIAS_SECTIONS): unknown {
   if (!value) return value;
   if (Array.isArray(value)) {
     return value.map(item => (isPlainRecord(item) ? normalizeGlobalSectionPayload(item, section) : item));
