@@ -6,6 +6,7 @@ import {
   CanonicalMedicationRequest,
   CanonicalMedicationStatement,
   CanonicalProcedure,
+  CanonicalCondition,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -48,6 +49,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
     practitionerData.authorIds[0]
   );
   const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
+  const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -67,6 +69,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (medications.length) canonical.medications = medications;
   if (medicationStatements.length) canonical.medicationStatements = medicationStatements;
   if (procedures.length) canonical.procedures = procedures;
+  if (conditions.length) canonical.conditions = conditions;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -505,6 +508,63 @@ function extractProcedures(
   });
 
   return procedures;
+}
+
+function extractConditions(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalCondition[] {
+  const conditions: CanonicalCondition[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isProblemSection = sectionCodeValue === '11450-4' || sectionCodeValue === '46241-6' || sectionCodeValue === '29308-4';
+    if (!isProblemSection) return;
+
+    const observation = entry.observation || entry['cda:observation'];
+    const obsArray = observation ? (Array.isArray(observation) ? observation : [observation]) : [];
+    for (const obs of obsArray) {
+      const code = obs.code || obs['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      const value = obs.value || obs['cda:value'];
+      const valueCode = extractAttribute(value, '@_code');
+      const valueSystem = extractAttribute(value, '@_codeSystem');
+      const valueDisplay = extractAttribute(value, '@_displayName') || extractText(value?.displayName);
+
+      const onset = formatCDADateTime(extractAttribute(obs.effectiveTime || obs['cda:effectiveTime'], '@_value'));
+      const recordedDate = formatCDADateTime(extractAttribute(obs.author?.time || obs['cda:author']?.time, '@_value'));
+
+      const finalCode = valueCode || codeValue;
+      const finalSystem = valueCode ? valueSystem : codeSystem;
+      const finalDisplay = valueDisplay || displayName;
+
+      if (!finalCode && !finalDisplay) continue;
+
+      conditions.push({
+        id: `COND-${finalCode || conditions.length + 1}`,
+        identifier: finalCode,
+        code: {
+          coding: finalCode ? [{
+            system: mapCodeSystem(finalSystem),
+            code: finalCode,
+            display: finalDisplay
+          }] : undefined,
+          text: finalDisplay
+        },
+        subject: patientId,
+        encounter: encounterId,
+        onsetDateTime: onset,
+        recordedDate: recordedDate
+      });
+    }
+  });
+
+  return conditions;
 }
 
 function extractPractitionerData(clinicalDocument: any) {

@@ -407,6 +407,90 @@ export type CanonicalProcedure = {
   active?: boolean;
 };
 
+export type CanonicalCondition = {
+  id?: string;
+  identifier?: string;
+  clinicalStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  verificationStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  severity?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  code?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  bodySite?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  subject?: string;
+  encounter?: string;
+  onsetDateTime?: string;
+  onsetPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  onsetString?: string;
+  abatementDateTime?: string;
+  abatementPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  abatementString?: string;
+  recordedDate?: string;
+  participant?: Array<{
+    actor?: string;
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  stage?: Array<{
+    summary?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    assessment?: string[];
+  }>;
+  evidence?: Array<{
+    reference?: string;
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  note?: string[];
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -461,6 +545,7 @@ export type CanonicalModel = {
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   procedures?: CanonicalProcedure[]; // Procedure
+  conditions?: CanonicalCondition[]; // Condition
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

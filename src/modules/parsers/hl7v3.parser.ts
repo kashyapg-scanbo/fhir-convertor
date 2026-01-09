@@ -11,7 +11,8 @@ import {
     CanonicalMedication,
     CanonicalMedicationRequest,
     CanonicalMedicationStatement,
-    CanonicalProcedure
+    CanonicalProcedure,
+    CanonicalCondition
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -48,6 +49,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         medicationRequests: [],
         medicationStatements: [],
         procedures: [],
+        conditions: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -98,6 +100,15 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (observationEvent) {
                 const obs = mapV3Observation(observationEvent);
                 if (obs) model.observations?.push(obs);
+            }
+
+            const conditionEvent = sub.condition || sub.Condition;
+            if (conditionEvent) {
+                const condition = mapV3Condition(conditionEvent);
+                if (condition) model.conditions?.push(condition);
+            } else if (observationEvent && (observationEvent['@_classCode'] || observationEvent.ObservationEvent?.['@_classCode']) === 'COND') {
+                const condition = mapV3Condition(observationEvent);
+                if (condition) model.conditions?.push(condition);
             }
 
             const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
@@ -464,6 +475,34 @@ function mapV3Procedure(procEvent: any): CanonicalProcedure | undefined {
             text: displayName
         },
         occurrenceDateTime: formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'])
+    };
+}
+
+function mapV3Condition(condEvent: any): CanonicalCondition | undefined {
+    const condition = condEvent.condition || condEvent.Condition || condEvent.observation || condEvent.Observation || condEvent;
+    if (!condition) return undefined;
+    const code = condition.code || condition.Code;
+    const value = condition.value || condition.Value;
+    const effectiveTime = condition.effectiveTime || condition.EffectiveTime;
+
+    const codeValue = code?.['@_code'] || value?.['@_code'];
+    const displayName = code?.['@_displayName'] || value?.['@_displayName'];
+    const codeSystem = code?.['@_codeSystem'] || value?.['@_codeSystem'];
+
+    if (!codeValue && !displayName) return undefined;
+
+    return {
+        id: codeValue,
+        identifier: codeValue,
+        code: {
+            coding: codeValue ? [{
+                system: codeSystem,
+                code: codeValue,
+                display: displayName
+            }] : undefined,
+            text: displayName
+        },
+        onsetDateTime: formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'])
     };
 }
 

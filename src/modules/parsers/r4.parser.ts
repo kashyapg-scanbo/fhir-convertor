@@ -11,7 +11,8 @@ import {
     CanonicalMedicationRequest,
     CanonicalDocumentReference,
     CanonicalMedicationStatement,
-    CanonicalProcedure
+    CanonicalProcedure,
+    CanonicalCondition
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -34,6 +35,7 @@ export function parseR4(input: string): CanonicalModel {
         medicationRequests: [],
         medicationStatements: [],
         procedures: [],
+        conditions: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -88,6 +90,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Procedure':
                 const proc = mapR4Procedure(res);
                 if (proc) model.procedures?.push(proc);
+                break;
+            case 'Condition':
+                const condition = mapR4Condition(res);
+                if (condition) model.conditions?.push(condition);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -423,6 +429,62 @@ function mapR4Procedure(proc: any): CanonicalProcedure {
         })),
         note: proc.note?.map((note: any) => note.text).filter(Boolean),
         location: proc.location?.reference?.replace('Location/', '')
+    };
+}
+
+function mapR4Condition(cond: any): CanonicalCondition {
+    return {
+        id: cond.id,
+        identifier: cond.identifier?.[0]?.value,
+        clinicalStatus: cond.clinicalStatus?.coding?.[0] ? {
+            system: cond.clinicalStatus.coding[0].system,
+            code: cond.clinicalStatus.coding[0].code,
+            display: cond.clinicalStatus.coding[0].display
+        } : undefined,
+        verificationStatus: cond.verificationStatus?.coding?.[0] ? {
+            system: cond.verificationStatus.coding[0].system,
+            code: cond.verificationStatus.coding[0].code,
+            display: cond.verificationStatus.coding[0].display
+        } : undefined,
+        category: cond.category?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        severity: cond.severity?.coding?.[0] ? {
+            system: cond.severity.coding[0].system,
+            code: cond.severity.coding[0].code,
+            display: cond.severity.coding[0].display
+        } : undefined,
+        code: cond.code ? {
+            coding: cond.code.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            })),
+            text: cond.code.text
+        } : undefined,
+        bodySite: cond.bodySite?.map((site: any) => ({
+            system: site.coding?.[0]?.system,
+            code: site.coding?.[0]?.code,
+            display: site.coding?.[0]?.display
+        })),
+        subject: cond.subject?.reference?.replace('Patient/', ''),
+        encounter: cond.encounter?.reference?.replace('Encounter/', ''),
+        onsetDateTime: cond.onsetDateTime,
+        onsetPeriod: cond.onsetPeriod ? {
+            start: cond.onsetPeriod.start,
+            end: cond.onsetPeriod.end
+        } : undefined,
+        onsetString: cond.onsetString,
+        abatementDateTime: cond.abatementDateTime,
+        abatementPeriod: cond.abatementPeriod ? {
+            start: cond.abatementPeriod.start,
+            end: cond.abatementPeriod.end
+        } : undefined,
+        abatementString: cond.abatementString,
+        recordedDate: cond.recordedDate,
+        note: cond.note?.map((note: any) => note.text).filter(Boolean)
     };
 }
 

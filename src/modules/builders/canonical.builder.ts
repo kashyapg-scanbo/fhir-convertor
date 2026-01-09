@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -768,6 +768,44 @@ export function buildCanonical(parsed: any) {
 
   if (procedures.length > 0) {
     result.procedures = procedures;
+  }
+
+  /* ───── Conditions (from DG1) ───── */
+  const conditions: CanonicalCondition[] = [];
+  const dg1Segments = parsed.DG1 ?? [];
+  for (const dg1 of dg1Segments) {
+    const diagnosisCode = dg1?.[2]?.[0] ?? [];
+    const codeValue = diagnosisCode[0];
+    const display = diagnosisCode[1];
+    const system = diagnosisCode[2];
+    if (!codeValue && !display) continue;
+
+    const onset = toFHIRDateTime(dg1?.[4]?.[0]?.[0]) || toFHIRDate(dg1?.[4]?.[0]?.[0]);
+    const clinicalStatus = dg1?.[5]?.[0]?.[0];
+
+    conditions.push({
+      id: `DG1-${codeValue || Date.now()}`,
+      identifier: codeValue,
+      clinicalStatus: clinicalStatus ? {
+        code: clinicalStatus,
+        display: clinicalStatus
+      } : undefined,
+      code: {
+        coding: codeValue ? [{
+          system: mapCodingSystem(system),
+          code: codeValue,
+          display: display
+        }] : undefined,
+        text: display
+      },
+      subject: patientId,
+      encounter: encounter?.id,
+      onsetDateTime: onset
+    });
+  }
+
+  if (conditions.length > 0) {
+    result.conditions = conditions;
   }
 
   /* ───── Medications (from RXC) ───── */

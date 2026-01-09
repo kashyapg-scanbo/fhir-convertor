@@ -483,7 +483,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -526,6 +526,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomProcedure'
+        condition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCondition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCondition'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -969,6 +975,67 @@ components:
           type: string
         display:
           type: string
+    CustomCondition:
+      type: object
+      properties:
+        condition_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        clinical_status:
+          type: string
+        verification_status:
+          type: string
+        category:
+          type: string
+        severity:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomConditionCode'
+        body_site:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        onset_date:
+          type: string
+          format: date-time
+        onset_start:
+          type: string
+          format: date-time
+        onset_end:
+          type: string
+          format: date-time
+        onset_text:
+          type: string
+        abatement_date:
+          type: string
+          format: date-time
+        abatement_start:
+          type: string
+          format: date-time
+        abatement_end:
+          type: string
+          format: date-time
+        abatement_text:
+          type: string
+        recorded_date:
+          type: string
+          format: date-time
+        note:
+          type: string
+    CustomConditionCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1209,6 +1276,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [procedure]
+    CustomJsonConditionOnly:
+      title: Condition
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [condition]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

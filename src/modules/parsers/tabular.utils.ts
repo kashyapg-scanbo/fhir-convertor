@@ -319,6 +319,68 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (procedures.length > 0) canonical.procedures = procedures as any[];
 
+  const conditions = rows.map(row => {
+    const condCode = readValue(row, 'condition_code');
+    const condDisplay = readValue(row, 'condition_display');
+    const condSystem = readValue(row, 'condition_code_system');
+    const condId = readValue(row, 'condition_id');
+    if (!condCode && !condDisplay && !condId) return null;
+
+    const onsetStart = readValue(row, 'condition_onset_start');
+    const onsetEnd = readValue(row, 'condition_onset_end');
+    const abatementStart = readValue(row, 'condition_abatement_start');
+    const abatementEnd = readValue(row, 'condition_abatement_end');
+
+    return {
+      id: condId || undefined,
+      identifier: condId || undefined,
+      clinicalStatus: readValue(row, 'condition_clinical_status') ? {
+        code: readValue(row, 'condition_clinical_status'),
+        display: readValue(row, 'condition_clinical_status')
+      } : undefined,
+      verificationStatus: readValue(row, 'condition_verification_status') ? {
+        code: readValue(row, 'condition_verification_status'),
+        display: readValue(row, 'condition_verification_status')
+      } : undefined,
+      category: readValue(row, 'condition_category') ? [{
+        code: readValue(row, 'condition_category'),
+        display: readValue(row, 'condition_category')
+      }] : undefined,
+      severity: readValue(row, 'condition_severity') ? {
+        code: readValue(row, 'condition_severity'),
+        display: readValue(row, 'condition_severity')
+      } : undefined,
+      code: (condCode || condDisplay) ? {
+        coding: condCode ? [{
+          system: condSystem,
+          code: condCode,
+          display: condDisplay
+        }] : undefined,
+        text: condDisplay
+      } : undefined,
+      bodySite: readValue(row, 'condition_body_site') ? [{
+        display: readValue(row, 'condition_body_site')
+      }] : undefined,
+      subject: readValue(row, 'condition_subject_id'),
+      encounter: readValue(row, 'condition_encounter_id'),
+      onsetDateTime: readValue(row, 'condition_onset_date'),
+      onsetPeriod: (onsetStart || onsetEnd) ? {
+        start: onsetStart,
+        end: onsetEnd
+      } : undefined,
+      onsetString: readValue(row, 'condition_onset_text'),
+      abatementDateTime: readValue(row, 'condition_abatement_date'),
+      abatementPeriod: (abatementStart || abatementEnd) ? {
+        start: abatementStart,
+        end: abatementEnd
+      } : undefined,
+      abatementString: readValue(row, 'condition_abatement_text'),
+      recordedDate: readValue(row, 'condition_recorded_date'),
+      note: readValue(row, 'condition_note') ? [readValue(row, 'condition_note') as string] : undefined
+    };
+  }).filter(Boolean);
+  if (conditions.length > 0) canonical.conditions = conditions as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');
