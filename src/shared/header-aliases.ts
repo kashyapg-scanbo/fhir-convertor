@@ -193,6 +193,23 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     related_person_postal_code: ['related_person_postal_code', 'postal_code'],
     related_person_country: ['related_person_country', 'country']
   },
+  location: {
+    location_id: ['loc_id', 'location_identifier', 'locationid'],
+    location_status: ['loc_status', 'status'],
+    location_name: ['loc_name', 'name'],
+    location_alias: ['loc_alias', 'alias'],
+    location_description: ['loc_description', 'description'],
+    location_mode: ['loc_mode', 'mode'],
+    location_type: ['loc_type', 'type'],
+    location_address_line1: ['loc_address_line1', 'address_line1'],
+    location_address_line2: ['loc_address_line2', 'address_line2'],
+    location_city: ['loc_city', 'city'],
+    location_state: ['loc_state', 'state'],
+    location_postal_code: ['loc_postal_code', 'postal_code'],
+    location_country: ['loc_country', 'country'],
+    location_managing_org_id: ['loc_managing_org_id', 'managing_organization_id'],
+    location_part_of_id: ['loc_part_of_id', 'part_of_id']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

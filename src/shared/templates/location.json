@@ -1,0 +1,21 @@
+{
+  "resourceType": "Location",
+  "identifier": [],
+  "status": "",
+  "operationalStatus": {},
+  "name": "",
+  "alias": [],
+  "description": "",
+  "mode": "",
+  "type": [],
+  "contact": [],
+  "address": {},
+  "form": {},
+  "position": {},
+  "managingOrganization": {},
+  "partOf": {},
+  "characteristic": [],
+  "hoursOfOperation": [],
+  "virtualService": [],
+  "endpoint": []
+}

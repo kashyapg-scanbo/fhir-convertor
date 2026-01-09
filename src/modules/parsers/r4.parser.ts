@@ -17,7 +17,8 @@ import {
     CanonicalSchedule,
     CanonicalSlot,
     CanonicalDiagnosticReport,
-    CanonicalRelatedPerson
+    CanonicalRelatedPerson,
+    CanonicalLocation
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -46,6 +47,7 @@ export function parseR4(input: string): CanonicalModel {
         slots: [],
         diagnosticReports: [],
         relatedPersons: [],
+        locations: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -124,6 +126,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'RelatedPerson':
                 const related = mapR4RelatedPerson(res);
                 if (related) model.relatedPersons?.push(related);
+                break;
+            case 'Location':
+                const location = mapR4Location(res);
+                if (location) model.locations?.push(location);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -671,6 +677,38 @@ function mapR4RelatedPerson(rp: any): CanonicalRelatedPerson {
             country: a.country,
             use: a.use
         }))
+    };
+}
+
+function mapR4Location(loc: any): CanonicalLocation {
+    return {
+        id: loc.id,
+        identifier: loc.identifier?.[0]?.value,
+        status: loc.status,
+        name: loc.name,
+        alias: loc.alias,
+        description: loc.description,
+        mode: loc.mode,
+        type: loc.type?.map((type: any) => ({
+            system: type.coding?.[0]?.system,
+            code: type.coding?.[0]?.code,
+            display: type.coding?.[0]?.display
+        })),
+        address: loc.address ? {
+            line: loc.address.line,
+            city: loc.address.city,
+            state: loc.address.state,
+            postalCode: loc.address.postalCode,
+            country: loc.address.country
+        } : undefined,
+        position: loc.position ? {
+            longitude: loc.position.longitude,
+            latitude: loc.position.latitude,
+            altitude: loc.position.altitude
+        } : undefined,
+        managingOrganization: loc.managingOrganization?.reference?.replace('Organization/', ''),
+        partOf: loc.partOf?.reference?.replace('Location/', ''),
+        active: loc.status ? loc.status === 'active' : undefined
     };
 }
 

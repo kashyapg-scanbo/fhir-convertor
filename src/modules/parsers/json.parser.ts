@@ -389,6 +389,24 @@ const GlobalRelatedPersonSchema = z.object({
   country: z.string().optional()
 });
 
+const GlobalLocationSchema = z.object({
+  location_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  name: z.string().optional(),
+  alias: z.union([z.string(), z.array(z.string())]).optional(),
+  description: z.string().optional(),
+  mode: z.string().optional(),
+  type: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postal_code: z.string().optional(),
+  country: z.string().optional(),
+  managing_org_id: GlobalIdSchema.optional(),
+  part_of_id: GlobalIdSchema.optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -486,6 +504,7 @@ const GlobalCustomJSONSchema = z.object({
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
   diagnostic_report: z.union([GlobalDiagnosticReportSchema, z.array(GlobalDiagnosticReportSchema)]).optional(),
   related_person: z.union([GlobalRelatedPersonSchema, z.array(GlobalRelatedPersonSchema)]).optional(),
+  location: z.union([GlobalLocationSchema, z.array(GlobalLocationSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -503,12 +522,13 @@ const GlobalCustomJSONSchema = z.object({
     value.slot ||
     value.diagnostic_report ||
     value.related_person ||
+    value.location ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -535,6 +555,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   slots: 'slot',
   diagnosticReports: 'diagnosticReport',
   relatedPersons: 'relatedPerson',
+  locations: 'location',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -561,6 +582,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   diagnostic_reports: 'diagnosticReport',
   related_person: 'relatedPerson',
   related_persons: 'relatedPerson',
+  location: 'location',
+  locations: 'location',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -616,6 +639,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   related_persons: 'related_person',
   relatedperson: 'related_person',
   relatedpersons: 'related_person',
+  location: 'location',
+  locations: 'location',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1295,6 +1320,59 @@ function normalizeGlobalRelatedPersonAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalLocationAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const locationId = readSectionAliasValue(value, 'location', 'location_id');
+  if (normalized.location_id === undefined && locationId !== undefined) {
+    normalized.location_id = locationId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const alias = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_alias'));
+  if (alias && normalized.alias === undefined) normalized.alias = alias;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const mode = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_mode'));
+  if (mode && normalized.mode === undefined) normalized.mode = mode;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const addressLine1 = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_address_line1'));
+  if (addressLine1 && normalized.address_line1 === undefined) normalized.address_line1 = addressLine1;
+
+  const addressLine2 = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_address_line2'));
+  if (addressLine2 && normalized.address_line2 === undefined) normalized.address_line2 = addressLine2;
+
+  const city = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_city'));
+  if (city && normalized.city === undefined) normalized.city = city;
+
+  const state = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_state'));
+  if (state && normalized.state === undefined) normalized.state = state;
+
+  const postalCode = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_postal_code'));
+  if (postalCode && normalized.postal_code === undefined) normalized.postal_code = postalCode;
+
+  const country = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_country'));
+  if (country && normalized.country === undefined) normalized.country = country;
+
+  const managingOrgId = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_managing_org_id'));
+  if (managingOrgId && normalized.managing_org_id === undefined) normalized.managing_org_id = managingOrgId;
+
+  const partOfId = normalizeAliasValue(readSectionAliasValue(value, 'location', 'location_part_of_id'));
+  if (partOfId && normalized.part_of_id === undefined) normalized.part_of_id = partOfId;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1485,6 +1563,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalDiagnosticReportAliases(value);
     case 'relatedPerson':
       return normalizeGlobalRelatedPersonAliases(value);
+    case 'location':
+      return normalizeGlobalLocationAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1511,6 +1591,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['slot', 'slot'],
     ['diagnosticReport', 'diagnostic_report'],
     ['relatedPerson', 'related_person'],
+    ['location', 'location'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -1619,6 +1700,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'slot',
     'diagnosticReport',
     'relatedPerson',
+    'location',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1737,6 +1819,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const slots = normalizeArray(validated.slot);
   const diagnosticReports = normalizeArray(validated.diagnostic_report);
   const relatedPersons = normalizeArray(validated.related_person);
+  const locations = normalizeArray(validated.location);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1778,6 +1861,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (relatedPersons.length) {
     canonical.relatedPersons = relatedPersons.map(buildCanonicalRelatedPersonGlobal);
   }
+  if (locations.length) {
+    canonical.locations = locations.map(buildCanonicalLocationGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -1817,7 +1903,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1833,6 +1919,7 @@ function wrapGlobalPayload(value: any) {
       value.slot,
       value.diagnostic_report,
       value.related_person,
+      value.location,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1874,6 +1961,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('related_person_id' in value || 'relationship' in value || 'patient_id' in value) {
       return { related_person: value };
+    }
+    if ('location_id' in value || 'location_name' in value || 'address_line1' in value) {
+      return { location: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -1929,6 +2019,8 @@ function looksLikeGlobalResource(value: any) {
     'issued' in value ||
     'related_person_id' in value ||
     'relationship' in value ||
+    'location_id' in value ||
+    'location_name' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -2355,6 +2447,37 @@ function buildCanonicalRelatedPersonGlobal(rp: z.infer<typeof GlobalRelatedPerso
     gender: rp.gender,
     birthDate: rp.birth_date,
     address
+  };
+}
+
+function buildCanonicalLocationGlobal(location: z.infer<typeof GlobalLocationSchema>) {
+  const alias = normalizeStringArray(location.alias);
+
+  const address = location.address_line1 || location.address_line2 || location.city
+    ? {
+        line: [location.address_line1, location.address_line2].filter(Boolean) as string[],
+        city: location.city,
+        state: location.state,
+        postalCode: location.postal_code,
+        country: location.country
+      }
+    : undefined;
+
+  return {
+    id: location.location_id,
+    identifier: location.location_id,
+    status: location.status,
+    name: location.name,
+    alias: alias.length ? alias : undefined,
+    description: location.description,
+    mode: location.mode,
+    type: location.type ? [{
+      code: location.type,
+      display: location.type
+    }] : undefined,
+    address,
+    managingOrganization: location.managing_org_id,
+    partOf: location.part_of_id
   };
 }
 

@@ -570,6 +570,50 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (relatedPersons.length > 0) canonical.relatedPersons = relatedPersons as any[];
 
+  const locations = rows.map(row => {
+    const locationId = readValue(row, 'location_id');
+    const name = readValue(row, 'location_name');
+    const status = readValue(row, 'location_status');
+    const description = readValue(row, 'location_description');
+    const mode = readValue(row, 'location_mode');
+    const type = readValue(row, 'location_type');
+    const aliasRaw = readValue(row, 'location_alias');
+    const alias = aliasRaw ? aliasRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const addressLine1 = readValue(row, 'location_address_line1');
+    const addressLine2 = readValue(row, 'location_address_line2');
+    const address = (addressLine1 || addressLine2 || readValue(row, 'location_city')) ? {
+      line: [addressLine1, addressLine2].filter(Boolean) as string[],
+      city: readValue(row, 'location_city'),
+      state: readValue(row, 'location_state'),
+      postalCode: readValue(row, 'location_postal_code'),
+      country: readValue(row, 'location_country')
+    } : undefined;
+    const managingOrganization = readValue(row, 'location_managing_org_id');
+    const partOf = readValue(row, 'location_part_of_id');
+
+    if (!locationId && !name && !status && !description && !mode && !type && !alias?.length && !address && !managingOrganization && !partOf) {
+      return null;
+    }
+
+    return {
+      id: locationId || undefined,
+      identifier: locationId || undefined,
+      status: status || undefined,
+      name: name || undefined,
+      alias: alias && alias.length ? alias : undefined,
+      description: description || undefined,
+      mode: mode || undefined,
+      type: type ? [{
+        code: type,
+        display: type
+      }] : undefined,
+      address,
+      managingOrganization: managingOrganization || undefined,
+      partOf: partOf || undefined
+    };
+  }).filter(Boolean);
+  if (locations.length > 0) canonical.locations = locations as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

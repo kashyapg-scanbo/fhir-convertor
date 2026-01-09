@@ -652,6 +652,36 @@ export type CanonicalDiagnosticReport = {
   active?: boolean;
 };
 
+export type CanonicalLocation = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  name?: string;
+  alias?: string[];
+  description?: string;
+  mode?: string;
+  type?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  address?: {
+    line?: string[];
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  managingOrganization?: string;
+  partOf?: string;
+  position?: {
+    longitude?: number;
+    latitude?: number;
+    altitude?: number;
+  };
+  active?: boolean;
+};
+
 export type CanonicalRelatedPerson = {
   id?: string;
   identifier?: string;
@@ -747,6 +777,7 @@ export type CanonicalModel = {
   slots?: CanonicalSlot[]; // Slot
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport
   relatedPersons?: CanonicalRelatedPerson[]; // RelatedPerson
+  locations?: CanonicalLocation[]; // Location
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

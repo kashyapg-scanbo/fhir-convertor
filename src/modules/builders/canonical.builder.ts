@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -77,6 +77,7 @@ export function buildCanonical(parsed: any) {
   /* ───── Encounter ───── */
   // Only include encounter if PV1 segment exists
   let encounter: CanonicalEncounter | undefined;
+  const locations: CanonicalLocation[] = [];
   if (pv1) {
     const encounterClass = pv1?.[1]?.[0]?.[0] === 'I' ? 'IMP' : 'AMB';
     const encounterId = pv1?.[18]?.[0]?.[0];
@@ -95,9 +96,31 @@ export function buildCanonical(parsed: any) {
       pv1?.[2]?.[0]?.[3] || // PV1-3.4: Facility
       pv1?.[38]?.[0]?.[0]; // PV1-39: Servicing Facility
 
+    const locationComponents = pv1?.[2]?.[0] ?? [];
+    const pointOfCare = locationComponents[0];
+    const room = locationComponents[1];
+    const bed = locationComponents[2];
+    const facility = locationComponents[3];
+    const locationStatus = locationComponents[4];
+    const locationDescription = locationComponents[8];
+    const locationName = locationDescription || [pointOfCare, room && `Room ${room}`, bed && `Bed ${bed}`]
+      .filter(Boolean)
+      .join(', ');
+    const locationId = facility || pointOfCare || room || bed;
+    if (locationId || locationName) {
+      locations.push({
+        id: locationId,
+        identifier: locationId,
+        status: locationStatus,
+        name: locationName || undefined,
+        description: locationDescription || undefined
+      });
+    }
+
     encounter = {
       id: encounterId,
       class: encounterClass,
+      location: locationName || facility || undefined,
       participantPractitionerIds: encounterParticipants.size > 0
         ? Array.from(encounterParticipants)
         : undefined,
@@ -1014,6 +1037,9 @@ export function buildCanonical(parsed: any) {
 
   if (relatedPersons.length > 0) {
     result.relatedPersons = relatedPersons;
+  }
+  if (locations.length > 0) {
+    result.locations = locations;
   }
 
   /* ───── Medications (from RXC) ───── */

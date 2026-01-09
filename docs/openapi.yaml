@@ -31,6 +31,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
+                - $ref: '#/components/schemas/CustomJsonLocationOnly'
                 - $ref: '#/components/schemas/CustomJsonFull'
             examples:
               patient:
@@ -483,7 +484,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -562,6 +563,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomRelatedPerson'
+        location:
+          oneOf:
+            - $ref: '#/components/schemas/CustomLocation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomLocation'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1250,6 +1257,43 @@ components:
           type: string
         country:
           type: string
+    CustomLocation:
+      type: object
+      properties:
+        location_id:
+          type: string
+        status:
+          type: string
+        name:
+          type: string
+        alias:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        description:
+          type: string
+        mode:
+          type: string
+        type:
+          type: string
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        managing_org_id:
+          type: string
+        part_of_id:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1526,6 +1570,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [related_person]
+    CustomJsonLocationOnly:
+      title: Location
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [location]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

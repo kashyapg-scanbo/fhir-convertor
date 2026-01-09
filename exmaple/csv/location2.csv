@@ -1,0 +1,2 @@
+location_id,location_status,location_name,location_alias,location_description,location_mode,location_type,location_address_line1,location_address_line2,location_city,location_state,location_postal_code,location_country,location_managing_org_id,location_part_of_id
+LOC-2,active,Imaging Center,Imaging,Radiology wing,instance,imaging,456 Elm Ave,,Springfield,IL,62702,USA,ORG-2,LOC-1

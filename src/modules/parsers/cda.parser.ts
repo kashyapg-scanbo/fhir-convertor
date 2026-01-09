@@ -12,6 +12,7 @@ import {
   CanonicalSlot,
   CanonicalDiagnosticReport,
   CanonicalRelatedPerson,
+  CanonicalLocation,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -60,6 +61,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const slots = extractSlots(clinicalDocument, patient.id);
   const diagnosticReports = extractDiagnosticReports(clinicalDocument, patient.id, encounter?.id);
   const relatedPersons = extractRelatedPersons(clinicalDocument, patient.id);
+  const locations = extractLocations(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -85,6 +87,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (slots.length) canonical.slots = slots;
   if (diagnosticReports.length) canonical.diagnosticReports = diagnosticReports;
   if (relatedPersons.length) canonical.relatedPersons = relatedPersons;
+  if (locations.length) canonical.locations = locations;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -806,6 +809,89 @@ function extractRelatedPersons(
   });
 
   return relatedPersons;
+}
+
+function extractLocations(clinicalDocument: any): CanonicalLocation[] {
+  const locations: CanonicalLocation[] = [];
+
+  const componentOf = clinicalDocument.componentOf || clinicalDocument['cda:componentOf'];
+  const encounterNode = componentOf?.encompassingEncounter || componentOf?.['cda:encompassingEncounter'];
+  const encounterLocations = encounterNode?.location || encounterNode?.['cda:location'];
+  const encounterLocationList = encounterLocations ? (Array.isArray(encounterLocations) ? encounterLocations : [encounterLocations]) : [];
+
+  for (const loc of encounterLocationList) {
+    const location = mapCDALocationNode(loc);
+    if (location) locations.push(location);
+  }
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isEncounterSection = sectionCodeValue === '46240-8';
+    if (!isEncounterSection) return;
+
+    const encounter = entry.encounter || entry['cda:encounter'];
+    if (!encounter) return;
+    const encounters = Array.isArray(encounter) ? encounter : [encounter];
+
+    for (const enc of encounters) {
+      const locationNode = enc.location || enc['cda:location'];
+      const locationFromParticipant = enc.participant || enc['cda:participant'];
+      const participantArray = locationFromParticipant ? (Array.isArray(locationFromParticipant) ? locationFromParticipant : [locationFromParticipant]) : [];
+
+      const location = mapCDALocationNode(locationNode);
+      if (location) locations.push(location);
+
+      for (const participant of participantArray) {
+        const participantRole = participant.participantRole || participant['cda:participantRole'];
+        const playingEntity = participantRole?.playingEntity || participantRole?.['cda:playingEntity'];
+        if (!playingEntity) continue;
+        const locationFromPlaying = mapCDALocationNode(playingEntity);
+        if (locationFromPlaying) locations.push(locationFromPlaying);
+      }
+    }
+  });
+
+  return locations;
+}
+
+function mapCDALocationNode(node: any): CanonicalLocation | undefined {
+  if (!node) return undefined;
+
+  const locationContainer =
+    node.healthCareFacility ||
+    node['cda:healthCareFacility'] ||
+    node.serviceDeliveryLocation ||
+    node['cda:serviceDeliveryLocation'] ||
+    node;
+
+  const locationDetail =
+    locationContainer?.location ||
+    locationContainer?.['cda:location'] ||
+    locationContainer;
+
+  const locationId = extractId(locationDetail?.id || locationDetail?.['cda:id'] || locationContainer?.id || locationContainer?.['cda:id']);
+  const name = extractText(locationDetail?.name || locationDetail?.['cda:name'] || locationContainer?.name || locationContainer?.['cda:name']);
+  const statusCode = locationDetail?.statusCode || locationDetail?.['cda:statusCode'];
+  const status = extractAttribute(statusCode, '@_code');
+  const description = extractText(locationDetail?.desc || locationDetail?.['cda:desc']);
+  const address = extractAddresses(
+    locationDetail?.addr ||
+    locationDetail?.['cda:addr'] ||
+    locationContainer?.addr ||
+    locationContainer?.['cda:addr']
+  );
+
+  if (!locationId && !name && !description && (!address || !address.length)) return undefined;
+
+  return {
+    id: locationId,
+    identifier: locationId,
+    status: status || undefined,
+    name: name || undefined,
+    description: description || undefined,
+    address: address && address.length ? address[0] : undefined
+  };
 }
 
 function extractPractitionerData(clinicalDocument: any) {

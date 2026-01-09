@@ -1,0 +1,26 @@
+{
+  "patient": {
+    "patient_id": "PAT-LOC1",
+    "name": {
+      "first_name": "Jane1",
+      "last_name": "Doe1"
+    }
+  },
+  "location": {
+    "location_id": "LOC-1",
+    "status": "active",
+    "name": "Downtown Clinic",
+    "alias": ["Downtown"],
+    "description": "Main outpatient clinic",
+    "mode": "instance",
+    "type": "clinic",
+    "address_line1": "123 Main St",
+    "address_line2": "Suite 100",
+    "city": "Springfield",
+    "state": "IL",
+    "postal_code": "62701",
+    "country": "USA",
+    "managing_org_id": "ORG-1",
+    "part_of_id": "LOC-PARENT"
+  }
+}

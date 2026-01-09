@@ -17,7 +17,8 @@ import {
     CanonicalSchedule,
     CanonicalSlot,
     CanonicalDiagnosticReport,
-    CanonicalRelatedPerson
+    CanonicalRelatedPerson,
+    CanonicalLocation
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -60,6 +61,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         slots: [],
         diagnosticReports: [],
         relatedPersons: [],
+        locations: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -95,6 +97,8 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (encounterEvent) {
                 const encounter = mapV3Encounter(encounterEvent);
                 if (encounter) model.encounter = encounter;
+                const location = mapV3LocationFromEncounter(encounterEvent);
+                if (location) model.locations?.push(location);
 
                 const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
                 if (responsibleParty) {
@@ -266,6 +270,42 @@ function mapV3Encounter(encounterEvent: any): CanonicalEncounter | undefined {
         location: locationStr || undefined,
         participantPractitionerIds: participantId ? [participantId] : undefined,
         serviceProviderOrganizationId: representedOrgIdInfo.identifier || representedOrgIdInfo.id
+    };
+}
+
+function mapV3LocationFromEncounter(encounterEvent: any): CanonicalLocation | undefined {
+    const location = encounterEvent.location || encounterEvent.Location;
+    const facility = location?.healthCareFacility || location?.HealthCareFacility;
+    const locationDetail = facility?.location || facility?.Location;
+
+    if (!locationDetail && !facility) return undefined;
+
+    const idInfo = pickV3Id(locationDetail?.id || locationDetail?.Id || facility?.id || facility?.Id);
+    const name =
+        extractText(locationDetail?.name || locationDetail?.Name) ||
+        extractText(facility?.name || facility?.Name) ||
+        extractText(locationDetail?.code?.displayName || locationDetail?.Code?.displayName);
+    const statusCode = locationDetail?.statusCode || locationDetail?.StatusCode;
+    const status = statusCode?.['@_code'];
+    const addressNode = locationDetail?.addr || locationDetail?.Addr || facility?.addr || facility?.Addr;
+    const address = addressNode ? mapV3Addresses(addressNode)?.[0] : undefined;
+
+    const pointOfCare = extractText(locationDetail?.pointOfCare || locationDetail?.PointOfCare);
+    const room = extractText(locationDetail?.room || locationDetail?.Room);
+    const bed = extractText(locationDetail?.bed || locationDetail?.Bed);
+    const description = [pointOfCare, room && `Room ${room}`, bed && `Bed ${bed}`]
+        .filter(Boolean)
+        .join(', ');
+
+    if (!idInfo.id && !idInfo.identifier && !name && !description && !address) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier || idInfo.id,
+        status: status || undefined,
+        name: name || description || undefined,
+        description: description || undefined,
+        address
     };
 }
 
