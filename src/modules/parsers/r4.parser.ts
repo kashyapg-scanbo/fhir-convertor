@@ -14,7 +14,8 @@ import {
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
-    CanonicalSchedule
+    CanonicalSchedule,
+    CanonicalSlot
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -40,6 +41,7 @@ export function parseR4(input: string): CanonicalModel {
         conditions: [],
         appointments: [],
         schedules: [],
+        slots: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -106,6 +108,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
                 if (schedule) model.schedules?.push(schedule);
+                break;
+            case 'Slot':
+                const slot = mapR4Slot(res);
+                if (slot) model.slots?.push(slot);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -550,6 +556,39 @@ function mapR4Schedule(schedule: any): CanonicalSchedule {
             system: spec.coding?.[0]?.system,
             code: spec.coding?.[0]?.code,
             display: spec.coding?.[0]?.display
+        }))
+    };
+}
+
+function mapR4Slot(slot: any): CanonicalSlot {
+    return {
+        id: slot.id,
+        identifier: slot.identifier?.[0]?.value,
+        schedule: slot.schedule?.reference?.replace('Schedule/', ''),
+        status: slot.status,
+        start: slot.start,
+        end: slot.end,
+        overbooked: slot.overbooked,
+        comment: slot.comment,
+        serviceCategory: slot.serviceCategory?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        serviceType: slot.serviceType?.map((service: any) => ({
+            system: service.concept?.coding?.[0]?.system,
+            code: service.concept?.coding?.[0]?.code,
+            display: service.concept?.coding?.[0]?.display
+        })),
+        specialty: slot.specialty?.map((spec: any) => ({
+            system: spec.coding?.[0]?.system,
+            code: spec.coding?.[0]?.code,
+            display: spec.coding?.[0]?.display
+        })),
+        appointmentType: slot.appointmentType?.map((type: any) => ({
+            system: type.coding?.[0]?.system,
+            code: type.coding?.[0]?.code,
+            display: type.coding?.[0]?.display
         }))
     };
 }

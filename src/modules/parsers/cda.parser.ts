@@ -9,6 +9,7 @@ import {
   CanonicalCondition,
   CanonicalAppointment,
   CanonicalSchedule,
+  CanonicalSlot,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -54,6 +55,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const appointments = extractAppointments(clinicalDocument, patient.id);
   const schedules = extractSchedules(clinicalDocument, patient.id);
+  const slots = extractSlots(clinicalDocument, patient.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -76,6 +78,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (conditions.length) canonical.conditions = conditions;
   if (appointments.length) canonical.appointments = appointments;
   if (schedules.length) canonical.schedules = schedules;
+  if (slots.length) canonical.slots = slots;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -656,6 +659,45 @@ function extractSchedules(
   });
 
   return schedules;
+}
+
+function extractSlots(
+  clinicalDocument: any,
+  patientId?: string
+): CanonicalSlot[] {
+  const slots: CanonicalSlot[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isEncounterSection = sectionCodeValue === '46240-8';
+    if (!isEncounterSection) return;
+
+    const encounter = entry.encounter || entry['cda:encounter'];
+    if (!encounter) return;
+    const encounters = Array.isArray(encounter) ? encounter : [encounter];
+
+    for (const enc of encounters) {
+      const scheduleId = extractId(enc.id || enc['cda:id']);
+      const effectiveTime = enc.effectiveTime || enc['cda:effectiveTime'];
+      const start = formatCDADateTime(extractAttribute(effectiveTime?.low, '@_value') || extractAttribute(effectiveTime, '@_value'));
+      const end = formatCDADateTime(extractAttribute(effectiveTime?.high, '@_value'));
+
+      if (!scheduleId && !start && !end) continue;
+
+      slots.push({
+        id: scheduleId ? `SLOT-${scheduleId}` : `SLOT-${slots.length + 1}`,
+        identifier: scheduleId,
+        schedule: scheduleId,
+        status: 'free',
+        start: start,
+        end: end,
+        comment: patientId ? `Patient ${patientId}` : undefined
+      });
+    }
+  });
+
+  return slots;
 }
 
 function extractPractitionerData(clinicalDocument: any) {

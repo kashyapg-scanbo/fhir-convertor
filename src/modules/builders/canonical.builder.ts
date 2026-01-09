@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -866,8 +866,9 @@ export function buildCanonical(parsed: any) {
     result.appointments = appointments;
   }
 
-  /* ───── Schedules (from SCH/ARQ) ───── */
+  /* ───── Schedules & Slots (from SCH/ARQ) ───── */
   const schedules: CanonicalSchedule[] = [];
+  const slots: CanonicalSlot[] = [];
   for (const sch of schSegments) {
     const placerId = sch?.[0]?.[0]?.[0];
     const fillerId = sch?.[1]?.[0]?.[0];
@@ -887,6 +888,17 @@ export function buildCanonical(parsed: any) {
       actor: patientId ? [patientId] : undefined,
       planningHorizon: start || end ? { start, end } : undefined
     });
+
+    if (start || end) {
+      slots.push({
+        id: `SCH-SLOT-${scheduleId || Date.now()}`,
+        identifier: scheduleId,
+        schedule: scheduleId,
+        status: 'free',
+        start: start,
+        end: end
+      });
+    }
   }
 
   for (const arq of arqSegments) {
@@ -905,10 +917,24 @@ export function buildCanonical(parsed: any) {
       actor: patientId ? [patientId] : undefined,
       planningHorizon: start || end ? { start, end } : undefined
     });
+
+    if (start || end) {
+      slots.push({
+        id: `ARQ-SLOT-${scheduleId || Date.now()}`,
+        identifier: scheduleId,
+        schedule: scheduleId,
+        status: 'free',
+        start: start,
+        end: end
+      });
+    }
   }
 
   if (schedules.length > 0) {
     result.schedules = schedules;
+  }
+  if (slots.length > 0) {
+    result.slots = slots;
   }
 
   /* ───── Medications (from RXC) ───── */

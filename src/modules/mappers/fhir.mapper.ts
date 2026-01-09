@@ -14,6 +14,7 @@ import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
+import { mapSlots } from './slot.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
 
 export type FhirVersion = 'r5' | 'r6';
@@ -181,6 +182,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (scheduleEntries.length > 0) {
     bundle.entry.push(...scheduleEntries);
+  }
+
+  const slotEntries = mapSlots({
+    slots: canonical.slots,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (slotEntries.length > 0) {
+    bundle.entry.push(...slotEntries);
   }
 
   const documentReferenceEntries = mapDocumentReferences({

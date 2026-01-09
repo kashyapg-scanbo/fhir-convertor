@@ -483,7 +483,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -544,6 +544,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomSchedule'
+        slot:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSlot'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSlot'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1111,6 +1117,36 @@ components:
           type: string
         specialty:
           type: string
+    CustomSlot:
+      type: object
+      properties:
+        slot_id:
+          type: string
+        schedule_id:
+          type: string
+        status:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        overbooked:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        comment:
+          type: string
+        service_category:
+          type: string
+        service_type:
+          type: string
+        specialty:
+          type: string
+        appointment_type:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1369,6 +1405,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [schedule]
+    CustomJsonSlotOnly:
+      title: Slot
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [slot]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

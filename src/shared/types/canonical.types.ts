@@ -581,6 +581,38 @@ export type CanonicalSchedule = {
   comment?: string;
 };
 
+export type CanonicalSlot = {
+  id?: string;
+  identifier?: string;
+  serviceCategory?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  serviceType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  specialty?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  appointmentType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  schedule?: string;
+  status?: string;
+  start?: string;
+  end?: string;
+  overbooked?: boolean;
+  comment?: string;
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -638,6 +670,7 @@ export type CanonicalModel = {
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment
   schedules?: CanonicalSchedule[]; // Schedule
+  slots?: CanonicalSlot[]; // Slot
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

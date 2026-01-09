@@ -335,6 +335,20 @@ const GlobalScheduleSchema = z.object({
   specialty: z.string().optional()
 });
 
+const GlobalSlotSchema = z.object({
+  slot_id: GlobalIdSchema.optional(),
+  schedule_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  start: z.string().optional(),
+  end: z.string().optional(),
+  overbooked: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  comment: z.string().optional(),
+  service_category: z.string().optional(),
+  service_type: z.string().optional(),
+  specialty: z.string().optional(),
+  appointment_type: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -429,6 +443,7 @@ const GlobalCustomJSONSchema = z.object({
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
+  slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -443,12 +458,13 @@ const GlobalCustomJSONSchema = z.object({
     value.condition ||
     value.appointment ||
     value.schedule ||
+    value.slot ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -472,6 +488,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   conditions: 'condition',
   appointments: 'appointment',
   schedules: 'schedule',
+  slots: 'slot',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -492,6 +509,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   appointments: 'appointment',
   schedule: 'schedule',
   schedules: 'schedule',
+  slot: 'slot',
+  slots: 'slot',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -537,6 +556,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   appointments: 'appointment',
   schedule: 'schedule',
   schedules: 'schedule',
+  slot: 'slot',
+  slots: 'slot',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1058,6 +1079,49 @@ function normalizeGlobalScheduleAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalSlotAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const slotId = readSectionAliasValue(value, 'slot', 'slot_id');
+  if (normalized.slot_id === undefined && slotId !== undefined) {
+    normalized.slot_id = slotId;
+  }
+
+  const scheduleId = readSectionAliasValue(value, 'slot', 'slot_schedule_id');
+  if (normalized.schedule_id === undefined && scheduleId !== undefined) {
+    normalized.schedule_id = scheduleId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const start = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_start'));
+  if (start && normalized.start === undefined) normalized.start = start;
+
+  const end = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_end'));
+  if (end && normalized.end === undefined) normalized.end = end;
+
+  const overbooked = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_overbooked'));
+  if (overbooked && normalized.overbooked === undefined) normalized.overbooked = overbooked;
+
+  const comment = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_comment'));
+  if (comment && normalized.comment === undefined) normalized.comment = comment;
+
+  const serviceCategory = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_service_category'));
+  if (serviceCategory && normalized.service_category === undefined) normalized.service_category = serviceCategory;
+
+  const serviceType = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_service_type'));
+  if (serviceType && normalized.service_type === undefined) normalized.service_type = serviceType;
+
+  const specialty = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_specialty'));
+  if (specialty && normalized.specialty === undefined) normalized.specialty = specialty;
+
+  const appointmentType = normalizeAliasValue(readSectionAliasValue(value, 'slot', 'slot_appointment_type'));
+  if (appointmentType && normalized.appointment_type === undefined) normalized.appointment_type = appointmentType;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1242,6 +1306,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalAppointmentAliases(value);
     case 'schedule':
       return normalizeGlobalScheduleAliases(value);
+    case 'slot':
+      return normalizeGlobalSlotAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1265,6 +1331,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['condition', 'condition'],
     ['appointment', 'appointment'],
     ['schedule', 'schedule'],
+    ['slot', 'slot'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -1370,6 +1437,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'condition',
     'appointment',
     'schedule',
+    'slot',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1485,6 +1553,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
   const schedules = normalizeArray(validated.schedule);
+  const slots = normalizeArray(validated.slot);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1516,6 +1585,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (schedules.length) {
     canonical.schedules = schedules.map(buildCanonicalScheduleGlobal);
+  }
+  if (slots.length) {
+    canonical.slots = slots.map(buildCanonicalSlotGlobal);
   }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
@@ -1556,7 +1628,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1569,6 +1641,7 @@ function wrapGlobalPayload(value: any) {
       value.condition,
       value.appointment,
       value.schedule,
+      value.slot,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1601,6 +1674,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('schedule_id' in value || 'service_category' in value || 'actor_id' in value) {
       return { schedule: value };
+    }
+    if ('slot_id' in value || 'schedule_id' in value || 'overbooked' in value) {
+      return { slot: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -1649,6 +1725,8 @@ function looksLikeGlobalResource(value: any) {
     'schedule_id' in value ||
     'service_category' in value ||
     'actor_id' in value ||
+    'slot_id' in value ||
+    'overbooked' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -1971,6 +2049,37 @@ function buildCanonicalScheduleGlobal(schedule: z.infer<typeof GlobalScheduleSch
     specialty: schedule.specialty ? [{
       code: schedule.specialty,
       display: schedule.specialty
+    }] : undefined
+  };
+}
+
+function buildCanonicalSlotGlobal(slot: z.infer<typeof GlobalSlotSchema>) {
+  const overbooked = normalizeBoolean(slot.overbooked);
+
+  return {
+    id: slot.slot_id,
+    identifier: slot.slot_id,
+    schedule: slot.schedule_id,
+    status: slot.status,
+    start: slot.start,
+    end: slot.end,
+    overbooked: overbooked,
+    comment: slot.comment,
+    serviceCategory: slot.service_category ? [{
+      code: slot.service_category,
+      display: slot.service_category
+    }] : undefined,
+    serviceType: slot.service_type ? [{
+      code: slot.service_type,
+      display: slot.service_type
+    }] : undefined,
+    specialty: slot.specialty ? [{
+      code: slot.specialty,
+      display: slot.specialty
+    }] : undefined,
+    appointmentType: slot.appointment_type ? [{
+      code: slot.appointment_type,
+      display: slot.appointment_type
     }] : undefined
   };
 }

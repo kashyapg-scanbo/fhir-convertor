@@ -144,6 +144,19 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     schedule_service_type: ['sched_service_type', 'service_type'],
     schedule_specialty: ['sched_specialty', 'specialty']
   },
+  slot: {
+    slot_id: ['slot_id', 'slot_identifier'],
+    slot_status: ['slot_status', 'status'],
+    slot_start: ['slot_start', 'start'],
+    slot_end: ['slot_end', 'end'],
+    slot_schedule_id: ['slot_schedule_id', 'schedule_id'],
+    slot_overbooked: ['slot_overbooked', 'overbooked'],
+    slot_comment: ['slot_comment', 'comment'],
+    slot_service_category: ['slot_service_category', 'service_category'],
+    slot_service_type: ['slot_service_type', 'service_type'],
+    slot_specialty: ['slot_specialty', 'specialty'],
+    slot_appointment_type: ['slot_appointment_type', 'appointment_type']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

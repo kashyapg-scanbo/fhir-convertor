@@ -14,7 +14,8 @@ import {
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
-    CanonicalSchedule
+    CanonicalSchedule,
+    CanonicalSlot
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -54,6 +55,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         conditions: [],
         appointments: [],
         schedules: [],
+        slots: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -125,6 +127,8 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (scheduleEvent) {
                 const schedule = mapV3Schedule(scheduleEvent);
                 if (schedule) model.schedules?.push(schedule);
+                const slot = mapV3Slot(scheduleEvent);
+                if (slot) model.slots?.push(slot);
             }
 
             const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
@@ -566,6 +570,27 @@ function mapV3Schedule(schedEvent: any): CanonicalSchedule | undefined {
         active: true,
         name: typeof name === 'string' ? name : undefined,
         planningHorizon: start || end ? { start, end } : undefined
+    };
+}
+
+function mapV3Slot(schedEvent: any): CanonicalSlot | undefined {
+    const schedule = schedEvent.schedule || schedEvent.Schedule || schedEvent;
+    if (!schedule) return undefined;
+    const id = schedule.id || schedule.Id;
+    const idValue = id?.['@_extension'] || id?.['@_root'];
+    const effectiveTime = schedule.planningHorizon || schedule.PlanningHorizon || schedule.effectiveTime || schedule.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idValue && !start && !end) return undefined;
+
+    return {
+        id: idValue ? `SLOT-${idValue}` : undefined,
+        identifier: idValue,
+        schedule: idValue,
+        status: 'free',
+        start: start,
+        end: end
     };
 }
 

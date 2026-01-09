@@ -448,6 +448,41 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (schedules.length > 0) canonical.schedules = schedules as any[];
 
+  const slots = rows.map(row => {
+    const slotId = readValue(row, 'slot_id');
+    const start = readValue(row, 'slot_start');
+    const end = readValue(row, 'slot_end');
+    if (!slotId && !start && !end) return null;
+
+    return {
+      id: slotId || undefined,
+      identifier: slotId || undefined,
+      schedule: readValue(row, 'slot_schedule_id'),
+      status: readValue(row, 'slot_status') || 'free',
+      start: start,
+      end: end,
+      overbooked: readBoolean(row, 'slot_overbooked'),
+      comment: readValue(row, 'slot_comment'),
+      serviceCategory: readValue(row, 'slot_service_category') ? [{
+        code: readValue(row, 'slot_service_category'),
+        display: readValue(row, 'slot_service_category')
+      }] : undefined,
+      serviceType: readValue(row, 'slot_service_type') ? [{
+        code: readValue(row, 'slot_service_type'),
+        display: readValue(row, 'slot_service_type')
+      }] : undefined,
+      specialty: readValue(row, 'slot_specialty') ? [{
+        code: readValue(row, 'slot_specialty'),
+        display: readValue(row, 'slot_specialty')
+      }] : undefined,
+      appointmentType: readValue(row, 'slot_appointment_type') ? [{
+        code: readValue(row, 'slot_appointment_type'),
+        display: readValue(row, 'slot_appointment_type')
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (slots.length > 0) canonical.slots = slots as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');
