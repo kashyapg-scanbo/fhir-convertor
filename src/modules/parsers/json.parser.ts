@@ -259,6 +259,28 @@ const GlobalMedicationStatementSchema = z.object({
   }).optional()
 });
 
+const GlobalProcedureSchema = z.object({
+  procedure_id: GlobalIdSchema.optional(),
+  patient_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  category: z.string().optional(),
+  code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  occurrence_date: z.string().optional(),
+  occurrence_start: z.string().optional(),
+  occurrence_end: z.string().optional(),
+  recorded: z.string().optional(),
+  performer_id: GlobalIdSchema.optional(),
+  location: z.string().optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  body_site: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -349,6 +371,7 @@ const GlobalCustomJSONSchema = z.object({
   medication: z.union([GlobalMedicationSchema, z.array(GlobalMedicationSchema)]).optional(),
   medication_request: z.union([GlobalMedicationRequestSchema, z.array(GlobalMedicationRequestSchema)]).optional(),
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
+  procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -359,12 +382,13 @@ const GlobalCustomJSONSchema = z.object({
     value.medication ||
     value.medication_request ||
     value.medication_statement ||
+    value.procedure ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -384,6 +408,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medications: 'medication',
   medicationRequests: 'medicationRequest',
   medicationStatements: 'medicationStatement',
+  procedures: 'procedure',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -396,6 +421,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   medication_requests: 'medicationRequest',
   medication_statement: 'medicationStatement',
   medication_statements: 'medicationStatement',
+  procedure: 'procedure',
+  procedures: 'procedure',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -433,6 +460,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   medication_statements: 'medication_statement',
   medicationstatement: 'medication_statement',
   medicationstatements: 'medication_statement',
+  procedure: 'procedure',
+  procedures: 'procedure',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -739,6 +768,68 @@ function normalizeGlobalMedicationStatementAliases(value: Record<string, unknown
   return normalized;
 }
 
+function normalizeGlobalProcedureAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const code = isPlainRecord(normalized.code) ? { ...normalized.code } : {};
+
+  const procedureId = readSectionAliasValue(value, 'procedure', 'procedure_id');
+  if (normalized.procedure_id === undefined && procedureId !== undefined) {
+    normalized.procedure_id = procedureId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const procCode = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_code'));
+  if (procCode && code.code === undefined) code.code = procCode;
+
+  const procSystem = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_code_system'));
+  if (procSystem && code.code_system === undefined) code.code_system = procSystem;
+
+  const procDisplay = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_display'));
+  if (procDisplay && code.display === undefined) code.display = procDisplay;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_subject_id'));
+  if (subjectId && normalized.patient_id === undefined) normalized.patient_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const occurrenceDate = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_occurrence_date'));
+  if (occurrenceDate && normalized.occurrence_date === undefined) normalized.occurrence_date = occurrenceDate;
+
+  const occurrenceStart = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_occurrence_start'));
+  if (occurrenceStart && normalized.occurrence_start === undefined) normalized.occurrence_start = occurrenceStart;
+
+  const occurrenceEnd = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_occurrence_end'));
+  if (occurrenceEnd && normalized.occurrence_end === undefined) normalized.occurrence_end = occurrenceEnd;
+
+  const recorded = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_recorded'));
+  if (recorded && normalized.recorded === undefined) normalized.recorded = recorded;
+
+  const performerId = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_performer_id'));
+  if (performerId && normalized.performer_id === undefined) normalized.performer_id = performerId;
+
+  const location = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_location'));
+  if (location && normalized.location === undefined) normalized.location = location;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const bodySite = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_body_site'));
+  if (bodySite && normalized.body_site === undefined) normalized.body_site = bodySite;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'procedure', 'procedure_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  if (Object.keys(code).length > 0) normalized.code = code;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -915,6 +1006,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationRequestAliases(value);
     case 'medicationStatement':
       return normalizeGlobalMedicationStatementAliases(value);
+    case 'procedure':
+      return normalizeGlobalProcedureAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -934,6 +1027,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medication', 'medication'],
     ['medicationRequest', 'medication_request'],
     ['medicationStatement', 'medication_statement'],
+    ['procedure', 'procedure'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -1035,6 +1129,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medication',
     'medicationRequest',
     'medicationStatement',
+    'procedure',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1146,6 +1241,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medications = normalizeArray(validated.medication);
   const medicationRequests = normalizeArray(validated.medication_request);
   const medicationStatements = normalizeArray(validated.medication_statement);
+  const procedures = normalizeArray(validated.procedure);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1165,6 +1261,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (medicationStatements.length) {
     canonical.medicationStatements = medicationStatements.map(buildCanonicalMedicationStatementGlobal);
+  }
+  if (procedures.length) {
+    canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
   }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
@@ -1193,7 +1292,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1202,6 +1301,7 @@ function wrapGlobalPayload(value: any) {
       value.medication,
       value.medication_request,
       value.medication_statement,
+      value.procedure,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1222,6 +1322,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('medication_statement_id' in value || 'date_asserted' in value || 'effective_date' in value) {
       return { medication_statement: value };
+    }
+    if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
+      return { procedure: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -1258,6 +1361,9 @@ function looksLikeGlobalResource(value: any) {
     'medication_statement_id' in value ||
     'date_asserted' in value ||
     'effective_date' in value ||
+    'procedure_id' in value ||
+    'occurrence_date' in value ||
+    'occurrence_start' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -1433,6 +1539,48 @@ function buildCanonicalMedicationStatementGlobal(statement: z.infer<typeof Globa
       doseQuantity: doseQuantity || undefined,
       route: statement.dosage?.route ? { text: statement.dosage.route } : undefined
     }] : undefined
+  };
+}
+
+function buildCanonicalProcedureGlobal(proc: z.infer<typeof GlobalProcedureSchema>) {
+  const reasons = normalizeStringArray(proc.reason);
+  const bodySites = normalizeStringArray(proc.body_site);
+
+  return {
+    id: proc.procedure_id,
+    identifier: proc.procedure_id,
+    status: proc.status,
+    category: proc.category ? [{
+      code: proc.category,
+      display: proc.category
+    }] : undefined,
+    code: proc.code?.code || proc.code?.display ? {
+      coding: proc.code?.code ? [{
+        system: proc.code.code_system || 'urn:hl7-org:local',
+        code: proc.code.code,
+        display: proc.code.display
+      }] : undefined,
+      text: proc.code?.display
+    } : undefined,
+    subject: proc.patient_id,
+    encounter: proc.encounter_id,
+    occurrenceDateTime: proc.occurrence_date,
+    occurrencePeriod: proc.occurrence_start || proc.occurrence_end ? {
+      start: proc.occurrence_start,
+      end: proc.occurrence_end
+    } : undefined,
+    recorded: proc.recorded,
+    performer: proc.performer_id ? [{
+      actor: proc.performer_id
+    }] : undefined,
+    location: proc.location,
+    reason: reasons.length ? reasons.map(reasonText => ({
+      code: { display: reasonText }
+    })) : undefined,
+    bodySite: bodySites.length ? bodySites.map(site => ({
+      display: site
+    })) : undefined,
+    note: proc.note ? [proc.note] : undefined
   };
 }
 

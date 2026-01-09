@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -732,6 +732,42 @@ export function buildCanonical(parsed: any) {
 
   if (medicationStatements.length > 0) {
     result.medicationStatements = medicationStatements;
+  }
+
+  /* ───── Procedures (from PR1) ───── */
+  const procedures: CanonicalProcedure[] = [];
+  const pr1Segments = parsed.PR1 ?? [];
+  for (const pr1 of pr1Segments) {
+    const procCodeParts = pr1?.[2]?.[0] ?? [];
+    const procCode = procCodeParts[0];
+    const procDisplay = procCodeParts[1];
+    const procSystem = procCodeParts[2];
+    if (!procCode && !procDisplay) continue;
+
+    const occurrence = toFHIRDateTime(pr1?.[5]?.[0]?.[0]) || toFHIRDate(pr1?.[5]?.[0]?.[0]);
+    const performerId = pr1?.[7]?.[0]?.[0];
+
+    procedures.push({
+      id: `PR1-${procCode || Date.now()}`,
+      identifier: procCode,
+      status: 'completed',
+      code: {
+        coding: procCode ? [{
+          system: mapCodingSystem(procSystem),
+          code: procCode,
+          display: procDisplay
+        }] : undefined,
+        text: procDisplay
+      },
+      subject: patientId,
+      encounter: encounter?.id,
+      occurrenceDateTime: occurrence,
+      performer: performerId ? [{ actor: performerId }] : undefined
+    });
+  }
+
+  if (procedures.length > 0) {
+    result.procedures = procedures;
   }
 
   /* ───── Medications (from RXC) ───── */

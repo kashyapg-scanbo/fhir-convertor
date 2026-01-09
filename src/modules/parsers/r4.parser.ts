@@ -10,7 +10,8 @@ import {
     CanonicalMedication,
     CanonicalMedicationRequest,
     CanonicalDocumentReference,
-    CanonicalMedicationStatement
+    CanonicalMedicationStatement,
+    CanonicalProcedure
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -32,6 +33,7 @@ export function parseR4(input: string): CanonicalModel {
         medications: [],
         medicationRequests: [],
         medicationStatements: [],
+        procedures: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -82,6 +84,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'MedicationStatement':
                 const medStatement = mapR4MedicationStatement(res);
                 if (medStatement) model.medicationStatements?.push(medStatement);
+                break;
+            case 'Procedure':
+                const proc = mapR4Procedure(res);
+                if (proc) model.procedures?.push(proc);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -361,6 +367,62 @@ function mapR4MedicationStatement(statement: any): CanonicalMedicationStatement 
                 text: dosage.route.text
             } : undefined
         }))
+    };
+}
+
+function mapR4Procedure(proc: any): CanonicalProcedure {
+    return {
+        id: proc.id,
+        identifier: proc.identifier?.[0]?.value,
+        status: proc.status,
+        category: proc.category?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        code: proc.code ? {
+            coding: proc.code.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            })),
+            text: proc.code.text
+        } : undefined,
+        subject: proc.subject?.reference?.replace('Patient/', ''),
+        encounter: proc.encounter?.reference?.replace('Encounter/', ''),
+        occurrenceDateTime: proc.performedDateTime || proc.occurrenceDateTime,
+        occurrencePeriod: proc.performedPeriod || proc.occurrencePeriod ? {
+            start: (proc.performedPeriod || proc.occurrencePeriod)?.start,
+            end: (proc.performedPeriod || proc.occurrencePeriod)?.end
+        } : undefined,
+        recorded: proc.recorded,
+        performer: proc.performer?.map((p: any) => ({
+            actor: p.actor?.reference?.replace(/^(Practitioner|Organization|Patient)\//, ''),
+            onBehalfOf: p.onBehalfOf?.reference?.replace('Organization/', ''),
+            function: p.function?.coding?.[0] ? {
+                system: p.function.coding[0].system,
+                code: p.function.coding[0].code,
+                display: p.function.coding[0].display
+            } : undefined,
+            period: p.period ? {
+                start: p.period.start,
+                end: p.period.end
+            } : undefined
+        })),
+        reason: proc.reasonCode?.map((reason: any) => ({
+            code: {
+                system: reason.coding?.[0]?.system,
+                code: reason.coding?.[0]?.code,
+                display: reason.coding?.[0]?.display
+            }
+        })),
+        bodySite: proc.bodySite?.map((site: any) => ({
+            system: site.coding?.[0]?.system,
+            code: site.coding?.[0]?.code,
+            display: site.coding?.[0]?.display
+        })),
+        note: proc.note?.map((note: any) => note.text).filter(Boolean),
+        location: proc.location?.reference?.replace('Location/', '')
     };
 }
 

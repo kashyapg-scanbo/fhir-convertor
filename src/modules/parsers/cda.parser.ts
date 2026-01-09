@@ -5,6 +5,7 @@ import {
   CanonicalMedication,
   CanonicalMedicationRequest,
   CanonicalMedicationStatement,
+  CanonicalProcedure,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -46,6 +47,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
     encounter?.id,
     practitionerData.authorIds[0]
   );
+  const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -64,6 +66,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (medicationRequests.length) canonical.medicationRequests = medicationRequests;
   if (medications.length) canonical.medications = medications;
   if (medicationStatements.length) canonical.medicationStatements = medicationStatements;
+  if (procedures.length) canonical.procedures = procedures;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -449,6 +452,59 @@ function extractMedications(
     medications: Array.from(medicationMap.values()),
     medicationStatements
   };
+}
+
+function extractProcedures(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalProcedure[] {
+  const procedures: CanonicalProcedure[] = [];
+
+  iterateSectionEntries(clinicalDocument, entry => {
+    const procedure = entry.procedure || entry['cda:procedure'];
+    if (!procedure) return;
+    const proceduresArray = Array.isArray(procedure) ? procedure : [procedure];
+
+    for (const proc of proceduresArray) {
+      const code = proc.code || proc['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      if (!codeValue && !displayName) continue;
+
+      const statusCode = proc.statusCode || proc['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code') || 'completed';
+
+      const effectiveTime = proc.effectiveTime || proc['cda:effectiveTime'];
+      const effectiveValue = extractAttribute(effectiveTime, '@_value') ||
+        extractAttribute(effectiveTime?.low, '@_value');
+
+      const performerId = extractPerformerId(proc.performer || proc['cda:performer']);
+
+      procedures.push({
+        id: `PROC-${codeValue || procedures.length + 1}`,
+        identifier: codeValue,
+        status: status,
+        code: {
+          coding: codeValue ? [{
+            system: mapCodeSystem(codeSystem),
+            code: codeValue,
+            display: displayName
+          }] : undefined,
+          text: displayName
+        },
+        subject: patientId,
+        encounter: encounterId,
+        occurrenceDateTime: formatCDADateTime(effectiveValue),
+        performer: performerId ? [{
+          actor: performerId
+        }] : undefined
+      });
+    }
+  });
+
+  return procedures;
 }
 
 function extractPractitionerData(clinicalDocument: any) {

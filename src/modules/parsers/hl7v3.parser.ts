@@ -10,7 +10,8 @@ import {
     CanonicalObservation,
     CanonicalMedication,
     CanonicalMedicationRequest,
-    CanonicalMedicationStatement
+    CanonicalMedicationStatement,
+    CanonicalProcedure
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -46,6 +47,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         medications: [],
         medicationRequests: [],
         medicationStatements: [],
+        procedures: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -104,6 +106,12 @@ export function parseHL7v3(input: string): CanonicalModel {
                 if (medication) model.medications?.push(medication);
                 if (medicationRequest) model.medicationRequests?.push(medicationRequest);
                 if (medicationStatement) model.medicationStatements?.push(medicationStatement);
+            }
+
+            const procedureEvent = sub.procedure || sub.Procedure;
+            if (procedureEvent) {
+                const procedure = mapV3Procedure(procedureEvent);
+                if (procedure) model.procedures?.push(procedure);
             }
         }
     }
@@ -429,6 +437,34 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
     }
 
     return { medication, medicationRequest, medicationStatement };
+}
+
+function mapV3Procedure(procEvent: any): CanonicalProcedure | undefined {
+    const procedure = procEvent.procedure || procEvent.Procedure || procEvent;
+    if (!procedure) return undefined;
+    const code = procedure.code || procedure.Code;
+    const effectiveTime = procedure.effectiveTime || procedure.EffectiveTime;
+
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'];
+    const codeSystem = code?.['@_codeSystem'];
+
+    if (!codeValue && !displayName) return undefined;
+
+    return {
+        id: codeValue,
+        identifier: codeValue,
+        status: procedure.statusCode?.['@_code'] || 'completed',
+        code: {
+            coding: codeValue ? [{
+                system: codeSystem,
+                code: codeValue,
+                display: displayName
+            }] : undefined,
+            text: displayName
+        },
+        occurrenceDateTime: formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'])
+    };
 }
 
 function mapV3Address(addr: any): any {

@@ -266,6 +266,59 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationStatements.length > 0) canonical.medicationStatements = medicationStatements as any[];
 
+  const procedures = rows.map(row => {
+    const procCode = readValue(row, 'procedure_code');
+    const procDisplay = readValue(row, 'procedure_display');
+    const procSystem = readValue(row, 'procedure_code_system');
+    const procId = readValue(row, 'procedure_id');
+    const status = readValue(row, 'procedure_status');
+    if (!procCode && !procDisplay && !procId) return null;
+
+    const occurrenceStart = readValue(row, 'procedure_occurrence_start');
+    const occurrenceEnd = readValue(row, 'procedure_occurrence_end');
+    const bodySiteRaw = readValue(row, 'procedure_body_site');
+    const reasonRaw = readValue(row, 'procedure_reason');
+    const performerId = readValue(row, 'procedure_performer_id');
+
+    return {
+      id: procId || undefined,
+      identifier: procId || undefined,
+      status: status || 'completed',
+      category: readValue(row, 'procedure_category') ? [{
+        code: readValue(row, 'procedure_category'),
+        display: readValue(row, 'procedure_category')
+      }] : undefined,
+      code: (procCode || procDisplay) ? {
+        coding: procCode ? [{
+          system: procSystem,
+          code: procCode,
+          display: procDisplay
+        }] : undefined,
+        text: procDisplay
+      } : undefined,
+      subject: readValue(row, 'procedure_subject_id'),
+      encounter: readValue(row, 'procedure_encounter_id'),
+      occurrenceDateTime: readValue(row, 'procedure_occurrence_date'),
+      occurrencePeriod: (occurrenceStart || occurrenceEnd) ? {
+        start: occurrenceStart,
+        end: occurrenceEnd
+      } : undefined,
+      recorded: readValue(row, 'procedure_recorded'),
+      performer: performerId ? [{
+        actor: performerId
+      }] : undefined,
+      location: readValue(row, 'procedure_location'),
+      reason: reasonRaw ? [{
+        code: { display: reasonRaw }
+      }] : undefined,
+      bodySite: bodySiteRaw ? [{
+        display: bodySiteRaw
+      }] : undefined,
+      note: readValue(row, 'procedure_note') ? [readValue(row, 'procedure_note') as string] : undefined
+    };
+  }).filter(Boolean);
+  if (procedures.length > 0) canonical.procedures = procedures as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

@@ -483,7 +483,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -520,6 +520,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomMedicationStatement'
+        procedure:
+          oneOf:
+            - $ref: '#/components/schemas/CustomProcedure'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomProcedure'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -909,6 +915,60 @@ components:
           type: string
         duration:
           type: string
+    CustomProcedure:
+      type: object
+      properties:
+        procedure_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomProcedureCode'
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_start:
+          type: string
+          format: date-time
+        occurrence_end:
+          type: string
+          format: date-time
+        recorded:
+          type: string
+          format: date-time
+        performer_id:
+          type: string
+        location:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        body_site:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          type: string
+    CustomProcedureCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1143,6 +1203,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [medication_statement]
+    CustomJsonProcedureOnly:
+      title: Procedure
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [procedure]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

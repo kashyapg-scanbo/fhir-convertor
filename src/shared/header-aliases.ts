@@ -76,6 +76,25 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     medication_statement_route: ['med_statement_route', 'route'],
     medication_statement_route_display: ['med_statement_route_display', 'route_display']
   },
+  procedure: {
+    procedure_id: ['proc_id', 'procedure_identifier', 'procedureid'],
+    procedure_status: ['proc_status', 'procedure_status'],
+    procedure_category: ['proc_category', 'procedure_category'],
+    procedure_code: ['proc_code', 'procedure_code'],
+    procedure_code_system: ['proc_code_system', 'procedure_code_system'],
+    procedure_display: ['proc_display', 'procedure_display', 'procedure_name'],
+    procedure_subject_id: ['proc_subject_id', 'subject_id', 'patient_id'],
+    procedure_encounter_id: ['proc_encounter_id', 'encounter_id'],
+    procedure_occurrence_date: ['proc_occurrence_date', 'occurrence_date'],
+    procedure_occurrence_start: ['proc_occurrence_start', 'occurrence_start'],
+    procedure_occurrence_end: ['proc_occurrence_end', 'occurrence_end'],
+    procedure_recorded: ['proc_recorded', 'recorded'],
+    procedure_performer_id: ['proc_performer_id', 'performer_id'],
+    procedure_location: ['proc_location', 'location'],
+    procedure_reason: ['proc_reason', 'reason'],
+    procedure_body_site: ['proc_body_site', 'body_site'],
+    procedure_note: ['proc_note', 'note']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

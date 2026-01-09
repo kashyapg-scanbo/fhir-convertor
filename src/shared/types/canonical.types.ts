@@ -351,6 +351,62 @@ export type CanonicalMedicationStatement = {
   active?: boolean;
 };
 
+export type CanonicalProcedure = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  code?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  subject?: string;
+  encounter?: string;
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  recorded?: string;
+  performer?: Array<{
+    actor?: string;
+    onBehalfOf?: string;
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    period?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  bodySite?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  note?: string[];
+  location?: string;
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -404,6 +460,7 @@ export type CanonicalModel = {
   medications?: CanonicalMedication[]; // Medication resource (drug definition)
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
+  procedures?: CanonicalProcedure[]; // Procedure
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];
