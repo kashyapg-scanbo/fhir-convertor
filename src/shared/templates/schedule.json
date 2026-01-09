@@ -1,0 +1,12 @@
+{
+  "resourceType": "Schedule",
+  "identifier": [],
+  "active": false,
+  "serviceCategory": [],
+  "serviceType": [],
+  "specialty": [],
+  "name": "",
+  "actor": [],
+  "planningHorizon": {},
+  "comment": ""
+}

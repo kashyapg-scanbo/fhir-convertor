@@ -381,6 +381,73 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (conditions.length > 0) canonical.conditions = conditions as any[];
 
+  const appointments = rows.map(row => {
+    const apptId = readValue(row, 'appointment_id');
+    const start = readValue(row, 'appointment_start');
+    const end = readValue(row, 'appointment_end');
+    const status = readValue(row, 'appointment_status');
+    if (!apptId && !start && !end) return null;
+
+    const minutes = readNumber(row, 'appointment_minutes_duration');
+    const participantId = readValue(row, 'appointment_participant_id');
+
+    return {
+      id: apptId || undefined,
+      identifier: apptId || undefined,
+      status: status || 'proposed',
+      description: readValue(row, 'appointment_description'),
+      start: start,
+      end: end,
+      minutesDuration: minutes,
+      created: readValue(row, 'appointment_created'),
+      cancellationDate: readValue(row, 'appointment_cancellation_date'),
+      subject: readValue(row, 'appointment_subject_id'),
+      participant: participantId ? [{
+        actor: participantId,
+        status: readValue(row, 'appointment_participant_status')
+      }] : undefined,
+      note: readValue(row, 'appointment_note') ? [readValue(row, 'appointment_note') as string] : undefined
+    };
+  }).filter(Boolean);
+  if (appointments.length > 0) canonical.appointments = appointments as any[];
+
+  const schedules = rows.map(row => {
+    const scheduleId = readValue(row, 'schedule_id');
+    const name = readValue(row, 'schedule_name');
+    const start = readValue(row, 'schedule_start');
+    const end = readValue(row, 'schedule_end');
+    if (!scheduleId && !name && !start && !end) return null;
+
+    const actorId = readValue(row, 'schedule_actor_id');
+    const active = readBoolean(row, 'schedule_active');
+
+    return {
+      id: scheduleId || undefined,
+      identifier: scheduleId || undefined,
+      active: active,
+      name: name,
+      actor: actorId ? [actorId] : undefined,
+      planningHorizon: (start || end) ? {
+        start: start,
+        end: end
+      } : undefined,
+      comment: readValue(row, 'schedule_comment'),
+      serviceCategory: readValue(row, 'schedule_service_category') ? [{
+        code: readValue(row, 'schedule_service_category'),
+        display: readValue(row, 'schedule_service_category')
+      }] : undefined,
+      serviceType: readValue(row, 'schedule_service_type') ? [{
+        code: readValue(row, 'schedule_service_type'),
+        display: readValue(row, 'schedule_service_type')
+      }] : undefined,
+      specialty: readValue(row, 'schedule_specialty') ? [{
+        code: readValue(row, 'schedule_specialty'),
+        display: readValue(row, 'schedule_specialty')
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (schedules.length > 0) canonical.schedules = schedules as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

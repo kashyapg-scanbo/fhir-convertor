@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -806,6 +806,109 @@ export function buildCanonical(parsed: any) {
 
   if (conditions.length > 0) {
     result.conditions = conditions;
+  }
+
+  /* ───── Appointments (from SCH/ARQ) ───── */
+  const appointments: CanonicalAppointment[] = [];
+  const schSegments = parsed.SCH ?? [];
+  const arqSegments = parsed.ARQ ?? [];
+
+  for (const sch of schSegments) {
+    const placerId = sch?.[0]?.[0]?.[0];
+    const fillerId = sch?.[1]?.[0]?.[0];
+    const appointmentId = placerId || fillerId;
+    const status = sch?.[24]?.[0]?.[0];
+    const description = sch?.[6]?.[0]?.[1] || sch?.[6]?.[0]?.[0];
+    const timing = sch?.[10]?.[0];
+    const start = toFHIRDateTime(timing?.[0]) || toFHIRDateTime(sch?.[11]?.[0]?.[0]);
+    const end = toFHIRDateTime(timing?.[1]);
+    const durationValue = sch?.[8]?.[0]?.[0];
+    const minutesDuration = durationValue ? Number(durationValue) : undefined;
+
+    if (!appointmentId && !start && !end) continue;
+
+    appointments.push({
+      id: appointmentId || `SCH-${Date.now()}`,
+      identifier: appointmentId || undefined,
+      status: status || 'proposed',
+      description: description,
+      start: start,
+      end: end,
+      minutesDuration: Number.isFinite(minutesDuration) ? minutesDuration : undefined,
+      subject: patientId
+    });
+  }
+
+  for (const arq of arqSegments) {
+    const placerId = arq?.[0]?.[0]?.[0];
+    const appointmentId = placerId;
+    const status = arq?.[6]?.[0]?.[0];
+    const timing = arq?.[9]?.[0];
+    const start = toFHIRDateTime(timing?.[0]) || toFHIRDateTime(arq?.[10]?.[0]?.[0]);
+    const end = toFHIRDateTime(timing?.[1]);
+    const durationValue = arq?.[8]?.[0]?.[0];
+    const minutesDuration = durationValue ? Number(durationValue) : undefined;
+
+    if (!appointmentId && !start && !end) continue;
+
+    appointments.push({
+      id: appointmentId || `ARQ-${Date.now()}`,
+      identifier: appointmentId || undefined,
+      status: status || 'proposed',
+      start: start,
+      end: end,
+      minutesDuration: Number.isFinite(minutesDuration) ? minutesDuration : undefined,
+      subject: patientId
+    });
+  }
+
+  if (appointments.length > 0) {
+    result.appointments = appointments;
+  }
+
+  /* ───── Schedules (from SCH/ARQ) ───── */
+  const schedules: CanonicalSchedule[] = [];
+  for (const sch of schSegments) {
+    const placerId = sch?.[0]?.[0]?.[0];
+    const fillerId = sch?.[1]?.[0]?.[0];
+    const scheduleId = placerId || fillerId;
+    const name = sch?.[5]?.[0]?.[1] || sch?.[5]?.[0]?.[0];
+    const timing = sch?.[10]?.[0];
+    const start = toFHIRDateTime(timing?.[0]) || toFHIRDateTime(sch?.[11]?.[0]?.[0]);
+    const end = toFHIRDateTime(timing?.[1]);
+
+    if (!scheduleId && !start && !end && !name) continue;
+
+    schedules.push({
+      id: scheduleId || `SCH-SCHED-${Date.now()}`,
+      identifier: scheduleId,
+      active: true,
+      name: name,
+      actor: patientId ? [patientId] : undefined,
+      planningHorizon: start || end ? { start, end } : undefined
+    });
+  }
+
+  for (const arq of arqSegments) {
+    const placerId = arq?.[0]?.[0]?.[0];
+    const scheduleId = placerId;
+    const timing = arq?.[9]?.[0];
+    const start = toFHIRDateTime(timing?.[0]) || toFHIRDateTime(arq?.[10]?.[0]?.[0]);
+    const end = toFHIRDateTime(timing?.[1]);
+
+    if (!scheduleId && !start && !end) continue;
+
+    schedules.push({
+      id: scheduleId || `ARQ-SCHED-${Date.now()}`,
+      identifier: scheduleId,
+      active: true,
+      actor: patientId ? [patientId] : undefined,
+      planningHorizon: start || end ? { start, end } : undefined
+    });
+  }
+
+  if (schedules.length > 0) {
+    result.schedules = schedules;
   }
 
   /* ───── Medications (from RXC) ───── */

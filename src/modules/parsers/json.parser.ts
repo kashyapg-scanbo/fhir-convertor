@@ -307,6 +307,34 @@ const GlobalConditionSchema = z.object({
   note: z.string().optional()
 });
 
+const GlobalAppointmentSchema = z.object({
+  appointment_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  description: z.string().optional(),
+  start: z.string().optional(),
+  end: z.string().optional(),
+  minutes_duration: GlobalNumberSchema.optional(),
+  created: z.string().optional(),
+  cancellation_date: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  participant_id: GlobalIdSchema.optional(),
+  participant_status: z.string().optional(),
+  note: z.string().optional()
+});
+
+const GlobalScheduleSchema = z.object({
+  schedule_id: GlobalIdSchema.optional(),
+  active: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  name: z.string().optional(),
+  actor_id: z.union([z.string(), z.array(z.string())]).optional(),
+  start: z.string().optional(),
+  end: z.string().optional(),
+  comment: z.string().optional(),
+  service_category: z.string().optional(),
+  service_type: z.string().optional(),
+  specialty: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -399,6 +427,8 @@ const GlobalCustomJSONSchema = z.object({
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
+  appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
+  schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -411,12 +441,14 @@ const GlobalCustomJSONSchema = z.object({
     value.medication_statement ||
     value.procedure ||
     value.condition ||
+    value.appointment ||
+    value.schedule ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -438,6 +470,8 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationStatements: 'medicationStatement',
   procedures: 'procedure',
   conditions: 'condition',
+  appointments: 'appointment',
+  schedules: 'schedule',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -454,6 +488,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   procedures: 'procedure',
   condition: 'condition',
   conditions: 'condition',
+  appointment: 'appointment',
+  appointments: 'appointment',
+  schedule: 'schedule',
+  schedules: 'schedule',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -495,6 +533,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   procedures: 'procedure',
   condition: 'condition',
   conditions: 'condition',
+  appointment: 'appointment',
+  appointments: 'appointment',
+  schedule: 'schedule',
+  schedules: 'schedule',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -934,6 +976,88 @@ function normalizeGlobalConditionAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalAppointmentAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const appointmentId = readSectionAliasValue(value, 'appointment', 'appointment_id');
+  if (normalized.appointment_id === undefined && appointmentId !== undefined) {
+    normalized.appointment_id = appointmentId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const start = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_start'));
+  if (start && normalized.start === undefined) normalized.start = start;
+
+  const end = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_end'));
+  if (end && normalized.end === undefined) normalized.end = end;
+
+  const minutesDuration = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_minutes_duration'));
+  if (minutesDuration && normalized.minutes_duration === undefined) normalized.minutes_duration = minutesDuration;
+
+  const created = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_created'));
+  if (created && normalized.created === undefined) normalized.created = created;
+
+  const cancellationDate = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_cancellation_date'));
+  if (cancellationDate && normalized.cancellation_date === undefined) normalized.cancellation_date = cancellationDate;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const participantId = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_participant_id'));
+  if (participantId && normalized.participant_id === undefined) normalized.participant_id = participantId;
+
+  const participantStatus = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_participant_status'));
+  if (participantStatus && normalized.participant_status === undefined) normalized.participant_status = participantStatus;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  return normalized;
+}
+
+function normalizeGlobalScheduleAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const scheduleId = readSectionAliasValue(value, 'schedule', 'schedule_id');
+  if (normalized.schedule_id === undefined && scheduleId !== undefined) {
+    normalized.schedule_id = scheduleId;
+  }
+
+  const active = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_active'));
+  if (active && normalized.active === undefined) normalized.active = active;
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const actorId = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_actor_id'));
+  if (actorId && normalized.actor_id === undefined) normalized.actor_id = actorId;
+
+  const start = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_start'));
+  if (start && normalized.start === undefined) normalized.start = start;
+
+  const end = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_end'));
+  if (end && normalized.end === undefined) normalized.end = end;
+
+  const comment = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_comment'));
+  if (comment && normalized.comment === undefined) normalized.comment = comment;
+
+  const serviceCategory = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_service_category'));
+  if (serviceCategory && normalized.service_category === undefined) normalized.service_category = serviceCategory;
+
+  const serviceType = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_service_type'));
+  if (serviceType && normalized.service_type === undefined) normalized.service_type = serviceType;
+
+  const specialty = normalizeAliasValue(readSectionAliasValue(value, 'schedule', 'schedule_specialty'));
+  if (specialty && normalized.specialty === undefined) normalized.specialty = specialty;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1114,6 +1238,10 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
       return normalizeGlobalConditionAliases(value);
+    case 'appointment':
+      return normalizeGlobalAppointmentAliases(value);
+    case 'schedule':
+      return normalizeGlobalScheduleAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1135,6 +1263,8 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationStatement', 'medication_statement'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
+    ['appointment', 'appointment'],
+    ['schedule', 'schedule'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -1238,6 +1368,8 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationStatement',
     'procedure',
     'condition',
+    'appointment',
+    'schedule',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1351,6 +1483,8 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationStatements = normalizeArray(validated.medication_statement);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
+  const appointments = normalizeArray(validated.appointment);
+  const schedules = normalizeArray(validated.schedule);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1377,6 +1511,12 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (conditions.length) {
     canonical.conditions = conditions.map(buildCanonicalConditionGlobal);
   }
+  if (appointments.length) {
+    canonical.appointments = appointments.map(buildCanonicalAppointmentGlobal);
+  }
+  if (schedules.length) {
+    canonical.schedules = schedules.map(buildCanonicalScheduleGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -1395,6 +1535,18 @@ function normalizeArray<T>(value?: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
+function normalizeBoolean(value?: string | number | boolean): boolean | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', 't', 'yes', 'y', '1'].includes(normalized)) return true;
+    if (['false', 'f', 'no', 'n', '0'].includes(normalized)) return false;
+  }
+  return undefined;
+}
+
 function normalizeStringArray(value?: string | string[]): string[] {
   if (!value) return [];
   const list = Array.isArray(value) ? value : [value];
@@ -1404,7 +1556,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1415,6 +1567,8 @@ function wrapGlobalPayload(value: any) {
       value.medication_statement,
       value.procedure,
       value.condition,
+      value.appointment,
+      value.schedule,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1441,6 +1595,12 @@ function wrapGlobalPayload(value: any) {
     }
     if ('condition_id' in value || 'clinical_status' in value || 'verification_status' in value) {
       return { condition: value };
+    }
+    if ('appointment_id' in value || 'start' in value || 'end' in value) {
+      return { appointment: value };
+    }
+    if ('schedule_id' in value || 'service_category' in value || 'actor_id' in value) {
+      return { schedule: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -1483,6 +1643,12 @@ function looksLikeGlobalResource(value: any) {
     'condition_id' in value ||
     'clinical_status' in value ||
     'verification_status' in value ||
+    'appointment_id' in value ||
+    'start' in value ||
+    'end' in value ||
+    'schedule_id' in value ||
+    'service_category' in value ||
+    'actor_id' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -1752,6 +1918,60 @@ function buildCanonicalConditionGlobal(cond: z.infer<typeof GlobalConditionSchem
     abatementString: cond.abatement_text,
     recordedDate: cond.recorded_date,
     note: cond.note ? [cond.note] : undefined
+  };
+}
+
+function buildCanonicalAppointmentGlobal(appt: z.infer<typeof GlobalAppointmentSchema>) {
+  const minutes = typeof appt.minutes_duration === 'number'
+    ? appt.minutes_duration
+    : appt.minutes_duration ? Number(appt.minutes_duration) : undefined;
+
+  return {
+    id: appt.appointment_id,
+    identifier: appt.appointment_id,
+    status: appt.status,
+    description: appt.description,
+    start: appt.start,
+    end: appt.end,
+    minutesDuration: Number.isFinite(minutes as number) ? minutes : undefined,
+    created: appt.created,
+    cancellationDate: appt.cancellation_date,
+    subject: appt.subject_id,
+    participant: appt.participant_id ? [{
+      actor: appt.participant_id,
+      status: appt.participant_status
+    }] : undefined,
+    note: appt.note ? [appt.note] : undefined
+  };
+}
+
+function buildCanonicalScheduleGlobal(schedule: z.infer<typeof GlobalScheduleSchema>) {
+  const active = normalizeBoolean(schedule.active);
+  const actorIds = normalizeStringArray(schedule.actor_id);
+
+  return {
+    id: schedule.schedule_id,
+    identifier: schedule.schedule_id,
+    active,
+    name: schedule.name,
+    actor: actorIds.length ? actorIds : undefined,
+    planningHorizon: schedule.start || schedule.end ? {
+      start: schedule.start,
+      end: schedule.end
+    } : undefined,
+    comment: schedule.comment,
+    serviceCategory: schedule.service_category ? [{
+      code: schedule.service_category,
+      display: schedule.service_category
+    }] : undefined,
+    serviceType: schedule.service_type ? [{
+      code: schedule.service_type,
+      display: schedule.service_type
+    }] : undefined,
+    specialty: schedule.specialty ? [{
+      code: schedule.specialty,
+      display: schedule.specialty
+    }] : undefined
   };
 }
 

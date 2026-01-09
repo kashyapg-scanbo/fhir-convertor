@@ -483,7 +483,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -532,6 +532,18 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCondition'
+        appointment:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAppointment'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAppointment'
+        schedule:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSchedule'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSchedule'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1036,6 +1048,69 @@ components:
           type: string
         display:
           type: string
+    CustomAppointment:
+      type: object
+      properties:
+        appointment_id:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        minutes_duration:
+          type: number
+        created:
+          type: string
+          format: date-time
+        cancellation_date:
+          type: string
+          format: date-time
+        subject_id:
+          type: string
+        participant_id:
+          type: string
+        participant_status:
+          type: string
+        note:
+          type: string
+    CustomSchedule:
+      type: object
+      properties:
+        schedule_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        name:
+          type: string
+        actor_id:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        comment:
+          type: string
+        service_category:
+          type: string
+        service_type:
+          type: string
+        specialty:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1282,6 +1357,18 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [condition]
+    CustomJsonAppointmentOnly:
+      title: Appointment
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [appointment]
+    CustomJsonScheduleOnly:
+      title: Schedule
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [schedule]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

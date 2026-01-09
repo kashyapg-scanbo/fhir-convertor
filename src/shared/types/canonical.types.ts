@@ -491,6 +491,96 @@ export type CanonicalCondition = {
   active?: boolean;
 };
 
+export type CanonicalAppointment = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  cancellationReason?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  serviceCategory?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  serviceType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  specialty?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  appointmentType?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  priority?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  description?: string;
+  start?: string;
+  end?: string;
+  minutesDuration?: number;
+  created?: string;
+  cancellationDate?: string;
+  note?: string[];
+  subject?: string;
+  participant?: Array<{
+    actor?: string;
+    status?: string;
+    required?: boolean;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  active?: boolean;
+};
+
+export type CanonicalSchedule = {
+  id?: string;
+  identifier?: string;
+  active?: boolean;
+  serviceCategory?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  serviceType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  specialty?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  name?: string;
+  actor?: string[];
+  planningHorizon?: {
+    start?: string;
+    end?: string;
+  };
+  comment?: string;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -546,6 +636,8 @@ export type CanonicalModel = {
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
+  appointments?: CanonicalAppointment[]; // Appointment
+  schedules?: CanonicalSchedule[]; // Schedule
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

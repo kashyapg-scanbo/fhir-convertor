@@ -118,6 +118,32 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     condition_recorded_date: ['cond_recorded_date', 'recorded_date'],
     condition_note: ['cond_note', 'note']
   },
+  appointment: {
+    appointment_id: ['appt_id', 'appointment_identifier', 'appointmentid'],
+    appointment_status: ['appt_status', 'status'],
+    appointment_description: ['appt_description', 'description'],
+    appointment_start: ['appt_start', 'start'],
+    appointment_end: ['appt_end', 'end'],
+    appointment_minutes_duration: ['appt_minutes_duration', 'minutes_duration', 'duration_minutes'],
+    appointment_created: ['appt_created', 'created'],
+    appointment_cancellation_date: ['appt_cancellation_date', 'cancellation_date'],
+    appointment_subject_id: ['appt_subject_id', 'subject_id', 'patient_id'],
+    appointment_participant_id: ['appt_participant_id', 'participant_id'],
+    appointment_participant_status: ['appt_participant_status', 'participant_status'],
+    appointment_note: ['appt_note', 'note']
+  },
+  schedule: {
+    schedule_id: ['sched_id', 'schedule_identifier', 'scheduleid'],
+    schedule_active: ['sched_active', 'active'],
+    schedule_name: ['sched_name', 'name'],
+    schedule_actor_id: ['sched_actor_id', 'actor_id'],
+    schedule_start: ['sched_start', 'start'],
+    schedule_end: ['sched_end', 'end'],
+    schedule_comment: ['sched_comment', 'comment'],
+    schedule_service_category: ['sched_service_category', 'service_category'],
+    schedule_service_type: ['sched_service_type', 'service_type'],
+    schedule_specialty: ['sched_specialty', 'specialty']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

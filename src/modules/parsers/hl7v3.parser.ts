@@ -12,7 +12,9 @@ import {
     CanonicalMedicationRequest,
     CanonicalMedicationStatement,
     CanonicalProcedure,
-    CanonicalCondition
+    CanonicalCondition,
+    CanonicalAppointment,
+    CanonicalSchedule
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -50,6 +52,8 @@ export function parseHL7v3(input: string): CanonicalModel {
         medicationStatements: [],
         procedures: [],
         conditions: [],
+        appointments: [],
+        schedules: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -109,6 +113,18 @@ export function parseHL7v3(input: string): CanonicalModel {
             } else if (observationEvent && (observationEvent['@_classCode'] || observationEvent.ObservationEvent?.['@_classCode']) === 'COND') {
                 const condition = mapV3Condition(observationEvent);
                 if (condition) model.conditions?.push(condition);
+            }
+
+            const appointmentEvent = sub.appointment || sub.Appointment;
+            if (appointmentEvent) {
+                const appointment = mapV3Appointment(appointmentEvent);
+                if (appointment) model.appointments?.push(appointment);
+            }
+
+            const scheduleEvent = sub.schedule || sub.Schedule;
+            if (scheduleEvent) {
+                const schedule = mapV3Schedule(scheduleEvent);
+                if (schedule) model.schedules?.push(schedule);
             }
 
             const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
@@ -503,6 +519,53 @@ function mapV3Condition(condEvent: any): CanonicalCondition | undefined {
             text: displayName
         },
         onsetDateTime: formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'])
+    };
+}
+
+function mapV3Appointment(apptEvent: any): CanonicalAppointment | undefined {
+    const appointment = apptEvent.appointment || apptEvent.Appointment || apptEvent;
+    if (!appointment) return undefined;
+    const id = appointment.id || appointment.Id;
+    const idValue = id?.['@_extension'] || id?.['@_root'];
+    const status = appointment.statusCode?.['@_code'] || appointment.StatusCode?.['@_code'];
+    const code = appointment.code || appointment.Code;
+    const displayName = code?.['@_displayName'];
+    const effectiveTime = appointment.effectiveTime || appointment.EffectiveTime;
+
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idValue && !start && !end && !displayName) return undefined;
+
+    return {
+        id: idValue,
+        identifier: idValue,
+        status: status || 'proposed',
+        description: displayName,
+        start: start,
+        end: end
+    };
+}
+
+function mapV3Schedule(schedEvent: any): CanonicalSchedule | undefined {
+    const schedule = schedEvent.schedule || schedEvent.Schedule || schedEvent;
+    if (!schedule) return undefined;
+    const id = schedule.id || schedule.Id;
+    const idValue = id?.['@_extension'] || id?.['@_root'];
+    const name = schedule.name || schedule.Name || schedule.code?.['@_displayName'];
+    const effectiveTime = schedule.planningHorizon || schedule.PlanningHorizon || schedule.effectiveTime || schedule.EffectiveTime;
+
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idValue && !name && !start && !end) return undefined;
+
+    return {
+        id: idValue,
+        identifier: idValue,
+        active: true,
+        name: typeof name === 'string' ? name : undefined,
+        planningHorizon: start || end ? { start, end } : undefined
     };
 }
 

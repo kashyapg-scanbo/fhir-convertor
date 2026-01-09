@@ -12,7 +12,9 @@ import {
     CanonicalDocumentReference,
     CanonicalMedicationStatement,
     CanonicalProcedure,
-    CanonicalCondition
+    CanonicalCondition,
+    CanonicalAppointment,
+    CanonicalSchedule
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -36,6 +38,8 @@ export function parseR4(input: string): CanonicalModel {
         medicationStatements: [],
         procedures: [],
         conditions: [],
+        appointments: [],
+        schedules: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -94,6 +98,14 @@ export function parseR4(input: string): CanonicalModel {
             case 'Condition':
                 const condition = mapR4Condition(res);
                 if (condition) model.conditions?.push(condition);
+                break;
+            case 'Appointment':
+                const appointment = mapR4Appointment(res);
+                if (appointment) model.appointments?.push(appointment);
+                break;
+            case 'Schedule':
+                const schedule = mapR4Schedule(res);
+                if (schedule) model.schedules?.push(schedule);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -485,6 +497,60 @@ function mapR4Condition(cond: any): CanonicalCondition {
         abatementString: cond.abatementString,
         recordedDate: cond.recordedDate,
         note: cond.note?.map((note: any) => note.text).filter(Boolean)
+    };
+}
+
+function mapR4Appointment(appt: any): CanonicalAppointment {
+    return {
+        id: appt.id,
+        identifier: appt.identifier?.[0]?.value,
+        status: appt.status,
+        description: appt.description,
+        start: appt.start,
+        end: appt.end,
+        minutesDuration: appt.minutesDuration,
+        created: appt.created,
+        cancellationDate: appt.cancellationDate,
+        subject: appt.subject?.reference?.replace('Patient/', ''),
+        participant: appt.participant?.map((participant: any) => ({
+            actor: participant.actor?.reference?.replace(/^(Patient|Practitioner|Location|Organization)\//, ''),
+            status: participant.status,
+            required: participant.required,
+            period: participant.period ? {
+                start: participant.period.start,
+                end: participant.period.end
+            } : undefined
+        }))
+    };
+}
+
+function mapR4Schedule(schedule: any): CanonicalSchedule {
+    return {
+        id: schedule.id,
+        identifier: schedule.identifier?.[0]?.value,
+        active: schedule.active,
+        name: schedule.name,
+        actor: schedule.actor?.map((actor: any) => actor.reference?.replace(/^(Practitioner|PractitionerRole|Location|Organization|Patient|HealthcareService)\//, '')).filter(Boolean),
+        planningHorizon: schedule.planningHorizon ? {
+            start: schedule.planningHorizon.start,
+            end: schedule.planningHorizon.end
+        } : undefined,
+        comment: schedule.comment,
+        serviceCategory: schedule.serviceCategory?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        serviceType: schedule.serviceType?.map((service: any) => ({
+            system: service.concept?.coding?.[0]?.system,
+            code: service.concept?.coding?.[0]?.code,
+            display: service.concept?.coding?.[0]?.display
+        })),
+        specialty: schedule.specialty?.map((spec: any) => ({
+            system: spec.coding?.[0]?.system,
+            code: spec.coding?.[0]?.code,
+            display: spec.coding?.[0]?.display
+        }))
     };
 }
 
