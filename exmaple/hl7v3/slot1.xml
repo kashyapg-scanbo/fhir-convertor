@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-slot-1"/>
+  <creationTime value="20240101120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <schedule><id extension="SLOT1"/><code displayName="Slot 1"/><effectiveTime><low value="202401010900"/><high value="202401010930"/></effectiveTime></schedule>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

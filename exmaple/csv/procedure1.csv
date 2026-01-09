@@ -1,0 +1,2 @@
+procedure_id,procedure_status,procedure_code,procedure_display,procedure_subject_id,procedure_occurrence_date
+PROC-1,completed,P1,Appendectomy 1,PAT-1,2024-01-01T11:00:00Z

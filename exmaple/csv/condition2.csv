@@ -1,0 +1,2 @@
+condition_id,condition_clinical_status,condition_code,condition_display,condition_subject_id,condition_onset_date
+COND-2,active,C2,Diabetes 2,PAT-2,2024-01-02T01:00:00Z

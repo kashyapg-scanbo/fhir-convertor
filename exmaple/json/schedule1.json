@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John1",
+      "last_name": "Doe1"
+    }
+  },
+  "schedule": {
+    "schedule_id": "SCH-1",
+    "active": true,
+    "name": "Clinic Schedule 1",
+    "actor_id": [
+      "PRAC-1"
+    ],
+    "start": "2024-01-01T08:00:00Z",
+    "end": "2024-01-01T12:00:00Z"
+  }
+}

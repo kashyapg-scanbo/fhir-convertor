@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John1",
+      "last_name": "Doe1"
+    }
+  },
+  "condition": {
+    "condition_id": "COND-1",
+    "clinical_status": "active",
+    "patient_id": "PAT-1",
+    "code": {
+      "code": "C1",
+      "display": "Diabetes 1"
+    },
+    "onset_date": "2024-01-01T01:00:00Z"
+  }
+}

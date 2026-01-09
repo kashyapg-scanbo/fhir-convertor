@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "John2",
+      "last_name": "Doe2"
+    }
+  },
+  "procedure": {
+    "procedure_id": "PROC-2",
+    "status": "completed",
+    "patient_id": "PAT-2",
+    "code": {
+      "code": "P2",
+      "display": "Appendectomy 2"
+    },
+    "occurrence_date": "2024-01-02T11:00:00Z"
+  }
+}

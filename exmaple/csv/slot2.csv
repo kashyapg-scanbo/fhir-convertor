@@ -1,0 +1,2 @@
+slot_id,slot_schedule_id,slot_status,slot_start,slot_end,slot_overbooked
+SLOT-2,SCH-2,free,2024-01-02T09:00:00Z,2024-01-02T09:30:00Z,false

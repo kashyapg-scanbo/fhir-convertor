@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John1",
+      "last_name": "Doe1"
+    }
+  },
+  "diagnostic_report": {
+    "diagnostic_report_id": "DR-1",
+    "status": "final",
+    "code": {
+      "code": "DR1",
+      "display": "Lab Panel 1"
+    },
+    "subject_id": "PAT-1",
+    "effective_date": "2024-01-01T12:00:00Z"
+  }
+}

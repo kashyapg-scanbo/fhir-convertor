@@ -1,0 +1,2 @@
+diagnostic_report_id,diagnostic_report_status,diagnostic_report_code,diagnostic_report_display,diagnostic_report_subject_id,diagnostic_report_effective_date
+DR-1,final,DR1,Lab Panel 1,PAT-1,2024-01-01T12:00:00Z

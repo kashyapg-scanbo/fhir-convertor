@@ -1,0 +1,2 @@
+medication_statement_id,medication_statement_status,medication_statement_medication_code,medication_statement_medication_display,medication_statement_subject_id,medication_statement_effective_date
+MS-1,recorded,MED1,Amoxicillin 1,PAT-1,2024-01-01T10:00:00Z

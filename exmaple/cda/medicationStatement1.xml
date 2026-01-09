@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-1"/>
+      <patient>
+        <name>
+          <family>Doe1</family>
+          <given>John1</given>
+        </name>
+        <administrativeGenderCode code="M"/>
+        <birthTime value="19800101"/>
+      </patient>
+      
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="10160-0" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <substanceAdministration><id extension="MED1"/><effectiveTime value="202401011000"/><consumable><manufacturedProduct><manufacturedMaterial><code code="MED1" displayName="Amoxicillin 1" codeSystem="2.16.840.1.113883.6.88"/></manufacturedMaterial></manufacturedProduct></consumable></substanceAdministration>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

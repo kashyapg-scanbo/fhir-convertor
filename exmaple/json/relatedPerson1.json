@@ -1,0 +1,17 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John1",
+      "last_name": "Doe1"
+    }
+  },
+  "related_person": {
+    "related_person_id": "REL-1",
+    "patient_id": "PAT-1",
+    "relationship": "spouse",
+    "first_name": "Rita1",
+    "last_name": "Relative1",
+    "phone": "5550001"
+  }
+}

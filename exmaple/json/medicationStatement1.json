@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John1",
+      "last_name": "Doe1"
+    }
+  },
+  "medication_statement": {
+    "medication_statement_id": "MS-1",
+    "status": "recorded",
+    "patient_id": "PAT-1",
+    "medication": {
+      "medication_id": "MED-1",
+      "name": "Amoxicillin 1"
+    },
+    "effective_date": "2024-01-01T10:00:00Z"
+  }
+}
