@@ -349,6 +349,46 @@ const GlobalSlotSchema = z.object({
   appointment_type: z.string().optional()
 });
 
+const GlobalDiagnosticReportSchema = z.object({
+  diagnostic_report_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  category: z.string().optional(),
+  code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  effective_date: z.string().optional(),
+  effective_start: z.string().optional(),
+  effective_end: z.string().optional(),
+  issued: z.string().optional(),
+  performer_id: z.union([z.string(), z.array(z.string())]).optional(),
+  result_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  conclusion: z.string().optional(),
+  note: z.string().optional()
+});
+
+const GlobalRelatedPersonSchema = z.object({
+  related_person_id: GlobalIdSchema.optional(),
+  active: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  patient_id: GlobalIdSchema.optional(),
+  relationship: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  gender: z.string().optional(),
+  birth_date: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postal_code: z.string().optional(),
+  country: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -444,6 +484,8 @@ const GlobalCustomJSONSchema = z.object({
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
+  diagnostic_report: z.union([GlobalDiagnosticReportSchema, z.array(GlobalDiagnosticReportSchema)]).optional(),
+  related_person: z.union([GlobalRelatedPersonSchema, z.array(GlobalRelatedPersonSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -459,12 +501,14 @@ const GlobalCustomJSONSchema = z.object({
     value.appointment ||
     value.schedule ||
     value.slot ||
+    value.diagnostic_report ||
+    value.related_person ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -489,6 +533,8 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   appointments: 'appointment',
   schedules: 'schedule',
   slots: 'slot',
+  diagnosticReports: 'diagnosticReport',
+  relatedPersons: 'relatedPerson',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -511,6 +557,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   schedules: 'schedule',
   slot: 'slot',
   slots: 'slot',
+  diagnostic_report: 'diagnosticReport',
+  diagnostic_reports: 'diagnosticReport',
+  related_person: 'relatedPerson',
+  related_persons: 'relatedPerson',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -558,6 +608,14 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   schedules: 'schedule',
   slot: 'slot',
   slots: 'slot',
+  diagnostic_report: 'diagnostic_report',
+  diagnostic_reports: 'diagnostic_report',
+  diagnosticreport: 'diagnostic_report',
+  diagnosticreports: 'diagnostic_report',
+  related_person: 'related_person',
+  related_persons: 'related_person',
+  relatedperson: 'related_person',
+  relatedpersons: 'related_person',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1122,6 +1180,121 @@ function normalizeGlobalSlotAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalDiagnosticReportAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const code = isPlainRecord(normalized.code) ? { ...normalized.code } : {};
+
+  const reportId = readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_id');
+  if (normalized.diagnostic_report_id === undefined && reportId !== undefined) {
+    normalized.diagnostic_report_id = reportId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const reportCode = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_code'));
+  if (reportCode && code.code === undefined) code.code = reportCode;
+
+  const reportSystem = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_code_system'));
+  if (reportSystem && code.code_system === undefined) code.code_system = reportSystem;
+
+  const reportDisplay = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_display'));
+  if (reportDisplay && code.display === undefined) code.display = reportDisplay;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const effectiveDate = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_effective_date'));
+  if (effectiveDate && normalized.effective_date === undefined) normalized.effective_date = effectiveDate;
+
+  const effectiveStart = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_effective_start'));
+  if (effectiveStart && normalized.effective_start === undefined) normalized.effective_start = effectiveStart;
+
+  const effectiveEnd = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_effective_end'));
+  if (effectiveEnd && normalized.effective_end === undefined) normalized.effective_end = effectiveEnd;
+
+  const issued = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_issued'));
+  if (issued && normalized.issued === undefined) normalized.issued = issued;
+
+  const performerId = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_performer_id'));
+  if (performerId && normalized.performer_id === undefined) normalized.performer_id = performerId;
+
+  const resultIds = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_result_ids'));
+  if (resultIds && normalized.result_ids === undefined) normalized.result_ids = resultIds;
+
+  const conclusion = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_conclusion'));
+  if (conclusion && normalized.conclusion === undefined) normalized.conclusion = conclusion;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'diagnosticReport', 'diagnostic_report_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  if (Object.keys(code).length > 0) normalized.code = code;
+
+  return normalized;
+}
+
+function normalizeGlobalRelatedPersonAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const relatedPersonId = readSectionAliasValue(value, 'relatedPerson', 'related_person_id');
+  if (normalized.related_person_id === undefined && relatedPersonId !== undefined) {
+    normalized.related_person_id = relatedPersonId;
+  }
+
+  const active = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_active'));
+  if (active && normalized.active === undefined) normalized.active = active;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const relationship = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_relationship'));
+  if (relationship && normalized.relationship === undefined) normalized.relationship = relationship;
+
+  const firstName = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_first_name'));
+  if (firstName && normalized.first_name === undefined) normalized.first_name = firstName;
+
+  const lastName = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_last_name'));
+  if (lastName && normalized.last_name === undefined) normalized.last_name = lastName;
+
+  const phone = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_phone'));
+  if (phone && normalized.phone === undefined) normalized.phone = phone;
+
+  const email = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_email'));
+  if (email && normalized.email === undefined) normalized.email = email;
+
+  const gender = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_gender'));
+  if (gender && normalized.gender === undefined) normalized.gender = gender;
+
+  const birthDate = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_birth_date'));
+  if (birthDate && normalized.birth_date === undefined) normalized.birth_date = birthDate;
+
+  const addressLine1 = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_address_line1'));
+  if (addressLine1 && normalized.address_line1 === undefined) normalized.address_line1 = addressLine1;
+
+  const addressLine2 = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_address_line2'));
+  if (addressLine2 && normalized.address_line2 === undefined) normalized.address_line2 = addressLine2;
+
+  const city = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_city'));
+  if (city && normalized.city === undefined) normalized.city = city;
+
+  const state = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_state'));
+  if (state && normalized.state === undefined) normalized.state = state;
+
+  const postalCode = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_postal_code'));
+  if (postalCode && normalized.postal_code === undefined) normalized.postal_code = postalCode;
+
+  const country = normalizeAliasValue(readSectionAliasValue(value, 'relatedPerson', 'related_person_country'));
+  if (country && normalized.country === undefined) normalized.country = country;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1308,6 +1481,10 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalScheduleAliases(value);
     case 'slot':
       return normalizeGlobalSlotAliases(value);
+    case 'diagnosticReport':
+      return normalizeGlobalDiagnosticReportAliases(value);
+    case 'relatedPerson':
+      return normalizeGlobalRelatedPersonAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1332,6 +1509,8 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['appointment', 'appointment'],
     ['schedule', 'schedule'],
     ['slot', 'slot'],
+    ['diagnosticReport', 'diagnostic_report'],
+    ['relatedPerson', 'related_person'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -1438,6 +1617,8 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'appointment',
     'schedule',
     'slot',
+    'diagnosticReport',
+    'relatedPerson',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1554,6 +1735,8 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const appointments = normalizeArray(validated.appointment);
   const schedules = normalizeArray(validated.schedule);
   const slots = normalizeArray(validated.slot);
+  const diagnosticReports = normalizeArray(validated.diagnostic_report);
+  const relatedPersons = normalizeArray(validated.related_person);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1588,6 +1771,12 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (slots.length) {
     canonical.slots = slots.map(buildCanonicalSlotGlobal);
+  }
+  if (diagnosticReports.length) {
+    canonical.diagnosticReports = diagnosticReports.map(buildCanonicalDiagnosticReportGlobal);
+  }
+  if (relatedPersons.length) {
+    canonical.relatedPersons = relatedPersons.map(buildCanonicalRelatedPersonGlobal);
   }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
@@ -1628,7 +1817,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1642,6 +1831,8 @@ function wrapGlobalPayload(value: any) {
       value.appointment,
       value.schedule,
       value.slot,
+      value.diagnostic_report,
+      value.related_person,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1677,6 +1868,12 @@ function wrapGlobalPayload(value: any) {
     }
     if ('slot_id' in value || 'schedule_id' in value || 'overbooked' in value) {
       return { slot: value };
+    }
+    if ('diagnostic_report_id' in value || 'effective_date' in value || 'issued' in value) {
+      return { diagnostic_report: value };
+    }
+    if ('related_person_id' in value || 'relationship' in value || 'patient_id' in value) {
+      return { related_person: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -1727,6 +1924,11 @@ function looksLikeGlobalResource(value: any) {
     'actor_id' in value ||
     'slot_id' in value ||
     'overbooked' in value ||
+    'diagnostic_report_id' in value ||
+    'effective_date' in value ||
+    'issued' in value ||
+    'related_person_id' in value ||
+    'relationship' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -2081,6 +2283,78 @@ function buildCanonicalSlotGlobal(slot: z.infer<typeof GlobalSlotSchema>) {
       code: slot.appointment_type,
       display: slot.appointment_type
     }] : undefined
+  };
+}
+
+function buildCanonicalDiagnosticReportGlobal(report: z.infer<typeof GlobalDiagnosticReportSchema>) {
+  const performerIds = normalizeStringArray(report.performer_id);
+  const resultIds = normalizeStringArray(report.result_ids);
+
+  return {
+    id: report.diagnostic_report_id,
+    identifier: report.diagnostic_report_id,
+    status: report.status,
+    category: report.category ? [{
+      code: report.category,
+      display: report.category
+    }] : undefined,
+    code: report.code?.code || report.code?.display ? {
+      coding: report.code?.code ? [{
+        system: report.code.code_system || 'urn:hl7-org:local',
+        code: report.code.code,
+        display: report.code.display
+      }] : undefined,
+      text: report.code?.display
+    } : undefined,
+    subject: report.subject_id,
+    encounter: report.encounter_id,
+    effectiveDateTime: report.effective_date,
+    effectivePeriod: report.effective_start || report.effective_end ? {
+      start: report.effective_start,
+      end: report.effective_end
+    } : undefined,
+    issued: report.issued,
+    performer: performerIds.length ? performerIds : undefined,
+    result: resultIds.length ? resultIds : undefined,
+    conclusion: report.conclusion,
+    note: report.note ? [report.note] : undefined
+  };
+}
+
+function buildCanonicalRelatedPersonGlobal(rp: z.infer<typeof GlobalRelatedPersonSchema>) {
+  const active = normalizeBoolean(rp.active);
+
+  const telecom = [];
+  if (rp.phone) telecom.push({ system: 'phone', value: rp.phone });
+  if (rp.email) telecom.push({ system: 'email', value: rp.email });
+
+  const address = rp.address_line1 || rp.address_line2 || rp.city
+    ? [{
+        line: [rp.address_line1, rp.address_line2].filter(Boolean) as string[],
+        city: rp.city,
+        state: rp.state,
+        postalCode: rp.postal_code,
+        country: rp.country
+      }]
+    : undefined;
+
+  return {
+    id: rp.related_person_id,
+    identifier: rp.related_person_id,
+    active: active,
+    patient: rp.patient_id,
+    relationship: rp.relationship ? [{
+      code: rp.relationship,
+      display: rp.relationship
+    }] : undefined,
+    name: (rp.first_name || rp.last_name) ? [{
+      family: rp.last_name,
+      given: rp.first_name ? [rp.first_name] : undefined
+    }] : undefined,
+    telecom: telecom.length ? telecom : undefined,
+    gender: rp.gender,
+    birthDate: rp.birth_date,
+    address
   };
 }
 

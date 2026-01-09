@@ -15,7 +15,9 @@ import {
     CanonicalCondition,
     CanonicalAppointment,
     CanonicalSchedule,
-    CanonicalSlot
+    CanonicalSlot,
+    CanonicalDiagnosticReport,
+    CanonicalRelatedPerson
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -42,6 +44,8 @@ export function parseR4(input: string): CanonicalModel {
         appointments: [],
         schedules: [],
         slots: [],
+        diagnosticReports: [],
+        relatedPersons: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -112,6 +116,14 @@ export function parseR4(input: string): CanonicalModel {
             case 'Slot':
                 const slot = mapR4Slot(res);
                 if (slot) model.slots?.push(slot);
+                break;
+            case 'DiagnosticReport':
+                const report = mapR4DiagnosticReport(res);
+                if (report) model.diagnosticReports?.push(report);
+                break;
+            case 'RelatedPerson':
+                const related = mapR4RelatedPerson(res);
+                if (related) model.relatedPersons?.push(related);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -589,6 +601,75 @@ function mapR4Slot(slot: any): CanonicalSlot {
             system: type.coding?.[0]?.system,
             code: type.coding?.[0]?.code,
             display: type.coding?.[0]?.display
+        }))
+    };
+}
+
+function mapR4DiagnosticReport(report: any): CanonicalDiagnosticReport {
+    return {
+        id: report.id,
+        identifier: report.identifier?.[0]?.value,
+        status: report.status,
+        category: report.category?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        code: report.code ? {
+            coding: report.code.coding?.map((c: any) => ({
+                system: c.system,
+                code: c.code,
+                display: c.display
+            })),
+            text: report.code.text
+        } : undefined,
+        subject: report.subject?.reference?.replace('Patient/', ''),
+        encounter: report.encounter?.reference?.replace('Encounter/', ''),
+        effectiveDateTime: report.effectiveDateTime,
+        effectivePeriod: report.effectivePeriod ? {
+            start: report.effectivePeriod.start,
+            end: report.effectivePeriod.end
+        } : undefined,
+        issued: report.issued,
+        performer: report.performer?.map((p: any) => p.reference?.replace(/^(Organization|Practitioner|PractitionerRole)\//, '')).filter(Boolean),
+        resultsInterpreter: report.resultsInterpreter?.map((p: any) => p.reference?.replace(/^(Organization|Practitioner|PractitionerRole)\//, '')).filter(Boolean),
+        specimen: report.specimen?.map((s: any) => s.reference?.replace('Specimen/', '')).filter(Boolean),
+        result: report.result?.map((r: any) => r.reference?.replace('Observation/', '')).filter(Boolean),
+        conclusion: report.conclusion,
+        note: report.note?.map((note: any) => note.text).filter(Boolean)
+    };
+}
+
+function mapR4RelatedPerson(rp: any): CanonicalRelatedPerson {
+    const name = rp.name?.[0];
+    return {
+        id: rp.id,
+        identifier: rp.identifier?.[0]?.value,
+        active: rp.active,
+        patient: rp.patient?.reference?.replace('Patient/', ''),
+        relationship: rp.relationship?.map((rel: any) => ({
+            system: rel.coding?.[0]?.system,
+            code: rel.coding?.[0]?.code,
+            display: rel.coding?.[0]?.display
+        })),
+        name: name ? [{
+            family: name.family,
+            given: name.given
+        }] : undefined,
+        telecom: rp.telecom?.map((t: any) => ({
+            system: t.system,
+            value: t.value,
+            use: t.use
+        })),
+        gender: rp.gender,
+        birthDate: rp.birthDate,
+        address: rp.address?.map((a: any) => ({
+            line: a.line,
+            city: a.city,
+            state: a.state,
+            postalCode: a.postalCode,
+            country: a.country,
+            use: a.use
         }))
     };
 }

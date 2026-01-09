@@ -613,6 +613,80 @@ export type CanonicalSlot = {
   active?: boolean;
 };
 
+export type CanonicalDiagnosticReport = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  code?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  subject?: string;
+  encounter?: string;
+  effectiveDateTime?: string;
+  effectivePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  issued?: string;
+  performer?: string[];
+  resultsInterpreter?: string[];
+  specimen?: string[];
+  result?: string[];
+  note?: string[];
+  conclusion?: string;
+  conclusionCode?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  active?: boolean;
+};
+
+export type CanonicalRelatedPerson = {
+  id?: string;
+  identifier?: string;
+  active?: boolean;
+  patient?: string;
+  relationship?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  name?: Array<{
+    family?: string;
+    given?: string[];
+  }>;
+  telecom?: Array<{
+    system: 'phone' | 'email' | 'fax' | 'url' | 'other';
+    value: string;
+    use?: string;
+  }>;
+  gender?: string;
+  birthDate?: string;
+  address?: Array<{
+    line?: string[];
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+    use?: string;
+  }>;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -671,6 +745,8 @@ export type CanonicalModel = {
   appointments?: CanonicalAppointment[]; // Appointment
   schedules?: CanonicalSchedule[]; // Schedule
   slots?: CanonicalSlot[]; // Slot
+  diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport
+  relatedPersons?: CanonicalRelatedPerson[]; // RelatedPerson
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

@@ -15,7 +15,9 @@ import {
     CanonicalCondition,
     CanonicalAppointment,
     CanonicalSchedule,
-    CanonicalSlot
+    CanonicalSlot,
+    CanonicalDiagnosticReport,
+    CanonicalRelatedPerson
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -56,6 +58,8 @@ export function parseHL7v3(input: string): CanonicalModel {
         appointments: [],
         schedules: [],
         slots: [],
+        diagnosticReports: [],
+        relatedPersons: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -129,6 +133,18 @@ export function parseHL7v3(input: string): CanonicalModel {
                 if (schedule) model.schedules?.push(schedule);
                 const slot = mapV3Slot(scheduleEvent);
                 if (slot) model.slots?.push(slot);
+            }
+
+            const diagnosticReportEvent = sub.diagnosticReport || sub.DiagnosticReport;
+            if (diagnosticReportEvent) {
+                const report = mapV3DiagnosticReport(diagnosticReportEvent);
+                if (report) model.diagnosticReports?.push(report);
+            }
+
+            const relatedPersonEvent = sub.relatedPerson || sub.RelatedPerson;
+            if (relatedPersonEvent) {
+                const related = mapV3RelatedPerson(relatedPersonEvent);
+                if (related) model.relatedPersons?.push(related);
             }
 
             const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
@@ -591,6 +607,58 @@ function mapV3Slot(schedEvent: any): CanonicalSlot | undefined {
         status: 'free',
         start: start,
         end: end
+    };
+}
+
+function mapV3DiagnosticReport(reportEvent: any): CanonicalDiagnosticReport | undefined {
+    const report = reportEvent.diagnosticReport || reportEvent.DiagnosticReport || reportEvent;
+    if (!report) return undefined;
+    const id = report.id || report.Id;
+    const idValue = id?.['@_extension'] || id?.['@_root'];
+    const code = report.code || report.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'];
+    const codeSystem = code?.['@_codeSystem'];
+    const status = report.statusCode?.['@_code'] || report.StatusCode?.['@_code'];
+    const effectiveTime = report.effectiveTime || report.EffectiveTime;
+
+    if (!idValue && !codeValue && !displayName) return undefined;
+
+    return {
+        id: idValue || codeValue,
+        identifier: idValue || codeValue,
+        status: status || 'final',
+        code: {
+            coding: codeValue ? [{
+                system: codeSystem,
+                code: codeValue,
+                display: displayName
+            }] : undefined,
+            text: displayName
+        },
+        effectiveDateTime: formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'])
+    };
+}
+
+function mapV3RelatedPerson(rpEvent: any): CanonicalRelatedPerson | undefined {
+    const related = rpEvent.relatedPerson || rpEvent.RelatedPerson || rpEvent;
+    const patientRole = related.patientRole || related.PatientRole;
+    const patientId = patientRole?.id?.['@_extension'] || patientRole?.id?.['@_root'];
+    const person = related.relatedPerson || related.RelatedPerson || related.associatedPerson || related.AssociatedPerson;
+    if (!person) return undefined;
+    const name = person.name || person.Name;
+    const nameObj = Array.isArray(name) ? name[0] : name;
+    const family = extractText(nameObj?.family || nameObj?.Family);
+    const given = extractTextArray(nameObj?.given || nameObj?.Given);
+
+    return {
+        id: related.id?.['@_extension'] || related.id?.['@_root'],
+        identifier: related.id?.['@_extension'] || related.id?.['@_root'],
+        patient: patientId,
+        name: (family || (given && given.length)) ? [{
+            family,
+            given
+        }] : undefined
     };
 }
 

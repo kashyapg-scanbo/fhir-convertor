@@ -483,6 +483,93 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (slots.length > 0) canonical.slots = slots as any[];
 
+  const diagnosticReports = rows.map(row => {
+    const reportId = readValue(row, 'diagnostic_report_id');
+    const code = readValue(row, 'diagnostic_report_code');
+    const display = readValue(row, 'diagnostic_report_display');
+    const status = readValue(row, 'diagnostic_report_status');
+    if (!reportId && !code && !display) return null;
+
+    const effectiveStart = readValue(row, 'diagnostic_report_effective_start');
+    const effectiveEnd = readValue(row, 'diagnostic_report_effective_end');
+    const resultIds = readValue(row, 'diagnostic_report_result_ids');
+    const performerId = readValue(row, 'diagnostic_report_performer_id');
+
+    return {
+      id: reportId || undefined,
+      identifier: reportId || undefined,
+      status: status || 'final',
+      category: readValue(row, 'diagnostic_report_category') ? [{
+        code: readValue(row, 'diagnostic_report_category'),
+        display: readValue(row, 'diagnostic_report_category')
+      }] : undefined,
+      code: (code || display) ? {
+        coding: code ? [{
+          system: readValue(row, 'diagnostic_report_code_system'),
+          code: code,
+          display: display
+        }] : undefined,
+        text: display
+      } : undefined,
+      subject: readValue(row, 'diagnostic_report_subject_id'),
+      encounter: readValue(row, 'diagnostic_report_encounter_id'),
+      effectiveDateTime: readValue(row, 'diagnostic_report_effective_date'),
+      effectivePeriod: (effectiveStart || effectiveEnd) ? {
+        start: effectiveStart,
+        end: effectiveEnd
+      } : undefined,
+      issued: readValue(row, 'diagnostic_report_issued'),
+      performer: performerId ? [performerId] : undefined,
+      result: resultIds ? resultIds.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      conclusion: readValue(row, 'diagnostic_report_conclusion'),
+      note: readValue(row, 'diagnostic_report_note') ? [readValue(row, 'diagnostic_report_note') as string] : undefined
+    };
+  }).filter(Boolean);
+  if (diagnosticReports.length > 0) canonical.diagnosticReports = diagnosticReports as any[];
+
+  const relatedPersons = rows.map(row => {
+    const rpId = readValue(row, 'related_person_id');
+    const first = readValue(row, 'related_person_first_name');
+    const last = readValue(row, 'related_person_last_name');
+    if (!rpId && !first && !last) return null;
+
+    const telecom: any[] = [];
+    const phone = readValue(row, 'related_person_phone');
+    const email = readValue(row, 'related_person_email');
+    if (phone) telecom.push({ system: 'phone', value: phone });
+    if (email) telecom.push({ system: 'email', value: email });
+
+    const addressLine1 = readValue(row, 'related_person_address_line1');
+    const addressLine2 = readValue(row, 'related_person_address_line2');
+    const address = (addressLine1 || addressLine2 || readValue(row, 'related_person_city')) ? [{
+      line: [addressLine1, addressLine2].filter(Boolean) as string[],
+      city: readValue(row, 'related_person_city'),
+      state: readValue(row, 'related_person_state'),
+      postalCode: readValue(row, 'related_person_postal_code'),
+      country: readValue(row, 'related_person_country')
+    }] : undefined;
+
+    return {
+      id: rpId || undefined,
+      identifier: rpId || undefined,
+      active: readBoolean(row, 'related_person_active'),
+      patient: readValue(row, 'related_person_patient_id'),
+      relationship: readValue(row, 'related_person_relationship') ? [{
+        code: readValue(row, 'related_person_relationship'),
+        display: readValue(row, 'related_person_relationship')
+      }] : undefined,
+      name: (first || last) ? [{
+        family: last,
+        given: first ? [first] : undefined
+      }] : undefined,
+      telecom: telecom.length ? telecom : undefined,
+      gender: readValue(row, 'related_person_gender'),
+      birthDate: readValue(row, 'related_person_birth_date'),
+      address
+    };
+  }).filter(Boolean);
+  if (relatedPersons.length > 0) canonical.relatedPersons = relatedPersons as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

@@ -1,0 +1,15 @@
+{
+  "resourceType": "RelatedPerson",
+  "identifier": [],
+  "active": false,
+  "patient": {},
+  "relationship": [],
+  "name": [],
+  "telecom": [],
+  "gender": "",
+  "birthDate": "",
+  "address": [],
+  "photo": [],
+  "period": {},
+  "communication": []
+}

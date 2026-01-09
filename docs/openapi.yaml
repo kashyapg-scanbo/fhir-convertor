@@ -483,7 +483,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -550,6 +550,18 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomSlot'
+        diagnostic_report:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDiagnosticReport'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDiagnosticReport'
+        related_person:
+          oneOf:
+            - $ref: '#/components/schemas/CustomRelatedPerson'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomRelatedPerson'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1147,6 +1159,97 @@ components:
           type: string
         appointment_type:
           type: string
+    CustomDiagnosticReport:
+      type: object
+      properties:
+        diagnostic_report_id:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomDiagnosticReportCode'
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        effective_date:
+          type: string
+          format: date-time
+        effective_start:
+          type: string
+          format: date-time
+        effective_end:
+          type: string
+          format: date-time
+        issued:
+          type: string
+          format: date-time
+        performer_id:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        result_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        conclusion:
+          type: string
+        note:
+          type: string
+    CustomDiagnosticReportCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomRelatedPerson:
+      type: object
+      properties:
+        related_person_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        patient_id:
+          type: string
+        relationship:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1411,6 +1514,18 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [slot]
+    CustomJsonDiagnosticReportOnly:
+      title: DiagnosticReport
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [diagnostic_report]
+    CustomJsonRelatedPersonOnly:
+      title: RelatedPerson
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [related_person]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

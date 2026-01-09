@@ -15,6 +15,8 @@ import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
+import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
+import { mapRelatedPersons } from './relatedPerson.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
 
 export type FhirVersion = 'r5' | 'r6';
@@ -192,6 +194,29 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (slotEntries.length > 0) {
     bundle.entry.push(...slotEntries);
+  }
+
+  const diagnosticReportEntries = mapDiagnosticReports({
+    diagnosticReports: canonical.diagnosticReports,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (diagnosticReportEntries.length > 0) {
+    bundle.entry.push(...diagnosticReportEntries);
+  }
+
+  const relatedPersonEntries = mapRelatedPersons({
+    relatedPersons: canonical.relatedPersons,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl
+  });
+  if (relatedPersonEntries.length > 0) {
+    bundle.entry.push(...relatedPersonEntries);
   }
 
   const documentReferenceEntries = mapDocumentReferences({

@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -935,6 +935,85 @@ export function buildCanonical(parsed: any) {
   }
   if (slots.length > 0) {
     result.slots = slots;
+  }
+
+  /* ───── DiagnosticReports (from OBR) ───── */
+  const diagnosticReports: CanonicalDiagnosticReport[] = [];
+  const obrSegments = parsed.OBR ?? [];
+  for (const obr of obrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const reportId = placerId || fillerId;
+    const serviceCode = obr?.[3]?.[0] ?? [];
+    const codeValue = serviceCode[0];
+    const display = serviceCode[1];
+    const system = serviceCode[2];
+    const status = obr?.[24]?.[0]?.[0];
+    const effective = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+    const issued = toFHIRDateTime(obr?.[21]?.[0]?.[0]) || toFHIRDateTime(obr?.[22]?.[0]?.[0]);
+
+    if (!reportId && !codeValue && !display) continue;
+
+    diagnosticReports.push({
+      id: reportId || `OBR-${Date.now()}`,
+      identifier: reportId,
+      status: status || 'final',
+      code: codeValue || display ? {
+        coding: codeValue ? [{
+          system: mapCodingSystem(system),
+          code: codeValue,
+          display: display
+        }] : undefined,
+        text: display
+      } : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      effectiveDateTime: effective,
+      issued: issued
+    });
+  }
+
+  if (diagnosticReports.length > 0) {
+    result.diagnosticReports = diagnosticReports;
+  }
+
+  /* ───── RelatedPersons (from NK1) ───── */
+  const relatedPersons: CanonicalRelatedPerson[] = [];
+  const nk1Segments = parsed.NK1 ?? [];
+  for (const nk1 of nk1Segments) {
+    const relatedId = nk1?.[0]?.[0]?.[0];
+    const nameParts = nk1?.[1]?.[0] ?? [];
+    const family = nameParts[0];
+    const given = nameParts.slice(1, 3).filter(Boolean);
+    const relationship = nk1?.[2]?.[0]?.[1] || nk1?.[2]?.[0]?.[0];
+    const phone = nk1?.[4]?.[0]?.[0];
+    const address = nk1?.[3]?.[0];
+
+    relatedPersons.push({
+      id: relatedId || undefined,
+      identifier: relatedId || undefined,
+      active: true,
+      patient: patientId,
+      relationship: relationship ? [{
+        code: relationship,
+        display: relationship
+      }] : undefined,
+      name: (family || given.length) ? [{
+        family: family,
+        given: given.length ? given : undefined
+      }] : undefined,
+      telecom: phone ? [{ system: 'phone', value: phone }] : undefined,
+      address: address ? [{
+        line: address[0] ? [address[0]] : undefined,
+        city: address[2],
+        state: address[3],
+        postalCode: address[4]
+      }] : undefined
+    });
+  }
+
+  if (relatedPersons.length > 0) {
+    result.relatedPersons = relatedPersons;
   }
 
   /* ───── Medications (from RXC) ───── */

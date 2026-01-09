@@ -10,6 +10,8 @@ import {
   CanonicalAppointment,
   CanonicalSchedule,
   CanonicalSlot,
+  CanonicalDiagnosticReport,
+  CanonicalRelatedPerson,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -56,6 +58,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const appointments = extractAppointments(clinicalDocument, patient.id);
   const schedules = extractSchedules(clinicalDocument, patient.id);
   const slots = extractSlots(clinicalDocument, patient.id);
+  const diagnosticReports = extractDiagnosticReports(clinicalDocument, patient.id, encounter?.id);
+  const relatedPersons = extractRelatedPersons(clinicalDocument, patient.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -79,6 +83,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (appointments.length) canonical.appointments = appointments;
   if (schedules.length) canonical.schedules = schedules;
   if (slots.length) canonical.slots = slots;
+  if (diagnosticReports.length) canonical.diagnosticReports = diagnosticReports;
+  if (relatedPersons.length) canonical.relatedPersons = relatedPersons;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -698,6 +704,108 @@ function extractSlots(
   });
 
   return slots;
+}
+
+function extractDiagnosticReports(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalDiagnosticReport[] {
+  const reports: CanonicalDiagnosticReport[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isDiagnosticSection = sectionCodeValue === '30954-2' || sectionCodeValue === '18748-4';
+    if (!isDiagnosticSection) return;
+
+    const organizer = entry.organizer || entry['cda:organizer'];
+    const observations = entry.observation || entry['cda:observation'];
+    const blocks = [];
+    if (organizer) blocks.push(...(Array.isArray(organizer) ? organizer : [organizer]));
+    if (observations) blocks.push(...(Array.isArray(observations) ? observations : [observations]));
+
+    for (const block of blocks) {
+      const code = block.code || block['cda:code'] || sectionCode;
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      const statusCode = block.statusCode || block['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code') || 'final';
+
+      const effectiveTime = block.effectiveTime || block['cda:effectiveTime'];
+      const effectiveValue = extractAttribute(effectiveTime, '@_value') ||
+        extractAttribute(effectiveTime?.low, '@_value');
+
+      if (!codeValue && !displayName) continue;
+
+      reports.push({
+        id: `DR-${codeValue || reports.length + 1}`,
+        identifier: codeValue,
+        status: status,
+        code: {
+          coding: codeValue ? [{
+            system: mapCodeSystem(codeSystem),
+            code: codeValue,
+            display: displayName
+          }] : undefined,
+          text: displayName
+        },
+        subject: patientId,
+        encounter: encounterId,
+        effectiveDateTime: formatCDADateTime(effectiveValue)
+      });
+    }
+  });
+
+  return reports;
+}
+
+function extractRelatedPersons(
+  clinicalDocument: any,
+  patientId?: string
+): CanonicalRelatedPerson[] {
+  const relatedPersons: CanonicalRelatedPerson[] = [];
+  const recordTarget = clinicalDocument.recordTarget || clinicalDocument['cda:recordTarget'];
+  const patientRole = Array.isArray(recordTarget)
+    ? recordTarget[0]?.patientRole || recordTarget[0]?.['cda:patientRole']
+    : recordTarget?.patientRole || recordTarget?.['cda:patientRole'];
+
+  const guardian = patientRole?.guardian || patientRole?.['cda:guardian'];
+  const guardians = guardian ? (Array.isArray(guardian) ? guardian : [guardian]) : [];
+
+  guardians.forEach((g, index) => {
+    const guardianPerson = g.guardianPerson || g['cda:guardianPerson'];
+    const name = guardianPerson?.name || guardianPerson?.['cda:name'];
+    const nameObj = Array.isArray(name) ? name[0] : name;
+    const familyName = extractText(nameObj?.family) || extractText(nameObj?.['cda:family']);
+    const givenNames = extractGivenNames(nameObj?.given || nameObj?.['cda:given']);
+
+    const relationshipCode = g.code || g['cda:code'];
+    const relationship = extractAttribute(relationshipCode, '@_code') || extractAttribute(relationshipCode, '@_displayName');
+
+    const telecom = extractTelecom(g.telecom || g['cda:telecom']);
+    const address = extractAddresses(g.addr || g['cda:addr']);
+
+    relatedPersons.push({
+      id: `REL-${index + 1}`,
+      patient: patientId,
+      relationship: relationship ? [{
+        code: relationship,
+        display: relationship
+      }] : undefined,
+      name: (familyName || (givenNames && givenNames.length)) ? [{
+        family: familyName,
+        given: givenNames
+      }] : undefined,
+      telecom: telecom && telecom.length ? telecom : undefined,
+      address: address && address.length ? address : undefined,
+      active: true
+    });
+  });
+
+  return relatedPersons;
 }
 
 function extractPractitionerData(clinicalDocument: any) {
