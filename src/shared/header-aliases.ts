@@ -54,6 +54,28 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     medication_route_display: ['med_route_display', 'route_display'],
     medication_sig: ['med_sig', 'sig', 'instructions']
   },
+  medicationStatement: {
+    medication_statement_id: ['med_statement_id', 'medicationstatement_id'],
+    medication_statement_status: ['med_statement_status', 'medication_statement_state'],
+    medication_statement_category: ['med_statement_category', 'medication_statement_type'],
+    medication_statement_medication_code: ['med_statement_code', 'medication_code'],
+    medication_statement_medication_code_system: ['med_statement_code_system', 'medication_code_system'],
+    medication_statement_medication_display: ['med_statement_display', 'medication_display'],
+    medication_statement_subject_id: ['med_statement_subject_id', 'subject_id', 'patient_id'],
+    medication_statement_encounter_id: ['med_statement_encounter_id', 'encounter_id'],
+    medication_statement_effective_date: ['med_statement_effective_date', 'effective_date'],
+    medication_statement_effective_start: ['med_statement_effective_start', 'effective_start'],
+    medication_statement_effective_end: ['med_statement_effective_end', 'effective_end'],
+    medication_statement_date_asserted: ['med_statement_date_asserted', 'date_asserted'],
+    medication_statement_author: ['med_statement_author', 'author_id'],
+    medication_statement_information_source: ['med_statement_information_source', 'information_source'],
+    medication_statement_reason: ['med_statement_reason', 'reason'],
+    medication_statement_note: ['med_statement_note', 'note'],
+    medication_statement_dose: ['med_statement_dose', 'dose'],
+    medication_statement_dose_unit: ['med_statement_dose_unit', 'dose_unit'],
+    medication_statement_route: ['med_statement_route', 'route'],
+    medication_statement_route_display: ['med_statement_route_display', 'route_display']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

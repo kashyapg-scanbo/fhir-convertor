@@ -205,6 +205,67 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationRequests.length > 0) canonical.medicationRequests = medicationRequests as any[];
 
+  const medicationStatements = rows.map(row => {
+    const medCode = readValue(row, 'medication_statement_medication_code');
+    const medDisplay = readValue(row, 'medication_statement_medication_display');
+    const medSystem = readValue(row, 'medication_statement_medication_code_system');
+    const statementId = readValue(row, 'medication_statement_id');
+    const status = readValue(row, 'medication_statement_status');
+    if (!medCode && !medDisplay && !statementId) return null;
+
+    const effectiveStart = readValue(row, 'medication_statement_effective_start');
+    const effectiveEnd = readValue(row, 'medication_statement_effective_end');
+    const dosageDose = readValue(row, 'medication_statement_dose');
+    const dosageUnit = readValue(row, 'medication_statement_dose_unit');
+    const dosageRoute = readValue(row, 'medication_statement_route');
+    const dosageRouteDisplay = readValue(row, 'medication_statement_route_display');
+
+    return {
+      id: statementId || undefined,
+      identifier: statementId || undefined,
+      status: status || 'recorded',
+      medicationCodeableConcept: (medCode || medDisplay) ? {
+        coding: medCode ? [{
+          system: medSystem,
+          code: medCode,
+          display: medDisplay
+        }] : undefined,
+        text: medDisplay
+      } : undefined,
+      subject: readValue(row, 'medication_statement_subject_id'),
+      encounter: readValue(row, 'medication_statement_encounter_id'),
+      effectiveDateTime: readValue(row, 'medication_statement_effective_date'),
+      effectivePeriod: (effectiveStart || effectiveEnd) ? {
+        start: effectiveStart,
+        end: effectiveEnd
+      } : undefined,
+      dateAsserted: readValue(row, 'medication_statement_date_asserted'),
+      author: readValue(row, 'medication_statement_author'),
+      informationSource: readValue(row, 'medication_statement_information_source')
+        ?.split(',')
+        .map(value => value.trim())
+        .filter(Boolean),
+      reason: readValue(row, 'medication_statement_reason') ? [{
+        code: { display: readValue(row, 'medication_statement_reason') }
+      }] : undefined,
+      note: readValue(row, 'medication_statement_note') ? [readValue(row, 'medication_statement_note') as string] : undefined,
+      dosage: (dosageDose || dosageRoute) ? [{
+        text: readValue(row, 'medication_statement_note'),
+        doseQuantity: dosageDose ? {
+          value: readNumber(row, 'medication_statement_dose'),
+          unit: dosageUnit
+        } : undefined,
+        route: dosageRoute ? {
+          coding: [{
+            code: dosageRoute,
+            display: dosageRouteDisplay
+          }]
+        } : undefined
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (medicationStatements.length > 0) canonical.medicationStatements = medicationStatements as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

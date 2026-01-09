@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -690,6 +690,48 @@ export function buildCanonical(parsed: any) {
 
   if (medicationRequests.length > 0) {
     result.medicationRequests = medicationRequests;
+  }
+
+  /* ───── MedicationStatements (from RXA) ───── */
+  const medicationStatements: CanonicalMedicationStatement[] = [];
+  const rxaSegments = parsed.RXA ?? [];
+  for (const rxa of rxaSegments) {
+    const administeredCode = rxa?.[4]?.[0] ?? [];
+    const medCode = administeredCode[0];
+    const medDisplay = administeredCode[1];
+    const medSystem = administeredCode[2];
+    if (!medCode && !medDisplay) continue;
+
+    const doseValue = rxa?.[5]?.[0]?.[0];
+    const doseUnit = rxa?.[5]?.[0]?.[1];
+    const effectiveDate = toFHIRDateTime(rxa?.[2]?.[0]?.[0]) || toFHIRDate(rxa?.[2]?.[0]?.[0]);
+
+    medicationStatements.push({
+      id: `RXA-${medCode || Date.now()}`,
+      identifier: medCode,
+      status: 'recorded',
+      medicationCodeableConcept: {
+        coding: medCode ? [{
+          system: mapCodingSystem(medSystem),
+          code: medCode,
+          display: medDisplay
+        }] : undefined,
+        text: medDisplay
+      },
+      subject: patientId,
+      encounter: encounter?.id,
+      effectiveDateTime: effectiveDate,
+      dosage: doseValue ? [{
+        doseQuantity: {
+          value: Number(doseValue),
+          unit: doseUnit
+        }
+      }] : undefined
+    });
+  }
+
+  if (medicationStatements.length > 0) {
+    result.medicationStatements = medicationStatements;
   }
 
   /* ───── Medications (from RXC) ───── */

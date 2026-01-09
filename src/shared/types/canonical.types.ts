@@ -282,6 +282,75 @@ export type CanonicalMedication = {
   active?: boolean;
 };
 
+export type CanonicalMedicationStatement = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  medicationCodeableConcept?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  medicationReference?: string;
+  subject?: string;
+  encounter?: string;
+  effectiveDateTime?: string;
+  effectivePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  dateAsserted?: string;
+  author?: string;
+  informationSource?: string[];
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  note?: string[];
+  relatedClinicalInformation?: string[];
+  dosage?: Array<{
+    text?: string;
+    timing?: any;
+    doseQuantity?: {
+      value?: number;
+      unit?: string;
+    };
+    route?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+  }>;
+  adherence?: {
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reason?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  };
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -334,6 +403,7 @@ export type CanonicalModel = {
   diagnoses?: CanonicalDiagnosis[];
   medications?: CanonicalMedication[]; // Medication resource (drug definition)
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
+  medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

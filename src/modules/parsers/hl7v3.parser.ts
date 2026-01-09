@@ -9,7 +9,8 @@ import {
     CanonicalOrganization,
     CanonicalObservation,
     CanonicalMedication,
-    CanonicalMedicationRequest
+    CanonicalMedicationRequest,
+    CanonicalMedicationStatement
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -44,6 +45,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         observations: [],
         medications: [],
         medicationRequests: [],
+        medicationStatements: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -98,9 +100,10 @@ export function parseHL7v3(input: string): CanonicalModel {
 
             const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
             if (substanceAdministration) {
-                const { medication, medicationRequest } = mapV3Medication(substanceAdministration);
+                const { medication, medicationRequest, medicationStatement } = mapV3Medication(substanceAdministration);
                 if (medication) model.medications?.push(medication);
                 if (medicationRequest) model.medicationRequests?.push(medicationRequest);
+                if (medicationStatement) model.medicationStatements?.push(medicationStatement);
             }
         }
     }
@@ -353,7 +356,7 @@ function mapV3Observation(obsEvent: any): CanonicalObservation | undefined {
     };
 }
 
-function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedication, medicationRequest?: CanonicalMedicationRequest } {
+function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedication, medicationRequest?: CanonicalMedicationRequest, medicationStatement?: CanonicalMedicationStatement } {
     const consumable = substanceAdmin.consumable || substanceAdmin.Consumable;
     const manufacturedProduct = consumable?.manufacturedProduct || consumable?.ManufacturedProduct;
     const manufacturedMaterial = manufacturedProduct?.manufacturedMaterial || manufacturedProduct?.ManufacturedMaterial;
@@ -384,6 +387,14 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
         medicationReference: medCode
     };
 
+    const medicationStatement: CanonicalMedicationStatement = {
+        id: `MEDSTAT-${medCode}`,
+        identifier: medCode,
+        status: 'recorded',
+        medicationReference: medCode,
+        effectiveDateTime: formatV3DateTime(substanceAdmin.effectiveTime?.['@_value'] || substanceAdmin.EffectiveTime?.['@_value'])
+    };
+
     const dose = substanceAdmin.doseQuantity || substanceAdmin.DoseQuantity;
     const route = substanceAdmin.routeCode || substanceAdmin.RouteCode;
     const timing = substanceAdmin.effectiveTime || substanceAdmin.EffectiveTime;
@@ -403,9 +414,21 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
                 }]
             } : undefined
         }];
+
+        medicationStatement.dosage = [{
+            text: buildV3DoseText(dose, route),
+            timing: timing ? { event: [formatV3DateTime(timing?.['@_value'] || timing?.low?.['@_value'])].filter(Boolean) } : undefined,
+            doseQuantity: doseQuantity,
+            route: route ? {
+                coding: [{
+                    code: route?.['@_code'],
+                    display: route?.['@_displayName']
+                }]
+            } : undefined
+        }];
     }
 
-    return { medication, medicationRequest };
+    return { medication, medicationRequest, medicationStatement };
 }
 
 function mapV3Address(addr: any): any {

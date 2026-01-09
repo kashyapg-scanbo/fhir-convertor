@@ -9,7 +9,8 @@ import {
     CanonicalOrganization,
     CanonicalMedication,
     CanonicalMedicationRequest,
-    CanonicalDocumentReference
+    CanonicalDocumentReference,
+    CanonicalMedicationStatement
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -30,6 +31,7 @@ export function parseR4(input: string): CanonicalModel {
         observations: [],
         medications: [],
         medicationRequests: [],
+        medicationStatements: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -76,6 +78,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'MedicationRequest':
                 const medReq = mapR4MedicationRequest(res);
                 if (medReq) model.medicationRequests?.push(medReq);
+                break;
+            case 'MedicationStatement':
+                const medStatement = mapR4MedicationStatement(res);
+                if (medStatement) model.medicationStatements?.push(medStatement);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -296,6 +302,65 @@ function mapR4MedicationRequest(medReq: any): CanonicalMedicationRequest {
             } : undefined
         })),
         active: medReq.status === 'active'
+    };
+}
+
+function mapR4MedicationStatement(statement: any): CanonicalMedicationStatement {
+    const medicationCoding = statement.medicationCodeableConcept?.coding?.[0];
+    const medText = statement.medicationCodeableConcept?.text;
+
+    return {
+        id: statement.id,
+        identifier: statement.identifier?.[0]?.value,
+        status: statement.status,
+        category: statement.category?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        medicationCodeableConcept: medicationCoding || medText ? {
+            coding: medicationCoding ? [{
+                system: medicationCoding.system,
+                code: medicationCoding.code,
+                display: medicationCoding.display
+            }] : undefined,
+            text: medText
+        } : undefined,
+        medicationReference: statement.medicationReference?.reference?.replace('Medication/', ''),
+        subject: statement.subject?.reference?.replace('Patient/', ''),
+        encounter: statement.encounter?.reference?.replace('Encounter/', ''),
+        effectiveDateTime: statement.effectiveDateTime,
+        effectivePeriod: statement.effectivePeriod ? {
+            start: statement.effectivePeriod.start,
+            end: statement.effectivePeriod.end
+        } : undefined,
+        dateAsserted: statement.dateAsserted,
+        author: statement.informationSource?.reference?.replace('Practitioner/', ''),
+        informationSource: statement.informationSource?.reference ? [statement.informationSource.reference] : undefined,
+        reason: statement.reasonCode?.map((reason: any) => ({
+            code: {
+                system: reason.coding?.[0]?.system,
+                code: reason.coding?.[0]?.code,
+                display: reason.coding?.[0]?.display
+            }
+        })),
+        note: statement.note?.map((note: any) => note.text).filter(Boolean),
+        dosage: statement.dosage?.map((dosage: any) => ({
+            text: dosage.text,
+            timing: dosage.timing,
+            doseQuantity: dosage.doseAndRate?.[0]?.doseQuantity ? {
+                value: dosage.doseAndRate[0].doseQuantity.value,
+                unit: dosage.doseAndRate[0].doseQuantity.unit
+            } : undefined,
+            route: dosage.route ? {
+                coding: dosage.route.coding?.map((c: any) => ({
+                    system: c.system,
+                    code: c.code,
+                    display: c.display
+                })),
+                text: dosage.route.text
+            } : undefined
+        }))
     };
 }
 

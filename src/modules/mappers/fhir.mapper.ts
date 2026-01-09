@@ -9,6 +9,7 @@ import { mapPractitionerRoles } from './practitionerRole.mapper.js';
 import { mapOrganizations } from './organization.mapper.js';
 import { mapMedicationRequests } from './medicationRequest.mapper.js';
 import { mapMedications } from './medication.mapper.js';
+import { mapMedicationStatements } from './medicationStatement.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
 
 export type FhirVersion = 'r5' | 'r6';
@@ -118,6 +119,18 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (medicationRequestEntries.length > 0) {
     bundle.entry.push(...medicationRequestEntries);
+  }
+
+  const medicationStatementEntries = mapMedicationStatements({
+    medicationStatements: canonical.medicationStatements,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (medicationStatementEntries.length > 0) {
+    bundle.entry.push(...medicationStatementEntries);
   }
 
   const documentReferenceEntries = mapDocumentReferences({

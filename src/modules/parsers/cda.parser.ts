@@ -4,6 +4,8 @@ import {
   CanonicalDocumentReference,
   CanonicalMedication,
   CanonicalMedicationRequest,
+  CanonicalMedicationStatement,
+  CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
   CanonicalOrganization,
@@ -38,7 +40,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const encounter = buildEncounterFromCDA(clinicalDocument);
   const practitionerData = extractPractitionerData(clinicalDocument);
   const observations = extractObservations(clinicalDocument);
-  const { medicationRequests, medications } = extractMedications(
+  const { medicationRequests, medications, medicationStatements } = extractMedications(
     clinicalDocument,
     patient.id,
     encounter?.id,
@@ -61,6 +63,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (observations.length) canonical.observations = observations;
   if (medicationRequests.length) canonical.medicationRequests = medicationRequests;
   if (medications.length) canonical.medications = medications;
+  if (medicationStatements.length) canonical.medicationStatements = medicationStatements;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -85,7 +88,7 @@ function findCDARoot(obj: any): any {
   return null;
 }
 
-function buildPatientFromCDA(clinicalDocument: any): CanonicalModel['patient'] {
+function buildPatientFromCDA(clinicalDocument: any): CanonicalPatient {
   const recordTarget = clinicalDocument.recordTarget || clinicalDocument['cda:recordTarget'];
   const patientRole = Array.isArray(recordTarget)
     ? recordTarget[0]?.patientRole || recordTarget[0]?.['cda:patientRole']
@@ -193,7 +196,7 @@ function extractAttribute(obj: any, attr: string): string | undefined {
   return undefined;
 }
 
-function extractAddresses(addr: any): CanonicalModel['patient']['address'] {
+function extractAddresses(addr: any): CanonicalPatient['address'] {
   if (!addr) return [];
   
   const addrArray = Array.isArray(addr) ? addr : [addr];
@@ -215,7 +218,7 @@ function extractAddresses(addr: any): CanonicalModel['patient']['address'] {
   }).filter(a => a.line?.length || a.city || a.state || a.postalCode);
 }
 
-function extractTelecom(telecom: any): CanonicalModel['patient']['telecom'] {
+function extractTelecom(telecom: any): CanonicalPatient['telecom'] {
   if (!telecom) return [];
   
   const telecomArray = Array.isArray(telecom) ? telecom : [telecom];
@@ -248,8 +251,8 @@ function extractTelecom(telecom: any): CanonicalModel['patient']['telecom'] {
   }).filter(t => t.value);
 }
 
-type CanonicalTelecomUse = NonNullable<CanonicalModel['patient']['telecom']>[number]['use'];
-type CanonicalAddressUse = NonNullable<CanonicalModel['patient']['address']>[number]['use'];
+type CanonicalTelecomUse = NonNullable<CanonicalPatient['telecom']>[number]['use'];
+type CanonicalAddressUse = NonNullable<CanonicalPatient['address']>[number]['use'];
 
 function mapTelecomUse(use?: string): CanonicalTelecomUse | undefined {
   if (!use) return undefined;
@@ -351,9 +354,10 @@ function extractMedications(
   patientId?: string,
   encounterId?: string,
   defaultRequesterId?: string
-): { medicationRequests: CanonicalMedicationRequest[]; medications: CanonicalMedication[] } {
+): { medicationRequests: CanonicalMedicationRequest[]; medications: CanonicalMedication[]; medicationStatements: CanonicalMedicationStatement[] } {
   const medicationRequests: CanonicalMedicationRequest[] = [];
   const medicationMap = new Map<string, CanonicalMedication>();
+  const medicationStatements: CanonicalMedicationStatement[] = [];
 
   iterateSectionEntries(clinicalDocument, entry => {
     const admin = entry.substanceAdministration || entry['cda:substanceAdministration'];
@@ -424,12 +428,26 @@ function extractMedications(
         requester,
         dosageInstruction: dosage ? [dosage] : undefined
       });
+
+      medicationStatements.push({
+        id: `MEDSTAT-${medId}`,
+        identifier: medId,
+        status: mapMedicationStatus(substance) || 'recorded',
+        medicationCodeableConcept,
+        subject: patientId,
+        encounter: encounterId,
+        effectiveDateTime: formatCDADateTime(effectiveValue),
+        dateAsserted: formatCDADateTime(effectiveValue),
+        author: requester,
+        dosage: dosage ? [dosage] : undefined
+      });
     }
   });
 
   return {
     medicationRequests,
-    medications: Array.from(medicationMap.values())
+    medications: Array.from(medicationMap.values()),
+    medicationStatements
   };
 }
 

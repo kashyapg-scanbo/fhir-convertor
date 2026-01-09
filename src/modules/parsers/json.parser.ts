@@ -205,6 +205,7 @@ const GlobalMedicationRequestSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   medication: z.object({
     medication_id: GlobalIdSchema.optional(),
+    code_system: z.string().optional(),
     name: z.string().optional(),
     strength: z.string().optional(),
     form: z.string().optional()
@@ -226,6 +227,36 @@ const GlobalMedicationRequestSchema = z.object({
   status: z.string().optional(),
   authored_on: z.string().optional(),
   note: z.string().optional()
+});
+
+const GlobalMedicationStatementSchema = z.object({
+  medication_statement_id: GlobalIdSchema.optional(),
+  patient_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  category: z.string().optional(),
+  medication: z.object({
+    medication_id: GlobalIdSchema.optional(),
+    code_system: z.string().optional(),
+    name: z.string().optional(),
+    strength: z.string().optional(),
+    form: z.string().optional()
+  }).optional(),
+  effective_date: z.string().optional(),
+  effective_start: z.string().optional(),
+  effective_end: z.string().optional(),
+  date_asserted: z.string().optional(),
+  author_id: GlobalIdSchema.optional(),
+  information_source: z.union([z.string(), z.array(z.string())]).optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.string().optional(),
+  dosage: z.object({
+    dose: z.string().optional(),
+    dose_unit: z.string().optional(),
+    route: z.string().optional(),
+    frequency: z.string().optional(),
+    duration: z.string().optional()
+  }).optional()
 });
 
 const GlobalPractitionerSchema = z.object({
@@ -317,6 +348,7 @@ const GlobalCustomJSONSchema = z.object({
   encounter: z.union([GlobalEncounterSchema, z.array(GlobalEncounterSchema)]).optional(),
   medication: z.union([GlobalMedicationSchema, z.array(GlobalMedicationSchema)]).optional(),
   medication_request: z.union([GlobalMedicationRequestSchema, z.array(GlobalMedicationRequestSchema)]).optional(),
+  medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -326,12 +358,13 @@ const GlobalCustomJSONSchema = z.object({
     value.encounter ||
     value.medication ||
     value.medication_request ||
+    value.medication_statement ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -350,6 +383,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   observations: 'observation',
   medications: 'medication',
   medicationRequests: 'medicationRequest',
+  medicationStatements: 'medicationStatement',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -360,6 +394,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   ...SECTION_NAME_MAP,
   medication_request: 'medicationRequest',
   medication_requests: 'medicationRequest',
+  medication_statement: 'medicationStatement',
+  medication_statements: 'medicationStatement',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -393,6 +429,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   medication_requests: 'medication_request',
   medicationrequest: 'medication_request',
   medicationrequests: 'medication_request',
+  medication_statement: 'medication_statement',
+  medication_statements: 'medication_statement',
+  medicationstatement: 'medication_statement',
+  medicationstatements: 'medication_statement',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -623,6 +663,82 @@ function normalizeGlobalMedicationRequestAliases(value: Record<string, unknown>)
   return normalized;
 }
 
+function normalizeGlobalMedicationStatementAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const dosage = isPlainRecord(normalized.dosage) ? { ...normalized.dosage } : {};
+
+  const statementId = readSectionAliasValue(value, 'medicationStatement', 'medication_statement_id');
+  if (normalized.medication_statement_id === undefined && statementId !== undefined) {
+    normalized.medication_statement_id = statementId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_subject_id'));
+  if (subjectId && normalized.patient_id === undefined) normalized.patient_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const effectiveDate = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_effective_date'));
+  if (effectiveDate && normalized.effective_date === undefined) normalized.effective_date = effectiveDate;
+
+  const effectiveStart = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_effective_start'));
+  if (effectiveStart && normalized.effective_start === undefined) normalized.effective_start = effectiveStart;
+
+  const effectiveEnd = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_effective_end'));
+  if (effectiveEnd && normalized.effective_end === undefined) normalized.effective_end = effectiveEnd;
+
+  const dateAsserted = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_date_asserted'));
+  if (dateAsserted && normalized.date_asserted === undefined) normalized.date_asserted = dateAsserted;
+
+  const authorId = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_author'));
+  if (authorId && normalized.author_id === undefined) normalized.author_id = authorId;
+
+  const infoSource = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_information_source'));
+  if (infoSource && normalized.information_source === undefined) normalized.information_source = infoSource;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const dose = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_dose'));
+  if (dose && dosage.dose === undefined) dosage.dose = dose;
+
+  const doseUnit = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_dose_unit'));
+  if (doseUnit && typeof dosage.dose === 'string' && !dosage.dose.includes(doseUnit)) {
+    dosage.dose = `${dosage.dose} ${doseUnit}`;
+  }
+
+  const route = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_route'));
+  const routeDisplay = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_route_display'));
+  if (route && dosage.route === undefined) dosage.route = route;
+  if (routeDisplay && dosage.route === undefined) dosage.route = routeDisplay;
+
+  const medCode = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_medication_code'));
+  const medSystem = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_medication_code_system'));
+  const medDisplay = normalizeAliasValue(readSectionAliasValue(value, 'medicationStatement', 'medication_statement_medication_display'));
+  if ((medCode || medDisplay) && normalized.medication === undefined) {
+    normalized.medication = {
+      medication_id: medCode,
+      code_system: medSystem,
+      name: medDisplay,
+      strength: undefined,
+      form: undefined
+    };
+  }
+
+  if (Object.keys(dosage).length > 0) normalized.dosage = dosage;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -797,6 +913,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationAliases(value);
     case 'medicationRequest':
       return normalizeGlobalMedicationRequestAliases(value);
+    case 'medicationStatement':
+      return normalizeGlobalMedicationStatementAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -815,6 +933,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['encounter', 'encounter'],
     ['medication', 'medication'],
     ['medicationRequest', 'medication_request'],
+    ['medicationStatement', 'medication_statement'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -915,6 +1034,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'observation',
     'medication',
     'medicationRequest',
+    'medicationStatement',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1025,6 +1145,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const encounters = normalizeArray(validated.encounter);
   const medications = normalizeArray(validated.medication);
   const medicationRequests = normalizeArray(validated.medication_request);
+  const medicationStatements = normalizeArray(validated.medication_statement);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1041,6 +1162,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (medicationRequests.length) {
     canonical.medicationRequests = medicationRequests.map(buildCanonicalMedicationRequestGlobal);
+  }
+  if (medicationStatements.length) {
+    canonical.medicationStatements = medicationStatements.map(buildCanonicalMedicationStatementGlobal);
   }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
@@ -1060,10 +1184,16 @@ function normalizeArray<T>(value?: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
+function normalizeStringArray(value?: string | string[]): string[] {
+  if (!value) return [];
+  const list = Array.isArray(value) ? value : [value];
+  return list.map(item => String(item).trim()).filter(Boolean);
+}
+
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1071,6 +1201,7 @@ function wrapGlobalPayload(value: any) {
       value.encounter,
       value.medication,
       value.medication_request,
+      value.medication_statement,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1088,6 +1219,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('medication_request_id' in value || 'dosage_instruction' in value) {
       return { medication_request: value };
+    }
+    if ('medication_statement_id' in value || 'date_asserted' in value || 'effective_date' in value) {
+      return { medication_statement: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -1121,6 +1255,9 @@ function looksLikeGlobalResource(value: any) {
     'strength' in value ||
     'medication_request_id' in value ||
     'dosage_instruction' in value ||
+    'medication_statement_id' in value ||
+    'date_asserted' in value ||
+    'effective_date' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -1241,6 +1378,60 @@ function buildCanonicalMedicationRequestGlobal(req: z.infer<typeof GlobalMedicat
       route: req.dosage_instruction?.route
         ? { text: req.dosage_instruction.route }
         : undefined
+    }] : undefined
+  };
+}
+
+function buildCanonicalMedicationStatementGlobal(statement: z.infer<typeof GlobalMedicationStatementSchema>) {
+  const medTextParts = [statement.medication?.name, statement.medication?.strength].filter(Boolean).join(' ');
+  const medCoding = statement.medication?.medication_id ? [{
+    system: statement.medication?.code_system || 'urn:hl7-org:local',
+    code: statement.medication.medication_id,
+    display: statement.medication?.name
+  }] : undefined;
+
+  const doseQuantity = parseQuantity(statement.dosage?.dose);
+  const dosageText = [
+    statement.dosage?.dose,
+    statement.dosage?.dose_unit,
+    statement.dosage?.route,
+    statement.dosage?.frequency,
+    statement.dosage?.duration
+  ].filter(Boolean).join(' ');
+
+  const informationSource = normalizeStringArray(statement.information_source);
+  const reasons = normalizeStringArray(statement.reason);
+
+  return {
+    id: statement.medication_statement_id,
+    identifier: statement.medication_statement_id,
+    status: statement.status,
+    category: statement.category ? [{
+      code: statement.category,
+      display: statement.category
+    }] : undefined,
+    medicationCodeableConcept: medTextParts || medCoding ? {
+      coding: medCoding,
+      text: medTextParts || statement.medication?.name
+    } : undefined,
+    subject: statement.patient_id,
+    encounter: statement.encounter_id,
+    effectiveDateTime: statement.effective_date,
+    effectivePeriod: statement.effective_start || statement.effective_end ? {
+      start: statement.effective_start,
+      end: statement.effective_end
+    } : undefined,
+    dateAsserted: statement.date_asserted,
+    author: statement.author_id,
+    informationSource: informationSource.length ? informationSource : undefined,
+    reason: reasons.length ? reasons.map(reasonText => ({
+      code: { display: reasonText }
+    })) : undefined,
+    note: statement.note ? [statement.note] : undefined,
+    dosage: dosageText || doseQuantity ? [{
+      text: dosageText || undefined,
+      doseQuantity: doseQuantity || undefined,
+      route: statement.dosage?.route ? { text: statement.dosage.route } : undefined
     }] : undefined
   };
 }
