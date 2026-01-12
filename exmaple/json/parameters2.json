@@ -1,0 +1,12 @@
+{
+  "parameters": [
+    {
+      "parameter_name": "active",
+      "value_boolean": true
+    },
+    {
+      "parameter_name": "profile",
+      "value_uri": "http://hl7.org/fhir/StructureDefinition/Patient"
+    }
+  ]
+}

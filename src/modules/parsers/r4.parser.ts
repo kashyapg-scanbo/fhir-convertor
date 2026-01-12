@@ -26,7 +26,8 @@ import {
     CanonicalAllergyIntolerance,
     CanonicalImmunization,
     CanonicalCapabilityStatement,
-    CanonicalOperationOutcome
+    CanonicalOperationOutcome,
+    CanonicalParameters
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -64,6 +65,7 @@ export function parseR4(input: string): CanonicalModel {
         immunizations: [],
         capabilityStatements: [],
         operationOutcomes: [],
+        parameters: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -178,6 +180,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'OperationOutcome':
                 const outcome = mapR4OperationOutcome(res);
                 if (outcome) model.operationOutcomes?.push(outcome);
+                break;
+            case 'Parameters':
+                const parameters = mapR4Parameters(res);
+                if (parameters) model.parameters?.push(parameters);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -669,6 +675,24 @@ function mapR4OperationOutcome(outcome: any): CanonicalOperationOutcome {
             location: issue.location,
             expression: issue.expression
         }))
+    };
+}
+
+function mapR4Parameters(parameters: any): CanonicalParameters | undefined {
+    const entries = parameters.parameter?.map((param: any) => {
+        const entry: any = { name: param.name };
+        for (const [key, value] of Object.entries(param)) {
+            if (!key.startsWith('value') || value === undefined) continue;
+            entry[key] = value;
+            break;
+        }
+        return entry;
+    }).filter((entry: any) => entry.name);
+
+    if (!entries || entries.length === 0) return undefined;
+    return {
+        id: parameters.id,
+        parameter: entries
     };
 }
 

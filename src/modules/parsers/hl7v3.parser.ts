@@ -26,7 +26,8 @@ import {
     CanonicalAllergyIntolerance,
     CanonicalImmunization,
     CanonicalCapabilityStatement,
-    CanonicalOperationOutcome
+    CanonicalOperationOutcome,
+    CanonicalParameters
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -78,6 +79,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         immunizations: [],
         capabilityStatements: [],
         operationOutcomes: [],
+        parameters: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -235,6 +237,11 @@ export function parseHL7v3(input: string): CanonicalModel {
     const operationOutcome = mapV3OperationOutcome(root);
     if (operationOutcome) {
         model.operationOutcomes?.push(operationOutcome);
+    }
+
+    const parameters = mapV3Parameters(root);
+    if (parameters) {
+        model.parameters?.push(parameters);
     }
 
     return model;
@@ -772,6 +779,25 @@ function mapV3OperationOutcome(root: any): CanonicalOperationOutcome | undefined
         id: `OO-${Date.now()}`,
         issue: issues
     };
+}
+
+function mapV3Parameters(root: any): CanonicalParameters | undefined {
+    const interactionId = root?.interactionId?.['@_extension'];
+    const creationTime = root?.creationTime?.['@_value'];
+
+    if (!interactionId && !creationTime) return undefined;
+
+    const params: Array<{ name: string; valueString?: string }> = [];
+    if (interactionId) {
+        params.push({ name: 'interactionId', valueString: interactionId });
+    }
+    if (creationTime) {
+        params.push({ name: 'creationTime', valueString: creationTime });
+    }
+
+    return params.length
+        ? { id: `PARAMS-${Date.now()}`, parameter: params }
+        : undefined;
 }
 
 function mapV3Immunization(substanceAdmin: any): CanonicalImmunization | undefined {

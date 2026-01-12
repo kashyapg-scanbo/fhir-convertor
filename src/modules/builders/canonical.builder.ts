@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -465,6 +465,32 @@ export function buildCanonical(parsed: any) {
   // Only include document references if ED type OBX segments were present
   if (documentReferences.length > 0) {
     result.documentReferences = documentReferences;
+  }
+
+  /* ───── Parameters (from OBX) ───── */
+  const parameters: CanonicalParameters[] = [];
+  if (obxSegments.length > 0) {
+    const paramList = obxSegments.map(obx => {
+      const codeParts = obx?.[2]?.[0] ?? [];
+      const name = codeParts[1] || codeParts[0] || 'parameter';
+      const value = obx?.[4]?.[0]?.[0];
+      if (!name && value === undefined) return null;
+      return {
+        name,
+        valueString: value !== undefined ? String(value) : undefined
+      };
+    }).filter(Boolean) as Array<{ name: string; valueString?: string }>;
+
+    if (paramList.length > 0) {
+      parameters.push({
+        id: `PARAMS-${Date.now()}`,
+        parameter: paramList
+      });
+    }
+  }
+
+  if (parameters.length > 0) {
+    result.parameters = parameters;
   }
 
   /* ───── Organizations (from MSH, ORC, OBX, PV1, PRD) ───── */

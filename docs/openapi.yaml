@@ -31,6 +31,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
                 - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
                 - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
+                - $ref: '#/components/schemas/CustomJsonParametersOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -222,6 +223,14 @@ paths:
                     details_code: invalid
                     details_display: Invalid input
                     diagnostics: Missing required field
+              parameters:
+                summary: Parameters
+                value:
+                  parameters:
+                    - parameter_name: input
+                      value_string: example
+                    - parameter_name: count
+                      value_integer: 2
               practitioner:
                 summary: Practitioner
                 value:
@@ -528,7 +537,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -673,7 +682,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -728,6 +737,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomOperationOutcome'
+        parameters:
+          oneOf:
+            - $ref: '#/components/schemas/CustomParameters'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomParameters'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1391,6 +1406,33 @@ components:
             - type: array
               items:
                 type: string
+    CustomParameters:
+      type: object
+      properties:
+        parameter_name:
+          type: string
+        parameter_value:
+          type: string
+        value_string:
+          type: string
+        value_code:
+          type: string
+        value_boolean:
+          type: boolean
+        value_date:
+          type: string
+          format: date
+        value_datetime:
+          type: string
+          format: date-time
+        value_integer:
+          type: number
+        value_decimal:
+          type: number
+        value_uri:
+          type: string
+        value_reference:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -2452,6 +2494,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [operation_outcome]
+    CustomJsonParametersOnly:
+      title: Parameters
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [parameters]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

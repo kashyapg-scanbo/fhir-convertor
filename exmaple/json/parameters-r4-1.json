@@ -1,0 +1,13 @@
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "input",
+      "valueString": "example"
+    },
+    {
+      "name": "count",
+      "valueInteger": 2
+    }
+  ]
+}

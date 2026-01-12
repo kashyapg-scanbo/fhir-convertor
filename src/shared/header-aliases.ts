@@ -142,6 +142,19 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     operation_outcome_location: ['location'],
     operation_outcome_expression: ['expression']
   },
+  parameters: {
+    parameter_name: ['name', 'param_name'],
+    parameter_value: ['value', 'param_value'],
+    parameter_value_string: ['value_string'],
+    parameter_value_code: ['value_code'],
+    parameter_value_boolean: ['value_boolean', 'value_bool'],
+    parameter_value_date: ['value_date'],
+    parameter_value_datetime: ['value_datetime', 'value_date_time'],
+    parameter_value_integer: ['value_integer', 'value_int'],
+    parameter_value_decimal: ['value_decimal'],
+    parameter_value_uri: ['value_uri'],
+    parameter_value_reference: ['value_reference']
+  },
   procedure: {
     procedure_id: ['proc_id', 'procedure_identifier', 'procedureid'],
     procedure_status: ['proc_status', 'procedure_status'],

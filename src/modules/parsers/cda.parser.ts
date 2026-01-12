@@ -21,6 +21,7 @@ import {
   CanonicalImmunization,
   CanonicalCapabilityStatement,
   CanonicalOperationOutcome,
+  CanonicalParameters,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -83,6 +84,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const immunizations = extractImmunizations(clinicalDocument, patient.id, encounter?.id, practitionerData.authorIds[0]);
   const capabilityStatements = extractCapabilityStatements(clinicalDocument);
   const operationOutcomes = extractOperationOutcomes(clinicalDocument);
+  const parameters = extractParameters(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -117,6 +119,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (immunizations.length) canonical.immunizations = immunizations;
   if (capabilityStatements.length) canonical.capabilityStatements = capabilityStatements;
   if (operationOutcomes.length) canonical.operationOutcomes = operationOutcomes;
+  if (parameters.length) canonical.parameters = parameters;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -703,6 +706,23 @@ function extractOperationOutcomes(clinicalDocument: any): CanonicalOperationOutc
   }
 
   return outcomes;
+}
+
+function extractParameters(clinicalDocument: any): CanonicalParameters[] {
+  const title = extractText(clinicalDocument.title || clinicalDocument['cda:title']);
+  const effectiveTime = clinicalDocument.effectiveTime || clinicalDocument['cda:effectiveTime'];
+  const date = extractAttribute(effectiveTime, '@_value');
+
+  if (!title && !date) return [];
+
+  const params: Array<{ name: string; valueString?: string }> = [];
+  if (title) params.push({ name: 'documentTitle', valueString: title });
+  if (date) params.push({ name: 'documentDate', valueString: date });
+
+  return [{
+    id: `PARAMS-${Date.now()}`,
+    parameter: params
+  }];
 }
 
 function extractProcedures(

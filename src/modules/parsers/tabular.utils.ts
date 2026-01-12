@@ -416,6 +416,42 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (operationOutcomes.length > 0) canonical.operationOutcomes = operationOutcomes as any[];
 
+  const parameters: Array<{ name: string; valueString?: string; valueCode?: string; valueBoolean?: boolean; valueDate?: string; valueDateTime?: string; valueInteger?: number; valueDecimal?: number; valueUri?: string; valueReference?: string; }> = [];
+  for (const row of rows) {
+    const name = readValue(row, 'parameter_name');
+    const valueRaw = readValue(row, 'parameter_value');
+    const valueString = readValue(row, 'parameter_value_string');
+    const valueCode = readValue(row, 'parameter_value_code');
+    const valueBoolean = readBoolean(row, 'parameter_value_boolean');
+    const valueDate = readValue(row, 'parameter_value_date');
+    const valueDateTime = readValue(row, 'parameter_value_datetime');
+    const valueInteger = readNumber(row, 'parameter_value_integer');
+    const valueDecimal = readNumber(row, 'parameter_value_decimal');
+    const valueUri = readValue(row, 'parameter_value_uri');
+    const valueReference = readValue(row, 'parameter_value_reference');
+
+    if (!name && !valueRaw && !valueString && !valueCode) continue;
+
+    const entry: any = { name: name || 'parameter' };
+    if (valueString !== undefined || valueRaw !== undefined) entry.valueString = valueString ?? valueRaw;
+    if (valueCode !== undefined) entry.valueCode = valueCode;
+    if (valueBoolean !== undefined) entry.valueBoolean = valueBoolean;
+    if (valueDate !== undefined) entry.valueDate = valueDate;
+    if (valueDateTime !== undefined) entry.valueDateTime = valueDateTime;
+    if (valueInteger !== undefined) entry.valueInteger = valueInteger;
+    if (valueDecimal !== undefined) entry.valueDecimal = valueDecimal;
+    if (valueUri !== undefined) entry.valueUri = valueUri;
+    if (valueReference !== undefined) entry.valueReference = valueReference;
+
+    parameters.push(entry);
+  }
+  if (parameters.length > 0) {
+    canonical.parameters = [{
+      id: `PARAMS-${Date.now()}`,
+      parameter: parameters
+    }] as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

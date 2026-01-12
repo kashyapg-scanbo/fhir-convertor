@@ -619,6 +619,23 @@ export type CanonicalOperationOutcome = {
   active?: boolean;
 };
 
+export type CanonicalParameters = {
+  id?: string;
+  parameter?: Array<{
+    name: string;
+    valueString?: string;
+    valueCode?: string;
+    valueBoolean?: boolean;
+    valueDateTime?: string;
+    valueDate?: string;
+    valueInteger?: number;
+    valueDecimal?: number;
+    valueUri?: string;
+    valueReference?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1361,6 +1378,7 @@ export type CanonicalModel = {
   medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
   capabilityStatements?: CanonicalCapabilityStatement[]; // CapabilityStatement
   operationOutcomes?: CanonicalOperationOutcome[]; // OperationOutcome
+  parameters?: CanonicalParameters[]; // Parameters
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

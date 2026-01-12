@@ -332,6 +332,20 @@ const GlobalOperationOutcomeSchema = z.object({
   expression: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalParametersSchema = z.object({
+  parameter_name: z.string().optional(),
+  parameter_value: z.string().optional(),
+  value_string: z.string().optional(),
+  value_code: z.string().optional(),
+  value_boolean: z.boolean().optional(),
+  value_date: z.string().optional(),
+  value_datetime: z.string().optional(),
+  value_integer: GlobalNumberSchema.optional(),
+  value_decimal: GlobalNumberSchema.optional(),
+  value_uri: z.string().optional(),
+  value_reference: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -747,6 +761,7 @@ const GlobalCustomJSONSchema = z.object({
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
   capability_statement: z.union([GlobalCapabilityStatementSchema, z.array(GlobalCapabilityStatementSchema)]).optional(),
   operation_outcome: z.union([GlobalOperationOutcomeSchema, z.array(GlobalOperationOutcomeSchema)]).optional(),
+  parameters: z.union([GlobalParametersSchema, z.array(GlobalParametersSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -773,6 +788,7 @@ const GlobalCustomJSONSchema = z.object({
     value.medication_administration ||
     value.capability_statement ||
     value.operation_outcome ||
+    value.parameters ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -791,7 +807,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -814,6 +830,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationAdministrations: 'medicationAdministration',
   capabilityStatements: 'capabilityStatement',
   operationOutcomes: 'operationOutcome',
+  parameters: 'parameters',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -845,6 +862,7 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   capability_statements: 'capabilityStatement',
   operation_outcome: 'operationOutcome',
   operation_outcomes: 'operationOutcome',
+  parameters: 'parameters',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -920,6 +938,7 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   operation_outcomes: 'operation_outcome',
   operationoutcome: 'operation_outcome',
   operationoutcomes: 'operation_outcome',
+  parameters: 'parameters',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1467,6 +1486,45 @@ function normalizeGlobalOperationOutcomeAliases(value: Record<string, unknown>) 
   if (expression && normalized.expression === undefined) normalized.expression = expression;
 
   if (Object.keys(details).length > 0) normalized.details = details;
+
+  return normalized;
+}
+
+function normalizeGlobalParametersAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_name'));
+  if (name && normalized.parameter_name === undefined) normalized.parameter_name = name;
+
+  const valueRaw = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value'));
+  if (valueRaw && normalized.parameter_value === undefined) normalized.parameter_value = valueRaw;
+
+  const valueString = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_string'));
+  if (valueString && normalized.value_string === undefined) normalized.value_string = valueString;
+
+  const valueCode = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_code'));
+  if (valueCode && normalized.value_code === undefined) normalized.value_code = valueCode;
+
+  const valueBoolean = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_boolean'));
+  if (valueBoolean && normalized.value_boolean === undefined) normalized.value_boolean = valueBoolean;
+
+  const valueDate = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_date'));
+  if (valueDate && normalized.value_date === undefined) normalized.value_date = valueDate;
+
+  const valueDateTime = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_datetime'));
+  if (valueDateTime && normalized.value_datetime === undefined) normalized.value_datetime = valueDateTime;
+
+  const valueInteger = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_integer'));
+  if (valueInteger && normalized.value_integer === undefined) normalized.value_integer = valueInteger;
+
+  const valueDecimal = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_decimal'));
+  if (valueDecimal && normalized.value_decimal === undefined) normalized.value_decimal = valueDecimal;
+
+  const valueUri = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_uri'));
+  if (valueUri && normalized.value_uri === undefined) normalized.value_uri = valueUri;
+
+  const valueReference = normalizeAliasValue(readSectionAliasValue(value, 'parameters', 'parameter_value_reference'));
+  if (valueReference && normalized.value_reference === undefined) normalized.value_reference = valueReference;
 
   return normalized;
 }
@@ -2592,6 +2650,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalCapabilityStatementAliases(value);
     case 'operationOutcome':
       return normalizeGlobalOperationOutcomeAliases(value);
+    case 'parameters':
+      return normalizeGlobalParametersAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -2753,6 +2813,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationAdministration',
     'capabilityStatement',
     'operationOutcome',
+    'parameters',
     'procedure',
     'condition',
     'appointment',
@@ -2880,6 +2941,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationAdministrations = normalizeArray(validated.medication_administration);
   const capabilityStatements = normalizeArray(validated.capability_statement);
   const operationOutcomes = normalizeArray(validated.operation_outcome);
+  const parametersList = normalizeArray(validated.parameters);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -2921,6 +2983,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (operationOutcomes.length) {
     canonical.operationOutcomes = operationOutcomes.map(buildCanonicalOperationOutcomeGlobal);
+  }
+  if (parametersList.length) {
+    canonical.parameters = [buildCanonicalParametersGlobal(parametersList)];
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -3000,7 +3065,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -3012,6 +3077,7 @@ function wrapGlobalPayload(value: any) {
       value.medication_administration,
       value.capability_statement,
       value.operation_outcome,
+      value.parameters,
       value.procedure,
       value.condition,
       value.appointment,
@@ -3054,6 +3120,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('operation_outcome_id' in value || 'severity' in value || 'diagnostics' in value) {
       return { operation_outcome: value };
+    }
+    if ('parameter_name' in value || 'parameter_value' in value || 'value_string' in value) {
+      return { parameters: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -3137,6 +3206,9 @@ function looksLikeGlobalResource(value: any) {
     'operation_outcome_id' in value ||
     'severity' in value ||
     'diagnostics' in value ||
+    'parameter_name' in value ||
+    'parameter_value' in value ||
+    'value_string' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -3501,6 +3573,43 @@ function buildCanonicalOperationOutcomeGlobal(outcome: z.infer<typeof GlobalOper
       location: locations.length ? locations : undefined,
       expression: expressions.length ? expressions : undefined
     }]
+  };
+}
+
+function buildCanonicalParametersGlobal(parameters: z.infer<typeof GlobalParametersSchema>[]) {
+  const parameterList = parameters.map(param => {
+    const name = param.parameter_name || 'parameter';
+    const valueString = param.value_string || param.parameter_value;
+
+    const entry: {
+      name: string;
+      valueString?: string;
+      valueCode?: string;
+      valueBoolean?: boolean;
+      valueDate?: string;
+      valueDateTime?: string;
+      valueInteger?: number;
+      valueDecimal?: number;
+      valueUri?: string;
+      valueReference?: string;
+    } = { name };
+
+    if (valueString !== undefined) entry.valueString = valueString;
+    if (param.value_code !== undefined) entry.valueCode = param.value_code;
+    if (param.value_boolean !== undefined) entry.valueBoolean = normalizeBoolean(param.value_boolean as any);
+    if (param.value_date !== undefined) entry.valueDate = param.value_date;
+    if (param.value_datetime !== undefined) entry.valueDateTime = param.value_datetime;
+    if (param.value_integer !== undefined) entry.valueInteger = Number(param.value_integer);
+    if (param.value_decimal !== undefined) entry.valueDecimal = Number(param.value_decimal);
+    if (param.value_uri !== undefined) entry.valueUri = param.value_uri;
+    if (param.value_reference !== undefined) entry.valueReference = param.value_reference;
+
+    return entry;
+  });
+
+  return {
+    id: `PARAMS-${Date.now()}`,
+    parameter: parameterList
   };
 }
 

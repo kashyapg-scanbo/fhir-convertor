@@ -1,0 +1,13 @@
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "active",
+      "valueBoolean": true
+    },
+    {
+      "name": "profile",
+      "valueUri": "http://hl7.org/fhir/StructureDefinition/Patient"
+    }
+  ]
+}
