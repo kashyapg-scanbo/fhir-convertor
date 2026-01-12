@@ -29,6 +29,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonMedicationOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationRequestOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
+                - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -192,6 +193,23 @@ paths:
                     occurrence_date: 2024-02-01T10:00:00Z
                     dose_value: 2
                     dose_unit: mg
+              capability_statement:
+                summary: CapabilityStatement
+                value:
+                  capability_statement:
+                    capability_statement_id: CAP-100
+                    url: https://example.org/fhir/CapabilityStatement/example
+                    version: 1.0.0
+                    name: ExampleCapability
+                    title: Example Capability Statement
+                    status: active
+                    date: 2024-02-01T00:00:00Z
+                    publisher: Example Publisher
+                    kind: instance
+                    fhir_version: 5.0.0
+                    format:
+                      - json
+                      - xml
               practitioner:
                 summary: Practitioner
                 value:
@@ -498,7 +516,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -643,7 +661,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -686,6 +704,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomMedicationAdministration'
+        capability_statement:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCapabilityStatement'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCapabilityStatement'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1262,6 +1286,63 @@ components:
         code_system:
           type: string
         name:
+          type: string
+    CustomCapabilityStatement:
+      type: object
+      properties:
+        capability_statement_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        version:
+          type: string
+        version_algorithm:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        experimental:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        kind:
+          type: string
+        fhir_version:
+          type: string
+        format:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        implementation_url:
+          type: string
+        implementation_description:
+          type: string
+        software_name:
+          type: string
+        software_version:
+          type: string
+        software_release_date:
+          type: string
+          format: date-time
+        rest_mode:
+          type: string
+        rest_documentation:
           type: string
     CustomProcedure:
       type: object
@@ -2312,6 +2393,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [medication_administration]
+    CustomJsonCapabilityStatementOnly:
+      title: CapabilityStatement
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [capability_statement]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

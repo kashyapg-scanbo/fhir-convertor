@@ -1,0 +1,17 @@
+{
+  "capability_statement": {
+    "capability_statement_id": "CAP-1",
+    "url": "https://example.org/fhir/CapabilityStatement/example1",
+    "version": "1.0.0",
+    "name": "ExampleCapabilityOne",
+    "title": "Example Capability Statement One",
+    "status": "active",
+    "date": "2024-02-01T00:00:00Z",
+    "publisher": "Example Publisher",
+    "kind": "instance",
+    "fhir_version": "5.0.0",
+    "format": ["json", "xml"],
+    "software_name": "Scanbo Converter",
+    "software_version": "1.1.0"
+  }
+}

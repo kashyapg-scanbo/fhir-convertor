@@ -295,6 +295,31 @@ const GlobalMedicationAdministrationSchema = z.object({
   rate_unit: z.string().optional()
 });
 
+const GlobalCapabilityStatementSchema = z.object({
+  capability_statement_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.union([z.string(), z.array(z.string())]).optional(),
+  version: z.string().optional(),
+  version_algorithm: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  experimental: z.boolean().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  description: z.string().optional(),
+  kind: z.string().optional(),
+  fhir_version: z.string().optional(),
+  format: z.union([z.string(), z.array(z.string())]).optional(),
+  implementation_url: z.string().optional(),
+  implementation_description: z.string().optional(),
+  software_name: z.string().optional(),
+  software_version: z.string().optional(),
+  software_release_date: z.string().optional(),
+  rest_mode: z.string().optional(),
+  rest_documentation: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -708,6 +733,7 @@ const GlobalCustomJSONSchema = z.object({
   medication_request: z.union([GlobalMedicationRequestSchema, z.array(GlobalMedicationRequestSchema)]).optional(),
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
+  capability_statement: z.union([GlobalCapabilityStatementSchema, z.array(GlobalCapabilityStatementSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -732,6 +758,7 @@ const GlobalCustomJSONSchema = z.object({
     value.medication_request ||
     value.medication_statement ||
     value.medication_administration ||
+    value.capability_statement ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -750,7 +777,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -771,6 +798,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationRequests: 'medicationRequest',
   medicationStatements: 'medicationStatement',
   medicationAdministrations: 'medicationAdministration',
+  capabilityStatements: 'capabilityStatement',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -798,6 +826,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   medication_statements: 'medicationStatement',
   medication_administration: 'medicationAdministration',
   medication_administrations: 'medicationAdministration',
+  capability_statement: 'capabilityStatement',
+  capability_statements: 'capabilityStatement',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -865,6 +895,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   medication_administrations: 'medication_administration',
   medicationadministration: 'medication_administration',
   medicationadministrations: 'medication_administration',
+  capability_statement: 'capability_statement',
+  capability_statements: 'capability_statement',
+  capabilitystatement: 'capability_statement',
+  capabilitystatements: 'capability_statement',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1306,6 +1340,74 @@ function normalizeGlobalMedicationAdministrationAliases(value: Record<string, un
       name: medDisplay
     };
   }
+
+  return normalized;
+}
+
+function normalizeGlobalCapabilityStatementAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const capabilityId = readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_id');
+  if (normalized.capability_statement_id === undefined && capabilityId !== undefined) {
+    normalized.capability_statement_id = capabilityId;
+  }
+
+  const url = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_url'));
+  if (url && normalized.url === undefined) normalized.url = url;
+
+  const identifier = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_identifier'));
+  if (identifier && normalized.identifier === undefined) normalized.identifier = identifier;
+
+  const version = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_version'));
+  if (version && normalized.version === undefined) normalized.version = version;
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const title = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_title'));
+  if (title && normalized.title === undefined) normalized.title = title;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const date = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_date'));
+  if (date && normalized.date === undefined) normalized.date = date;
+
+  const publisher = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_publisher'));
+  if (publisher && normalized.publisher === undefined) normalized.publisher = publisher;
+
+  const kind = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_kind'));
+  if (kind && normalized.kind === undefined) normalized.kind = kind;
+
+  const fhirVersion = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_fhir_version'));
+  if (fhirVersion && normalized.fhir_version === undefined) normalized.fhir_version = fhirVersion;
+
+  const format = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_format'));
+  if (format && normalized.format === undefined) normalized.format = format;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const implementationUrl = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_implementation_url'));
+  if (implementationUrl && normalized.implementation_url === undefined) normalized.implementation_url = implementationUrl;
+
+  const implementationDescription = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_implementation_description'));
+  if (implementationDescription && normalized.implementation_description === undefined) normalized.implementation_description = implementationDescription;
+
+  const softwareName = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_software_name'));
+  if (softwareName && normalized.software_name === undefined) normalized.software_name = softwareName;
+
+  const softwareVersion = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_software_version'));
+  if (softwareVersion && normalized.software_version === undefined) normalized.software_version = softwareVersion;
+
+  const softwareReleaseDate = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_software_release_date'));
+  if (softwareReleaseDate && normalized.software_release_date === undefined) normalized.software_release_date = softwareReleaseDate;
+
+  const restMode = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_rest_mode'));
+  if (restMode && normalized.rest_mode === undefined) normalized.rest_mode = restMode;
+
+  const restDocumentation = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_rest_documentation'));
+  if (restDocumentation && normalized.rest_documentation === undefined) normalized.rest_documentation = restDocumentation;
 
   return normalized;
 }
@@ -2427,6 +2529,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationStatementAliases(value);
     case 'medicationAdministration':
       return normalizeGlobalMedicationAdministrationAliases(value);
+    case 'capabilityStatement':
+      return normalizeGlobalCapabilityStatementAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -2473,6 +2577,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationRequest', 'medication_request'],
     ['medicationStatement', 'medication_statement'],
     ['medicationAdministration', 'medication_administration'],
+    ['capabilityStatement', 'capability_statement'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -2584,6 +2689,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationRequest',
     'medicationStatement',
     'medicationAdministration',
+    'capabilityStatement',
     'procedure',
     'condition',
     'appointment',
@@ -2709,6 +2815,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationRequests = normalizeArray(validated.medication_request);
   const medicationStatements = normalizeArray(validated.medication_statement);
   const medicationAdministrations = normalizeArray(validated.medication_administration);
+  const capabilityStatements = normalizeArray(validated.capability_statement);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -2744,6 +2851,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (medicationAdministrations.length) {
     canonical.medicationAdministrations = medicationAdministrations.map(buildCanonicalMedicationAdministrationGlobal);
+  }
+  if (capabilityStatements.length) {
+    canonical.capabilityStatements = capabilityStatements.map(buildCanonicalCapabilityStatementGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -2823,7 +2933,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -2833,6 +2943,7 @@ function wrapGlobalPayload(value: any) {
       value.medication_request,
       value.medication_statement,
       value.medication_administration,
+      value.capability_statement,
       value.procedure,
       value.condition,
       value.appointment,
@@ -2869,6 +2980,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('medication_administration_id' in value || 'occurrence_date' in value || 'dose_value' in value) {
       return { medication_administration: value };
+    }
+    if ('capability_statement_id' in value || 'capability_statement_url' in value || 'fhir_version' in value) {
+      return { capability_statement: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -2946,6 +3060,9 @@ function looksLikeGlobalResource(value: any) {
     'effective_date' in value ||
     'medication_administration_id' in value ||
     'dose_value' in value ||
+    'capability_statement_id' in value ||
+    'capability_statement_url' in value ||
+    'fhir_version' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -3241,6 +3358,54 @@ function buildCanonicalMedicationAdministrationGlobal(admin: z.infer<typeof Glob
       dose: doseQuantity || undefined,
       rateQuantity
     } : undefined
+  };
+}
+
+function buildCanonicalCapabilityStatementGlobal(statement: z.infer<typeof GlobalCapabilityStatementSchema>) {
+  const identifiers = normalizeStringArray(statement.identifier);
+  const formats = normalizeStringArray(statement.format);
+
+  const software = statement.software_name || statement.software_version || statement.software_release_date
+    ? {
+      name: statement.software_name,
+      version: statement.software_version,
+      releaseDate: statement.software_release_date
+    }
+    : undefined;
+
+  const implementation = statement.implementation_url || statement.implementation_description
+    ? {
+      url: statement.implementation_url,
+      description: statement.implementation_description
+    }
+    : undefined;
+
+  const rest = statement.rest_mode || statement.rest_documentation
+    ? [{
+      mode: statement.rest_mode,
+      documentation: statement.rest_documentation
+    }]
+    : undefined;
+
+  return {
+    id: statement.capability_statement_id,
+    url: statement.url,
+    identifier: identifiers.length ? identifiers : undefined,
+    version: statement.version,
+    versionAlgorithmString: statement.version_algorithm,
+    name: statement.name,
+    title: statement.title,
+    status: statement.status,
+    experimental: normalizeBoolean(statement.experimental as any),
+    date: statement.date,
+    publisher: statement.publisher,
+    description: statement.description,
+    kind: statement.kind,
+    fhirVersion: statement.fhir_version,
+    format: formats.length ? formats : undefined,
+    software,
+    implementation,
+    rest
   };
 }
 

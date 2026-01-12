@@ -109,6 +109,28 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     medication_administration_rate_value: ['med_admin_rate_value', 'rate_value'],
     medication_administration_rate_unit: ['med_admin_rate_unit', 'rate_unit']
   },
+  capabilityStatement: {
+    capability_statement_id: ['capability_statement_id', 'capabilitystatement_id'],
+    capability_statement_url: ['capability_url', 'url'],
+    capability_statement_identifier: ['identifier'],
+    capability_statement_version: ['version'],
+    capability_statement_name: ['name'],
+    capability_statement_title: ['title'],
+    capability_statement_status: ['status'],
+    capability_statement_date: ['date'],
+    capability_statement_publisher: ['publisher'],
+    capability_statement_kind: ['kind'],
+    capability_statement_fhir_version: ['fhir_version', 'fhirversion'],
+    capability_statement_format: ['format'],
+    capability_statement_description: ['description'],
+    capability_statement_implementation_url: ['implementation_url'],
+    capability_statement_implementation_description: ['implementation_description'],
+    capability_statement_software_name: ['software_name'],
+    capability_statement_software_version: ['software_version'],
+    capability_statement_software_release_date: ['software_release_date'],
+    capability_statement_rest_mode: ['rest_mode'],
+    capability_statement_rest_documentation: ['rest_documentation']
+  },
   procedure: {
     procedure_id: ['proc_id', 'procedure_identifier', 'procedureid'],
     procedure_status: ['proc_status', 'procedure_status'],

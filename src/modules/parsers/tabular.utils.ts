@@ -345,6 +345,47 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationAdministrations.length > 0) canonical.medicationAdministrations = medicationAdministrations as any[];
 
+  const capabilityStatements = rows.map(row => {
+    const capabilityId = readValue(row, 'capability_statement_id');
+    const url = readValue(row, 'capability_statement_url');
+    const status = readValue(row, 'capability_statement_status');
+    const fhirVersion = readValue(row, 'capability_statement_fhir_version');
+    if (!capabilityId && !url && !status && !fhirVersion) return null;
+
+    const format = readValue(row, 'capability_statement_format');
+    const identifiers = readValue(row, 'capability_statement_identifier');
+
+    return {
+      id: capabilityId || undefined,
+      url: url || undefined,
+      identifier: identifiers ? identifiers.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      version: readValue(row, 'capability_statement_version'),
+      name: readValue(row, 'capability_statement_name'),
+      title: readValue(row, 'capability_statement_title'),
+      status: status || undefined,
+      date: readValue(row, 'capability_statement_date'),
+      publisher: readValue(row, 'capability_statement_publisher'),
+      kind: readValue(row, 'capability_statement_kind'),
+      fhirVersion: fhirVersion || undefined,
+      format: format ? format.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      description: readValue(row, 'capability_statement_description'),
+      implementation: (readValue(row, 'capability_statement_implementation_url') || readValue(row, 'capability_statement_implementation_description')) ? {
+        url: readValue(row, 'capability_statement_implementation_url'),
+        description: readValue(row, 'capability_statement_implementation_description')
+      } : undefined,
+      software: (readValue(row, 'capability_statement_software_name') || readValue(row, 'capability_statement_software_version')) ? {
+        name: readValue(row, 'capability_statement_software_name'),
+        version: readValue(row, 'capability_statement_software_version'),
+        releaseDate: readValue(row, 'capability_statement_software_release_date')
+      } : undefined,
+      rest: (readValue(row, 'capability_statement_rest_mode') || readValue(row, 'capability_statement_rest_documentation')) ? [{
+        mode: readValue(row, 'capability_statement_rest_mode'),
+        documentation: readValue(row, 'capability_statement_rest_documentation')
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (capabilityStatements.length > 0) canonical.capabilityStatements = capabilityStatements as any[];
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

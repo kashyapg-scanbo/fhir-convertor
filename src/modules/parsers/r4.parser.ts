@@ -24,7 +24,8 @@ import {
     CanonicalSpecimen,
     CanonicalImagingStudy,
     CanonicalAllergyIntolerance,
-    CanonicalImmunization
+    CanonicalImmunization,
+    CanonicalCapabilityStatement
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -60,6 +61,7 @@ export function parseR4(input: string): CanonicalModel {
         imagingStudies: [],
         allergyIntolerances: [],
         immunizations: [],
+        capabilityStatements: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -166,6 +168,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Immunization':
                 const immunization = mapR4Immunization(res);
                 if (immunization) model.immunizations?.push(immunization);
+                break;
+            case 'CapabilityStatement':
+                const capability = mapR4CapabilityStatement(res);
+                if (capability) model.capabilityStatements?.push(capability);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -542,6 +548,101 @@ function mapR4MedicationAdministration(admin: any): CanonicalMedicationAdministr
             } : undefined
         } : undefined,
         eventHistory: admin.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
+    };
+}
+
+function mapR4CapabilityStatement(statement: any): CanonicalCapabilityStatement {
+    const versionAlgorithmCoding = statement.versionAlgorithmCoding;
+    return {
+        id: statement.id,
+        url: statement.url,
+        identifier: statement.identifier?.map((id: any) => id.value).filter(Boolean),
+        version: statement.version,
+        versionAlgorithmString: statement.versionAlgorithmString,
+        versionAlgorithmCoding: versionAlgorithmCoding
+            ? {
+                system: versionAlgorithmCoding.system,
+                code: versionAlgorithmCoding.code,
+                display: versionAlgorithmCoding.display
+            }
+            : undefined,
+        name: statement.name,
+        title: statement.title,
+        status: statement.status,
+        experimental: statement.experimental,
+        date: statement.date,
+        publisher: statement.publisher,
+        contact: statement.contact?.map((contact: any) => ({
+            name: contact.name,
+            telecom: contact.telecom?.map((t: any) => ({
+                system: t.system,
+                value: t.value,
+                use: t.use
+            }))
+        })),
+        description: statement.description,
+        useContext: statement.useContext?.map((ctx: any) => ({
+            code: ctx.code?.coding?.[0]
+                ? {
+                    system: ctx.code.coding[0].system,
+                    code: ctx.code.coding[0].code,
+                    display: ctx.code.coding[0].display
+                }
+                : undefined,
+            value: ctx.valueCodeableConcept?.text || ctx.valueString
+        })),
+        jurisdiction: statement.jurisdiction?.map((j: any) => ({
+            system: j.coding?.[0]?.system,
+            code: j.coding?.[0]?.code,
+            display: j.coding?.[0]?.display
+        })),
+        purpose: statement.purpose,
+        copyright: statement.copyright,
+        copyrightLabel: statement.copyrightLabel,
+        kind: statement.kind,
+        instantiates: statement.instantiates,
+        imports: statement.imports,
+        software: statement.software
+            ? {
+                name: statement.software.name,
+                version: statement.software.version,
+                releaseDate: statement.software.releaseDate
+            }
+            : undefined,
+        implementation: statement.implementation
+            ? {
+                description: statement.implementation.description,
+                url: statement.implementation.url,
+                custodian: statement.implementation.custodian?.reference?.replace('Organization/', '')
+            }
+            : undefined,
+        fhirVersion: statement.fhirVersion,
+        format: statement.format,
+        patchFormat: statement.patchFormat,
+        acceptLanguage: statement.acceptLanguage,
+        implementationGuide: statement.implementationGuide,
+        rest: statement.rest?.map((rest: any) => ({
+            mode: rest.mode,
+            documentation: rest.documentation
+        })),
+        messaging: statement.messaging?.map((msg: any) => ({
+            endpoint: msg.endpoint?.map((ep: any) => ({
+                protocol: ep.protocol
+                    ? {
+                        system: ep.protocol.system,
+                        code: ep.protocol.code,
+                        display: ep.protocol.display
+                    }
+                    : undefined,
+                address: ep.address
+            })),
+            documentation: msg.documentation
+        })),
+        document: statement.document?.map((doc: any) => ({
+            mode: doc.mode,
+            documentation: doc.documentation,
+            profile: doc.profile
+        }))
     };
 }
 

@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -838,6 +838,34 @@ export function buildCanonical(parsed: any) {
 
   if (immunizations.length > 0) {
     result.immunizations = immunizations;
+  }
+
+  /* ───── CapabilityStatements (from MSH) ───── */
+  const capabilityStatements: CanonicalCapabilityStatement[] = [];
+  if (msh) {
+    const sendingApp = msh?.[2]?.[0]?.[0];
+    const sendingFacility = msh?.[3]?.[0]?.[0];
+    const hl7Version = msh?.[11]?.[0]?.[0];
+    const messageControlId = msh?.[8]?.[0]?.[0];
+    const timestamp = toFHIRDateTime(msh?.[6]?.[0]?.[0]) || toFHIRDate(msh?.[6]?.[0]?.[0]);
+
+    capabilityStatements.push({
+      id: `CAP-${messageControlId || Date.now()}`,
+      url: sendingApp ? `urn:hl7v2:${sendingApp}` : undefined,
+      name: sendingApp || undefined,
+      title: sendingFacility || sendingApp || undefined,
+      status: 'active',
+      date: timestamp,
+      publisher: sendingFacility || sendingApp || undefined,
+      kind: 'instance',
+      fhirVersion: '5.0.0',
+      format: ['hl7v2'],
+      software: sendingApp ? { name: sendingApp, version: hl7Version } : undefined
+    });
+  }
+
+  if (capabilityStatements.length > 0) {
+    result.capabilityStatements = capabilityStatements;
   }
 
   /* ───── Procedures (from PR1) ───── */

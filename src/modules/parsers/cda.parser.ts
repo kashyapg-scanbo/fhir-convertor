@@ -19,6 +19,7 @@ import {
   CanonicalImagingStudy,
   CanonicalAllergyIntolerance,
   CanonicalImmunization,
+  CanonicalCapabilityStatement,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -79,6 +80,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const imagingStudies = extractImagingStudies(clinicalDocument, patient.id, encounter?.id);
   const allergyIntolerances = extractAllergyIntolerances(clinicalDocument, patient.id, encounter?.id);
   const immunizations = extractImmunizations(clinicalDocument, patient.id, encounter?.id, practitionerData.authorIds[0]);
+  const capabilityStatements = extractCapabilityStatements(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -111,6 +113,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (imagingStudies.length) canonical.imagingStudies = imagingStudies;
   if (allergyIntolerances.length) canonical.allergyIntolerances = allergyIntolerances;
   if (immunizations.length) canonical.immunizations = immunizations;
+  if (capabilityStatements.length) canonical.capabilityStatements = capabilityStatements;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -637,6 +640,35 @@ function extractImmunizations(
   });
 
   return immunizations;
+}
+
+function extractCapabilityStatements(clinicalDocument: any): CanonicalCapabilityStatement[] {
+  const statements: CanonicalCapabilityStatement[] = [];
+  const title = extractText(clinicalDocument.title || clinicalDocument['cda:title']);
+  const effectiveTime = clinicalDocument.effectiveTime || clinicalDocument['cda:effectiveTime'];
+  const date = formatCDADateTime(extractAttribute(effectiveTime, '@_value'));
+
+  const custodian = clinicalDocument.custodian || clinicalDocument['cda:custodian'];
+  const assignedCustodian = custodian?.assignedCustodian || custodian?.['cda:assignedCustodian'];
+  const org = assignedCustodian?.representedCustodianOrganization || assignedCustodian?.['cda:representedCustodianOrganization'];
+  const publisherName = extractText(org?.name || org?.['cda:name']);
+
+  if (!title && !publisherName) return statements;
+
+  statements.push({
+    id: `CAP-${Date.now()}`,
+    url: publisherName ? `urn:cda:${publisherName}` : undefined,
+    name: title || publisherName || undefined,
+    title: title || undefined,
+    status: 'active',
+    date: date,
+    publisher: publisherName || undefined,
+    kind: 'instance',
+    fhirVersion: '5.0.0',
+    format: ['xml']
+  });
+
+  return statements;
 }
 
 function extractProcedures(

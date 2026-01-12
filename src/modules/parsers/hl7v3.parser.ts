@@ -24,7 +24,8 @@ import {
     CanonicalSpecimen,
     CanonicalImagingStudy,
     CanonicalAllergyIntolerance,
-    CanonicalImmunization
+    CanonicalImmunization,
+    CanonicalCapabilityStatement
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -74,6 +75,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         imagingStudies: [],
         allergyIntolerances: [],
         immunizations: [],
+        capabilityStatements: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -221,6 +223,11 @@ export function parseHL7v3(input: string): CanonicalModel {
                 if (role) model.practitionerRoles?.push(role);
             }
         }
+    }
+
+    const capability = mapV3CapabilityStatement(root);
+    if (capability) {
+        model.capabilityStatements?.push(capability);
     }
 
     return model;
@@ -711,6 +718,26 @@ function mapV3MedicationAdministration(substanceAdmin: any): CanonicalMedication
                 unit: dose?.['@_unit']
             } : undefined
         } : undefined
+    };
+}
+
+function mapV3CapabilityStatement(root: any): CanonicalCapabilityStatement | undefined {
+    const id = root?.id?.['@_extension'] || root?.id?.['@_root'];
+    const interactionId = root?.interactionId?.['@_extension'];
+    const creationTime = root?.creationTime?.['@_value'];
+
+    if (!interactionId && !id) return undefined;
+
+    return {
+        id: id || interactionId,
+        url: interactionId ? `urn:hl7v3:${interactionId}` : undefined,
+        name: interactionId || undefined,
+        title: interactionId || undefined,
+        status: 'active',
+        date: formatV3DateTime(creationTime),
+        kind: 'instance',
+        fhirVersion: '5.0.0',
+        format: ['xml']
     };
 }
 

@@ -1,0 +1,19 @@
+{
+  "capability_statement": {
+    "capability_statement_id": "CAP-2",
+    "url": "https://example.org/fhir/CapabilityStatement/example2",
+    "version": "1.0.1",
+    "name": "ExampleCapabilityTwo",
+    "title": "Example Capability Statement Two",
+    "status": "active",
+    "date": "2024-03-01T00:00:00Z",
+    "publisher": "Example Publisher",
+    "kind": "capability",
+    "fhir_version": "5.0.0",
+    "format": ["json"],
+    "implementation_url": "https://api.example.org/fhir",
+    "implementation_description": "Example FHIR endpoint",
+    "rest_mode": "server",
+    "rest_documentation": "Supports read/search"
+  }
+}

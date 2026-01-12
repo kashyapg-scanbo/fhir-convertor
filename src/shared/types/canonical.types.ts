@@ -519,6 +519,89 @@ export type CanonicalMedicationAdministration = {
   active?: boolean;
 };
 
+export type CanonicalCapabilityStatement = {
+  id?: string;
+  url?: string;
+  identifier?: string[];
+  version?: string;
+  versionAlgorithmString?: string;
+  versionAlgorithmCoding?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  name?: string;
+  title?: string;
+  status?: string;
+  experimental?: boolean;
+  date?: string;
+  publisher?: string;
+  contact?: Array<{
+    name?: string;
+    telecom?: Array<{
+      system?: string;
+      value?: string;
+      use?: string;
+    }>;
+  }>;
+  description?: string;
+  useContext?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    value?: string;
+  }>;
+  jurisdiction?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  purpose?: string;
+  copyright?: string;
+  copyrightLabel?: string;
+  kind?: string;
+  instantiates?: string[];
+  imports?: string[];
+  software?: {
+    name?: string;
+    version?: string;
+    releaseDate?: string;
+  };
+  implementation?: {
+    description?: string;
+    url?: string;
+    custodian?: string;
+  };
+  fhirVersion?: string;
+  format?: string[];
+  patchFormat?: string[];
+  acceptLanguage?: string[];
+  implementationGuide?: string[];
+  rest?: Array<{
+    mode?: string;
+    documentation?: string;
+  }>;
+  messaging?: Array<{
+    endpoint?: Array<{
+      protocol?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      address?: string;
+    }>;
+    documentation?: string;
+  }>;
+  document?: Array<{
+    mode?: string;
+    documentation?: string;
+    profile?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1259,6 +1342,7 @@ export type CanonicalModel = {
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
+  capabilityStatements?: CanonicalCapabilityStatement[]; // CapabilityStatement
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment
