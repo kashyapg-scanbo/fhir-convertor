@@ -504,6 +504,38 @@ const GlobalImagingStudySchema = z.object({
   instance_title: z.string().optional()
 });
 
+const GlobalAllergyIntoleranceSchema = z.object({
+  allergy_id: GlobalIdSchema.optional(),
+  clinical_status: z.string().optional(),
+  verification_status: z.string().optional(),
+  type: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  criticality: z.string().optional(),
+  code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  patient_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  onset_date: z.string().optional(),
+  onset_start: z.string().optional(),
+  onset_end: z.string().optional(),
+  onset_text: z.string().optional(),
+  recorded_date: z.string().optional(),
+  participant_actor_id: GlobalIdSchema.optional(),
+  participant_function: z.string().optional(),
+  last_occurrence: z.string().optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  reaction_substance: z.string().optional(),
+  reaction_manifestation: z.union([z.string(), z.array(z.string())]).optional(),
+  reaction_description: z.string().optional(),
+  reaction_onset: z.string().optional(),
+  reaction_severity: z.string().optional(),
+  reaction_exposure_route: z.string().optional(),
+  reaction_note: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -605,6 +637,7 @@ const GlobalCustomJSONSchema = z.object({
   episode_of_care: z.union([GlobalEpisodeOfCareSchema, z.array(GlobalEpisodeOfCareSchema)]).optional(),
   specimen: z.union([GlobalSpecimenSchema, z.array(GlobalSpecimenSchema)]).optional(),
   imaging_study: z.union([GlobalImagingStudySchema, z.array(GlobalImagingStudySchema)]).optional(),
+  allergy_intolerance: z.union([GlobalAllergyIntoleranceSchema, z.array(GlobalAllergyIntoleranceSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -626,12 +659,13 @@ const GlobalCustomJSONSchema = z.object({
     value.episode_of_care ||
     value.specimen ||
     value.imaging_study ||
+    value.allergy_intolerance ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -662,6 +696,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   episodesOfCare: 'episodeOfCare',
   specimens: 'specimen',
   imagingStudies: 'imagingStudy',
+  allergyIntolerances: 'allergyIntolerance',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -696,6 +731,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   specimens: 'specimen',
   imaging_study: 'imagingStudy',
   imaging_studies: 'imagingStudy',
+  allergy_intolerance: 'allergyIntolerance',
+  allergy_intolerances: 'allergyIntolerance',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -763,6 +800,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   imaging_studies: 'imaging_study',
   imagingstudy: 'imaging_study',
   imagingstudies: 'imaging_study',
+  allergy_intolerance: 'allergy_intolerance',
+  allergy_intolerances: 'allergy_intolerance',
+  allergyintolerance: 'allergy_intolerance',
+  allergyintolerances: 'allergy_intolerance',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1785,6 +1826,98 @@ function normalizeGlobalImagingStudyAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalAllergyIntoleranceAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const code = isPlainRecord(normalized.code) ? { ...normalized.code } : {};
+
+  const allergyId = readSectionAliasValue(value, 'allergyIntolerance', 'allergy_id');
+  if (normalized.allergy_id === undefined && allergyId !== undefined) {
+    normalized.allergy_id = allergyId;
+  }
+
+  const clinicalStatus = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_clinical_status'));
+  if (clinicalStatus && normalized.clinical_status === undefined) normalized.clinical_status = clinicalStatus;
+
+  const verificationStatus = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_verification_status'));
+  if (verificationStatus && normalized.verification_status === undefined) normalized.verification_status = verificationStatus;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const criticality = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_criticality'));
+  if (criticality && normalized.criticality === undefined) normalized.criticality = criticality;
+
+  const allergyCode = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_code'));
+  if (allergyCode && code.code === undefined) code.code = allergyCode;
+
+  const allergySystem = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_code_system'));
+  if (allergySystem && code.code_system === undefined) code.code_system = allergySystem;
+
+  const allergyDisplay = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_display'));
+  if (allergyDisplay && code.display === undefined) code.display = allergyDisplay;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const onsetDate = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_onset_date'));
+  if (onsetDate && normalized.onset_date === undefined) normalized.onset_date = onsetDate;
+
+  const onsetStart = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_onset_start'));
+  if (onsetStart && normalized.onset_start === undefined) normalized.onset_start = onsetStart;
+
+  const onsetEnd = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_onset_end'));
+  if (onsetEnd && normalized.onset_end === undefined) normalized.onset_end = onsetEnd;
+
+  const onsetText = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_onset_text'));
+  if (onsetText && normalized.onset_text === undefined) normalized.onset_text = onsetText;
+
+  const recordedDate = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_recorded_date'));
+  if (recordedDate && normalized.recorded_date === undefined) normalized.recorded_date = recordedDate;
+
+  const participantActorId = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_participant_actor_id'));
+  if (participantActorId && normalized.participant_actor_id === undefined) normalized.participant_actor_id = participantActorId;
+
+  const participantFunction = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_participant_function'));
+  if (participantFunction && normalized.participant_function === undefined) normalized.participant_function = participantFunction;
+
+  const lastOccurrence = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_last_occurrence'));
+  if (lastOccurrence && normalized.last_occurrence === undefined) normalized.last_occurrence = lastOccurrence;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const reactionSubstance = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_substance'));
+  if (reactionSubstance && normalized.reaction_substance === undefined) normalized.reaction_substance = reactionSubstance;
+
+  const reactionManifestation = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_manifestation'));
+  if (reactionManifestation && normalized.reaction_manifestation === undefined) normalized.reaction_manifestation = reactionManifestation;
+
+  const reactionDescription = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_description'));
+  if (reactionDescription && normalized.reaction_description === undefined) normalized.reaction_description = reactionDescription;
+
+  const reactionOnset = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_onset'));
+  if (reactionOnset && normalized.reaction_onset === undefined) normalized.reaction_onset = reactionOnset;
+
+  const reactionSeverity = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_severity'));
+  if (reactionSeverity && normalized.reaction_severity === undefined) normalized.reaction_severity = reactionSeverity;
+
+  const reactionExposureRoute = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_exposure_route'));
+  if (reactionExposureRoute && normalized.reaction_exposure_route === undefined) normalized.reaction_exposure_route = reactionExposureRoute;
+
+  const reactionNote = normalizeAliasValue(readSectionAliasValue(value, 'allergyIntolerance', 'allergy_reaction_note'));
+  if (reactionNote && normalized.reaction_note === undefined) normalized.reaction_note = reactionNote;
+
+  if (Object.keys(code).length > 0) normalized.code = code;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1983,6 +2116,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalSpecimenAliases(value);
     case 'imagingStudy':
       return normalizeGlobalImagingStudyAliases(value);
+    case 'allergyIntolerance':
+      return normalizeGlobalAllergyIntoleranceAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -2122,6 +2257,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'episodeOfCare',
     'specimen',
     'imagingStudy',
+    'allergyIntolerance',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -2244,6 +2380,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const episodesOfCare = normalizeArray(validated.episode_of_care);
   const specimens = normalizeArray(validated.specimen);
   const imagingStudies = normalizeArray(validated.imaging_study);
+  const allergyIntolerances = normalizeArray(validated.allergy_intolerance);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -2297,6 +2434,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (imagingStudies.length) {
     canonical.imagingStudies = imagingStudies.map(buildCanonicalImagingStudyGlobal);
   }
+  if (allergyIntolerances.length) {
+    canonical.allergyIntolerances = allergyIntolerances.map(buildCanonicalAllergyIntoleranceGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -2336,7 +2476,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -2356,6 +2496,7 @@ function wrapGlobalPayload(value: any) {
       value.episode_of_care,
       value.specimen,
       value.imaging_study,
+      value.allergy_intolerance,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -2409,6 +2550,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('imaging_study_id' in value || 'imaging_study_identifier' in value || 'started' in value) {
       return { imaging_study: value };
+    }
+    if ('allergy_id' in value || 'clinical_status' in value || 'criticality' in value) {
+      return { allergy_intolerance: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -2475,6 +2619,9 @@ function looksLikeGlobalResource(value: any) {
     'imaging_study_id' in value ||
     'imaging_study_identifier' in value ||
     'started' in value ||
+    'allergy_id' in value ||
+    'clinical_status' in value ||
+    'criticality' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -3142,6 +3289,59 @@ function buildCanonicalImagingStudyGlobal(study: z.infer<typeof GlobalImagingStu
     note: notes.length ? notes : undefined,
     description: study.description,
     series
+  };
+}
+
+function buildCanonicalAllergyIntoleranceGlobal(allergy: z.infer<typeof GlobalAllergyIntoleranceSchema>) {
+  const categories = normalizeStringArray(allergy.category);
+  const notes = normalizeStringArray(allergy.note);
+  const reactionManifestation = normalizeStringArray(allergy.reaction_manifestation);
+  const reactionNotes = normalizeStringArray(allergy.reaction_note);
+
+  const onsetPeriod = allergy.onset_start || allergy.onset_end ? {
+    start: allergy.onset_start,
+    end: allergy.onset_end
+  } : undefined;
+
+  const participant = allergy.participant_actor_id || allergy.participant_function ? [{
+    function: allergy.participant_function ? { code: allergy.participant_function, display: allergy.participant_function } : undefined,
+    actor: allergy.participant_actor_id
+  }] : undefined;
+
+  const reaction = (allergy.reaction_substance || reactionManifestation.length || allergy.reaction_description || allergy.reaction_onset)
+    ? [{
+      substance: allergy.reaction_substance ? { code: allergy.reaction_substance, display: allergy.reaction_substance } : undefined,
+      manifestation: reactionManifestation.length ? reactionManifestation.map(value => ({ code: value, display: value })) : undefined,
+      description: allergy.reaction_description,
+      onset: allergy.reaction_onset,
+      severity: allergy.reaction_severity,
+      exposureRoute: allergy.reaction_exposure_route ? { code: allergy.reaction_exposure_route, display: allergy.reaction_exposure_route } : undefined,
+      note: reactionNotes.length ? reactionNotes : undefined
+    }] : undefined;
+
+  return {
+    id: allergy.allergy_id,
+    identifier: allergy.allergy_id,
+    clinicalStatus: allergy.clinical_status ? { code: allergy.clinical_status, display: allergy.clinical_status } : undefined,
+    verificationStatus: allergy.verification_status ? { code: allergy.verification_status, display: allergy.verification_status } : undefined,
+    type: allergy.type ? { code: allergy.type, display: allergy.type } : undefined,
+    category: categories.length ? categories : undefined,
+    criticality: allergy.criticality,
+    code: allergy.code?.code || allergy.code?.display ? {
+      system: allergy.code?.code_system,
+      code: allergy.code?.code,
+      display: allergy.code?.display
+    } : undefined,
+    patient: allergy.patient_id,
+    encounter: allergy.encounter_id,
+    onsetDateTime: allergy.onset_date,
+    onsetPeriod,
+    onsetString: allergy.onset_text,
+    recordedDate: allergy.recorded_date,
+    participant,
+    lastOccurrence: allergy.last_occurrence,
+    note: notes.length ? notes : undefined,
+    reaction
   };
 }
 

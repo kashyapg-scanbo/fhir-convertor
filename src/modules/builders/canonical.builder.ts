@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1033,6 +1033,48 @@ export function buildCanonical(parsed: any) {
 
   if (imagingStudies.length > 0) {
     result.imagingStudies = imagingStudies;
+  }
+
+  /* ───── AllergyIntolerances (from AL1) ───── */
+  const allergyIntolerances: CanonicalAllergyIntolerance[] = [];
+  const al1Segments = parsed.AL1 ?? [];
+  for (const al1 of al1Segments) {
+    const setId = al1?.[0]?.[0]?.[0];
+    const allergyType = al1?.[1]?.[0]?.[0];
+    const codeParts = al1?.[2]?.[0] ?? [];
+    const codeValue = codeParts[0];
+    const display = codeParts[1];
+    const system = codeParts[2];
+    const severity = al1?.[3]?.[0]?.[0];
+    const reactionText = al1?.[4]?.[0]?.[0];
+    const identificationDate = toFHIRDateTime(al1?.[5]?.[0]?.[0]) || toFHIRDate(al1?.[5]?.[0]?.[0]);
+
+    if (!codeValue && !display && !reactionText) continue;
+
+    allergyIntolerances.push({
+      id: setId || `AL1-${codeValue || Date.now()}`,
+      identifier: setId || codeValue,
+      clinicalStatus: { code: 'active', display: 'active' },
+      verificationStatus: { code: 'confirmed', display: 'confirmed' },
+      type: allergyType ? { code: allergyType, display: allergyType } : undefined,
+      criticality: severity === 'Severe' ? 'high' : severity ? 'low' : undefined,
+      code: codeValue || display ? {
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      } : undefined,
+      patient: patientId,
+      encounter: encounter?.id,
+      recordedDate: identificationDate,
+      reaction: reactionText ? [{
+        description: reactionText,
+        severity: severity ? severity.toLowerCase() : undefined
+      }] : undefined
+    });
+  }
+
+  if (allergyIntolerances.length > 0) {
+    result.allergyIntolerances = allergyIntolerances;
   }
 
   /* ───── RelatedPersons (from NK1) ───── */

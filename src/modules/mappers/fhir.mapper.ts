@@ -21,6 +21,7 @@ import { mapLocations } from './location.mapper.js';
 import { mapEpisodesOfCare } from './episodeOfCare.mapper.js';
 import { mapSpecimens } from './specimen.mapper.js';
 import { mapImagingStudies } from './imagingStudy.mapper.js';
+import { mapAllergyIntolerances } from './allergyIntolerance.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
 
 export type FhirVersion = 'r5' | 'r6';
@@ -264,6 +265,17 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (imagingEntries.length > 0) {
     bundle.entry.push(...imagingEntries);
+  }
+
+  const allergyEntries = mapAllergyIntolerances({
+    allergyIntolerances: canonical.allergyIntolerances,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl
+  });
+  if (allergyEntries.length > 0) {
+    bundle.entry.push(...allergyEntries);
   }
 
   const documentReferenceEntries = mapDocumentReferences({

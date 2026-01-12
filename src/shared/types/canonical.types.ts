@@ -124,6 +124,74 @@ export type CanonicalAllergy = {
   }>;
 };
 
+export type CanonicalAllergyIntolerance = {
+  id?: string;
+  identifier?: string;
+  clinicalStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  verificationStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  category?: string[];
+  criticality?: string;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  patient?: string;
+  encounter?: string;
+  onsetDateTime?: string;
+  onsetPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  onsetString?: string;
+  recordedDate?: string;
+  participant?: Array<{
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    actor?: string;
+  }>;
+  lastOccurrence?: string;
+  note?: string[];
+  reaction?: Array<{
+    substance?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    manifestation?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    description?: string;
+    onset?: string;
+    severity?: string;
+    exposureRoute?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    note?: string[];
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalDiagnosis = {
   code?: {
     system?: string;
@@ -998,6 +1066,7 @@ export type CanonicalModel = {
   episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
   specimens?: CanonicalSpecimen[]; // Specimen
   imagingStudies?: CanonicalImagingStudy[]; // ImagingStudy
+  allergyIntolerances?: CanonicalAllergyIntolerance[]; // AllergyIntolerance
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

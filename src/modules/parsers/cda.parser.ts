@@ -16,6 +16,7 @@ import {
   CanonicalEpisodeOfCare,
   CanonicalSpecimen,
   CanonicalImagingStudy,
+  CanonicalAllergyIntolerance,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -68,6 +69,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const episodesOfCare = extractEpisodesOfCare(clinicalDocument, patient.id);
   const specimens = extractSpecimens(clinicalDocument, patient.id);
   const imagingStudies = extractImagingStudies(clinicalDocument, patient.id, encounter?.id);
+  const allergyIntolerances = extractAllergyIntolerances(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -97,6 +99,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (episodesOfCare.length) canonical.episodesOfCare = episodesOfCare;
   if (specimens.length) canonical.specimens = specimens;
   if (imagingStudies.length) canonical.imagingStudies = imagingStudies;
+  if (allergyIntolerances.length) canonical.allergyIntolerances = allergyIntolerances;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -964,6 +967,63 @@ function extractImagingStudies(
   });
 
   return studies;
+}
+
+function extractAllergyIntolerances(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalAllergyIntolerance[] {
+  const allergies: CanonicalAllergyIntolerance[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isAllergySection = sectionCodeValue === '48765-2' || sectionCodeValue === '48765-2';
+    if (!isAllergySection) return;
+
+    const observation = entry.observation || entry['cda:observation'];
+    const observations = observation ? (Array.isArray(observation) ? observation : [observation]) : [];
+
+    for (const obs of observations) {
+      const code = obs.code || obs['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      const value = obs.value || obs['cda:value'];
+      const valueCode = extractAttribute(value, '@_code');
+      const valueSystem = extractAttribute(value, '@_codeSystem');
+      const valueDisplay = extractAttribute(value, '@_displayName') || extractText(value?.displayName);
+
+      const onset = formatCDADateTime(extractAttribute(obs.effectiveTime || obs['cda:effectiveTime'], '@_value'));
+      const recordedDate = formatCDADateTime(extractAttribute(obs.author?.time || obs['cda:author']?.time, '@_value'));
+
+      const finalCode = valueCode || codeValue;
+      const finalSystem = valueCode ? valueSystem : codeSystem;
+      const finalDisplay = valueDisplay || displayName;
+
+      if (!finalCode && !finalDisplay) continue;
+
+      allergies.push({
+        id: `ALG-${finalCode || allergies.length + 1}`,
+        identifier: finalCode,
+        clinicalStatus: { code: 'active', display: 'active' },
+        verificationStatus: { code: 'confirmed', display: 'confirmed' },
+        code: {
+          system: mapCodeSystem(finalSystem),
+          code: finalCode,
+          display: finalDisplay
+        },
+        patient: patientId,
+        encounter: encounterId,
+        onsetDateTime: onset,
+        recordedDate: recordedDate
+      });
+    }
+  });
+
+  return allergies;
 }
 
 function extractLocations(clinicalDocument: any): CanonicalLocation[] {

@@ -35,6 +35,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
                 - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
                 - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
+                - $ref: '#/components/schemas/CustomJsonAllergyIntoleranceOnly'
                 - $ref: '#/components/schemas/CustomJsonFull'
             examples:
               patient:
@@ -359,6 +360,24 @@ paths:
                     series_uid: 1.2.3.4.5.1
                     series_modality: CT
                     series_number_of_instances: 25
+              allergy_intolerance:
+                summary: AllergyIntolerance
+                value:
+                  allergy_intolerance:
+                    allergy_id: ALG-100
+                    clinical_status: active
+                    verification_status: confirmed
+                    type: allergy
+                    category:
+                      - food
+                    criticality: high
+                    code:
+                      code: 227493005
+                      display: Cashew nut
+                    patient_id: P-10001
+                    recorded_date: 2024-02-01T00:00:00Z
+                    reaction_manifestation:
+                      - Hives
               fullBundle:
                 summary: Full bundle
                 value:
@@ -420,6 +439,11 @@ paths:
                     status: available
                     subject_id: P-10001
                     started: 2024-02-01T08:30:00Z
+                  allergy_intolerance:
+                    allergy_id: ALG-100
+                    clinical_status: active
+                    verification_status: confirmed
+                    patient_id: P-10001
       responses:
         '200':
           description: FHIR R5 Bundle
@@ -441,7 +465,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -586,7 +610,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -689,6 +713,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomImagingStudy'
+        allergy_intolerance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAllergyIntolerance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAllergyIntolerance'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1585,6 +1615,197 @@ components:
             - type: array
               items:
                 type: string
+    CustomImagingStudy:
+      type: object
+      properties:
+        imaging_study_id:
+          type: string
+        imaging_study_identifier:
+          type: string
+        status:
+          type: string
+        modality:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        started:
+          type: string
+          format: date-time
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        referrer_id:
+          type: string
+        endpoint_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        number_of_series:
+          type: number
+        number_of_instances:
+          type: number
+        procedure:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        location_id:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        description:
+          type: string
+        series_uid:
+          type: string
+        series_number:
+          type: number
+        series_modality:
+          type: string
+        series_description:
+          type: string
+        series_number_of_instances:
+          type: number
+        series_endpoint_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        series_body_site:
+          type: string
+        series_laterality:
+          type: string
+        series_specimen_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        series_started:
+          type: string
+          format: date-time
+        series_performer_id:
+          type: string
+        instance_uid:
+          type: string
+        instance_sop_class:
+          type: string
+        instance_number:
+          type: number
+        instance_title:
+          type: string
+    CustomAllergyIntolerance:
+      type: object
+      properties:
+        allergy_id:
+          type: string
+        clinical_status:
+          type: string
+        verification_status:
+          type: string
+        type:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        criticality:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomAllergyCode'
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        onset_date:
+          type: string
+          format: date-time
+        onset_start:
+          type: string
+          format: date-time
+        onset_end:
+          type: string
+          format: date-time
+        onset_text:
+          type: string
+        recorded_date:
+          type: string
+          format: date-time
+        participant_actor_id:
+          type: string
+        participant_function:
+          type: string
+        last_occurrence:
+          type: string
+          format: date-time
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reaction_substance:
+          type: string
+        reaction_manifestation:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reaction_description:
+          type: string
+        reaction_onset:
+          type: string
+          format: date-time
+        reaction_severity:
+          type: string
+        reaction_exposure_route:
+          type: string
+        reaction_note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomAllergyCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1879,6 +2100,18 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [specimen]
+    CustomJsonImagingStudyOnly:
+      title: ImagingStudy
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [imaging_study]
+    CustomJsonAllergyIntoleranceOnly:
+      title: AllergyIntolerance
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [allergy_intolerance]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

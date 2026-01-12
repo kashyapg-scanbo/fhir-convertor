@@ -852,6 +852,78 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (imagingStudies.length > 0) canonical.imagingStudies = imagingStudies as any[];
 
+  const allergyIntolerances = rows.map(row => {
+    const allergyId = readValue(row, 'allergy_id');
+    const clinicalStatus = readValue(row, 'allergy_clinical_status');
+    const verificationStatus = readValue(row, 'allergy_verification_status');
+    const type = readValue(row, 'allergy_type');
+    const categoryRaw = readValue(row, 'allergy_category');
+    const criticality = readValue(row, 'allergy_criticality');
+    const code = readValue(row, 'allergy_code');
+    const codeSystem = readValue(row, 'allergy_code_system');
+    const display = readValue(row, 'allergy_display');
+    const patientId = readValue(row, 'allergy_patient_id');
+    const encounterId = readValue(row, 'allergy_encounter_id');
+    const onsetDate = readValue(row, 'allergy_onset_date');
+    const onsetStart = readValue(row, 'allergy_onset_start');
+    const onsetEnd = readValue(row, 'allergy_onset_end');
+    const onsetText = readValue(row, 'allergy_onset_text');
+    const recordedDate = readValue(row, 'allergy_recorded_date');
+    const participantActorId = readValue(row, 'allergy_participant_actor_id');
+    const participantFunction = readValue(row, 'allergy_participant_function');
+    const lastOccurrence = readValue(row, 'allergy_last_occurrence');
+    const note = readValue(row, 'allergy_note');
+    const reactionSubstance = readValue(row, 'allergy_reaction_substance');
+    const reactionManifestation = readValue(row, 'allergy_reaction_manifestation');
+    const reactionDescription = readValue(row, 'allergy_reaction_description');
+    const reactionOnset = readValue(row, 'allergy_reaction_onset');
+    const reactionSeverity = readValue(row, 'allergy_reaction_severity');
+    const reactionExposureRoute = readValue(row, 'allergy_reaction_exposure_route');
+    const reactionNote = readValue(row, 'allergy_reaction_note');
+
+    if (!allergyId && !code && !display && !reactionSubstance) return null;
+
+    const onsetPeriod = onsetStart || onsetEnd ? { start: onsetStart, end: onsetEnd } : undefined;
+    const categories = categoryRaw ? categoryRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+
+    return {
+      id: allergyId || undefined,
+      identifier: allergyId || undefined,
+      clinicalStatus: clinicalStatus ? { code: clinicalStatus, display: clinicalStatus } : undefined,
+      verificationStatus: verificationStatus ? { code: verificationStatus, display: verificationStatus } : undefined,
+      type: type ? { code: type, display: type } : undefined,
+      category: categories && categories.length ? categories : undefined,
+      criticality: criticality || undefined,
+      code: (code || display) ? {
+        system: codeSystem,
+        code: code,
+        display: display
+      } : undefined,
+      patient: patientId || undefined,
+      encounter: encounterId || undefined,
+      onsetDateTime: onsetDate || undefined,
+      onsetPeriod,
+      onsetString: onsetText || undefined,
+      recordedDate: recordedDate || undefined,
+      participant: (participantActorId || participantFunction) ? [{
+        function: participantFunction ? { code: participantFunction, display: participantFunction } : undefined,
+        actor: participantActorId || undefined
+      }] : undefined,
+      lastOccurrence: lastOccurrence || undefined,
+      note: note ? [note] : undefined,
+      reaction: (reactionSubstance || reactionManifestation || reactionDescription) ? [{
+        substance: reactionSubstance ? { code: reactionSubstance, display: reactionSubstance } : undefined,
+        manifestation: reactionManifestation ? [{ display: reactionManifestation }] : undefined,
+        description: reactionDescription,
+        onset: reactionOnset,
+        severity: reactionSeverity,
+        exposureRoute: reactionExposureRoute ? { code: reactionExposureRoute, display: reactionExposureRoute } : undefined,
+        note: reactionNote ? [reactionNote] : undefined
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (allergyIntolerances.length > 0) canonical.allergyIntolerances = allergyIntolerances as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

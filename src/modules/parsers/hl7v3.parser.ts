@@ -21,7 +21,8 @@ import {
     CanonicalLocation,
     CanonicalEpisodeOfCare,
     CanonicalSpecimen,
-    CanonicalImagingStudy
+    CanonicalImagingStudy,
+    CanonicalAllergyIntolerance
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -68,6 +69,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         episodesOfCare: [],
         specimens: [],
         imagingStudies: [],
+        allergyIntolerances: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -183,6 +185,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (imagingEvent) {
                 const imagingStudy = mapV3ImagingStudy(imagingEvent);
                 if (imagingStudy) model.imagingStudies?.push(imagingStudy);
+            }
+
+            const allergyEvent = sub.allergyIntolerance || sub.AllergyIntolerance;
+            if (allergyEvent) {
+                const allergy = mapV3AllergyIntolerance(allergyEvent);
+                if (allergy) model.allergyIntolerances?.push(allergy);
             }
         }
     }
@@ -362,6 +370,34 @@ function mapV3ImagingStudy(imagingEvent: any): CanonicalImagingStudy | undefined
         }] : undefined,
         started: formatV3DateTime(started),
         description: code?.['@_displayName']
+    };
+}
+
+function mapV3AllergyIntolerance(allergyEvent: any): CanonicalAllergyIntolerance | undefined {
+    const allergy = allergyEvent.observation || allergyEvent.Observation || allergyEvent;
+    const idInfo = pickV3Id(allergy.id || allergy.Id);
+    const code = allergy.code || allergy.Code;
+    const value = allergy.value || allergy.Value;
+
+    const codeValue = value?.['@_code'] || code?.['@_code'];
+    const codeSystem = value?.['@_codeSystem'] || code?.['@_codeSystem'];
+    const display = value?.['@_displayName'] || code?.['@_displayName'];
+
+    const onset = allergy.effectiveTime?.['@_value'] || allergy.EffectiveTime?.['@_value'];
+
+    if (!idInfo.id && !idInfo.identifier && !codeValue && !display) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier || idInfo.id,
+        clinicalStatus: { code: 'active', display: 'active' },
+        verificationStatus: { code: 'confirmed', display: 'confirmed' },
+        code: codeValue || display ? {
+            system: codeSystem,
+            code: codeValue,
+            display: display
+        } : undefined,
+        onsetDateTime: formatV3DateTime(onset)
     };
 }
 

@@ -21,7 +21,8 @@ import {
     CanonicalLocation,
     CanonicalEpisodeOfCare,
     CanonicalSpecimen,
-    CanonicalImagingStudy
+    CanonicalImagingStudy,
+    CanonicalAllergyIntolerance
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -54,6 +55,7 @@ export function parseR4(input: string): CanonicalModel {
         episodesOfCare: [],
         specimens: [],
         imagingStudies: [],
+        allergyIntolerances: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -148,6 +150,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'ImagingStudy':
                 const imagingStudy = mapR4ImagingStudy(res);
                 if (imagingStudy) model.imagingStudies?.push(imagingStudy);
+                break;
+            case 'AllergyIntolerance':
+                const allergy = mapR4AllergyIntolerance(res);
+                if (allergy) model.allergyIntolerances?.push(allergy);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -948,6 +954,74 @@ function mapR4ImagingStudy(study: any): CanonicalImagingStudy {
                 number: instance.number,
                 title: instance.title
             }))
+        }))
+    };
+}
+
+function mapR4AllergyIntolerance(allergy: any): CanonicalAllergyIntolerance {
+    return {
+        id: allergy.id,
+        identifier: allergy.identifier?.[0]?.value,
+        clinicalStatus: allergy.clinicalStatus?.coding?.[0] ? {
+            system: allergy.clinicalStatus.coding[0].system,
+            code: allergy.clinicalStatus.coding[0].code,
+            display: allergy.clinicalStatus.coding[0].display
+        } : undefined,
+        verificationStatus: allergy.verificationStatus?.coding?.[0] ? {
+            system: allergy.verificationStatus.coding[0].system,
+            code: allergy.verificationStatus.coding[0].code,
+            display: allergy.verificationStatus.coding[0].display
+        } : undefined,
+        type: allergy.type ? {
+            code: allergy.type,
+            display: allergy.type
+        } : undefined,
+        category: allergy.category?.length ? allergy.category : undefined,
+        criticality: allergy.criticality,
+        code: allergy.code?.coding?.[0] ? {
+            system: allergy.code.coding[0].system,
+            code: allergy.code.coding[0].code,
+            display: allergy.code.coding[0].display
+        } : undefined,
+        patient: allergy.patient?.reference?.replace('Patient/', ''),
+        encounter: allergy.encounter?.reference?.replace('Encounter/', ''),
+        onsetDateTime: allergy.onsetDateTime,
+        onsetPeriod: allergy.onsetPeriod ? {
+            start: allergy.onsetPeriod.start,
+            end: allergy.onsetPeriod.end
+        } : undefined,
+        onsetString: allergy.onsetString,
+        recordedDate: allergy.recordedDate,
+        participant: allergy.participant?.map((p: any) => ({
+            function: p.function?.coding?.[0] ? {
+                system: p.function.coding[0].system,
+                code: p.function.coding[0].code,
+                display: p.function.coding[0].display
+            } : undefined,
+            actor: p.actor?.reference?.replace(/^(CareTeam|Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')
+        })),
+        lastOccurrence: allergy.lastOccurrence,
+        note: allergy.note?.map((note: any) => note.text).filter(Boolean),
+        reaction: allergy.reaction?.map((reaction: any) => ({
+            substance: reaction.substance?.coding?.[0] ? {
+                system: reaction.substance.coding[0].system,
+                code: reaction.substance.coding[0].code,
+                display: reaction.substance.coding[0].display
+            } : undefined,
+            manifestation: reaction.manifestation?.map((manifestation: any) => ({
+                system: manifestation.concept?.coding?.[0]?.system,
+                code: manifestation.concept?.coding?.[0]?.code,
+                display: manifestation.concept?.coding?.[0]?.display || manifestation.concept?.text
+            })).filter((m: any) => m.code || m.display),
+            description: reaction.description,
+            onset: reaction.onset,
+            severity: reaction.severity,
+            exposureRoute: reaction.exposureRoute?.coding?.[0] ? {
+                system: reaction.exposureRoute.coding[0].system,
+                code: reaction.exposureRoute.coding[0].code,
+                display: reaction.exposureRoute.coding[0].display
+            } : undefined,
+            note: reaction.note?.map((note: any) => note.text).filter(Boolean)
         }))
     };
 }
