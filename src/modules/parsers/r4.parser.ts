@@ -22,7 +22,8 @@ import {
     CanonicalEpisodeOfCare,
     CanonicalSpecimen,
     CanonicalImagingStudy,
-    CanonicalAllergyIntolerance
+    CanonicalAllergyIntolerance,
+    CanonicalImmunization
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -56,6 +57,7 @@ export function parseR4(input: string): CanonicalModel {
         specimens: [],
         imagingStudies: [],
         allergyIntolerances: [],
+        immunizations: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -154,6 +156,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'AllergyIntolerance':
                 const allergy = mapR4AllergyIntolerance(res);
                 if (allergy) model.allergyIntolerances?.push(allergy);
+                break;
+            case 'Immunization':
+                const immunization = mapR4Immunization(res);
+                if (immunization) model.immunizations?.push(immunization);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -1023,6 +1029,112 @@ function mapR4AllergyIntolerance(allergy: any): CanonicalAllergyIntolerance {
             } : undefined,
             note: reaction.note?.map((note: any) => note.text).filter(Boolean)
         }))
+    };
+}
+
+function mapR4Immunization(immunization: any): CanonicalImmunization {
+    const vaccineCoding = immunization.vaccineCode?.coding?.[0];
+    const statusReasonCoding = immunization.statusReason?.coding?.[0];
+    const siteCoding = immunization.site?.coding?.[0];
+    const routeCoding = immunization.route?.coding?.[0];
+    const performer = immunization.performer?.[0];
+    const reaction = immunization.reaction?.[0];
+    const reactionManifestation = reaction?.manifestation?.[0]?.coding?.[0];
+    const protocol = immunization.protocolApplied?.[0];
+
+    return {
+        id: immunization.id,
+        identifier: immunization.identifier?.[0]?.value,
+        basedOn: immunization.basedOn?.map((ref: any) => ref.reference)?.filter(Boolean),
+        status: immunization.status,
+        statusReason: statusReasonCoding ? {
+            system: statusReasonCoding.system,
+            code: statusReasonCoding.code,
+            display: statusReasonCoding.display
+        } : undefined,
+        vaccineCode: vaccineCoding ? {
+            system: vaccineCoding.system,
+            code: vaccineCoding.code,
+            display: vaccineCoding.display
+        } : undefined,
+        manufacturer: immunization.manufacturer?.reference?.replace('Organization/', '') || undefined,
+        lotNumber: immunization.lotNumber,
+        expirationDate: immunization.expirationDate,
+        patient: immunization.patient?.reference?.replace('Patient/', ''),
+        encounter: immunization.encounter?.reference?.replace('Encounter/', ''),
+        supportingInformation: immunization.supportingInformation?.map((ref: any) => ref.reference)?.filter(Boolean),
+        occurrenceDateTime: immunization.occurrenceDateTime,
+        occurrenceString: immunization.occurrenceString,
+        primarySource: immunization.primarySource,
+        informationSource: immunization.informationSource?.reference?.replace('Organization/', ''),
+        location: immunization.location?.reference?.replace('Location/', ''),
+        site: siteCoding ? { system: siteCoding.system, code: siteCoding.code, display: siteCoding.display } : undefined,
+        route: routeCoding ? { system: routeCoding.system, code: routeCoding.code, display: routeCoding.display } : undefined,
+        doseQuantity: immunization.doseQuantity ? {
+            value: immunization.doseQuantity.value,
+            unit: immunization.doseQuantity.unit
+        } : undefined,
+        performer: performer ? [{
+            function: performer.function?.coding?.[0] ? {
+                system: performer.function.coding[0].system,
+                code: performer.function.coding[0].code,
+                display: performer.function.coding[0].display
+            } : undefined,
+            actor: performer.actor?.reference?.split('/').pop()
+        }] : undefined,
+        note: immunization.note?.map((note: any) => note.text).filter(Boolean),
+        reason: immunization.reasonCode?.map((reason: any) => ({
+            code: reason.coding?.[0]
+                ? {
+                    system: reason.coding[0].system,
+                    code: reason.coding[0].code,
+                    display: reason.coding[0].display
+                }
+                : undefined
+        })),
+        isSubpotent: immunization.isSubpotent,
+        subpotentReason: immunization.subpotentReason?.map((reason: any) => ({
+            system: reason.coding?.[0]?.system,
+            code: reason.coding?.[0]?.code,
+            display: reason.coding?.[0]?.display
+        })),
+        programEligibility: immunization.programEligibility?.map((program: any) => ({
+            program: program.program?.coding?.[0] ? {
+                system: program.program.coding[0].system,
+                code: program.program.coding[0].code,
+                display: program.program.coding[0].display
+            } : undefined,
+            programStatus: program.programStatus?.coding?.[0] ? {
+                system: program.programStatus.coding[0].system,
+                code: program.programStatus.coding[0].code,
+                display: program.programStatus.coding[0].display
+            } : undefined
+        })),
+        fundingSource: immunization.fundingSource?.coding?.[0] ? {
+            system: immunization.fundingSource.coding[0].system,
+            code: immunization.fundingSource.coding[0].code,
+            display: immunization.fundingSource.coding[0].display
+        } : undefined,
+        reaction: reaction ? [{
+            date: reaction.date,
+            manifestation: reactionManifestation ? {
+                system: reactionManifestation.system,
+                code: reactionManifestation.code,
+                display: reactionManifestation.display
+            } : undefined,
+            reported: reaction.reported
+        }] : undefined,
+        protocolApplied: protocol ? [{
+            series: protocol.series,
+            authority: protocol.authority?.reference?.replace('Organization/', ''),
+            targetDisease: protocol.targetDisease?.map((disease: any) => ({
+                system: disease.coding?.[0]?.system,
+                code: disease.coding?.[0]?.code,
+                display: disease.coding?.[0]?.display
+            })),
+            doseNumber: protocol.doseNumberString || protocol.doseNumberPositiveInt?.toString(),
+            seriesDoses: protocol.seriesDosesString || protocol.seriesDosesPositiveInt?.toString()
+        }] : undefined
     };
 }
 

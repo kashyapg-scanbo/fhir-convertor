@@ -1,0 +1,22 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John1",
+      "last_name": "Doe1"
+    }
+  },
+  "immunization": {
+    "immunization_id": "IMM-1",
+    "status": "completed",
+    "vaccine_code": {
+      "code": "207",
+      "display": "COVID-19 mRNA"
+    },
+    "patient_id": "PAT-1",
+    "occurrence_date": "2024-02-01T10:00:00Z",
+    "lot_number": "LOT-123",
+    "dose_value": 0.5,
+    "dose_unit": "mL"
+  }
+}

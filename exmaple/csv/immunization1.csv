@@ -1,0 +1,2 @@
+immunization_id,immunization_status,immunization_vaccine_code,immunization_vaccine_display,immunization_patient_id,immunization_occurrence_date,immunization_lot_number,immunization_dose_value,immunization_dose_unit
+IMM-1,completed,207,COVID-19 mRNA,PAT-1,2024-02-01T10:00:00Z,LOT-123,0.5,mL

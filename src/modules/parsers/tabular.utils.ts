@@ -924,6 +924,110 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (allergyIntolerances.length > 0) canonical.allergyIntolerances = allergyIntolerances as any[];
 
+  const immunizations = rows.map(row => {
+    const immunizationId = readValue(row, 'immunization_id');
+    const status = readValue(row, 'immunization_status');
+    const statusReason = readValue(row, 'immunization_status_reason');
+    const basedOnRaw = readValue(row, 'immunization_based_on_ids');
+    const vaccineCode = readValue(row, 'immunization_vaccine_code');
+    const vaccineSystem = readValue(row, 'immunization_vaccine_system');
+    const vaccineDisplay = readValue(row, 'immunization_vaccine_display');
+    const administeredProductId = readValue(row, 'immunization_administered_product_id');
+    const manufacturerId = readValue(row, 'immunization_manufacturer_id');
+    const lotNumber = readValue(row, 'immunization_lot_number');
+    const expirationDate = readValue(row, 'immunization_expiration_date');
+    const patientId = readValue(row, 'immunization_patient_id');
+    const encounterId = readValue(row, 'immunization_encounter_id');
+    const supportingInfoIds = readValue(row, 'immunization_supporting_info_ids');
+    const occurrenceDate = readValue(row, 'immunization_occurrence_date');
+    const occurrenceString = readValue(row, 'immunization_occurrence_string');
+    const primarySource = readBoolean(row, 'immunization_primary_source');
+    const informationSourceId = readValue(row, 'immunization_information_source_id');
+    const locationId = readValue(row, 'immunization_location_id');
+    const site = readValue(row, 'immunization_site');
+    const route = readValue(row, 'immunization_route');
+    const doseValue = readNumber(row, 'immunization_dose_value');
+    const doseUnit = readValue(row, 'immunization_dose_unit');
+    const performerActorId = readValue(row, 'immunization_performer_actor_id');
+    const performerFunction = readValue(row, 'immunization_performer_function');
+    const note = readValue(row, 'immunization_note');
+    const reasonRaw = readValue(row, 'immunization_reason');
+    const isSubpotent = readBoolean(row, 'immunization_is_subpotent');
+    const subpotentReasonRaw = readValue(row, 'immunization_subpotent_reason');
+    const programEligibilityProgram = readValue(row, 'immunization_program_eligibility_program');
+    const programEligibilityStatus = readValue(row, 'immunization_program_eligibility_status');
+    const fundingSource = readValue(row, 'immunization_funding_source');
+    const reactionDate = readValue(row, 'immunization_reaction_date');
+    const reactionManifestation = readValue(row, 'immunization_reaction_manifestation');
+    const reactionReported = readBoolean(row, 'immunization_reaction_reported');
+    const protocolSeries = readValue(row, 'immunization_protocol_series');
+    const protocolAuthorityId = readValue(row, 'immunization_protocol_authority_id');
+    const protocolTargetDisease = readValue(row, 'immunization_protocol_target_disease');
+    const protocolDoseNumber = readValue(row, 'immunization_protocol_dose_number');
+    const protocolSeriesDoses = readValue(row, 'immunization_protocol_series_doses');
+
+    if (!immunizationId && !vaccineCode && !vaccineDisplay && !lotNumber && !occurrenceDate) return null;
+
+    const basedOn = basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const supportingInfo = supportingInfoIds ? supportingInfoIds.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const reasons = reasonRaw ? reasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const subpotentReasons = subpotentReasonRaw ? subpotentReasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+
+    return {
+      id: immunizationId || undefined,
+      identifier: immunizationId || undefined,
+      basedOn: basedOn && basedOn.length ? basedOn : undefined,
+      status: status || undefined,
+      statusReason: statusReason ? { code: statusReason, display: statusReason } : undefined,
+      vaccineCode: (vaccineCode || vaccineDisplay) ? {
+        system: vaccineSystem,
+        code: vaccineCode,
+        display: vaccineDisplay
+      } : undefined,
+      administeredProduct: administeredProductId || undefined,
+      manufacturer: manufacturerId || undefined,
+      lotNumber: lotNumber || undefined,
+      expirationDate: expirationDate || undefined,
+      patient: patientId || undefined,
+      encounter: encounterId || undefined,
+      supportingInformation: supportingInfo && supportingInfo.length ? supportingInfo : undefined,
+      occurrenceDateTime: occurrenceDate || undefined,
+      occurrenceString: occurrenceString || undefined,
+      primarySource: primarySource,
+      informationSource: informationSourceId || undefined,
+      location: locationId || undefined,
+      site: site ? { code: site, display: site } : undefined,
+      route: route ? { code: route, display: route } : undefined,
+      doseQuantity: doseValue !== undefined ? { value: doseValue, unit: doseUnit } : undefined,
+      performer: (performerActorId || performerFunction) ? [{
+        function: performerFunction ? { code: performerFunction, display: performerFunction } : undefined,
+        actor: performerActorId || undefined
+      }] : undefined,
+      note: note ? [note] : undefined,
+      reason: reasons ? reasons.map(value => ({ code: { display: value } })) : undefined,
+      isSubpotent: isSubpotent,
+      subpotentReason: subpotentReasons ? subpotentReasons.map(value => ({ code: value, display: value })) : undefined,
+      programEligibility: (programEligibilityProgram || programEligibilityStatus) ? [{
+        program: programEligibilityProgram ? { code: programEligibilityProgram, display: programEligibilityProgram } : undefined,
+        programStatus: programEligibilityStatus ? { code: programEligibilityStatus, display: programEligibilityStatus } : undefined
+      }] : undefined,
+      fundingSource: fundingSource ? { code: fundingSource, display: fundingSource } : undefined,
+      reaction: (reactionDate || reactionManifestation || reactionReported !== undefined) ? [{
+        date: reactionDate,
+        manifestation: reactionManifestation ? { code: reactionManifestation, display: reactionManifestation } : undefined,
+        reported: reactionReported
+      }] : undefined,
+      protocolApplied: (protocolSeries || protocolAuthorityId || protocolTargetDisease) ? [{
+        series: protocolSeries,
+        authority: protocolAuthorityId || undefined,
+        targetDisease: protocolTargetDisease ? [{ code: protocolTargetDisease, display: protocolTargetDisease }] : undefined,
+        doseNumber: protocolDoseNumber,
+        seriesDoses: protocolSeriesDoses
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (immunizations.length > 0) canonical.immunizations = immunizations as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

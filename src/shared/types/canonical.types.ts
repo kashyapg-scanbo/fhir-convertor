@@ -1002,6 +1002,109 @@ export type CanonicalImagingStudy = {
   active?: boolean;
 };
 
+export type CanonicalImmunization = {
+  id?: string;
+  identifier?: string;
+  basedOn?: string[];
+  status?: string;
+  statusReason?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  vaccineCode?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  administeredProduct?: string;
+  manufacturer?: string;
+  lotNumber?: string;
+  expirationDate?: string;
+  patient?: string;
+  encounter?: string;
+  supportingInformation?: string[];
+  occurrenceDateTime?: string;
+  occurrenceString?: string;
+  primarySource?: boolean;
+  informationSource?: string;
+  location?: string;
+  site?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  route?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  doseQuantity?: {
+    value?: number;
+    unit?: string;
+  };
+  performer?: Array<{
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    actor?: string;
+  }>;
+  note?: string[];
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  isSubpotent?: boolean;
+  subpotentReason?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  programEligibility?: Array<{
+    program?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    programStatus?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  fundingSource?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  reaction?: Array<{
+    date?: string;
+    manifestation?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reported?: boolean;
+  }>;
+  protocolApplied?: Array<{
+    series?: string;
+    authority?: string;
+    targetDisease?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    doseNumber?: string;
+    seriesDoses?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -1067,6 +1170,7 @@ export type CanonicalModel = {
   specimens?: CanonicalSpecimen[]; // Specimen
   imagingStudies?: CanonicalImagingStudy[]; // ImagingStudy
   allergyIntolerances?: CanonicalAllergyIntolerance[]; // AllergyIntolerance
+  immunizations?: CanonicalImmunization[]; // Immunization
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

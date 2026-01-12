@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -715,9 +715,10 @@ export function buildCanonical(parsed: any) {
     result.medicationRequests = medicationRequests;
   }
 
+  const rxaSegments = parsed.RXA ?? [];
+
   /* ───── MedicationStatements (from RXA) ───── */
   const medicationStatements: CanonicalMedicationStatement[] = [];
-  const rxaSegments = parsed.RXA ?? [];
   for (const rxa of rxaSegments) {
     const administeredCode = rxa?.[4]?.[0] ?? [];
     const medCode = administeredCode[0];
@@ -755,6 +756,47 @@ export function buildCanonical(parsed: any) {
 
   if (medicationStatements.length > 0) {
     result.medicationStatements = medicationStatements;
+  }
+
+  /* ───── Immunizations (from RXA) ───── */
+  const immunizations: CanonicalImmunization[] = [];
+  for (const rxa of rxaSegments) {
+    const administeredCode = rxa?.[4]?.[0] ?? [];
+    const vaccineCode = administeredCode[0];
+    const vaccineDisplay = administeredCode[1];
+    const vaccineSystem = administeredCode[2];
+    if (!vaccineCode && !vaccineDisplay) continue;
+
+    const lotNumber = rxa?.[14]?.[0]?.[0];
+    const expirationDate = rxa?.[15]?.[0]?.[0];
+    const occurrenceDate = toFHIRDateTime(rxa?.[2]?.[0]?.[0]) || toFHIRDate(rxa?.[2]?.[0]?.[0]);
+    const doseValue = rxa?.[5]?.[0]?.[0];
+    const doseUnit = rxa?.[5]?.[0]?.[1];
+    const status = rxa?.[19]?.[0]?.[0];
+
+    immunizations.push({
+      id: `IMMU-${vaccineCode || Date.now()}`,
+      identifier: vaccineCode,
+      status: status || 'completed',
+      vaccineCode: vaccineCode || vaccineDisplay ? {
+        system: mapCodingSystem(vaccineSystem),
+        code: vaccineCode,
+        display: vaccineDisplay
+      } : undefined,
+      lotNumber: lotNumber,
+      expirationDate: expirationDate ? toFHIRDate(expirationDate) : undefined,
+      patient: patientId,
+      encounter: encounter?.id,
+      occurrenceDateTime: occurrenceDate,
+      doseQuantity: doseValue ? {
+        value: Number(doseValue),
+        unit: doseUnit
+      } : undefined
+    });
+  }
+
+  if (immunizations.length > 0) {
+    result.immunizations = immunizations;
   }
 
   /* ───── Procedures (from PR1) ───── */

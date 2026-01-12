@@ -536,6 +536,51 @@ const GlobalAllergyIntoleranceSchema = z.object({
   reaction_note: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalImmunizationSchema = z.object({
+  immunization_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  status_reason: z.string().optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  vaccine_code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  administered_product_id: GlobalIdSchema.optional(),
+  manufacturer_id: GlobalIdSchema.optional(),
+  lot_number: z.string().optional(),
+  expiration_date: z.string().optional(),
+  patient_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  supporting_info_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  occurrence_date: z.string().optional(),
+  occurrence_string: z.string().optional(),
+  primary_source: z.boolean().optional(),
+  information_source_id: GlobalIdSchema.optional(),
+  location_id: GlobalIdSchema.optional(),
+  site: z.string().optional(),
+  route: z.string().optional(),
+  dose_value: GlobalNumberSchema.optional(),
+  dose_unit: z.string().optional(),
+  performer_actor_id: GlobalIdSchema.optional(),
+  performer_function: z.string().optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  is_subpotent: z.boolean().optional(),
+  subpotent_reason: z.union([z.string(), z.array(z.string())]).optional(),
+  program_eligibility_program: z.string().optional(),
+  program_eligibility_status: z.string().optional(),
+  funding_source: z.string().optional(),
+  reaction_date: z.string().optional(),
+  reaction_manifestation: z.string().optional(),
+  reaction_reported: z.boolean().optional(),
+  protocol_series: z.string().optional(),
+  protocol_authority_id: GlobalIdSchema.optional(),
+  protocol_target_disease: z.string().optional(),
+  protocol_dose_number: z.string().optional(),
+  protocol_series_doses: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -638,6 +683,7 @@ const GlobalCustomJSONSchema = z.object({
   specimen: z.union([GlobalSpecimenSchema, z.array(GlobalSpecimenSchema)]).optional(),
   imaging_study: z.union([GlobalImagingStudySchema, z.array(GlobalImagingStudySchema)]).optional(),
   allergy_intolerance: z.union([GlobalAllergyIntoleranceSchema, z.array(GlobalAllergyIntoleranceSchema)]).optional(),
+  immunization: z.union([GlobalImmunizationSchema, z.array(GlobalImmunizationSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -660,12 +706,13 @@ const GlobalCustomJSONSchema = z.object({
     value.specimen ||
     value.imaging_study ||
     value.allergy_intolerance ||
+    value.immunization ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -697,6 +744,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   specimens: 'specimen',
   imagingStudies: 'imagingStudy',
   allergyIntolerances: 'allergyIntolerance',
+  immunizations: 'immunization',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -733,6 +781,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   imaging_studies: 'imagingStudy',
   allergy_intolerance: 'allergyIntolerance',
   allergy_intolerances: 'allergyIntolerance',
+  immunization: 'immunization',
+  immunizations: 'immunization',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -804,6 +854,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   allergy_intolerances: 'allergy_intolerance',
   allergyintolerance: 'allergy_intolerance',
   allergyintolerances: 'allergy_intolerance',
+  immunization: 'immunization',
+  immunizations: 'immunization',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1918,6 +1970,137 @@ function normalizeGlobalAllergyIntoleranceAliases(value: Record<string, unknown>
   return normalized;
 }
 
+function normalizeGlobalImmunizationAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const vaccineCode = isPlainRecord(normalized.vaccine_code) ? { ...normalized.vaccine_code } : {};
+
+  const immunizationId = readSectionAliasValue(value, 'immunization', 'immunization_id');
+  if (normalized.immunization_id === undefined && immunizationId !== undefined) {
+    normalized.immunization_id = immunizationId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const statusReason = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_status_reason'));
+  if (statusReason && normalized.status_reason === undefined) normalized.status_reason = statusReason;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const vaccineCodeValue = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_vaccine_code'));
+  if (vaccineCodeValue && vaccineCode.code === undefined) vaccineCode.code = vaccineCodeValue;
+
+  const vaccineSystem = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_vaccine_system'));
+  if (vaccineSystem && vaccineCode.code_system === undefined) vaccineCode.code_system = vaccineSystem;
+
+  const vaccineDisplay = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_vaccine_display'));
+  if (vaccineDisplay && vaccineCode.display === undefined) vaccineCode.display = vaccineDisplay;
+
+  const administeredProductId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_administered_product_id'));
+  if (administeredProductId && normalized.administered_product_id === undefined) normalized.administered_product_id = administeredProductId;
+
+  const manufacturerId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_manufacturer_id'));
+  if (manufacturerId && normalized.manufacturer_id === undefined) normalized.manufacturer_id = manufacturerId;
+
+  const lotNumber = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_lot_number'));
+  if (lotNumber && normalized.lot_number === undefined) normalized.lot_number = lotNumber;
+
+  const expirationDate = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_expiration_date'));
+  if (expirationDate && normalized.expiration_date === undefined) normalized.expiration_date = expirationDate;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const supportingInfoIds = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_supporting_info_ids'));
+  if (supportingInfoIds && normalized.supporting_info_ids === undefined) normalized.supporting_info_ids = supportingInfoIds;
+
+  const occurrenceDate = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_occurrence_date'));
+  if (occurrenceDate && normalized.occurrence_date === undefined) normalized.occurrence_date = occurrenceDate;
+
+  const occurrenceString = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_occurrence_string'));
+  if (occurrenceString && normalized.occurrence_string === undefined) normalized.occurrence_string = occurrenceString;
+
+  const primarySource = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_primary_source'));
+  if (primarySource && normalized.primary_source === undefined) normalized.primary_source = primarySource;
+
+  const informationSourceId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_information_source_id'));
+  if (informationSourceId && normalized.information_source_id === undefined) normalized.information_source_id = informationSourceId;
+
+  const locationId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_location_id'));
+  if (locationId && normalized.location_id === undefined) normalized.location_id = locationId;
+
+  const site = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_site'));
+  if (site && normalized.site === undefined) normalized.site = site;
+
+  const route = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_route'));
+  if (route && normalized.route === undefined) normalized.route = route;
+
+  const doseValue = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_dose_value'));
+  if (doseValue && normalized.dose_value === undefined) normalized.dose_value = doseValue;
+
+  const doseUnit = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_dose_unit'));
+  if (doseUnit && normalized.dose_unit === undefined) normalized.dose_unit = doseUnit;
+
+  const performerActorId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_performer_actor_id'));
+  if (performerActorId && normalized.performer_actor_id === undefined) normalized.performer_actor_id = performerActorId;
+
+  const performerFunction = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_performer_function'));
+  if (performerFunction && normalized.performer_function === undefined) normalized.performer_function = performerFunction;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const isSubpotent = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_is_subpotent'));
+  if (isSubpotent && normalized.is_subpotent === undefined) normalized.is_subpotent = isSubpotent;
+
+  const subpotentReason = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_subpotent_reason'));
+  if (subpotentReason && normalized.subpotent_reason === undefined) normalized.subpotent_reason = subpotentReason;
+
+  const programEligibilityProgram = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_program_eligibility_program'));
+  if (programEligibilityProgram && normalized.program_eligibility_program === undefined) normalized.program_eligibility_program = programEligibilityProgram;
+
+  const programEligibilityStatus = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_program_eligibility_status'));
+  if (programEligibilityStatus && normalized.program_eligibility_status === undefined) normalized.program_eligibility_status = programEligibilityStatus;
+
+  const fundingSource = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_funding_source'));
+  if (fundingSource && normalized.funding_source === undefined) normalized.funding_source = fundingSource;
+
+  const reactionDate = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_reaction_date'));
+  if (reactionDate && normalized.reaction_date === undefined) normalized.reaction_date = reactionDate;
+
+  const reactionManifestation = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_reaction_manifestation'));
+  if (reactionManifestation && normalized.reaction_manifestation === undefined) normalized.reaction_manifestation = reactionManifestation;
+
+  const reactionReported = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_reaction_reported'));
+  if (reactionReported && normalized.reaction_reported === undefined) normalized.reaction_reported = reactionReported;
+
+  const protocolSeries = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_protocol_series'));
+  if (protocolSeries && normalized.protocol_series === undefined) normalized.protocol_series = protocolSeries;
+
+  const protocolAuthorityId = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_protocol_authority_id'));
+  if (protocolAuthorityId && normalized.protocol_authority_id === undefined) normalized.protocol_authority_id = protocolAuthorityId;
+
+  const protocolTargetDisease = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_protocol_target_disease'));
+  if (protocolTargetDisease && normalized.protocol_target_disease === undefined) normalized.protocol_target_disease = protocolTargetDisease;
+
+  const protocolDoseNumber = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_protocol_dose_number'));
+  if (protocolDoseNumber && normalized.protocol_dose_number === undefined) normalized.protocol_dose_number = protocolDoseNumber;
+
+  const protocolSeriesDoses = normalizeAliasValue(readSectionAliasValue(value, 'immunization', 'immunization_protocol_series_doses'));
+  if (protocolSeriesDoses && normalized.protocol_series_doses === undefined) normalized.protocol_series_doses = protocolSeriesDoses;
+
+  if (Object.keys(vaccineCode).length > 0) normalized.vaccine_code = vaccineCode;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -2118,6 +2301,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalImagingStudyAliases(value);
     case 'allergyIntolerance':
       return normalizeGlobalAllergyIntoleranceAliases(value);
+    case 'immunization':
+      return normalizeGlobalImmunizationAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -2145,6 +2330,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['diagnosticReport', 'diagnostic_report'],
     ['relatedPerson', 'related_person'],
     ['location', 'location'],
+    ['immunization', 'immunization'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
     ['organization', 'organization']
@@ -2258,6 +2444,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'specimen',
     'imagingStudy',
     'allergyIntolerance',
+    'immunization',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -2381,6 +2568,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const specimens = normalizeArray(validated.specimen);
   const imagingStudies = normalizeArray(validated.imaging_study);
   const allergyIntolerances = normalizeArray(validated.allergy_intolerance);
+  const immunizations = normalizeArray(validated.immunization);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -2437,6 +2625,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (allergyIntolerances.length) {
     canonical.allergyIntolerances = allergyIntolerances.map(buildCanonicalAllergyIntoleranceGlobal);
   }
+  if (immunizations.length) {
+    canonical.immunizations = immunizations.map(buildCanonicalImmunizationGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -2476,7 +2667,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -2497,6 +2688,7 @@ function wrapGlobalPayload(value: any) {
       value.specimen,
       value.imaging_study,
       value.allergy_intolerance,
+      value.immunization,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -2553,6 +2745,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('allergy_id' in value || 'clinical_status' in value || 'criticality' in value) {
       return { allergy_intolerance: value };
+    }
+    if ('immunization_id' in value || 'vaccine_code' in value || 'lot_number' in value) {
+      return { immunization: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -2622,6 +2817,9 @@ function looksLikeGlobalResource(value: any) {
     'allergy_id' in value ||
     'clinical_status' in value ||
     'criticality' in value ||
+    'immunization_id' in value ||
+    'vaccine_code' in value ||
+    'lot_number' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -3342,6 +3540,95 @@ function buildCanonicalAllergyIntoleranceGlobal(allergy: z.infer<typeof GlobalAl
     lastOccurrence: allergy.last_occurrence,
     note: notes.length ? notes : undefined,
     reaction
+  };
+}
+
+function buildCanonicalImmunizationGlobal(immunization: z.infer<typeof GlobalImmunizationSchema>) {
+  const basedOn = normalizeStringArray(immunization.based_on_ids);
+  const supportingInfo = normalizeStringArray(immunization.supporting_info_ids);
+  const notes = normalizeStringArray(immunization.note);
+  const reasons = normalizeStringArray(immunization.reason);
+  const subpotentReasons = normalizeStringArray(immunization.subpotent_reason);
+
+  const doseValue = immunization.dose_value !== undefined ? Number(immunization.dose_value) : undefined;
+
+  const performer = immunization.performer_actor_id || immunization.performer_function ? [{
+    function: immunization.performer_function ? { code: immunization.performer_function, display: immunization.performer_function } : undefined,
+    actor: immunization.performer_actor_id || undefined
+  }] : undefined;
+
+  const programEligibility = (immunization.program_eligibility_program || immunization.program_eligibility_status)
+    ? [{
+      program: immunization.program_eligibility_program ? {
+        code: immunization.program_eligibility_program,
+        display: immunization.program_eligibility_program
+      } : undefined,
+      programStatus: immunization.program_eligibility_status ? {
+        code: immunization.program_eligibility_status,
+        display: immunization.program_eligibility_status
+      } : undefined
+    }]
+    : undefined;
+
+  const reaction = (immunization.reaction_date || immunization.reaction_manifestation || immunization.reaction_reported !== undefined)
+    ? [{
+      date: immunization.reaction_date,
+      manifestation: immunization.reaction_manifestation ? {
+        code: immunization.reaction_manifestation,
+        display: immunization.reaction_manifestation
+      } : undefined,
+      reported: normalizeBoolean(immunization.reaction_reported as any)
+    }]
+    : undefined;
+
+  const protocolApplied = (immunization.protocol_series || immunization.protocol_authority_id || immunization.protocol_target_disease)
+    ? [{
+      series: immunization.protocol_series,
+      authority: immunization.protocol_authority_id,
+      targetDisease: immunization.protocol_target_disease ? [{
+        code: immunization.protocol_target_disease,
+        display: immunization.protocol_target_disease
+      }] : undefined,
+      doseNumber: immunization.protocol_dose_number,
+      seriesDoses: immunization.protocol_series_doses
+    }]
+    : undefined;
+
+  return {
+    id: immunization.immunization_id,
+    identifier: immunization.immunization_id,
+    basedOn: basedOn.length ? basedOn : undefined,
+    status: immunization.status,
+    statusReason: immunization.status_reason ? { code: immunization.status_reason, display: immunization.status_reason } : undefined,
+    vaccineCode: immunization.vaccine_code?.code || immunization.vaccine_code?.display ? {
+      system: immunization.vaccine_code?.code_system,
+      code: immunization.vaccine_code?.code,
+      display: immunization.vaccine_code?.display
+    } : undefined,
+    administeredProduct: immunization.administered_product_id,
+    manufacturer: immunization.manufacturer_id,
+    lotNumber: immunization.lot_number,
+    expirationDate: immunization.expiration_date,
+    patient: immunization.patient_id,
+    encounter: immunization.encounter_id,
+    supportingInformation: supportingInfo.length ? supportingInfo : undefined,
+    occurrenceDateTime: immunization.occurrence_date,
+    occurrenceString: immunization.occurrence_string,
+    primarySource: normalizeBoolean(immunization.primary_source as any),
+    informationSource: immunization.information_source_id,
+    location: immunization.location_id,
+    site: immunization.site ? { code: immunization.site, display: immunization.site } : undefined,
+    route: immunization.route ? { code: immunization.route, display: immunization.route } : undefined,
+    doseQuantity: doseValue !== undefined ? { value: doseValue, unit: immunization.dose_unit } : undefined,
+    performer,
+    note: notes.length ? notes : undefined,
+    reason: reasons.length ? reasons.map(value => ({ code: { display: value } })) : undefined,
+    isSubpotent: normalizeBoolean(immunization.is_subpotent as any),
+    subpotentReason: subpotentReasons.length ? subpotentReasons.map(value => ({ code: value, display: value })) : undefined,
+    programEligibility,
+    fundingSource: immunization.funding_source ? { code: immunization.funding_source, display: immunization.funding_source } : undefined,
+    reaction,
+    protocolApplied
   };
 }
 

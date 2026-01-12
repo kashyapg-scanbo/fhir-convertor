@@ -22,7 +22,8 @@ import {
     CanonicalEpisodeOfCare,
     CanonicalSpecimen,
     CanonicalImagingStudy,
-    CanonicalAllergyIntolerance
+    CanonicalAllergyIntolerance,
+    CanonicalImmunization
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -70,6 +71,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         specimens: [],
         imagingStudies: [],
         allergyIntolerances: [],
+        immunizations: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -167,6 +169,9 @@ export function parseHL7v3(input: string): CanonicalModel {
                 if (medication) model.medications?.push(medication);
                 if (medicationRequest) model.medicationRequests?.push(medicationRequest);
                 if (medicationStatement) model.medicationStatements?.push(medicationStatement);
+
+                const immunization = mapV3Immunization(substanceAdministration);
+                if (immunization) model.immunizations?.push(immunization);
             }
 
             const procedureEvent = sub.procedure || sub.Procedure;
@@ -652,6 +657,46 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
     }
 
     return { medication, medicationRequest, medicationStatement };
+}
+
+function mapV3Immunization(substanceAdmin: any): CanonicalImmunization | undefined {
+    const consumable = substanceAdmin.consumable || substanceAdmin.Consumable;
+    const manufacturedProduct = consumable?.manufacturedProduct || consumable?.ManufacturedProduct;
+    const manufacturedMaterial = manufacturedProduct?.manufacturedMaterial || manufacturedProduct?.ManufacturedMaterial;
+    const code = manufacturedMaterial?.code || manufacturedMaterial?.Code;
+
+    const vaccineCode = code?.['@_code'];
+    const vaccineDisplay = code?.['@_displayName'];
+    const vaccineSystem = code?.['@_codeSystem'];
+
+    if (!vaccineCode && !vaccineDisplay) return undefined;
+
+    const status = substanceAdmin.statusCode?.['@_code'] || 'completed';
+    const occurrence = formatV3DateTime(
+        substanceAdmin.effectiveTime?.['@_value'] ||
+        substanceAdmin.EffectiveTime?.['@_value'] ||
+        substanceAdmin.effectiveTime?.low?.['@_value']
+    );
+    const dose = substanceAdmin.doseQuantity || substanceAdmin.DoseQuantity;
+    const lotNode = manufacturedProduct?.lotNumberText || manufacturedProduct?.LotNumberText;
+    const lotNumber = typeof lotNode === 'string' ? lotNode : lotNode?.['#text'];
+
+    return {
+        id: `IMM-${vaccineCode || Date.now()}`,
+        identifier: vaccineCode,
+        status,
+        vaccineCode: vaccineCode || vaccineDisplay ? {
+            system: vaccineSystem,
+            code: vaccineCode,
+            display: vaccineDisplay
+        } : undefined,
+        lotNumber: lotNumber,
+        occurrenceDateTime: occurrence,
+        doseQuantity: dose?.['@_value'] ? {
+            value: Number(dose['@_value']),
+            unit: dose?.['@_unit']
+        } : undefined
+    };
 }
 
 function mapV3Procedure(procEvent: any): CanonicalProcedure | undefined {

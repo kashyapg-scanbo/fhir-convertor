@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-1"/>
+      <patient>
+        <name>
+          <family>Doe1</family>
+          <given>John1</given>
+        </name>
+        <administrativeGenderCode code="M"/>
+        <birthTime value="19800101"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="11369-6" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <substanceAdministration>
+              <id extension="IMM1"/>
+              <effectiveTime value="202402011000"/>
+              <doseQuantity value="0.5" unit="mL"/>
+              <routeCode code="IM" displayName="Intramuscular"/>
+              <consumable>
+                <manufacturedProduct>
+                  <manufacturedMaterial>
+                    <code code="207" displayName="COVID-19 mRNA" codeSystem="2.16.840.1.113883.12.292"/>
+                  </manufacturedMaterial>
+                  <lotNumberText>LOT123</lotNumberText>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

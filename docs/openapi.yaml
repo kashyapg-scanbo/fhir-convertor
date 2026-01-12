@@ -36,6 +36,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
                 - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
                 - $ref: '#/components/schemas/CustomJsonAllergyIntoleranceOnly'
+                - $ref: '#/components/schemas/CustomJsonImmunizationOnly'
                 - $ref: '#/components/schemas/CustomJsonFull'
             examples:
               patient:
@@ -378,6 +379,20 @@ paths:
                     recorded_date: 2024-02-01T00:00:00Z
                     reaction_manifestation:
                       - Hives
+              immunization:
+                summary: Immunization
+                value:
+                  immunization:
+                    immunization_id: IMM-100
+                    status: completed
+                    vaccine_code:
+                      code: 207
+                      display: COVID-19 mRNA
+                    patient_id: P-10001
+                    occurrence_date: 2024-02-15T10:00:00Z
+                    lot_number: LOT-7788
+                    dose_value: 0.5
+                    dose_unit: mL
               fullBundle:
                 summary: Full bundle
                 value:
@@ -444,6 +459,10 @@ paths:
                     clinical_status: active
                     verification_status: confirmed
                     patient_id: P-10001
+                  immunization:
+                    immunization_id: IMM-100
+                    status: completed
+                    patient_id: P-10001
       responses:
         '200':
           description: FHIR R5 Bundle
@@ -465,7 +484,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -610,7 +629,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -719,6 +738,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomAllergyIntolerance'
+        immunization:
+          oneOf:
+            - $ref: '#/components/schemas/CustomImmunization'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomImmunization'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1797,7 +1822,118 @@ components:
             - type: array
               items:
                 type: string
+    CustomImmunization:
+      type: object
+      properties:
+        immunization_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        vaccine_code:
+          $ref: '#/components/schemas/CustomImmunizationCode'
+        administered_product_id:
+          type: string
+        manufacturer_id:
+          type: string
+        lot_number:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_string:
+          type: string
+        primary_source:
+          type: boolean
+        information_source_id:
+          type: string
+        location_id:
+          type: string
+        site:
+          type: string
+        route:
+          type: string
+        dose_value:
+          type: number
+        dose_unit:
+          type: string
+        performer_actor_id:
+          type: string
+        performer_function:
+          type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        is_subpotent:
+          type: boolean
+        subpotent_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        program_eligibility_program:
+          type: string
+        program_eligibility_status:
+          type: string
+        funding_source:
+          type: string
+        reaction_date:
+          type: string
+          format: date-time
+        reaction_manifestation:
+          type: string
+        reaction_reported:
+          type: boolean
+        protocol_series:
+          type: string
+        protocol_authority_id:
+          type: string
+        protocol_target_disease:
+          type: string
+        protocol_dose_number:
+          type: string
+        protocol_series_doses:
+          type: string
     CustomAllergyCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomImmunizationCode:
       type: object
       properties:
         code:
@@ -2112,6 +2248,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [allergy_intolerance]
+    CustomJsonImmunizationOnly:
+      title: Immunization
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [immunization]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:
