@@ -20,7 +20,8 @@ import {
     CanonicalRelatedPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
-    CanonicalSpecimen
+    CanonicalSpecimen,
+    CanonicalImagingStudy
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -66,6 +67,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         locations: [],
         episodesOfCare: [],
         specimens: [],
+        imagingStudies: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -175,6 +177,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (specimenEvent) {
                 const specimen = mapV3Specimen(specimenEvent);
                 if (specimen) model.specimens?.push(specimen);
+            }
+
+            const imagingEvent = sub.imagingStudy || sub.ImagingStudy;
+            if (imagingEvent) {
+                const imagingStudy = mapV3ImagingStudy(imagingEvent);
+                if (imagingStudy) model.imagingStudies?.push(imagingStudy);
             }
         }
     }
@@ -330,6 +338,30 @@ function mapV3Specimen(specimenEvent: any): CanonicalSpecimen | undefined {
         collection: collectedTime ? {
             collectedDateTime: formatV3DateTime(collectedTime)
         } : undefined
+    };
+}
+
+function mapV3ImagingStudy(imagingEvent: any): CanonicalImagingStudy | undefined {
+    const study = imagingEvent.imagingStudy || imagingEvent.ImagingStudy || imagingEvent;
+    const idInfo = pickV3Id(study.id || study.Id);
+    const code = study.code || study.Code;
+    const effectiveTime = study.effectiveTime || study.EffectiveTime;
+    const started = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const status = study.statusCode?.['@_code'];
+
+    if (!idInfo.id && !idInfo.identifier && !code?.['@_code'] && !code?.['@_displayName']) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier || idInfo.id,
+        status: status || 'available',
+        modality: (code?.['@_code'] || code?.['@_displayName']) ? [{
+            system: code?.['@_codeSystem'],
+            code: code?.['@_code'],
+            display: code?.['@_displayName']
+        }] : undefined,
+        started: formatV3DateTime(started),
+        description: code?.['@_displayName']
     };
 }
 

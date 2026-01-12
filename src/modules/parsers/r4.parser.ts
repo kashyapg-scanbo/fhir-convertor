@@ -20,7 +20,8 @@ import {
     CanonicalRelatedPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
-    CanonicalSpecimen
+    CanonicalSpecimen,
+    CanonicalImagingStudy
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -52,6 +53,7 @@ export function parseR4(input: string): CanonicalModel {
         locations: [],
         episodesOfCare: [],
         specimens: [],
+        imagingStudies: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -142,6 +144,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Specimen':
                 const specimen = mapR4Specimen(res);
                 if (specimen) model.specimens?.push(specimen);
+                break;
+            case 'ImagingStudy':
+                const imagingStudy = mapR4ImagingStudy(res);
+                if (imagingStudy) model.imagingStudies?.push(imagingStudy);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -858,6 +864,91 @@ function mapR4Specimen(spec: any): CanonicalSpecimen {
             display: condition.coding?.[0]?.display
         })),
         note: spec.note?.map((note: any) => note.text).filter(Boolean)
+    };
+}
+
+function mapR4ImagingStudy(study: any): CanonicalImagingStudy {
+    return {
+        id: study.id,
+        identifier: study.identifier?.[0]?.value,
+        status: study.status,
+        modality: study.modality?.map((mod: any) => ({
+            system: mod.coding?.[0]?.system,
+            code: mod.coding?.[0]?.code,
+            display: mod.coding?.[0]?.display
+        })),
+        subject: study.subject?.reference?.replace(/^(Patient|Group|Device)\//, ''),
+        encounter: study.encounter?.reference?.replace('Encounter/', ''),
+        started: study.started,
+        basedOn: study.basedOn?.map((ref: any) => ref.reference?.replace(/^(Appointment|AppointmentResponse|CarePlan|ServiceRequest|Task)\//, '')).filter(Boolean),
+        partOf: study.partOf?.map((ref: any) => ref.reference?.replace('Procedure/', '')).filter(Boolean),
+        referrer: study.referrer?.reference?.replace(/^(Practitioner|PractitionerRole)\//, ''),
+        endpoint: study.endpoint?.map((ref: any) => ref.reference?.replace('Endpoint/', '')).filter(Boolean),
+        numberOfSeries: study.numberOfSeries,
+        numberOfInstances: study.numberOfInstances,
+        procedure: study.procedure?.map((proc: any) => {
+            const concept = proc.concept?.coding?.[0];
+            return concept ? {
+                system: concept.system,
+                code: concept.code,
+                display: concept.display
+            } : undefined;
+        }).filter(Boolean),
+        location: study.location?.reference?.replace('Location/', ''),
+        reason: study.reason?.flatMap((reason: any) => {
+            const concepts = reason.value?.map((value: any) => value.concept).filter(Boolean) ?? [];
+            return concepts.map((concept: any) => ({
+                code: {
+                    system: concept.coding?.[0]?.system,
+                    code: concept.coding?.[0]?.code,
+                    display: concept.coding?.[0]?.display || concept.text
+                }
+            }));
+        }),
+        note: study.note?.map((note: any) => note.text).filter(Boolean),
+        description: study.description,
+        series: study.series?.map((series: any) => ({
+            uid: series.uid,
+            number: series.number,
+            modality: series.modality?.coding?.[0] ? {
+                system: series.modality.coding[0].system,
+                code: series.modality.coding[0].code,
+                display: series.modality.coding[0].display
+            } : undefined,
+            description: series.description,
+            numberOfInstances: series.numberOfInstances,
+            endpoint: series.endpoint?.map((ref: any) => ref.reference?.replace('Endpoint/', '')).filter(Boolean),
+            bodySite: series.bodySite?.concept?.coding?.[0] ? {
+                system: series.bodySite.concept.coding[0].system,
+                code: series.bodySite.concept.coding[0].code,
+                display: series.bodySite.concept.coding[0].display
+            } : undefined,
+            laterality: series.laterality?.coding?.[0] ? {
+                system: series.laterality.coding[0].system,
+                code: series.laterality.coding[0].code,
+                display: series.laterality.coding[0].display
+            } : undefined,
+            specimen: series.specimen?.map((ref: any) => ref.reference?.replace('Specimen/', '')).filter(Boolean),
+            started: series.started,
+            performer: series.performer?.map((perf: any) => ({
+                function: perf.function?.coding?.[0] ? {
+                    system: perf.function.coding[0].system,
+                    code: perf.function.coding[0].code,
+                    display: perf.function.coding[0].display
+                } : undefined,
+                actor: perf.actor?.reference?.replace(/^(CareTeam|Device|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')
+            })),
+            instance: series.instance?.map((instance: any) => ({
+                uid: instance.uid,
+                sopClass: instance.sopClass ? {
+                    system: instance.sopClass.system,
+                    code: instance.sopClass.code,
+                    display: instance.sopClass.display
+                } : undefined,
+                number: instance.number,
+                title: instance.title
+            }))
+        }))
     };
 }
 

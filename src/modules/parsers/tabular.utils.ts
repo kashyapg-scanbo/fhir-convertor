@@ -761,6 +761,97 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (specimens.length > 0) canonical.specimens = specimens as any[];
 
+  const imagingStudies = rows.map(row => {
+    const studyId = readValue(row, 'imaging_study_id');
+    const identifier = readValue(row, 'imaging_study_identifier');
+    const status = readValue(row, 'imaging_study_status');
+    const modality = readValue(row, 'imaging_study_modality');
+    const subjectId = readValue(row, 'imaging_study_subject_id');
+    const encounterId = readValue(row, 'imaging_study_encounter_id');
+    const started = readValue(row, 'imaging_study_started');
+    const basedOnRaw = readValue(row, 'imaging_study_based_on_ids');
+    const partOfRaw = readValue(row, 'imaging_study_part_of_ids');
+    const referrerId = readValue(row, 'imaging_study_referrer_id');
+    const endpointRaw = readValue(row, 'imaging_study_endpoint_ids');
+    const numberOfSeries = readNumber(row, 'imaging_study_number_of_series');
+    const numberOfInstances = readNumber(row, 'imaging_study_number_of_instances');
+    const procedureRaw = readValue(row, 'imaging_study_procedure');
+    const locationId = readValue(row, 'imaging_study_location_id');
+    const reasonRaw = readValue(row, 'imaging_study_reason');
+    const note = readValue(row, 'imaging_study_note');
+    const description = readValue(row, 'imaging_study_description');
+
+    const seriesUid = readValue(row, 'imaging_series_uid');
+    const seriesNumber = readNumber(row, 'imaging_series_number');
+    const seriesModality = readValue(row, 'imaging_series_modality');
+    const seriesDescription = readValue(row, 'imaging_series_description');
+    const seriesInstances = readNumber(row, 'imaging_series_number_of_instances');
+    const seriesEndpointRaw = readValue(row, 'imaging_series_endpoint_ids');
+    const seriesBodySite = readValue(row, 'imaging_series_body_site');
+    const seriesLaterality = readValue(row, 'imaging_series_laterality');
+    const seriesSpecimenRaw = readValue(row, 'imaging_series_specimen_ids');
+    const seriesStarted = readValue(row, 'imaging_series_started');
+    const seriesPerformerId = readValue(row, 'imaging_series_performer_id');
+    const instanceUid = readValue(row, 'imaging_instance_uid');
+    const instanceSopClass = readValue(row, 'imaging_instance_sop_class');
+    const instanceNumber = readNumber(row, 'imaging_instance_number');
+    const instanceTitle = readValue(row, 'imaging_instance_title');
+
+    if (!studyId && !identifier && !status && !modality && !started) return null;
+
+    const basedOnIds = basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const partOfIds = partOfRaw ? partOfRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const endpointIds = endpointRaw ? endpointRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const procedures = procedureRaw ? procedureRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const reasons = reasonRaw ? reasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const seriesEndpoints = seriesEndpointRaw ? seriesEndpointRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const seriesSpecimens = seriesSpecimenRaw ? seriesSpecimenRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+
+    const series = (seriesUid || seriesNumber !== undefined || seriesModality || seriesDescription)
+      ? [{
+        uid: seriesUid || undefined,
+        number: seriesNumber !== undefined ? seriesNumber : undefined,
+        modality: seriesModality ? { code: seriesModality, display: seriesModality } : undefined,
+        description: seriesDescription,
+        numberOfInstances: seriesInstances !== undefined ? seriesInstances : undefined,
+        endpoint: seriesEndpoints,
+        bodySite: seriesBodySite ? { display: seriesBodySite } : undefined,
+        laterality: seriesLaterality ? { display: seriesLaterality } : undefined,
+        specimen: seriesSpecimens,
+        started: seriesStarted,
+        performer: seriesPerformerId ? [{ actor: seriesPerformerId }] : undefined,
+        instance: (instanceUid || instanceSopClass || instanceNumber !== undefined || instanceTitle) ? [{
+          uid: instanceUid || undefined,
+          sopClass: instanceSopClass ? { code: instanceSopClass, display: instanceSopClass } : undefined,
+          number: instanceNumber !== undefined ? instanceNumber : undefined,
+          title: instanceTitle
+        }] : undefined
+      }] : undefined;
+
+    return {
+      id: studyId || undefined,
+      identifier: identifier || studyId || undefined,
+      status: status || undefined,
+      modality: modality ? [{ code: modality, display: modality }] : undefined,
+      subject: subjectId || undefined,
+      encounter: encounterId || undefined,
+      started: started || undefined,
+      basedOn: basedOnIds,
+      partOf: partOfIds,
+      referrer: referrerId || undefined,
+      endpoint: endpointIds,
+      numberOfSeries,
+      numberOfInstances,
+      procedure: procedures ? procedures.map(value => ({ code: value, display: value })) : undefined,
+      location: locationId || undefined,
+      reason: reasons ? reasons.map(value => ({ code: { display: value } })) : undefined,
+      note: note ? [note] : undefined,
+      description: description || undefined,
+      series
+    };
+  }).filter(Boolean);
+  if (imagingStudies.length > 0) canonical.imagingStudies = imagingStudies as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

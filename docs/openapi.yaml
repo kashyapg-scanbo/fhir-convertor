@@ -34,6 +34,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonLocationOnly'
                 - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
                 - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
+                - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
                 - $ref: '#/components/schemas/CustomJsonFull'
             examples:
               patient:
@@ -343,6 +344,21 @@ paths:
                       - refrigerated
                     note:
                       - Sample kept at 4C
+              imaging_study:
+                summary: ImagingStudy
+                value:
+                  imaging_study:
+                    imaging_study_id: IMG-100
+                    status: available
+                    modality:
+                      - CT
+                    subject_id: P-10001
+                    encounter_id: ENC345678
+                    started: 2024-02-01T08:30:00Z
+                    description: CT Chest
+                    series_uid: 1.2.3.4.5.1
+                    series_modality: CT
+                    series_number_of_instances: 25
               fullBundle:
                 summary: Full bundle
                 value:
@@ -399,6 +415,11 @@ paths:
                     status: available
                     subject_id: P-10001
                     received_time: 2024-02-01T10:00:00Z
+                  imaging_study:
+                    imaging_study_id: IMG-100
+                    status: available
+                    subject_id: P-10001
+                    started: 2024-02-01T08:30:00Z
       responses:
         '200':
           description: FHIR R5 Bundle
@@ -420,7 +441,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -565,7 +586,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -662,6 +683,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomSpecimen'
+        imaging_study:
+          oneOf:
+            - $ref: '#/components/schemas/CustomImagingStudy'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomImagingStudy'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'

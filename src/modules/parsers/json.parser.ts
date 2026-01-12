@@ -468,6 +468,42 @@ const GlobalSpecimenSchema = z.object({
   note: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalImagingStudySchema = z.object({
+  imaging_study_id: GlobalIdSchema.optional(),
+  imaging_study_identifier: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  modality: z.union([z.string(), z.array(z.string())]).optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  started: z.string().optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  part_of_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  referrer_id: GlobalIdSchema.optional(),
+  endpoint_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  number_of_series: GlobalNumberSchema.optional(),
+  number_of_instances: GlobalNumberSchema.optional(),
+  procedure: z.union([z.string(), z.array(z.string())]).optional(),
+  location_id: GlobalIdSchema.optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  description: z.string().optional(),
+  series_uid: z.string().optional(),
+  series_number: GlobalNumberSchema.optional(),
+  series_modality: z.string().optional(),
+  series_description: z.string().optional(),
+  series_number_of_instances: GlobalNumberSchema.optional(),
+  series_endpoint_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  series_body_site: z.string().optional(),
+  series_laterality: z.string().optional(),
+  series_specimen_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  series_started: z.string().optional(),
+  series_performer_id: GlobalIdSchema.optional(),
+  instance_uid: z.string().optional(),
+  instance_sop_class: z.string().optional(),
+  instance_number: GlobalNumberSchema.optional(),
+  instance_title: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -568,6 +604,7 @@ const GlobalCustomJSONSchema = z.object({
   location: z.union([GlobalLocationSchema, z.array(GlobalLocationSchema)]).optional(),
   episode_of_care: z.union([GlobalEpisodeOfCareSchema, z.array(GlobalEpisodeOfCareSchema)]).optional(),
   specimen: z.union([GlobalSpecimenSchema, z.array(GlobalSpecimenSchema)]).optional(),
+  imaging_study: z.union([GlobalImagingStudySchema, z.array(GlobalImagingStudySchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -588,12 +625,13 @@ const GlobalCustomJSONSchema = z.object({
     value.location ||
     value.episode_of_care ||
     value.specimen ||
+    value.imaging_study ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -623,6 +661,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   locations: 'location',
   episodesOfCare: 'episodeOfCare',
   specimens: 'specimen',
+  imagingStudies: 'imagingStudy',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -655,6 +694,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   episode_of_cares: 'episodeOfCare',
   specimen: 'specimen',
   specimens: 'specimen',
+  imaging_study: 'imagingStudy',
+  imaging_studies: 'imagingStudy',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -718,6 +759,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   episodeofcares: 'episode_of_care',
   specimen: 'specimen',
   specimens: 'specimen',
+  imaging_study: 'imaging_study',
+  imaging_studies: 'imaging_study',
+  imagingstudy: 'imaging_study',
+  imagingstudies: 'imaging_study',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1631,6 +1676,115 @@ function normalizeGlobalSpecimenAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalImagingStudyAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const studyId = readSectionAliasValue(value, 'imagingStudy', 'imaging_study_id');
+  if (normalized.imaging_study_id === undefined && studyId !== undefined) {
+    normalized.imaging_study_id = studyId;
+  }
+
+  const studyIdentifier = readSectionAliasValue(value, 'imagingStudy', 'imaging_study_identifier');
+  if (normalized.imaging_study_identifier === undefined && studyIdentifier !== undefined) {
+    normalized.imaging_study_identifier = studyIdentifier;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const modality = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_modality'));
+  if (modality && normalized.modality === undefined) normalized.modality = modality;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const started = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_started'));
+  if (started && normalized.started === undefined) normalized.started = started;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const partOfIds = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_part_of_ids'));
+  if (partOfIds && normalized.part_of_ids === undefined) normalized.part_of_ids = partOfIds;
+
+  const referrerId = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_referrer_id'));
+  if (referrerId && normalized.referrer_id === undefined) normalized.referrer_id = referrerId;
+
+  const endpointIds = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_endpoint_ids'));
+  if (endpointIds && normalized.endpoint_ids === undefined) normalized.endpoint_ids = endpointIds;
+
+  const numberOfSeries = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_number_of_series'));
+  if (numberOfSeries && normalized.number_of_series === undefined) normalized.number_of_series = numberOfSeries;
+
+  const numberOfInstances = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_number_of_instances'));
+  if (numberOfInstances && normalized.number_of_instances === undefined) normalized.number_of_instances = numberOfInstances;
+
+  const procedure = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_procedure'));
+  if (procedure && normalized.procedure === undefined) normalized.procedure = procedure;
+
+  const locationId = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_location_id'));
+  if (locationId && normalized.location_id === undefined) normalized.location_id = locationId;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_study_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const seriesUid = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_uid'));
+  if (seriesUid && normalized.series_uid === undefined) normalized.series_uid = seriesUid;
+
+  const seriesNumber = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_number'));
+  if (seriesNumber && normalized.series_number === undefined) normalized.series_number = seriesNumber;
+
+  const seriesModality = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_modality'));
+  if (seriesModality && normalized.series_modality === undefined) normalized.series_modality = seriesModality;
+
+  const seriesDescription = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_description'));
+  if (seriesDescription && normalized.series_description === undefined) normalized.series_description = seriesDescription;
+
+  const seriesInstances = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_number_of_instances'));
+  if (seriesInstances && normalized.series_number_of_instances === undefined) normalized.series_number_of_instances = seriesInstances;
+
+  const seriesEndpointIds = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_endpoint_ids'));
+  if (seriesEndpointIds && normalized.series_endpoint_ids === undefined) normalized.series_endpoint_ids = seriesEndpointIds;
+
+  const seriesBodySite = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_body_site'));
+  if (seriesBodySite && normalized.series_body_site === undefined) normalized.series_body_site = seriesBodySite;
+
+  const seriesLaterality = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_laterality'));
+  if (seriesLaterality && normalized.series_laterality === undefined) normalized.series_laterality = seriesLaterality;
+
+  const seriesSpecimenIds = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_specimen_ids'));
+  if (seriesSpecimenIds && normalized.series_specimen_ids === undefined) normalized.series_specimen_ids = seriesSpecimenIds;
+
+  const seriesStarted = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_started'));
+  if (seriesStarted && normalized.series_started === undefined) normalized.series_started = seriesStarted;
+
+  const seriesPerformerId = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_series_performer_id'));
+  if (seriesPerformerId && normalized.series_performer_id === undefined) normalized.series_performer_id = seriesPerformerId;
+
+  const instanceUid = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_instance_uid'));
+  if (instanceUid && normalized.instance_uid === undefined) normalized.instance_uid = instanceUid;
+
+  const instanceSopClass = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_instance_sop_class'));
+  if (instanceSopClass && normalized.instance_sop_class === undefined) normalized.instance_sop_class = instanceSopClass;
+
+  const instanceNumber = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_instance_number'));
+  if (instanceNumber && normalized.instance_number === undefined) normalized.instance_number = instanceNumber;
+
+  const instanceTitle = normalizeAliasValue(readSectionAliasValue(value, 'imagingStudy', 'imaging_instance_title'));
+  if (instanceTitle && normalized.instance_title === undefined) normalized.instance_title = instanceTitle;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1827,6 +1981,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalEpisodeOfCareAliases(value);
     case 'specimen':
       return normalizeGlobalSpecimenAliases(value);
+    case 'imagingStudy':
+      return normalizeGlobalImagingStudyAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1965,6 +2121,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'location',
     'episodeOfCare',
     'specimen',
+    'imagingStudy',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -2086,6 +2243,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const locations = normalizeArray(validated.location);
   const episodesOfCare = normalizeArray(validated.episode_of_care);
   const specimens = normalizeArray(validated.specimen);
+  const imagingStudies = normalizeArray(validated.imaging_study);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -2136,6 +2294,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (specimens.length) {
     canonical.specimens = specimens.map(buildCanonicalSpecimenGlobal);
   }
+  if (imagingStudies.length) {
+    canonical.imagingStudies = imagingStudies.map(buildCanonicalImagingStudyGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -2175,7 +2336,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -2194,6 +2355,7 @@ function wrapGlobalPayload(value: any) {
       value.location,
       value.episode_of_care,
       value.specimen,
+      value.imaging_study,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -2244,6 +2406,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('specimen_id' in value || 'accession_identifier' in value || 'received_time' in value) {
       return { specimen: value };
+    }
+    if ('imaging_study_id' in value || 'imaging_study_identifier' in value || 'started' in value) {
+      return { imaging_study: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -2307,6 +2472,9 @@ function looksLikeGlobalResource(value: any) {
     'specimen_id' in value ||
     'accession_identifier' in value ||
     'received_time' in value ||
+    'imaging_study_id' in value ||
+    'imaging_study_identifier' in value ||
+    'started' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -2905,6 +3073,75 @@ function buildCanonicalSpecimenGlobal(specimen: z.infer<typeof GlobalSpecimenSch
       : undefined,
     condition: conditions.length ? conditions.map(condition => ({ code: condition, display: condition })) : undefined,
     note: notes.length ? notes : undefined
+  };
+}
+
+function buildCanonicalImagingStudyGlobal(study: z.infer<typeof GlobalImagingStudySchema>) {
+  const modality = normalizeStringArray(study.modality).map(value => ({
+    code: value,
+    display: value
+  }));
+  const basedOn = normalizeStringArray(study.based_on_ids);
+  const partOf = normalizeStringArray(study.part_of_ids);
+  const endpoint = normalizeStringArray(study.endpoint_ids);
+  const procedures = normalizeStringArray(study.procedure).map(value => ({
+    code: value,
+    display: value
+  }));
+  const reasons = normalizeStringArray(study.reason).map(value => ({
+    code: { code: value, display: value }
+  }));
+  const notes = normalizeStringArray(study.note);
+
+  const seriesEndpoint = normalizeStringArray(study.series_endpoint_ids);
+  const seriesSpecimen = normalizeStringArray(study.series_specimen_ids);
+
+  const series = (study.series_uid || study.series_number || study.series_modality || study.series_description)
+    ? [{
+      uid: study.series_uid,
+      number: study.series_number !== undefined ? Number(study.series_number) : undefined,
+      modality: study.series_modality ? { code: study.series_modality, display: study.series_modality } : undefined,
+      description: study.series_description,
+      numberOfInstances: study.series_number_of_instances !== undefined ? Number(study.series_number_of_instances) : undefined,
+      endpoint: seriesEndpoint.length ? seriesEndpoint : undefined,
+      bodySite: study.series_body_site ? { code: study.series_body_site, display: study.series_body_site } : undefined,
+      laterality: study.series_laterality ? { code: study.series_laterality, display: study.series_laterality } : undefined,
+      specimen: seriesSpecimen.length ? seriesSpecimen : undefined,
+      started: study.series_started,
+      performer: study.series_performer_id ? [{
+        actor: study.series_performer_id
+      }] : undefined,
+      instance: (study.instance_uid || study.instance_sop_class || study.instance_number !== undefined || study.instance_title)
+        ? [{
+          uid: study.instance_uid,
+          sopClass: study.instance_sop_class ? { code: study.instance_sop_class, display: study.instance_sop_class } : undefined,
+          number: study.instance_number !== undefined ? Number(study.instance_number) : undefined,
+          title: study.instance_title
+        }]
+        : undefined
+    }]
+    : undefined;
+
+  return {
+    id: study.imaging_study_id,
+    identifier: study.imaging_study_identifier || study.imaging_study_id,
+    status: study.status,
+    modality: modality.length ? modality : undefined,
+    subject: study.subject_id,
+    encounter: study.encounter_id,
+    started: study.started,
+    basedOn: basedOn.length ? basedOn : undefined,
+    partOf: partOf.length ? partOf : undefined,
+    referrer: study.referrer_id,
+    endpoint: endpoint.length ? endpoint : undefined,
+    numberOfSeries: study.number_of_series !== undefined ? Number(study.number_of_series) : undefined,
+    numberOfInstances: study.number_of_instances !== undefined ? Number(study.number_of_instances) : undefined,
+    procedure: procedures.length ? procedures : undefined,
+    location: study.location_id,
+    reason: reasons.length ? reasons : undefined,
+    note: notes.length ? notes : undefined,
+    description: study.description,
+    series
   };
 }
 

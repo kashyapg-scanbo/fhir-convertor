@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -998,6 +998,41 @@ export function buildCanonical(parsed: any) {
 
   if (diagnosticReports.length > 0) {
     result.diagnosticReports = diagnosticReports;
+  }
+
+  /* ───── ImagingStudies (from OBR) ───── */
+  const imagingStudies: CanonicalImagingStudy[] = [];
+  for (const obr of obrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const studyId = placerId || fillerId;
+    const serviceCode = obr?.[3]?.[0] ?? [];
+    const codeValue = serviceCode[0];
+    const display = serviceCode[1];
+    const system = serviceCode[2];
+    const status = obr?.[24]?.[0]?.[0];
+    const started = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!studyId && !codeValue && !display) continue;
+
+    imagingStudies.push({
+      id: studyId || `OBR-IMG-${Date.now()}`,
+      identifier: studyId,
+      status: status || 'available',
+      modality: (codeValue || display) ? [{
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      }] : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      started: started,
+      description: display
+    });
+  }
+
+  if (imagingStudies.length > 0) {
+    result.imagingStudies = imagingStudies;
   }
 
   /* ───── RelatedPersons (from NK1) ───── */

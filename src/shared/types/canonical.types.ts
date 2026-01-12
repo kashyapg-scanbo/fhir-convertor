@@ -856,6 +856,84 @@ export type CanonicalSpecimen = {
   active?: boolean;
 };
 
+export type CanonicalImagingStudy = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  modality?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  subject?: string;
+  encounter?: string;
+  started?: string;
+  basedOn?: string[];
+  partOf?: string[];
+  referrer?: string;
+  endpoint?: string[];
+  numberOfSeries?: number;
+  numberOfInstances?: number;
+  procedure?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  location?: string;
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  note?: string[];
+  description?: string;
+  series?: Array<{
+    uid?: string;
+    number?: number;
+    modality?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    description?: string;
+    numberOfInstances?: number;
+    endpoint?: string[];
+    bodySite?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    laterality?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    specimen?: string[];
+    started?: string;
+    performer?: Array<{
+      function?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      actor?: string;
+    }>;
+    instance?: Array<{
+      uid?: string;
+      sopClass?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      number?: number;
+      title?: string;
+    }>;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -919,6 +997,7 @@ export type CanonicalModel = {
   locations?: CanonicalLocation[]; // Location
   episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
   specimens?: CanonicalSpecimen[]; // Specimen
+  imagingStudies?: CanonicalImagingStudy[]; // ImagingStudy
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

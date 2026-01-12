@@ -15,6 +15,7 @@ import {
   CanonicalLocation,
   CanonicalEpisodeOfCare,
   CanonicalSpecimen,
+  CanonicalImagingStudy,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -66,6 +67,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const locations = extractLocations(clinicalDocument);
   const episodesOfCare = extractEpisodesOfCare(clinicalDocument, patient.id);
   const specimens = extractSpecimens(clinicalDocument, patient.id);
+  const imagingStudies = extractImagingStudies(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -94,6 +96,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (locations.length) canonical.locations = locations;
   if (episodesOfCare.length) canonical.episodesOfCare = episodesOfCare;
   if (specimens.length) canonical.specimens = specimens;
+  if (imagingStudies.length) canonical.imagingStudies = imagingStudies;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -907,6 +910,60 @@ function extractSpecimens(
   });
 
   return specimens;
+}
+
+function extractImagingStudies(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalImagingStudy[] {
+  const studies: CanonicalImagingStudy[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isImagingSection = sectionCodeValue === '18748-4' || sectionCodeValue === '30954-2';
+    if (!isImagingSection) return;
+
+    const organizer = entry.organizer || entry['cda:organizer'];
+    const observation = entry.observation || entry['cda:observation'];
+    const blocks = [];
+    if (organizer) blocks.push(...(Array.isArray(organizer) ? organizer : [organizer]));
+    if (observation) blocks.push(...(Array.isArray(observation) ? observation : [observation]));
+
+    for (const block of blocks) {
+      const code = block.code || block['cda:code'] || sectionCode;
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      const statusCode = block.statusCode || block['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+
+      const effectiveTime = block.effectiveTime || block['cda:effectiveTime'];
+      const effectiveValue = extractAttribute(effectiveTime, '@_value') ||
+        extractAttribute(effectiveTime?.low, '@_value');
+
+      if (!codeValue && !displayName) continue;
+
+      studies.push({
+        id: `IMG-${codeValue || studies.length + 1}`,
+        identifier: codeValue,
+        status: status || 'available',
+        modality: (codeValue || displayName) ? [{
+          system: mapCodeSystem(codeSystem),
+          code: codeValue,
+          display: displayName
+        }] : undefined,
+        subject: patientId,
+        encounter: encounterId,
+        started: formatCDADateTime(effectiveValue),
+        description: displayName
+      });
+    }
+  });
+
+  return studies;
 }
 
 function extractLocations(clinicalDocument: any): CanonicalLocation[] {
