@@ -282,6 +282,26 @@ paths:
                     operating_hours:
                       weekdays: 8:00 AM - 5:00 PM
                       weekends: 9:00 AM - 2:00 PM
+              location:
+                summary: Location
+                value:
+                  location:
+                    location_id: LOC123456
+                    status: active
+                    name: Healthy Heart Clinic
+                    alias:
+                      - Main Clinic
+                    description: Outpatient clinic location
+                    mode: instance
+                    type: clinic
+                    address_line1: 789 Clinic Blvd
+                    address_line2: Suite 100
+                    city: Healthyville
+                    state: CA
+                    postal_code: 90211
+                    country: USA
+                    managing_org_id: ORG001
+                    part_of_id: LOC-PARENT
               fullBundle:
                 summary: Full bundle
                 value:
@@ -318,6 +338,15 @@ paths:
                   organization:
                     organization_id: ORG001
                     name: Healthy Heart Clinic
+                  location:
+                    location_id: LOC123456
+                    status: active
+                    name: Healthy Heart Clinic
+                    address_line1: 789 Clinic Blvd
+                    city: Healthyville
+                    state: CA
+                    postal_code: 90211
+                    country: USA
       responses:
         '200':
           description: FHIR R5 Bundle
@@ -339,7 +368,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
