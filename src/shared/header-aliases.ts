@@ -131,6 +131,17 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     capability_statement_rest_mode: ['rest_mode'],
     capability_statement_rest_documentation: ['rest_documentation']
   },
+  operationOutcome: {
+    operation_outcome_id: ['operation_outcome_id', 'operationoutcome_id'],
+    operation_outcome_severity: ['severity'],
+    operation_outcome_code: ['code'],
+    operation_outcome_details_system: ['details_system'],
+    operation_outcome_details_code: ['details_code'],
+    operation_outcome_details_display: ['details_display'],
+    operation_outcome_diagnostics: ['diagnostics'],
+    operation_outcome_location: ['location'],
+    operation_outcome_expression: ['expression']
+  },
   procedure: {
     procedure_id: ['proc_id', 'procedure_identifier', 'procedureid'],
     procedure_status: ['proc_status', 'procedure_status'],

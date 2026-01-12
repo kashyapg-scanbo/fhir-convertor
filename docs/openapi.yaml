@@ -30,6 +30,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonMedicationRequestOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
                 - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
+                - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -210,6 +211,17 @@ paths:
                     format:
                       - json
                       - xml
+              operation_outcome:
+                summary: OperationOutcome
+                value:
+                  operation_outcome:
+                    operation_outcome_id: OO-100
+                    severity: error
+                    code: invalid
+                    details_system: http://hl7.org/fhir/issue-type
+                    details_code: invalid
+                    details_display: Invalid input
+                    diagnostics: Missing required field
               practitioner:
                 summary: Practitioner
                 value:
@@ -516,7 +528,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -661,7 +673,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -710,6 +722,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCapabilityStatement'
+        operation_outcome:
+          oneOf:
+            - $ref: '#/components/schemas/CustomOperationOutcome'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomOperationOutcome'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1344,6 +1362,35 @@ components:
           type: string
         rest_documentation:
           type: string
+    CustomOperationOutcome:
+      type: object
+      properties:
+        operation_outcome_id:
+          type: string
+        severity:
+          type: string
+        code:
+          type: string
+        details_system:
+          type: string
+        details_code:
+          type: string
+        details_display:
+          type: string
+        diagnostics:
+          type: string
+        location:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        expression:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
     CustomProcedure:
       type: object
       properties:
@@ -2399,6 +2446,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [capability_statement]
+    CustomJsonOperationOutcomeOnly:
+      title: OperationOutcome
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [operation_outcome]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

@@ -25,7 +25,8 @@ import {
     CanonicalImagingStudy,
     CanonicalAllergyIntolerance,
     CanonicalImmunization,
-    CanonicalCapabilityStatement
+    CanonicalCapabilityStatement,
+    CanonicalOperationOutcome
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -62,6 +63,7 @@ export function parseR4(input: string): CanonicalModel {
         allergyIntolerances: [],
         immunizations: [],
         capabilityStatements: [],
+        operationOutcomes: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -172,6 +174,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'CapabilityStatement':
                 const capability = mapR4CapabilityStatement(res);
                 if (capability) model.capabilityStatements?.push(capability);
+                break;
+            case 'OperationOutcome':
+                const outcome = mapR4OperationOutcome(res);
+                if (outcome) model.operationOutcomes?.push(outcome);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -642,6 +648,26 @@ function mapR4CapabilityStatement(statement: any): CanonicalCapabilityStatement 
             mode: doc.mode,
             documentation: doc.documentation,
             profile: doc.profile
+        }))
+    };
+}
+
+function mapR4OperationOutcome(outcome: any): CanonicalOperationOutcome {
+    return {
+        id: outcome.id,
+        issue: outcome.issue?.map((issue: any) => ({
+            severity: issue.severity,
+            code: issue.code,
+            details: issue.details?.coding?.[0]
+                ? {
+                    system: issue.details.coding[0].system,
+                    code: issue.details.coding[0].code,
+                    display: issue.details.coding[0].display
+                }
+                : undefined,
+            diagnostics: issue.diagnostics,
+            location: issue.location,
+            expression: issue.expression
         }))
     };
 }

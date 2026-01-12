@@ -20,6 +20,7 @@ import {
   CanonicalAllergyIntolerance,
   CanonicalImmunization,
   CanonicalCapabilityStatement,
+  CanonicalOperationOutcome,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -81,6 +82,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const allergyIntolerances = extractAllergyIntolerances(clinicalDocument, patient.id, encounter?.id);
   const immunizations = extractImmunizations(clinicalDocument, patient.id, encounter?.id, practitionerData.authorIds[0]);
   const capabilityStatements = extractCapabilityStatements(clinicalDocument);
+  const operationOutcomes = extractOperationOutcomes(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -114,6 +116,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (allergyIntolerances.length) canonical.allergyIntolerances = allergyIntolerances;
   if (immunizations.length) canonical.immunizations = immunizations;
   if (capabilityStatements.length) canonical.capabilityStatements = capabilityStatements;
+  if (operationOutcomes.length) canonical.operationOutcomes = operationOutcomes;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -669,6 +672,37 @@ function extractCapabilityStatements(clinicalDocument: any): CanonicalCapability
   });
 
   return statements;
+}
+
+function extractOperationOutcomes(clinicalDocument: any): CanonicalOperationOutcome[] {
+  const outcomes: CanonicalOperationOutcome[] = [];
+  const components = clinicalDocument.component?.structuredBody?.component
+    || clinicalDocument.component?.['cda:structuredBody']?.['cda:component']
+    || [];
+  const sections = Array.isArray(components) ? components : [components];
+
+  for (const component of sections) {
+    const section = component.section || component['cda:section'];
+    if (!section) continue;
+    const title = extractText(section.title || section['cda:title'])?.toLowerCase();
+    const code = section.code || section['cda:code'];
+    const codeValue = extractAttribute(code, '@_code');
+    if (!title?.includes('operationoutcome') && codeValue !== 'OP-OUTCOME') continue;
+
+    const text = extractText(section.text || section['cda:text']);
+    const severity = 'error';
+    const issue = {
+      severity,
+      code: 'processing',
+      diagnostics: text || undefined
+    };
+    outcomes.push({
+      id: `OO-${Date.now()}`,
+      issue: [issue]
+    });
+  }
+
+  return outcomes;
 }
 
 function extractProcedures(

@@ -320,6 +320,18 @@ const GlobalCapabilityStatementSchema = z.object({
   rest_documentation: z.string().optional()
 });
 
+const GlobalOperationOutcomeSchema = z.object({
+  operation_outcome_id: GlobalIdSchema.optional(),
+  severity: z.string().optional(),
+  code: z.string().optional(),
+  details_system: z.string().optional(),
+  details_code: z.string().optional(),
+  details_display: z.string().optional(),
+  diagnostics: z.string().optional(),
+  location: z.union([z.string(), z.array(z.string())]).optional(),
+  expression: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -734,6 +746,7 @@ const GlobalCustomJSONSchema = z.object({
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
   capability_statement: z.union([GlobalCapabilityStatementSchema, z.array(GlobalCapabilityStatementSchema)]).optional(),
+  operation_outcome: z.union([GlobalOperationOutcomeSchema, z.array(GlobalOperationOutcomeSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -759,6 +772,7 @@ const GlobalCustomJSONSchema = z.object({
     value.medication_statement ||
     value.medication_administration ||
     value.capability_statement ||
+    value.operation_outcome ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -777,7 +791,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -799,6 +813,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationStatements: 'medicationStatement',
   medicationAdministrations: 'medicationAdministration',
   capabilityStatements: 'capabilityStatement',
+  operationOutcomes: 'operationOutcome',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -828,6 +843,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   medication_administrations: 'medicationAdministration',
   capability_statement: 'capabilityStatement',
   capability_statements: 'capabilityStatement',
+  operation_outcome: 'operationOutcome',
+  operation_outcomes: 'operationOutcome',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -899,6 +916,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   capability_statements: 'capability_statement',
   capabilitystatement: 'capability_statement',
   capabilitystatements: 'capability_statement',
+  operation_outcome: 'operation_outcome',
+  operation_outcomes: 'operation_outcome',
+  operationoutcome: 'operation_outcome',
+  operationoutcomes: 'operation_outcome',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1408,6 +1429,44 @@ function normalizeGlobalCapabilityStatementAliases(value: Record<string, unknown
 
   const restDocumentation = normalizeAliasValue(readSectionAliasValue(value, 'capabilityStatement', 'capability_statement_rest_documentation'));
   if (restDocumentation && normalized.rest_documentation === undefined) normalized.rest_documentation = restDocumentation;
+
+  return normalized;
+}
+
+function normalizeGlobalOperationOutcomeAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const details = isPlainRecord(normalized.details) ? { ...normalized.details } : {};
+
+  const outcomeId = readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_id');
+  if (normalized.operation_outcome_id === undefined && outcomeId !== undefined) {
+    normalized.operation_outcome_id = outcomeId;
+  }
+
+  const severity = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_severity'));
+  if (severity && normalized.severity === undefined) normalized.severity = severity;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_code'));
+  if (code && normalized.code === undefined) normalized.code = code;
+
+  const detailsSystem = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_details_system'));
+  if (detailsSystem && details.system === undefined) details.system = detailsSystem;
+
+  const detailsCode = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_details_code'));
+  if (detailsCode && details.code === undefined) details.code = detailsCode;
+
+  const detailsDisplay = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_details_display'));
+  if (detailsDisplay && details.display === undefined) details.display = detailsDisplay;
+
+  const diagnostics = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_diagnostics'));
+  if (diagnostics && normalized.diagnostics === undefined) normalized.diagnostics = diagnostics;
+
+  const location = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_location'));
+  if (location && normalized.location === undefined) normalized.location = location;
+
+  const expression = normalizeAliasValue(readSectionAliasValue(value, 'operationOutcome', 'operation_outcome_expression'));
+  if (expression && normalized.expression === undefined) normalized.expression = expression;
+
+  if (Object.keys(details).length > 0) normalized.details = details;
 
   return normalized;
 }
@@ -2531,6 +2590,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationAdministrationAliases(value);
     case 'capabilityStatement':
       return normalizeGlobalCapabilityStatementAliases(value);
+    case 'operationOutcome':
+      return normalizeGlobalOperationOutcomeAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -2578,6 +2639,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationStatement', 'medication_statement'],
     ['medicationAdministration', 'medication_administration'],
     ['capabilityStatement', 'capability_statement'],
+    ['operationOutcome', 'operation_outcome'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -2690,6 +2752,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationStatement',
     'medicationAdministration',
     'capabilityStatement',
+    'operationOutcome',
     'procedure',
     'condition',
     'appointment',
@@ -2816,6 +2879,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationStatements = normalizeArray(validated.medication_statement);
   const medicationAdministrations = normalizeArray(validated.medication_administration);
   const capabilityStatements = normalizeArray(validated.capability_statement);
+  const operationOutcomes = normalizeArray(validated.operation_outcome);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -2854,6 +2918,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (capabilityStatements.length) {
     canonical.capabilityStatements = capabilityStatements.map(buildCanonicalCapabilityStatementGlobal);
+  }
+  if (operationOutcomes.length) {
+    canonical.operationOutcomes = operationOutcomes.map(buildCanonicalOperationOutcomeGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -2933,7 +3000,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -2944,6 +3011,7 @@ function wrapGlobalPayload(value: any) {
       value.medication_statement,
       value.medication_administration,
       value.capability_statement,
+      value.operation_outcome,
       value.procedure,
       value.condition,
       value.appointment,
@@ -2983,6 +3051,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('capability_statement_id' in value || 'capability_statement_url' in value || 'fhir_version' in value) {
       return { capability_statement: value };
+    }
+    if ('operation_outcome_id' in value || 'severity' in value || 'diagnostics' in value) {
+      return { operation_outcome: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -3063,6 +3134,9 @@ function looksLikeGlobalResource(value: any) {
     'capability_statement_id' in value ||
     'capability_statement_url' in value ||
     'fhir_version' in value ||
+    'operation_outcome_id' in value ||
+    'severity' in value ||
+    'diagnostics' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -3406,6 +3480,27 @@ function buildCanonicalCapabilityStatementGlobal(statement: z.infer<typeof Globa
     software,
     implementation,
     rest
+  };
+}
+
+function buildCanonicalOperationOutcomeGlobal(outcome: z.infer<typeof GlobalOperationOutcomeSchema>) {
+  const locations = normalizeStringArray(outcome.location);
+  const expressions = normalizeStringArray(outcome.expression);
+
+  return {
+    id: outcome.operation_outcome_id,
+    issue: [{
+      severity: outcome.severity,
+      code: outcome.code,
+      details: outcome.details_system || outcome.details_code || outcome.details_display ? {
+        system: outcome.details_system,
+        code: outcome.details_code,
+        display: outcome.details_display
+      } : undefined,
+      diagnostics: outcome.diagnostics,
+      location: locations.length ? locations : undefined,
+      expression: expressions.length ? expressions : undefined
+    }]
   };
 }
 

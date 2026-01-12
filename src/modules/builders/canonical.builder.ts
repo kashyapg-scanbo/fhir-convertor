@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -866,6 +866,53 @@ export function buildCanonical(parsed: any) {
 
   if (capabilityStatements.length > 0) {
     result.capabilityStatements = capabilityStatements;
+  }
+
+  /* ───── OperationOutcomes (from MSA/ERR) ───── */
+  const operationOutcomes: CanonicalOperationOutcome[] = [];
+  const msaSegments = parsed.MSA ?? [];
+  const errSegments = parsed.ERR ?? [];
+
+  if (msaSegments.length || errSegments.length) {
+    const issues: Array<{
+      severity?: string;
+      code?: string;
+      diagnostics?: string;
+    }> = [];
+
+    for (const msa of msaSegments) {
+      const ackCode = msa?.[0]?.[0]?.[0];
+      const message = msa?.[2]?.[0]?.[0];
+      if (ackCode || message) {
+        issues.push({
+          severity: ackCode && ackCode !== 'AA' ? 'error' : 'information',
+          code: 'processing',
+          diagnostics: message || `HL7v2 acknowledgement: ${ackCode || 'AA'}`
+        });
+      }
+    }
+
+    for (const err of errSegments) {
+      const errText = err?.[7]?.[0]?.[0] || err?.[8]?.[0]?.[0];
+      if (errText) {
+        issues.push({
+          severity: 'error',
+          code: 'processing',
+          diagnostics: errText
+        });
+      }
+    }
+
+    if (issues.length > 0) {
+      operationOutcomes.push({
+        id: `OO-${Date.now()}`,
+        issue: issues
+      });
+    }
+  }
+
+  if (operationOutcomes.length > 0) {
+    result.operationOutcomes = operationOutcomes;
   }
 
   /* ───── Procedures (from PR1) ───── */

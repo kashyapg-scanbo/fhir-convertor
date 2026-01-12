@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "",
+      "code": "",
+      "details": {},
+      "diagnostics": "",
+      "location": [],
+      "expression": []
+    }
+  ]
+}

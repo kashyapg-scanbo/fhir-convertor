@@ -386,6 +386,36 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (capabilityStatements.length > 0) canonical.capabilityStatements = capabilityStatements as any[];
 
+  const operationOutcomes = rows.map(row => {
+    const outcomeId = readValue(row, 'operation_outcome_id');
+    const severity = readValue(row, 'operation_outcome_severity');
+    const code = readValue(row, 'operation_outcome_code');
+    const diagnostics = readValue(row, 'operation_outcome_diagnostics');
+    if (!outcomeId && !severity && !code && !diagnostics) return null;
+
+    const locationRaw = readValue(row, 'operation_outcome_location');
+    const expressionRaw = readValue(row, 'operation_outcome_expression');
+
+    return {
+      id: outcomeId || undefined,
+      issue: [{
+        severity: severity || undefined,
+        code: code || undefined,
+        details: (readValue(row, 'operation_outcome_details_system') || readValue(row, 'operation_outcome_details_code') || readValue(row, 'operation_outcome_details_display'))
+          ? {
+            system: readValue(row, 'operation_outcome_details_system'),
+            code: readValue(row, 'operation_outcome_details_code'),
+            display: readValue(row, 'operation_outcome_details_display')
+          }
+          : undefined,
+        diagnostics: diagnostics || undefined,
+        location: locationRaw ? locationRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+        expression: expressionRaw ? expressionRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined
+      }]
+    };
+  }).filter(Boolean);
+  if (operationOutcomes.length > 0) canonical.operationOutcomes = operationOutcomes as any[];
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

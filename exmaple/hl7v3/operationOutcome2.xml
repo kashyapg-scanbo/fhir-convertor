@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101002 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="OO-V3-2"/>
+  <creationTime value="20240301120000"/>
+  <interactionId extension="PRPA_IN101002"/>
+  <acknowledgement typeCode="AA">
+    <acknowledgementDetail typeCode="I">
+      <code code="processing"/>
+      <text>Accepted</text>
+    </acknowledgementDetail>
+  </acknowledgement>
+</PRPA_IN101002>

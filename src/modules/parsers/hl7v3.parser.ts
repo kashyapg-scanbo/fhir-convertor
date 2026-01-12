@@ -25,7 +25,8 @@ import {
     CanonicalImagingStudy,
     CanonicalAllergyIntolerance,
     CanonicalImmunization,
-    CanonicalCapabilityStatement
+    CanonicalCapabilityStatement,
+    CanonicalOperationOutcome
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -76,6 +77,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         allergyIntolerances: [],
         immunizations: [],
         capabilityStatements: [],
+        operationOutcomes: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -228,6 +230,11 @@ export function parseHL7v3(input: string): CanonicalModel {
     const capability = mapV3CapabilityStatement(root);
     if (capability) {
         model.capabilityStatements?.push(capability);
+    }
+
+    const operationOutcome = mapV3OperationOutcome(root);
+    if (operationOutcome) {
+        model.operationOutcomes?.push(operationOutcome);
     }
 
     return model;
@@ -738,6 +745,32 @@ function mapV3CapabilityStatement(root: any): CanonicalCapabilityStatement | und
         kind: 'instance',
         fhirVersion: '5.0.0',
         format: ['xml']
+    };
+}
+
+function mapV3OperationOutcome(root: any): CanonicalOperationOutcome | undefined {
+    const acknowledgement = root.acknowledgement || root.Acknowledgement;
+    const details = acknowledgement?.acknowledgementDetail || acknowledgement?.AcknowledgementDetail;
+    const detailList = Array.isArray(details) ? details : details ? [details] : [];
+
+    if (!detailList.length) return undefined;
+
+    const issues = detailList.map((detail: any) => {
+        const typeCode = detail.typeCode || detail.TypeCode;
+        const code = detail.code || detail.Code;
+        const text = detail.text || detail.Text;
+        return {
+            severity: typeCode === 'E' || typeCode === 'AE' ? 'error' : 'information',
+            code: code?.['@_code'] || 'processing',
+            diagnostics: typeof text === 'string' ? text : text?.['#text']
+        };
+    }).filter((issue: any) => issue.code || issue.diagnostics);
+
+    if (!issues.length) return undefined;
+
+    return {
+        id: `OO-${Date.now()}`,
+        issue: issues
     };
 }
 

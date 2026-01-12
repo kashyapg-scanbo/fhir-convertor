@@ -1,0 +1,9 @@
+{
+  "operation_outcome": {
+    "operation_outcome_id": "OO-2",
+    "severity": "warning",
+    "code": "processing",
+    "details_display": "Partial success",
+    "diagnostics": "Some optional fields were skipped"
+  }
+}
