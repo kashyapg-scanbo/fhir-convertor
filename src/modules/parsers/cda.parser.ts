@@ -22,6 +22,7 @@ import {
   CanonicalCapabilityStatement,
   CanonicalOperationOutcome,
   CanonicalParameters,
+  CanonicalCarePlan,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -85,6 +86,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const capabilityStatements = extractCapabilityStatements(clinicalDocument);
   const operationOutcomes = extractOperationOutcomes(clinicalDocument);
   const parameters = extractParameters(clinicalDocument);
+  const carePlans = extractCarePlans(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -120,6 +122,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (capabilityStatements.length) canonical.capabilityStatements = capabilityStatements;
   if (operationOutcomes.length) canonical.operationOutcomes = operationOutcomes;
   if (parameters.length) canonical.parameters = parameters;
+
+  if (carePlans.length) canonical.carePlans = carePlans;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -723,6 +727,54 @@ function extractParameters(clinicalDocument: any): CanonicalParameters[] {
     id: `PARAMS-${Date.now()}`,
     parameter: params
   }];
+}
+
+function extractCarePlans(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalCarePlan[] {
+  const carePlans: CanonicalCarePlan[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isCarePlanSection = sectionCodeValue === '18776-5';
+    if (!isCarePlanSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const plan of acts) {
+      const id = extractId(plan.id || plan['cda:id']);
+      const statusCode = plan.statusCode || plan['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = plan.code || plan['cda:code'];
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(plan.text || plan['cda:text']);
+
+      const effectiveTime = plan.effectiveTime || plan['cda:effectiveTime'];
+      const start = formatCDADateTime(extractAttribute(effectiveTime?.low, '@_value') || extractAttribute(effectiveTime, '@_value'));
+      const end = formatCDADateTime(extractAttribute(effectiveTime?.high, '@_value'));
+
+      if (!id && !displayName && !text && !start && !end) continue;
+
+      carePlans.push({
+        id: id || `CAREPLAN-${carePlans.length + 1}`,
+        identifier: id,
+        status: status || 'active',
+        intent: 'plan',
+        title: displayName,
+        description: text,
+        subject: patientId,
+        encounter: encounterId,
+        period: start || end ? { start, end } : undefined
+      });
+    }
+  });
+
+  return carePlans;
 }
 
 function extractProcedures(

@@ -452,6 +452,116 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     }] as any[];
   }
 
+  const carePlans = rows.map(row => {
+    const carePlanId = readValue(row, 'care_plan_id');
+    const status = readValue(row, 'care_plan_status');
+    const intent = readValue(row, 'care_plan_intent');
+    const categoryRaw = readValue(row, 'care_plan_category');
+    const title = readValue(row, 'care_plan_title');
+    const description = readValue(row, 'care_plan_description');
+    const subjectId = readValue(row, 'care_plan_subject_id');
+    const encounterId = readValue(row, 'care_plan_encounter_id');
+    const periodStart = readValue(row, 'care_plan_period_start');
+    const periodEnd = readValue(row, 'care_plan_period_end');
+    const created = readValue(row, 'care_plan_created');
+    const custodianId = readValue(row, 'care_plan_custodian_id');
+    const contributorIdsRaw = readValue(row, 'care_plan_contributor_ids');
+    const careTeamIdsRaw = readValue(row, 'care_plan_care_team_ids');
+    const addressesRaw = readValue(row, 'care_plan_addresses');
+    const supportingInfoIdsRaw = readValue(row, 'care_plan_supporting_info_ids');
+    const goalIdsRaw = readValue(row, 'care_plan_goal_ids');
+    const activityReference = readValue(row, 'care_plan_activity_reference');
+    const activityProgressRaw = readValue(row, 'care_plan_activity_progress');
+    const activityPerformedRaw = readValue(row, 'care_plan_activity_performed');
+    const noteRaw = readValue(row, 'care_plan_note');
+    const instantiatesCanonicalRaw = readValue(row, 'care_plan_instantiates_canonical');
+    const instantiatesUriRaw = readValue(row, 'care_plan_instantiates_uri');
+    const basedOnIdsRaw = readValue(row, 'care_plan_based_on_ids');
+    const replacesIdsRaw = readValue(row, 'care_plan_replaces_ids');
+    const partOfIdsRaw = readValue(row, 'care_plan_part_of_ids');
+
+    if (!carePlanId && !title && !description) return null;
+
+    const contributorIds = contributorIdsRaw
+      ? contributorIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const careTeamIds = careTeamIdsRaw
+      ? careTeamIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const addresses = addressesRaw
+      ? addressesRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const supportingInfoIds = supportingInfoIdsRaw
+      ? supportingInfoIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const goalIds = goalIdsRaw
+      ? goalIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const activityProgress = activityProgressRaw
+      ? activityProgressRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const activityPerformed = activityPerformedRaw
+      ? activityPerformedRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const instantiatesCanonical = instantiatesCanonicalRaw
+      ? instantiatesCanonicalRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const instantiatesUri = instantiatesUriRaw
+      ? instantiatesUriRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const basedOnIds = basedOnIdsRaw
+      ? basedOnIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const replacesIds = replacesIdsRaw
+      ? replacesIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+    const partOfIds = partOfIdsRaw
+      ? partOfIdsRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+
+    return {
+      id: carePlanId || undefined,
+      identifier: carePlanId || undefined,
+      status: status || 'active',
+      intent: intent || 'plan',
+      category: categoryRaw
+        ? categoryRaw.split(',').map(value => ({
+          code: value.trim(),
+          display: value.trim()
+        }))
+        : undefined,
+      title: title,
+      description: description,
+      subject: subjectId,
+      encounter: encounterId,
+      period: periodStart || periodEnd ? { start: periodStart, end: periodEnd } : undefined,
+      created: created,
+      custodian: custodianId,
+      contributor: contributorIds,
+      careTeam: careTeamIds,
+      addresses: addresses?.map(value => ({ code: { display: value } })),
+      supportingInfo: supportingInfoIds,
+      goal: goalIds,
+      activity: activityReference || activityProgress?.length || activityPerformed?.length
+        ? [{
+          plannedActivityReference: activityReference,
+          progress: activityProgress,
+          performedActivity: activityPerformed?.map(value => ({ code: { display: value } }))
+        }]
+        : undefined,
+      note: noteRaw ? [noteRaw] : undefined,
+      instantiatesCanonical,
+      instantiatesUri,
+      basedOn: basedOnIds,
+      replaces: replacesIds,
+      partOf: partOfIds
+    };
+  }).filter(Boolean);
+
+  if (carePlans.length > 0) {
+    canonical.carePlans = carePlans as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

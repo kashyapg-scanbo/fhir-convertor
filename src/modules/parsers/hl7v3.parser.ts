@@ -27,7 +27,8 @@ import {
     CanonicalImmunization,
     CanonicalCapabilityStatement,
     CanonicalOperationOutcome,
-    CanonicalParameters
+    CanonicalParameters,
+    CanonicalCarePlan
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -80,6 +81,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         capabilityStatements: [],
         operationOutcomes: [],
         parameters: [],
+        carePlans: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -149,6 +151,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (appointmentEvent) {
                 const appointment = mapV3Appointment(appointmentEvent);
                 if (appointment) model.appointments?.push(appointment);
+            }
+
+            const carePlanEvent = sub.carePlan || sub.CarePlan;
+            if (carePlanEvent) {
+                const carePlan = mapV3CarePlan(carePlanEvent);
+                if (carePlan) model.carePlans?.push(carePlan);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -798,6 +806,34 @@ function mapV3Parameters(root: any): CanonicalParameters | undefined {
     return params.length
         ? { id: `PARAMS-${Date.now()}`, parameter: params }
         : undefined;
+}
+
+function mapV3CarePlan(planEvent: any): CanonicalCarePlan | undefined {
+    if (!planEvent) return undefined;
+    const id = planEvent.id || planEvent['cda:id'];
+    const code = planEvent.code || planEvent['cda:code'];
+    const statusCode = planEvent.statusCode || planEvent['cda:statusCode'];
+    const effectiveTime = planEvent.effectiveTime || planEvent['cda:effectiveTime'];
+    const text = planEvent.text || planEvent['cda:text'];
+
+    const planId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const periodStart = effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value'];
+    const periodEnd = effectiveTime?.high?.['@_value'];
+    const description = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!planId && !displayName && !description) return undefined;
+
+    return {
+        id: planId || `CAREPLAN-${Date.now()}`,
+        identifier: planId,
+        status: status || 'active',
+        intent: 'plan',
+        title: displayName,
+        description: description,
+        period: periodStart || periodEnd ? { start: periodStart, end: periodEnd } : undefined
+    };
 }
 
 function mapV3Immunization(substanceAdmin: any): CanonicalImmunization | undefined {

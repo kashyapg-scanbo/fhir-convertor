@@ -1,0 +1,24 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
+  "care_plan": {
+    "care_plan_id": "CP-1",
+    "status": "active",
+    "intent": "plan",
+    "title": "Diabetes Care Plan",
+    "description": "Routine diabetes management plan",
+    "subject_id": "PAT-1",
+    "encounter_id": "ENC-1",
+    "period_start": "2024-01-01",
+    "period_end": "2024-06-30",
+    "care_team_ids": ["CARETEAM-1"],
+    "goal_ids": ["GOAL-1"],
+    "addresses": ["Diabetes mellitus"],
+    "note": "Monitor HbA1c quarterly"
+  }
+}

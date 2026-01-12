@@ -1,0 +1,25 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Nguyen"
+    }
+  },
+  "care_plan": {
+    "care_plan_id": "CP-2",
+    "status": "active",
+    "intent": "plan",
+    "title": "Hypertension Follow-up",
+    "description": "Blood pressure monitoring and lifestyle counseling",
+    "subject_id": "PAT-2",
+    "period_start": "2024-02-01",
+    "period_end": "2024-08-01",
+    "supporting_info_ids": ["OBS-1"],
+    "based_on_ids": ["CP-1"],
+    "activity_reference": "Appointment/APPT-1",
+    "activity_progress": ["Initial counseling completed"],
+    "activity_performed": ["Blood pressure check"],
+    "note": ["Schedule monthly check-ins"]
+  }
+}

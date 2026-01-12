@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -491,6 +491,65 @@ export function buildCanonical(parsed: any) {
 
   if (parameters.length > 0) {
     result.parameters = parameters;
+  }
+
+  /* ───── CarePlans (from ORC/OBR) ───── */
+  const carePlans: CanonicalCarePlan[] = [];
+  const orcSegments = parsed.ORC ?? [];
+  const obrSegments = parsed.OBR ?? [];
+
+  for (const orc of orcSegments) {
+    const placerId = orc?.[1]?.[0]?.[0];
+    const fillerId = orc?.[2]?.[0]?.[0];
+    const planId = placerId || fillerId;
+    const status = orc?.[4]?.[0]?.[0];
+    const orderControl = orc?.[0]?.[0]?.[0];
+    const description = orc?.[6]?.[0]?.[0];
+
+    if (!planId && !orderControl && !description) continue;
+
+    carePlans.push({
+      id: planId || `ORC-${Date.now()}`,
+      identifier: planId,
+      status: status || 'active',
+      intent: 'plan',
+      title: orderControl ? `Order ${orderControl}` : undefined,
+      description: description,
+      subject: patientId,
+      encounter: encounter?.id
+    });
+  }
+
+  for (const obr of obrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const planId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const title = codeParts[1] || codeParts[0];
+    const codeSystem = codeParts[2];
+    const start = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!planId && !title) continue;
+
+    carePlans.push({
+      id: planId || `OBR-${Date.now()}`,
+      identifier: planId,
+      status: 'active',
+      intent: 'plan',
+      title: title,
+      category: title ? [{
+        system: mapCodingSystem(codeSystem),
+        code: codeParts[0],
+        display: title
+      }] : undefined,
+      period: start ? { start } : undefined,
+      subject: patientId,
+      encounter: encounter?.id
+    });
+  }
+
+  if (carePlans.length > 0) {
+    result.carePlans = carePlans;
   }
 
   /* ───── Organizations (from MSH, ORC, OBX, PV1, PRD) ───── */
@@ -1146,8 +1205,8 @@ export function buildCanonical(parsed: any) {
 
   /* ───── DiagnosticReports (from OBR) ───── */
   const diagnosticReports: CanonicalDiagnosticReport[] = [];
-  const obrSegments = parsed.OBR ?? [];
-  for (const obr of obrSegments) {
+  const diagnosticObrSegments = parsed.OBR ?? [];
+  for (const obr of diagnosticObrSegments) {
     const placerId = obr?.[1]?.[0]?.[0];
     const fillerId = obr?.[2]?.[0]?.[0];
     const reportId = placerId || fillerId;
@@ -1186,7 +1245,7 @@ export function buildCanonical(parsed: any) {
 
   /* ───── ImagingStudies (from OBR) ───── */
   const imagingStudies: CanonicalImagingStudy[] = [];
-  for (const obr of obrSegments) {
+  for (const obr of diagnosticObrSegments) {
     const placerId = obr?.[1]?.[0]?.[0];
     const fillerId = obr?.[2]?.[0]?.[0];
     const studyId = placerId || fillerId;

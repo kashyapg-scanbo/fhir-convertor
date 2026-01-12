@@ -636,6 +636,59 @@ export type CanonicalParameters = {
   active?: boolean;
 };
 
+export type CanonicalCarePlan = {
+  id?: string;
+  identifier?: string;
+  instantiatesCanonical?: string[];
+  instantiatesUri?: string[];
+  basedOn?: string[];
+  replaces?: string[];
+  partOf?: string[];
+  status?: string;
+  intent?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  title?: string;
+  description?: string;
+  subject?: string;
+  encounter?: string;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  created?: string;
+  custodian?: string;
+  contributor?: string[];
+  careTeam?: string[];
+  addresses?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  supportingInfo?: string[];
+  goal?: string[];
+  activity?: Array<{
+    performedActivity?: Array<{
+      code?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      reference?: string;
+    }>;
+    progress?: string[];
+    plannedActivityReference?: string;
+  }>;
+  note?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1379,6 +1432,7 @@ export type CanonicalModel = {
   capabilityStatements?: CanonicalCapabilityStatement[]; // CapabilityStatement
   operationOutcomes?: CanonicalOperationOutcome[]; // OperationOutcome
   parameters?: CanonicalParameters[]; // Parameters
+  carePlans?: CanonicalCarePlan[]; // CarePlan
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

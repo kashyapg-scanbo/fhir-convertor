@@ -27,7 +27,8 @@ import {
     CanonicalImmunization,
     CanonicalCapabilityStatement,
     CanonicalOperationOutcome,
-    CanonicalParameters
+    CanonicalParameters,
+    CanonicalCarePlan
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -53,6 +54,7 @@ export function parseR4(input: string): CanonicalModel {
         procedures: [],
         conditions: [],
         appointments: [],
+        carePlans: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -128,6 +130,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Appointment':
                 const appointment = mapR4Appointment(res);
                 if (appointment) model.appointments?.push(appointment);
+                break;
+            case 'CarePlan':
+                const carePlan = mapR4CarePlan(res);
+                if (carePlan) model.carePlans?.push(carePlan);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -830,6 +836,60 @@ function mapR4Appointment(appt: any): CanonicalAppointment {
             } : undefined
         }))
     };
+}
+
+function mapR4CarePlan(plan: any): CanonicalCarePlan {
+  return {
+    id: plan.id,
+    identifier: plan.identifier?.[0]?.value,
+    instantiatesCanonical: plan.instantiatesCanonical,
+    instantiatesUri: plan.instantiatesUri,
+    basedOn: plan.basedOn?.map((ref: any) => ref.reference?.replace(/^CarePlan\//, '')).filter(Boolean),
+    replaces: plan.replaces?.map((ref: any) => ref.reference?.replace(/^CarePlan\//, '')).filter(Boolean),
+    partOf: plan.partOf?.map((ref: any) => ref.reference?.replace(/^CarePlan\//, '')).filter(Boolean),
+    status: plan.status,
+    intent: plan.intent,
+    category: plan.category?.map((cat: any) => ({
+      system: cat.coding?.[0]?.system,
+      code: cat.coding?.[0]?.code,
+      display: cat.coding?.[0]?.display || cat.text
+    })),
+    title: plan.title,
+    description: plan.description,
+    subject: plan.subject?.reference?.replace(/^(Patient|Group)\//, ''),
+    encounter: plan.encounter?.reference?.replace(/^Encounter\//, ''),
+    period: plan.period ? { start: plan.period.start, end: plan.period.end } : undefined,
+    created: plan.created,
+    custodian: plan.custodian?.reference?.replace(/^(CareTeam|Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    contributor: plan.contributor?.map((ref: any) => ref.reference?.replace(/^(CareTeam|Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
+    careTeam: plan.careTeam?.map((ref: any) => ref.reference?.replace(/^CareTeam\//, '')).filter(Boolean),
+    addresses: plan.addresses?.map((addr: any) => ({
+      reference: addr.reference?.replace(/^Condition\//, ''),
+      code: addr.concept?.coding?.[0]
+        ? {
+          system: addr.concept.coding[0].system,
+          code: addr.concept.coding[0].code,
+          display: addr.concept.coding[0].display
+        }
+        : undefined
+    })),
+    supportingInfo: plan.supportingInfo?.map((ref: any) => ref.reference).filter(Boolean),
+    goal: plan.goal?.map((ref: any) => ref.reference?.replace(/^Goal\//, '')).filter(Boolean),
+    activity: plan.activity?.map((activity: any) => ({
+      performedActivity: activity.performedActivity?.map((performed: any) => ({
+        reference: performed.reference,
+        code: performed.concept?.coding?.[0]
+          ? {
+            system: performed.concept.coding[0].system,
+            code: performed.concept.coding[0].code,
+            display: performed.concept.coding[0].display
+          }
+          : undefined
+      })),
+      progress: activity.progress?.map((note: any) => note.text).filter(Boolean),
+      plannedActivityReference: activity.plannedActivityReference?.reference
+    }))
+  };
 }
 
 function mapR4Schedule(schedule: any): CanonicalSchedule {

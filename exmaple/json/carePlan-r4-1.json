@@ -1,0 +1,23 @@
+{
+  "resourceType": "CarePlan",
+  "id": "CP-R4-1",
+  "status": "active",
+  "intent": "plan",
+  "title": "Diabetes Care Plan",
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "period": {
+    "start": "2024-01-01",
+    "end": "2024-06-30"
+  },
+  "activity": [
+    {
+      "progress": [
+        {
+          "text": "Initial plan created"
+        }
+      ]
+    }
+  ]
+}
