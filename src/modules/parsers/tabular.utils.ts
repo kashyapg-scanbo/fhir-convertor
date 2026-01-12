@@ -266,6 +266,85 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationStatements.length > 0) canonical.medicationStatements = medicationStatements as any[];
 
+  const medicationAdministrations = rows.map(row => {
+    const adminId = readValue(row, 'medication_administration_id');
+    const status = readValue(row, 'medication_administration_status');
+    const medCode = readValue(row, 'medication_administration_medication_code');
+    const medDisplay = readValue(row, 'medication_administration_medication_display');
+    const medSystem = readValue(row, 'medication_administration_medication_code_system');
+    if (!adminId && !medCode && !medDisplay) return null;
+
+    const occurrenceStart = readValue(row, 'medication_administration_occurrence_start');
+    const occurrenceEnd = readValue(row, 'medication_administration_occurrence_end');
+    const statusReasonRaw = readValue(row, 'medication_administration_status_reason');
+    const categoryRaw = readValue(row, 'medication_administration_category');
+    const supportingInfoRaw = readValue(row, 'medication_administration_supporting_info_ids');
+    const subPotentReasonRaw = readValue(row, 'medication_administration_sub_potent_reason');
+    const reasonRaw = readValue(row, 'medication_administration_reason');
+    const basedOnRaw = readValue(row, 'medication_administration_based_on_ids');
+    const partOfRaw = readValue(row, 'medication_administration_part_of_ids');
+    const deviceRaw = readValue(row, 'medication_administration_device_ids');
+    const note = readValue(row, 'medication_administration_note');
+
+    const doseValue = readNumber(row, 'medication_administration_dose_value');
+    const doseUnit = readValue(row, 'medication_administration_dose_unit');
+    const route = readValue(row, 'medication_administration_route');
+    const site = readValue(row, 'medication_administration_site');
+    const method = readValue(row, 'medication_administration_method');
+    const rateValue = readNumber(row, 'medication_administration_rate_value');
+    const rateUnit = readValue(row, 'medication_administration_rate_unit');
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    return {
+      id: adminId || undefined,
+      identifier: adminId || undefined,
+      basedOn: toList(basedOnRaw),
+      partOf: toList(partOfRaw),
+      status: status || undefined,
+      statusReason: toList(statusReasonRaw)?.map(value => ({ code: value, display: value })),
+      category: toList(categoryRaw)?.map(value => ({ code: value, display: value })),
+      medicationCodeableConcept: (medCode || medDisplay) ? {
+        coding: medCode ? [{
+          system: medSystem,
+          code: medCode,
+          display: medDisplay
+        }] : undefined,
+        text: medDisplay
+      } : undefined,
+      subject: readValue(row, 'medication_administration_subject_id'),
+      encounter: readValue(row, 'medication_administration_encounter_id'),
+      supportingInformation: toList(supportingInfoRaw),
+      occurrenceDateTime: readValue(row, 'medication_administration_occurrence_date'),
+      occurrencePeriod: (occurrenceStart || occurrenceEnd) ? {
+        start: occurrenceStart,
+        end: occurrenceEnd
+      } : undefined,
+      recorded: readValue(row, 'medication_administration_recorded'),
+      isSubPotent: readBoolean(row, 'medication_administration_is_sub_potent'),
+      subPotentReason: toList(subPotentReasonRaw)?.map(value => ({ code: value, display: value })),
+      performer: (readValue(row, 'medication_administration_performer_actor_id') || readValue(row, 'medication_administration_performer_function')) ? [{
+        function: readValue(row, 'medication_administration_performer_function')
+          ? { code: readValue(row, 'medication_administration_performer_function'), display: readValue(row, 'medication_administration_performer_function') }
+          : undefined,
+        actor: readValue(row, 'medication_administration_performer_actor_id') || undefined
+      }] : undefined,
+      reason: toList(reasonRaw)?.map(value => ({ code: { display: value } })),
+      request: readValue(row, 'medication_administration_request_id') || undefined,
+      device: toList(deviceRaw),
+      note: note ? [note] : undefined,
+      dosage: (doseValue !== undefined || route || site || method || rateValue !== undefined) ? {
+        text: [doseValue, doseUnit, route, site, method].filter(Boolean).join(' ') || undefined,
+        site: site ? { code: site, display: site } : undefined,
+        route: route ? { code: route, display: route } : undefined,
+        method: method ? { code: method, display: method } : undefined,
+        dose: doseValue !== undefined ? { value: doseValue, unit: doseUnit } : undefined,
+        rateQuantity: rateValue !== undefined ? { value: rateValue, unit: rateUnit } : undefined
+      } : undefined
+    };
+  }).filter(Boolean);
+  if (medicationAdministrations.length > 0) canonical.medicationAdministrations = medicationAdministrations as any[];
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

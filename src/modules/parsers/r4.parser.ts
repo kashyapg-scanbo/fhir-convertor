@@ -11,6 +11,7 @@ import {
     CanonicalMedicationRequest,
     CanonicalDocumentReference,
     CanonicalMedicationStatement,
+    CanonicalMedicationAdministration,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
@@ -45,6 +46,7 @@ export function parseR4(input: string): CanonicalModel {
         medications: [],
         medicationRequests: [],
         medicationStatements: [],
+        medicationAdministrations: [],
         procedures: [],
         conditions: [],
         appointments: [],
@@ -156,6 +158,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'AllergyIntolerance':
                 const allergy = mapR4AllergyIntolerance(res);
                 if (allergy) model.allergyIntolerances?.push(allergy);
+                break;
+            case 'MedicationAdministration':
+                const medicationAdministration = mapR4MedicationAdministration(res);
+                if (medicationAdministration) model.medicationAdministrations?.push(medicationAdministration);
                 break;
             case 'Immunization':
                 const immunization = mapR4Immunization(res);
@@ -439,6 +445,103 @@ function mapR4MedicationStatement(statement: any): CanonicalMedicationStatement 
                 text: dosage.route.text
             } : undefined
         }))
+    };
+}
+
+function mapR4MedicationAdministration(admin: any): CanonicalMedicationAdministration {
+    const medCoding = admin.medicationCodeableConcept?.coding?.[0];
+    const medText = admin.medicationCodeableConcept?.text;
+    const statusReason = admin.statusReason?.map((reason: any) => reason.coding?.[0]).filter(Boolean);
+    const category = admin.category?.map((cat: any) => cat.coding?.[0]).filter(Boolean);
+    const dosage = admin.dosage;
+
+    return {
+        id: admin.id,
+        identifier: admin.identifier?.[0]?.value,
+        basedOn: admin.basedOn?.map((ref: any) => ref.reference).filter(Boolean),
+        partOf: admin.partOf?.map((ref: any) => ref.reference).filter(Boolean),
+        status: admin.status,
+        statusReason: statusReason?.map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        category: category?.map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        medicationCodeableConcept: medCoding || medText ? {
+            coding: medCoding ? [{
+                system: medCoding.system,
+                code: medCoding.code,
+                display: medCoding.display
+            }] : undefined,
+            text: medText
+        } : undefined,
+        medicationReference: admin.medicationReference?.reference?.replace('Medication/', ''),
+        subject: admin.subject?.reference?.replace('Patient/', ''),
+        encounter: admin.encounter?.reference?.replace('Encounter/', ''),
+        supportingInformation: admin.supportingInformation?.map((ref: any) => ref.reference).filter(Boolean),
+        occurrenceDateTime: admin.occurrenceDateTime,
+        occurrencePeriod: admin.occurrencePeriod ? {
+            start: admin.occurrencePeriod.start,
+            end: admin.occurrencePeriod.end
+        } : undefined,
+        occurrenceTiming: admin.occurrenceTiming,
+        recorded: admin.recorded,
+        isSubPotent: admin.isSubPotent,
+        subPotentReason: admin.subPotentReason?.map((reason: any) => ({
+            system: reason.coding?.[0]?.system,
+            code: reason.coding?.[0]?.code,
+            display: reason.coding?.[0]?.display
+        })),
+        performer: admin.performer?.map((perf: any) => ({
+            function: perf.function?.coding?.[0] ? {
+                system: perf.function.coding[0].system,
+                code: perf.function.coding[0].code,
+                display: perf.function.coding[0].display
+            } : undefined,
+            actor: perf.actor?.reference?.split('/').pop()
+        })),
+        reason: admin.reasonCode?.map((reason: any) => ({
+            code: reason.coding?.[0] ? {
+                system: reason.coding[0].system,
+                code: reason.coding[0].code,
+                display: reason.coding[0].display
+            } : undefined
+        })),
+        request: admin.request?.reference?.replace('MedicationRequest/', ''),
+        device: admin.device?.map((device: any) => device.reference?.split('/').pop()).filter(Boolean),
+        note: admin.note?.map((note: any) => note.text).filter(Boolean),
+        dosage: dosage ? {
+            text: dosage.text,
+            site: dosage.site?.coding?.[0] ? {
+                system: dosage.site.coding[0].system,
+                code: dosage.site.coding[0].code,
+                display: dosage.site.coding[0].display
+            } : undefined,
+            route: dosage.route?.coding?.[0] ? {
+                system: dosage.route.coding[0].system,
+                code: dosage.route.coding[0].code,
+                display: dosage.route.coding[0].display
+            } : undefined,
+            method: dosage.method?.coding?.[0] ? {
+                system: dosage.method.coding[0].system,
+                code: dosage.method.coding[0].code,
+                display: dosage.method.coding[0].display
+            } : undefined,
+            dose: dosage.dose ? {
+                value: dosage.dose.value,
+                unit: dosage.dose.unit
+            } : undefined,
+            rateRatio: dosage.rateRatio,
+            rateQuantity: dosage.rateQuantity ? {
+                value: dosage.rateQuantity.value,
+                unit: dosage.rateQuantity.unit
+            } : undefined
+        } : undefined,
+        eventHistory: admin.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
     };
 }
 

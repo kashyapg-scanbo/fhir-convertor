@@ -419,6 +419,106 @@ export type CanonicalMedicationStatement = {
   active?: boolean;
 };
 
+export type CanonicalMedicationAdministration = {
+  id?: string;
+  identifier?: string;
+  basedOn?: string[];
+  partOf?: string[];
+  status?: string;
+  statusReason?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  medicationCodeableConcept?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  medicationReference?: string;
+  subject?: string;
+  encounter?: string;
+  supportingInformation?: string[];
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  occurrenceTiming?: any;
+  recorded?: string;
+  isSubPotent?: boolean;
+  subPotentReason?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  performer?: Array<{
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    actor?: string;
+  }>;
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  request?: string;
+  device?: string[];
+  note?: string[];
+  dosage?: {
+    text?: string;
+    site?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    route?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    method?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    dose?: {
+      value?: number;
+      unit?: string;
+    };
+    rateRatio?: {
+      numerator?: {
+        value?: number;
+        unit?: string;
+      };
+      denominator?: {
+        value?: number;
+        unit?: string;
+      };
+    };
+    rateQuantity?: {
+      value?: number;
+      unit?: string;
+    };
+  };
+  eventHistory?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1158,6 +1258,7 @@ export type CanonicalModel = {
   medications?: CanonicalMedication[]; // Medication resource (drug definition)
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
+  medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

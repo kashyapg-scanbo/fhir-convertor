@@ -758,6 +758,47 @@ export function buildCanonical(parsed: any) {
     result.medicationStatements = medicationStatements;
   }
 
+  /* ───── MedicationAdministrations (from RXA) ───── */
+  const medicationAdministrations: CanonicalMedicationAdministration[] = [];
+  for (const rxa of rxaSegments) {
+    const administeredCode = rxa?.[4]?.[0] ?? [];
+    const medCode = administeredCode[0];
+    const medDisplay = administeredCode[1];
+    const medSystem = administeredCode[2];
+    if (!medCode && !medDisplay) continue;
+
+    const doseValue = rxa?.[5]?.[0]?.[0];
+    const doseUnit = rxa?.[5]?.[0]?.[1];
+    const occurrenceDate = toFHIRDateTime(rxa?.[2]?.[0]?.[0]) || toFHIRDate(rxa?.[2]?.[0]?.[0]);
+
+    medicationAdministrations.push({
+      id: `RXA-ADMIN-${medCode || Date.now()}`,
+      identifier: medCode,
+      status: 'completed',
+      medicationCodeableConcept: medCode ? {
+        coding: [{
+          system: mapCodingSystem(medSystem),
+          code: medCode,
+          display: medDisplay
+        }],
+        text: medDisplay
+      } : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      occurrenceDateTime: occurrenceDate,
+      dosage: doseValue ? {
+        dose: {
+          value: Number(doseValue),
+          unit: doseUnit
+        }
+      } : undefined
+    });
+  }
+
+  if (medicationAdministrations.length > 0) {
+    result.medicationAdministrations = medicationAdministrations;
+  }
+
   /* ───── Immunizations (from RXA) ───── */
   const immunizations: CanonicalImmunization[] = [];
   for (const rxa of rxaSegments) {

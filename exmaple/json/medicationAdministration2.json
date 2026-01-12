@@ -1,0 +1,25 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Jane2",
+      "last_name": "Doe2"
+    }
+  },
+  "medication_administration": {
+    "medication_administration_id": "MEDADMIN-2",
+    "status": "completed",
+    "medication": {
+      "medication_id": "MED-2",
+      "name": "Ceftriaxone"
+    },
+    "patient_id": "PAT-2",
+    "occurrence_start": "2024-03-10T09:00:00Z",
+    "occurrence_end": "2024-03-10T09:15:00Z",
+    "dose_value": 1,
+    "dose_unit": "g",
+    "route": "IM",
+    "reason": "Infection",
+    "note": "Observed for 15 minutes"
+  }
+}

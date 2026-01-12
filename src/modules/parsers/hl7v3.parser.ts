@@ -11,6 +11,7 @@ import {
     CanonicalMedication,
     CanonicalMedicationRequest,
     CanonicalMedicationStatement,
+    CanonicalMedicationAdministration,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
@@ -59,6 +60,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         medications: [],
         medicationRequests: [],
         medicationStatements: [],
+        medicationAdministrations: [],
         procedures: [],
         conditions: [],
         appointments: [],
@@ -172,6 +174,9 @@ export function parseHL7v3(input: string): CanonicalModel {
 
                 const immunization = mapV3Immunization(substanceAdministration);
                 if (immunization) model.immunizations?.push(immunization);
+
+                const medicationAdministration = mapV3MedicationAdministration(substanceAdministration);
+                if (medicationAdministration) model.medicationAdministrations?.push(medicationAdministration);
             }
 
             const procedureEvent = sub.procedure || sub.Procedure;
@@ -657,6 +662,56 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
     }
 
     return { medication, medicationRequest, medicationStatement };
+}
+
+function mapV3MedicationAdministration(substanceAdmin: any): CanonicalMedicationAdministration | undefined {
+    const consumable = substanceAdmin.consumable || substanceAdmin.Consumable;
+    const manufacturedProduct = consumable?.manufacturedProduct || consumable?.ManufacturedProduct;
+    const manufacturedMaterial = manufacturedProduct?.manufacturedMaterial || manufacturedProduct?.ManufacturedMaterial;
+    const code = manufacturedMaterial?.code || manufacturedMaterial?.Code;
+
+    const medCode = code?.['@_code'];
+    const medDisplay = code?.['@_displayName'];
+    const medSystem = code?.['@_codeSystem'];
+
+    if (!medCode && !medDisplay) return undefined;
+
+    const status = substanceAdmin.statusCode?.['@_code'] || 'completed';
+    const occurrence = formatV3DateTime(
+        substanceAdmin.effectiveTime?.['@_value'] ||
+        substanceAdmin.EffectiveTime?.['@_value'] ||
+        substanceAdmin.effectiveTime?.low?.['@_value']
+    );
+
+    const dose = substanceAdmin.doseQuantity || substanceAdmin.DoseQuantity;
+    const route = substanceAdmin.routeCode || substanceAdmin.RouteCode;
+
+    return {
+        id: `MEDADMIN-${medCode || Date.now()}`,
+        identifier: medCode,
+        status,
+        medicationCodeableConcept: medCode || medDisplay ? {
+            coding: medCode ? [{
+                system: medSystem,
+                code: medCode,
+                display: medDisplay
+            }] : undefined,
+            text: medDisplay
+        } : undefined,
+        occurrenceDateTime: occurrence,
+        dosage: (dose || route) ? {
+            text: buildV3DoseText(dose, route),
+            route: route ? {
+                system: route?.['@_codeSystem'],
+                code: route?.['@_code'],
+                display: route?.['@_displayName']
+            } : undefined,
+            dose: dose?.['@_value'] ? {
+                value: Number(dose['@_value']),
+                unit: dose?.['@_unit']
+            } : undefined
+        } : undefined
+    };
 }
 
 function mapV3Immunization(substanceAdmin: any): CanonicalImmunization | undefined {

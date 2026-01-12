@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-2"/>
+      <patient>
+        <name>
+          <family>Doe2</family>
+          <given>Jane2</given>
+        </name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19850202"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="10160-0" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <substanceAdministration>
+              <id extension="MEDADMIN2"/>
+              <effectiveTime>
+                <low value="202403100900"/>
+                <high value="202403100915"/>
+              </effectiveTime>
+              <doseQuantity value="1" unit="g"/>
+              <routeCode code="IM" displayName="Intramuscular"/>
+              <consumable>
+                <manufacturedProduct>
+                  <manufacturedMaterial>
+                    <code code="MED2" displayName="Ceftriaxone" codeSystem="2.16.840.1.113883.6.88"/>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>
