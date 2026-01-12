@@ -668,6 +668,99 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (episodesOfCare.length > 0) canonical.episodesOfCare = episodesOfCare as any[];
 
+  const specimens = rows.map(row => {
+    const specimenId = readValue(row, 'specimen_id');
+    const accessionIdentifier = readValue(row, 'specimen_accession_identifier');
+    const status = readValue(row, 'specimen_status');
+    const type = readValue(row, 'specimen_type');
+    const subjectId = readValue(row, 'specimen_subject_id');
+    const receivedTime = readValue(row, 'specimen_received_time');
+    const parentIds = readValue(row, 'specimen_parent_ids');
+    const requestIds = readValue(row, 'specimen_request_ids');
+    const combined = readValue(row, 'specimen_combined');
+    const role = readValue(row, 'specimen_role');
+    const featureType = readValue(row, 'specimen_feature_type');
+    const featureDescription = readValue(row, 'specimen_feature_description');
+    const collectorId = readValue(row, 'specimen_collection_collector_id');
+    const collectedDate = readValue(row, 'specimen_collection_collected_date');
+    const collectedStart = readValue(row, 'specimen_collection_collected_start');
+    const collectedEnd = readValue(row, 'specimen_collection_collected_end');
+    const durationValue = readNumber(row, 'specimen_collection_duration_value');
+    const durationUnit = readValue(row, 'specimen_collection_duration_unit');
+    const quantityValue = readNumber(row, 'specimen_collection_quantity_value');
+    const quantityUnit = readValue(row, 'specimen_collection_quantity_unit');
+    const method = readValue(row, 'specimen_collection_method');
+    const deviceId = readValue(row, 'specimen_collection_device_id');
+    const procedureId = readValue(row, 'specimen_collection_procedure_id');
+    const bodySite = readValue(row, 'specimen_collection_body_site');
+    const fastingStatus = readValue(row, 'specimen_collection_fasting_status');
+    const fastingDurationValue = readNumber(row, 'specimen_collection_fasting_duration_value');
+    const fastingDurationUnit = readValue(row, 'specimen_collection_fasting_duration_unit');
+    const processingDescription = readValue(row, 'specimen_processing_description');
+    const processingMethod = readValue(row, 'specimen_processing_method');
+    const processingAdditiveIds = readValue(row, 'specimen_processing_additive_ids');
+    const processingTimeDate = readValue(row, 'specimen_processing_time_date');
+    const processingTimeStart = readValue(row, 'specimen_processing_time_start');
+    const processingTimeEnd = readValue(row, 'specimen_processing_time_end');
+    const containerDeviceId = readValue(row, 'specimen_container_device_id');
+    const containerLocationId = readValue(row, 'specimen_container_location_id');
+    const containerQuantityValue = readNumber(row, 'specimen_container_quantity_value');
+    const containerQuantityUnit = readValue(row, 'specimen_container_quantity_unit');
+    const condition = readValue(row, 'specimen_condition');
+    const note = readValue(row, 'specimen_note');
+
+    if (!specimenId && !accessionIdentifier && !type && !subjectId && !receivedTime) return null;
+
+    const collectionPeriod = collectedStart || collectedEnd ? { start: collectedStart, end: collectedEnd } : undefined;
+    const processingPeriod = processingTimeStart || processingTimeEnd ? { start: processingTimeStart, end: processingTimeEnd } : undefined;
+
+    return {
+      id: specimenId || undefined,
+      identifier: specimenId || undefined,
+      accessionIdentifier: accessionIdentifier || undefined,
+      status: status || undefined,
+      type: type ? { code: type, display: type } : undefined,
+      subject: subjectId || undefined,
+      receivedTime: receivedTime || undefined,
+      parent: parentIds ? parentIds.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      request: requestIds ? requestIds.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      combined: combined || undefined,
+      role: role ? [{ code: role, display: role }] : undefined,
+      feature: featureType || featureDescription ? [{
+        type: featureType ? { code: featureType, display: featureType } : undefined,
+        description: featureDescription
+      }] : undefined,
+      collection: (collectorId || collectedDate || collectionPeriod || method || quantityValue !== undefined) ? {
+        collector: collectorId || undefined,
+        collectedDateTime: collectedDate || undefined,
+        collectedPeriod: collectionPeriod,
+        duration: durationValue !== undefined ? { value: durationValue, unit: durationUnit } : undefined,
+        quantity: quantityValue !== undefined ? { value: quantityValue, unit: quantityUnit } : undefined,
+        method: method ? { code: method, display: method } : undefined,
+        device: deviceId || undefined,
+        procedure: procedureId || undefined,
+        bodySite: bodySite ? { display: bodySite } : undefined,
+        fastingStatusCodeableConcept: fastingStatus ? { display: fastingStatus } : undefined,
+        fastingStatusDuration: fastingDurationValue !== undefined ? { value: fastingDurationValue, unit: fastingDurationUnit } : undefined
+      } : undefined,
+      processing: (processingDescription || processingMethod || processingAdditiveIds || processingTimeDate || processingPeriod) ? [{
+        description: processingDescription,
+        method: processingMethod ? { code: processingMethod, display: processingMethod } : undefined,
+        additive: processingAdditiveIds ? processingAdditiveIds.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+        timeDateTime: processingTimeDate,
+        timePeriod: processingPeriod
+      }] : undefined,
+      container: (containerDeviceId || containerLocationId || containerQuantityValue !== undefined) ? [{
+        device: containerDeviceId || undefined,
+        location: containerLocationId || undefined,
+        specimenQuantity: containerQuantityValue !== undefined ? { value: containerQuantityValue, unit: containerQuantityUnit } : undefined
+      }] : undefined,
+      condition: condition ? [{ display: condition }] : undefined,
+      note: note ? [note] : undefined
+    };
+  }).filter(Boolean);
+  if (specimens.length > 0) canonical.specimens = specimens as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

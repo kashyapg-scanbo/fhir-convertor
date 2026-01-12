@@ -760,6 +760,102 @@ export type CanonicalEpisodeOfCare = {
   active?: boolean;
 };
 
+export type CanonicalSpecimen = {
+  id?: string;
+  identifier?: string;
+  accessionIdentifier?: string;
+  status?: string;
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subject?: string;
+  receivedTime?: string;
+  parent?: string[];
+  request?: string[];
+  combined?: string;
+  role?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  feature?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    description?: string;
+  }>;
+  collection?: {
+    collector?: string;
+    collectedDateTime?: string;
+    collectedPeriod?: {
+      start?: string;
+      end?: string;
+    };
+    duration?: {
+      value?: number;
+      unit?: string;
+    };
+    quantity?: {
+      value?: number;
+      unit?: string;
+    };
+    method?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    device?: string;
+    procedure?: string;
+    bodySite?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    fastingStatusCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    fastingStatusDuration?: {
+      value?: number;
+      unit?: string;
+    };
+  };
+  processing?: Array<{
+    description?: string;
+    method?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    additive?: string[];
+    timeDateTime?: string;
+    timePeriod?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  container?: Array<{
+    device?: string;
+    location?: string;
+    specimenQuantity?: {
+      value?: number;
+      unit?: string;
+    };
+  }>;
+  condition?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  note?: string[];
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -822,6 +918,7 @@ export type CanonicalModel = {
   relatedPersons?: CanonicalRelatedPerson[]; // RelatedPerson
   locations?: CanonicalLocation[]; // Location
   episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
+  specimens?: CanonicalSpecimen[]; // Specimen
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

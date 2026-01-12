@@ -426,6 +426,48 @@ const GlobalEpisodeOfCareSchema = z.object({
   status_history_end: z.string().optional()
 });
 
+const GlobalSpecimenSchema = z.object({
+  specimen_id: GlobalIdSchema.optional(),
+  accession_identifier: z.string().optional(),
+  status: z.string().optional(),
+  type: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  received_time: z.string().optional(),
+  parent_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  combined: z.string().optional(),
+  role: z.union([z.string(), z.array(z.string())]).optional(),
+  feature_type: z.string().optional(),
+  feature_description: z.string().optional(),
+  collection_collector_id: GlobalIdSchema.optional(),
+  collection_collected_date: z.string().optional(),
+  collection_collected_start: z.string().optional(),
+  collection_collected_end: z.string().optional(),
+  collection_duration_value: GlobalNumberSchema.optional(),
+  collection_duration_unit: z.string().optional(),
+  collection_quantity_value: GlobalNumberSchema.optional(),
+  collection_quantity_unit: z.string().optional(),
+  collection_method: z.string().optional(),
+  collection_device_id: GlobalIdSchema.optional(),
+  collection_procedure_id: GlobalIdSchema.optional(),
+  collection_body_site: z.string().optional(),
+  collection_fasting_status: z.string().optional(),
+  collection_fasting_duration_value: GlobalNumberSchema.optional(),
+  collection_fasting_duration_unit: z.string().optional(),
+  processing_description: z.string().optional(),
+  processing_method: z.string().optional(),
+  processing_additive_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  processing_time_date: z.string().optional(),
+  processing_time_start: z.string().optional(),
+  processing_time_end: z.string().optional(),
+  container_device_id: GlobalIdSchema.optional(),
+  container_location_id: GlobalIdSchema.optional(),
+  container_quantity_value: GlobalNumberSchema.optional(),
+  container_quantity_unit: z.string().optional(),
+  condition: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -525,6 +567,7 @@ const GlobalCustomJSONSchema = z.object({
   related_person: z.union([GlobalRelatedPersonSchema, z.array(GlobalRelatedPersonSchema)]).optional(),
   location: z.union([GlobalLocationSchema, z.array(GlobalLocationSchema)]).optional(),
   episode_of_care: z.union([GlobalEpisodeOfCareSchema, z.array(GlobalEpisodeOfCareSchema)]).optional(),
+  specimen: z.union([GlobalSpecimenSchema, z.array(GlobalSpecimenSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -544,12 +587,13 @@ const GlobalCustomJSONSchema = z.object({
     value.related_person ||
     value.location ||
     value.episode_of_care ||
+    value.specimen ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -578,6 +622,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   relatedPersons: 'relatedPerson',
   locations: 'location',
   episodesOfCare: 'episodeOfCare',
+  specimens: 'specimen',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -608,6 +653,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   locations: 'location',
   episode_of_care: 'episodeOfCare',
   episode_of_cares: 'episodeOfCare',
+  specimen: 'specimen',
+  specimens: 'specimen',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -669,6 +716,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   episode_of_cares: 'episode_of_care',
   episodeofcare: 'episode_of_care',
   episodeofcares: 'episode_of_care',
+  specimen: 'specimen',
+  specimens: 'specimen',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1457,6 +1506,131 @@ function normalizeGlobalEpisodeOfCareAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalSpecimenAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const specimenId = readSectionAliasValue(value, 'specimen', 'specimen_id');
+  if (normalized.specimen_id === undefined && specimenId !== undefined) {
+    normalized.specimen_id = specimenId;
+  }
+
+  const accession = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_accession_identifier'));
+  if (accession && normalized.accession_identifier === undefined) normalized.accession_identifier = accession;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const receivedTime = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_received_time'));
+  if (receivedTime && normalized.received_time === undefined) normalized.received_time = receivedTime;
+
+  const parentIds = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_parent_ids'));
+  if (parentIds && normalized.parent_ids === undefined) normalized.parent_ids = parentIds;
+
+  const requestIds = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_request_ids'));
+  if (requestIds && normalized.request_ids === undefined) normalized.request_ids = requestIds;
+
+  const combined = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_combined'));
+  if (combined && normalized.combined === undefined) normalized.combined = combined;
+
+  const role = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_role'));
+  if (role && normalized.role === undefined) normalized.role = role;
+
+  const featureType = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_feature_type'));
+  if (featureType && normalized.feature_type === undefined) normalized.feature_type = featureType;
+
+  const featureDescription = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_feature_description'));
+  if (featureDescription && normalized.feature_description === undefined) normalized.feature_description = featureDescription;
+
+  const collectorId = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_collector_id'));
+  if (collectorId && normalized.collection_collector_id === undefined) normalized.collection_collector_id = collectorId;
+
+  const collectedDate = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_collected_date'));
+  if (collectedDate && normalized.collection_collected_date === undefined) normalized.collection_collected_date = collectedDate;
+
+  const collectedStart = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_collected_start'));
+  if (collectedStart && normalized.collection_collected_start === undefined) normalized.collection_collected_start = collectedStart;
+
+  const collectedEnd = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_collected_end'));
+  if (collectedEnd && normalized.collection_collected_end === undefined) normalized.collection_collected_end = collectedEnd;
+
+  const durationValue = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_duration_value'));
+  if (durationValue && normalized.collection_duration_value === undefined) normalized.collection_duration_value = durationValue;
+
+  const durationUnit = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_duration_unit'));
+  if (durationUnit && normalized.collection_duration_unit === undefined) normalized.collection_duration_unit = durationUnit;
+
+  const quantityValue = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_quantity_value'));
+  if (quantityValue && normalized.collection_quantity_value === undefined) normalized.collection_quantity_value = quantityValue;
+
+  const quantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_quantity_unit'));
+  if (quantityUnit && normalized.collection_quantity_unit === undefined) normalized.collection_quantity_unit = quantityUnit;
+
+  const method = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_method'));
+  if (method && normalized.collection_method === undefined) normalized.collection_method = method;
+
+  const deviceId = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_device_id'));
+  if (deviceId && normalized.collection_device_id === undefined) normalized.collection_device_id = deviceId;
+
+  const procedureId = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_procedure_id'));
+  if (procedureId && normalized.collection_procedure_id === undefined) normalized.collection_procedure_id = procedureId;
+
+  const bodySite = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_body_site'));
+  if (bodySite && normalized.collection_body_site === undefined) normalized.collection_body_site = bodySite;
+
+  const fastingStatus = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_fasting_status'));
+  if (fastingStatus && normalized.collection_fasting_status === undefined) normalized.collection_fasting_status = fastingStatus;
+
+  const fastingDurationValue = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_fasting_duration_value'));
+  if (fastingDurationValue && normalized.collection_fasting_duration_value === undefined) normalized.collection_fasting_duration_value = fastingDurationValue;
+
+  const fastingDurationUnit = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_collection_fasting_duration_unit'));
+  if (fastingDurationUnit && normalized.collection_fasting_duration_unit === undefined) normalized.collection_fasting_duration_unit = fastingDurationUnit;
+
+  const processingDescription = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_processing_description'));
+  if (processingDescription && normalized.processing_description === undefined) normalized.processing_description = processingDescription;
+
+  const processingMethod = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_processing_method'));
+  if (processingMethod && normalized.processing_method === undefined) normalized.processing_method = processingMethod;
+
+  const processingAdditiveIds = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_processing_additive_ids'));
+  if (processingAdditiveIds && normalized.processing_additive_ids === undefined) normalized.processing_additive_ids = processingAdditiveIds;
+
+  const processingTimeDate = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_processing_time_date'));
+  if (processingTimeDate && normalized.processing_time_date === undefined) normalized.processing_time_date = processingTimeDate;
+
+  const processingTimeStart = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_processing_time_start'));
+  if (processingTimeStart && normalized.processing_time_start === undefined) normalized.processing_time_start = processingTimeStart;
+
+  const processingTimeEnd = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_processing_time_end'));
+  if (processingTimeEnd && normalized.processing_time_end === undefined) normalized.processing_time_end = processingTimeEnd;
+
+  const containerDeviceId = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_container_device_id'));
+  if (containerDeviceId && normalized.container_device_id === undefined) normalized.container_device_id = containerDeviceId;
+
+  const containerLocationId = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_container_location_id'));
+  if (containerLocationId && normalized.container_location_id === undefined) normalized.container_location_id = containerLocationId;
+
+  const containerQuantityValue = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_container_quantity_value'));
+  if (containerQuantityValue && normalized.container_quantity_value === undefined) normalized.container_quantity_value = containerQuantityValue;
+
+  const containerQuantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_container_quantity_unit'));
+  if (containerQuantityUnit && normalized.container_quantity_unit === undefined) normalized.container_quantity_unit = containerQuantityUnit;
+
+  const condition = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_condition'));
+  if (condition && normalized.condition === undefined) normalized.condition = condition;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'specimen', 'specimen_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1651,6 +1825,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalLocationAliases(value);
     case 'episodeOfCare':
       return normalizeGlobalEpisodeOfCareAliases(value);
+    case 'specimen':
+      return normalizeGlobalSpecimenAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1788,6 +1964,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'relatedPerson',
     'location',
     'episodeOfCare',
+    'specimen',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1908,6 +2085,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const relatedPersons = normalizeArray(validated.related_person);
   const locations = normalizeArray(validated.location);
   const episodesOfCare = normalizeArray(validated.episode_of_care);
+  const specimens = normalizeArray(validated.specimen);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1955,6 +2133,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (episodesOfCare.length) {
     canonical.episodesOfCare = episodesOfCare.map(buildCanonicalEpisodeOfCareGlobal);
   }
+  if (specimens.length) {
+    canonical.specimens = specimens.map(buildCanonicalSpecimenGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -1994,7 +2175,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -2012,6 +2193,7 @@ function wrapGlobalPayload(value: any) {
       value.related_person,
       value.location,
       value.episode_of_care,
+      value.specimen,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -2059,6 +2241,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('episode_of_care_id' in value || 'care_manager_id' in value || 'period_start' in value) {
       return { episode_of_care: value };
+    }
+    if ('specimen_id' in value || 'accession_identifier' in value || 'received_time' in value) {
+      return { specimen: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -2119,6 +2304,9 @@ function looksLikeGlobalResource(value: any) {
     'episode_of_care_id' in value ||
     'care_manager_id' in value ||
     'period_start' in value ||
+    'specimen_id' in value ||
+    'accession_identifier' in value ||
+    'received_time' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -2631,6 +2819,92 @@ function buildCanonicalEpisodeOfCareGlobal(episode: z.infer<typeof GlobalEpisode
     careManager: episode.care_manager_id,
     careTeam: careTeams.length ? careTeams : undefined,
     account: accounts.length ? accounts : undefined
+  };
+}
+
+function buildCanonicalSpecimenGlobal(specimen: z.infer<typeof GlobalSpecimenSchema>) {
+  const parentIds = normalizeStringArray(specimen.parent_ids);
+  const requestIds = normalizeStringArray(specimen.request_ids);
+  const roles = normalizeStringArray(specimen.role);
+  const additives = normalizeStringArray(specimen.processing_additive_ids);
+  const conditions = normalizeStringArray(specimen.condition);
+  const notes = normalizeStringArray(specimen.note);
+
+  const collectedPeriod = specimen.collection_collected_start || specimen.collection_collected_end
+    ? {
+      start: specimen.collection_collected_start,
+      end: specimen.collection_collected_end
+    }
+    : undefined;
+
+  const processingTimePeriod = specimen.processing_time_start || specimen.processing_time_end
+    ? {
+      start: specimen.processing_time_start,
+      end: specimen.processing_time_end
+    }
+    : undefined;
+
+  return {
+    id: specimen.specimen_id,
+    identifier: specimen.specimen_id,
+    accessionIdentifier: specimen.accession_identifier,
+    status: specimen.status,
+    type: specimen.type ? { code: specimen.type, display: specimen.type } : undefined,
+    subject: specimen.subject_id,
+    receivedTime: specimen.received_time,
+    parent: parentIds.length ? parentIds : undefined,
+    request: requestIds.length ? requestIds : undefined,
+    combined: specimen.combined,
+    role: roles.length ? roles.map(role => ({ code: role, display: role })) : undefined,
+    feature: specimen.feature_type || specimen.feature_description ? [{
+      type: specimen.feature_type ? { code: specimen.feature_type, display: specimen.feature_type } : undefined,
+      description: specimen.feature_description
+    }] : undefined,
+    collection: (specimen.collection_collector_id || specimen.collection_collected_date || collectedPeriod || specimen.collection_method || specimen.collection_quantity_value !== undefined)
+      ? {
+        collector: specimen.collection_collector_id,
+        collectedDateTime: specimen.collection_collected_date,
+        collectedPeriod,
+        duration: specimen.collection_duration_value !== undefined ? {
+          value: Number(specimen.collection_duration_value),
+          unit: specimen.collection_duration_unit
+        } : undefined,
+        quantity: specimen.collection_quantity_value !== undefined ? {
+          value: Number(specimen.collection_quantity_value),
+          unit: specimen.collection_quantity_unit
+        } : undefined,
+        method: specimen.collection_method ? { code: specimen.collection_method, display: specimen.collection_method } : undefined,
+        device: specimen.collection_device_id,
+        procedure: specimen.collection_procedure_id,
+        bodySite: specimen.collection_body_site ? { code: specimen.collection_body_site, display: specimen.collection_body_site } : undefined,
+        fastingStatusCodeableConcept: specimen.collection_fasting_status ? { code: specimen.collection_fasting_status, display: specimen.collection_fasting_status } : undefined,
+        fastingStatusDuration: specimen.collection_fasting_duration_value !== undefined ? {
+          value: Number(specimen.collection_fasting_duration_value),
+          unit: specimen.collection_fasting_duration_unit
+        } : undefined
+      }
+      : undefined,
+    processing: (specimen.processing_description || specimen.processing_method || additives.length || specimen.processing_time_date || processingTimePeriod)
+      ? [{
+        description: specimen.processing_description,
+        method: specimen.processing_method ? { code: specimen.processing_method, display: specimen.processing_method } : undefined,
+        additive: additives.length ? additives : undefined,
+        timeDateTime: specimen.processing_time_date,
+        timePeriod: processingTimePeriod
+      }]
+      : undefined,
+    container: (specimen.container_device_id || specimen.container_location_id || specimen.container_quantity_value !== undefined)
+      ? [{
+        device: specimen.container_device_id,
+        location: specimen.container_location_id,
+        specimenQuantity: specimen.container_quantity_value !== undefined ? {
+          value: Number(specimen.container_quantity_value),
+          unit: specimen.container_quantity_unit
+        } : undefined
+      }]
+      : undefined,
+    condition: conditions.length ? conditions.map(condition => ({ code: condition, display: condition })) : undefined,
+    note: notes.length ? notes : undefined
   };
 }
 

@@ -19,7 +19,8 @@ import {
     CanonicalDiagnosticReport,
     CanonicalRelatedPerson,
     CanonicalLocation,
-    CanonicalEpisodeOfCare
+    CanonicalEpisodeOfCare,
+    CanonicalSpecimen
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -64,6 +65,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         relatedPersons: [],
         locations: [],
         episodesOfCare: [],
+        specimens: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -167,6 +169,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (procedureEvent) {
                 const procedure = mapV3Procedure(procedureEvent);
                 if (procedure) model.procedures?.push(procedure);
+            }
+
+            const specimenEvent = sub.specimen || sub.Specimen;
+            if (specimenEvent) {
+                const specimen = mapV3Specimen(specimenEvent);
+                if (specimen) model.specimens?.push(specimen);
             }
         }
     }
@@ -295,6 +303,32 @@ function mapV3EpisodeOfCareFromEncounter(encounterEvent: any): CanonicalEpisodeO
         period: startTime || endTime ? {
             start: formatV3DateTime(startTime),
             end: formatV3DateTime(endTime)
+        } : undefined
+    };
+}
+
+function mapV3Specimen(specimenEvent: any): CanonicalSpecimen | undefined {
+    const specimen = specimenEvent.specimenRole || specimenEvent.SpecimenRole || specimenEvent;
+    const idInfo = pickV3Id(specimen.id || specimen.Id);
+    const playing = specimen.specimenPlayingEntity || specimen.SpecimenPlayingEntity;
+    const code = playing?.code || playing?.Code || specimen.code || specimen.Code;
+    const receivedTime = specimen.receivedTime?.['@_value'] || specimen.ReceivedTime?.['@_value'];
+    const collectedTime = specimen.effectiveTime?.['@_value'] || specimen.EffectiveTime?.['@_value'];
+
+    if (!idInfo.id && !idInfo.identifier && !code?.['@_code'] && !code?.['@_displayName']) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier || idInfo.id,
+        status: 'available',
+        type: (code?.['@_code'] || code?.['@_displayName']) ? {
+            system: code?.['@_codeSystem'],
+            code: code?.['@_code'],
+            display: code?.['@_displayName']
+        } : undefined,
+        receivedTime: formatV3DateTime(receivedTime),
+        collection: collectedTime ? {
+            collectedDateTime: formatV3DateTime(collectedTime)
         } : undefined
     };
 }

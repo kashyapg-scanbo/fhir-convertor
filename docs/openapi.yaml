@@ -33,6 +33,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
                 - $ref: '#/components/schemas/CustomJsonLocationOnly'
                 - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
+                - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
                 - $ref: '#/components/schemas/CustomJsonFull'
             examples:
               patient:
@@ -325,6 +326,23 @@ paths:
                       - CT-10
                     account_ids:
                       - ACC-55
+              specimen:
+                summary: Specimen
+                value:
+                  specimen:
+                    specimen_id: SPEC-100
+                    accession_identifier: ACC-456
+                    status: available
+                    type: blood
+                    subject_id: P-10001
+                    received_time: 2024-02-01T10:00:00Z
+                    collection_collected_date: 2024-02-01T09:30:00Z
+                    collection_method: venipuncture
+                    container_device_id: DEV-12
+                    condition:
+                      - refrigerated
+                    note:
+                      - Sample kept at 4C
               fullBundle:
                 summary: Full bundle
                 value:
@@ -376,6 +394,11 @@ paths:
                     patient_id: P-10001
                     period_start: 2024-01-01T00:00:00Z
                     period_end: 2024-06-30T00:00:00Z
+                  specimen:
+                    specimen_id: SPEC-100
+                    status: available
+                    subject_id: P-10001
+                    received_time: 2024-02-01T10:00:00Z
       responses:
         '200':
           description: FHIR R5 Bundle
@@ -397,7 +420,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -542,7 +565,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -633,6 +656,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomEpisodeOfCare'
+        specimen:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSpecimen'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSpecimen'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1417,6 +1446,118 @@ components:
         status_history_end:
           type: string
           format: date-time
+    CustomSpecimen:
+      type: object
+      properties:
+        specimen_id:
+          type: string
+        accession_identifier:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        subject_id:
+          type: string
+        received_time:
+          type: string
+          format: date-time
+        parent_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        request_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        combined:
+          type: string
+        role:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        feature_type:
+          type: string
+        feature_description:
+          type: string
+        collection_collector_id:
+          type: string
+        collection_collected_date:
+          type: string
+          format: date-time
+        collection_collected_start:
+          type: string
+          format: date-time
+        collection_collected_end:
+          type: string
+          format: date-time
+        collection_duration_value:
+          type: number
+        collection_duration_unit:
+          type: string
+        collection_quantity_value:
+          type: number
+        collection_quantity_unit:
+          type: string
+        collection_method:
+          type: string
+        collection_device_id:
+          type: string
+        collection_procedure_id:
+          type: string
+        collection_body_site:
+          type: string
+        collection_fasting_status:
+          type: string
+        collection_fasting_duration_value:
+          type: number
+        collection_fasting_duration_unit:
+          type: string
+        processing_description:
+          type: string
+        processing_method:
+          type: string
+        processing_additive_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        processing_time_date:
+          type: string
+          format: date-time
+        processing_time_start:
+          type: string
+          format: date-time
+        processing_time_end:
+          type: string
+          format: date-time
+        container_device_id:
+          type: string
+        container_location_id:
+          type: string
+        container_quantity_value:
+          type: number
+        container_quantity_unit:
+          type: string
+        condition:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
     CustomPractitioner:
       type: object
       properties:
@@ -1705,6 +1846,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [episode_of_care]
+    CustomJsonSpecimenOnly:
+      title: Specimen
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [specimen]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:

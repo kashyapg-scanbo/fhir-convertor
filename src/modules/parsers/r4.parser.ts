@@ -19,7 +19,8 @@ import {
     CanonicalDiagnosticReport,
     CanonicalRelatedPerson,
     CanonicalLocation,
-    CanonicalEpisodeOfCare
+    CanonicalEpisodeOfCare,
+    CanonicalSpecimen
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -50,6 +51,7 @@ export function parseR4(input: string): CanonicalModel {
         relatedPersons: [],
         locations: [],
         episodesOfCare: [],
+        specimens: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -136,6 +138,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'EpisodeOfCare':
                 const episode = mapR4EpisodeOfCare(res);
                 if (episode) model.episodesOfCare?.push(episode);
+                break;
+            case 'Specimen':
+                const specimen = mapR4Specimen(res);
+                if (specimen) model.specimens?.push(specimen);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -766,6 +772,92 @@ function mapR4EpisodeOfCare(eoc: any): CanonicalEpisodeOfCare {
         careTeam: eoc.careTeam?.map((ref: any) => ref.reference?.replace('CareTeam/', '')).filter(Boolean),
         account: eoc.account?.map((ref: any) => ref.reference?.replace('Account/', '')).filter(Boolean),
         active: eoc.status ? eoc.status === 'active' : undefined
+    };
+}
+
+function mapR4Specimen(spec: any): CanonicalSpecimen {
+    const collectedPeriod = spec.collection?.collectedPeriod;
+    const quantity = spec.collection?.quantity;
+    const duration = spec.collection?.duration;
+    const fasting = spec.collection?.fastingStatusDuration;
+    const container = spec.container?.[0];
+    const processing = spec.processing?.[0];
+
+    return {
+        id: spec.id,
+        identifier: spec.identifier?.[0]?.value,
+        accessionIdentifier: spec.accessionIdentifier?.value,
+        status: spec.status,
+        type: spec.type?.coding?.[0] ? {
+            system: spec.type.coding[0].system,
+            code: spec.type.coding[0].code,
+            display: spec.type.coding[0].display
+        } : undefined,
+        subject: spec.subject?.reference?.replace(/^(Patient|Group|Location|Device|Substance|BiologicallyDerivedProduct)\//, ''),
+        receivedTime: spec.receivedTime,
+        parent: spec.parent?.map((ref: any) => ref.reference?.replace('Specimen/', '')).filter(Boolean),
+        request: spec.request?.map((ref: any) => ref.reference?.replace('ServiceRequest/', '')).filter(Boolean),
+        combined: spec.combined,
+        role: spec.role?.map((role: any) => ({
+            system: role.coding?.[0]?.system,
+            code: role.coding?.[0]?.code,
+            display: role.coding?.[0]?.display
+        })),
+        feature: spec.feature?.map((feature: any) => ({
+            type: feature.type?.coding?.[0] ? {
+                system: feature.type.coding[0].system,
+                code: feature.type.coding[0].code,
+                display: feature.type.coding[0].display
+            } : undefined,
+            description: feature.description
+        })),
+        collection: spec.collection ? {
+            collector: spec.collection.collector?.reference?.replace(/^(Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+            collectedDateTime: spec.collection.collectedDateTime,
+            collectedPeriod: collectedPeriod ? { start: collectedPeriod.start, end: collectedPeriod.end } : undefined,
+            duration: duration ? { value: duration.value, unit: duration.unit } : undefined,
+            quantity: quantity ? { value: quantity.value, unit: quantity.unit } : undefined,
+            method: spec.collection.method?.coding?.[0] ? {
+                system: spec.collection.method.coding[0].system,
+                code: spec.collection.method.coding[0].code,
+                display: spec.collection.method.coding[0].display
+            } : undefined,
+            device: spec.collection.device?.reference?.replace('Device/', ''),
+            procedure: spec.collection.procedure?.reference?.replace('Procedure/', ''),
+            bodySite: spec.collection.bodySite?.concept?.coding?.[0] ? {
+                system: spec.collection.bodySite.concept.coding[0].system,
+                code: spec.collection.bodySite.concept.coding[0].code,
+                display: spec.collection.bodySite.concept.coding[0].display
+            } : undefined,
+            fastingStatusCodeableConcept: spec.collection.fastingStatusCodeableConcept?.coding?.[0] ? {
+                system: spec.collection.fastingStatusCodeableConcept.coding[0].system,
+                code: spec.collection.fastingStatusCodeableConcept.coding[0].code,
+                display: spec.collection.fastingStatusCodeableConcept.coding[0].display
+            } : undefined,
+            fastingStatusDuration: fasting ? { value: fasting.value, unit: fasting.unit } : undefined
+        } : undefined,
+        processing: processing ? [{
+            description: processing.description,
+            method: processing.method?.coding?.[0] ? {
+                system: processing.method.coding[0].system,
+                code: processing.method.coding[0].code,
+                display: processing.method.coding[0].display
+            } : undefined,
+            additive: processing.additive?.map((ref: any) => ref.reference?.replace('Substance/', '')).filter(Boolean),
+            timeDateTime: processing.timeDateTime,
+            timePeriod: processing.timePeriod ? { start: processing.timePeriod.start, end: processing.timePeriod.end } : undefined
+        }] : undefined,
+        container: container ? [{
+            device: container.device?.reference?.replace('Device/', ''),
+            location: container.location?.reference?.replace('Location/', ''),
+            specimenQuantity: container.specimenQuantity ? { value: container.specimenQuantity.value, unit: container.specimenQuantity.unit } : undefined
+        }] : undefined,
+        condition: spec.condition?.map((condition: any) => ({
+            system: condition.coding?.[0]?.system,
+            code: condition.coding?.[0]?.code,
+            display: condition.coding?.[0]?.display
+        })),
+        note: spec.note?.map((note: any) => note.text).filter(Boolean)
     };
 }
 

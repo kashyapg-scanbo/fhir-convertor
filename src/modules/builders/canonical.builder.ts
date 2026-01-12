@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1069,6 +1069,40 @@ export function buildCanonical(parsed: any) {
 
   if (episodesOfCare.length > 0) {
     result.episodesOfCare = episodesOfCare;
+  }
+
+  /* ───── Specimens (from SPM) ───── */
+  const specimens: CanonicalSpecimen[] = [];
+  const spmSegments = parsed.SPM ?? [];
+  for (const spm of spmSegments) {
+    const specimenId = spm?.[1]?.[0]?.[0] || spm?.[0]?.[0]?.[0];
+    const typeParts = spm?.[3]?.[0] ?? [];
+    const typeCode = typeParts[0];
+    const typeDisplay = typeParts[1];
+    const receivedTime = toFHIRDateTime(spm?.[16]?.[0]?.[0]) || toFHIRDateTime(spm?.[17]?.[0]?.[0]);
+    const collectedTime = toFHIRDateTime(spm?.[6]?.[0]?.[0]) || toFHIRDateTime(spm?.[7]?.[0]?.[0]);
+
+    if (!specimenId && !typeCode && !typeDisplay) continue;
+
+    specimens.push({
+      id: specimenId || `SPM-${Date.now()}`,
+      identifier: specimenId,
+      status: 'available',
+      type: (typeCode || typeDisplay) ? {
+        system: mapCodingSystem(typeParts[2]),
+        code: typeCode,
+        display: typeDisplay
+      } : undefined,
+      subject: patientId,
+      receivedTime: receivedTime,
+      collection: collectedTime ? {
+        collectedDateTime: collectedTime
+      } : undefined
+    });
+  }
+
+  if (specimens.length > 0) {
+    result.specimens = specimens;
   }
 
   /* ───── Medications (from RXC) ───── */

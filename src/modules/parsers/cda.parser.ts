@@ -14,6 +14,7 @@ import {
   CanonicalRelatedPerson,
   CanonicalLocation,
   CanonicalEpisodeOfCare,
+  CanonicalSpecimen,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -64,6 +65,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const relatedPersons = extractRelatedPersons(clinicalDocument, patient.id);
   const locations = extractLocations(clinicalDocument);
   const episodesOfCare = extractEpisodesOfCare(clinicalDocument, patient.id);
+  const specimens = extractSpecimens(clinicalDocument, patient.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -91,6 +93,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (relatedPersons.length) canonical.relatedPersons = relatedPersons;
   if (locations.length) canonical.locations = locations;
   if (episodesOfCare.length) canonical.episodesOfCare = episodesOfCare;
+  if (specimens.length) canonical.specimens = specimens;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -858,6 +861,52 @@ function extractEpisodesOfCare(
   });
 
   return episodes;
+}
+
+function extractSpecimens(
+  clinicalDocument: any,
+  patientId?: string
+): CanonicalSpecimen[] {
+  const specimens: CanonicalSpecimen[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry) => {
+    const specimenNode = entry.specimen || entry['cda:specimen'];
+    if (!specimenNode) return;
+    const specimensArray = Array.isArray(specimenNode) ? specimenNode : [specimenNode];
+
+    for (const sp of specimensArray) {
+      const specimenRole = sp.specimenRole || sp['cda:specimenRole'] || sp;
+      const specimenId = extractId(specimenRole.id || specimenRole['cda:id']);
+      const specimenPlaying = specimenRole.specimenPlayingEntity || specimenRole['cda:specimenPlayingEntity'];
+      const code = specimenPlaying?.code || specimenPlaying?.['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      const receivedTime = extractAttribute(specimenRole.receivedTime || specimenRole['cda:receivedTime'], '@_value');
+      const collectedTime = extractAttribute(specimenRole.effectiveTime || specimenRole['cda:effectiveTime'], '@_value');
+
+      if (!specimenId && !codeValue && !displayName) continue;
+
+      specimens.push({
+        id: specimenId || `SPEC-${specimens.length + 1}`,
+        identifier: specimenId,
+        status: 'available',
+        type: (codeValue || displayName) ? {
+          system: mapCodeSystem(codeSystem),
+          code: codeValue,
+          display: displayName
+        } : undefined,
+        subject: patientId,
+        receivedTime: formatCDADateTime(receivedTime),
+        collection: collectedTime ? {
+          collectedDateTime: formatCDADateTime(collectedTime)
+        } : undefined
+      });
+    }
+  });
+
+  return specimens;
 }
 
 function extractLocations(clinicalDocument: any): CanonicalLocation[] {

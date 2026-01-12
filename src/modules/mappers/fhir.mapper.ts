@@ -19,6 +19,7 @@ import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
 import { mapRelatedPersons } from './relatedPerson.mapper.js';
 import { mapLocations } from './location.mapper.js';
 import { mapEpisodesOfCare } from './episodeOfCare.mapper.js';
+import { mapSpecimens } from './specimen.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
 
 export type FhirVersion = 'r5' | 'r6';
@@ -240,6 +241,17 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (episodeEntries.length > 0) {
     bundle.entry.push(...episodeEntries);
+  }
+
+  const specimenEntries = mapSpecimens({
+    specimens: canonical.specimens,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl
+  });
+  if (specimenEntries.length > 0) {
+    bundle.entry.push(...specimenEntries);
   }
 
   const documentReferenceEntries = mapDocumentReferences({
