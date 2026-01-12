@@ -562,6 +562,79 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.carePlans = carePlans as any[];
   }
 
+  const careTeams = rows.map(row => {
+    const careTeamId = readValue(row, 'care_team_id');
+    const status = readValue(row, 'care_team_status');
+    const categoryRaw = readValue(row, 'care_team_category');
+    const name = readValue(row, 'care_team_name');
+    const subjectId = readValue(row, 'care_team_subject_id');
+    const periodStart = readValue(row, 'care_team_period_start');
+    const periodEnd = readValue(row, 'care_team_period_end');
+    const participantRole = readValue(row, 'care_team_participant_role');
+    const participantMemberId = readValue(row, 'care_team_participant_member_id');
+    const participantOnBehalfOfId = readValue(row, 'care_team_participant_on_behalf_of_id');
+    const participantCoverageStart = readValue(row, 'care_team_participant_coverage_start');
+    const participantCoverageEnd = readValue(row, 'care_team_participant_coverage_end');
+    const reasonRaw = readValue(row, 'care_team_reason');
+    const managingOrgRaw = readValue(row, 'care_team_managing_org_ids');
+    const phone = readValue(row, 'care_team_phone');
+    const email = readValue(row, 'care_team_email');
+    const noteRaw = readValue(row, 'care_team_note');
+
+    if (!careTeamId && !name && !participantMemberId) return null;
+
+    const category = categoryRaw
+      ? categoryRaw.split(',').map(value => ({
+        code: value.trim(),
+        display: value.trim()
+      }))
+      : undefined;
+
+    const reason = reasonRaw
+      ? reasonRaw.split(',').map(value => ({
+        code: { display: value.trim() }
+      }))
+      : undefined;
+
+    const managingOrganization = managingOrgRaw
+      ? managingOrgRaw.split(',').map(value => value.trim()).filter(Boolean)
+      : undefined;
+
+    const telecom: Array<{ system: 'phone' | 'email'; value: string }> = [];
+    if (phone) telecom.push({ system: 'phone', value: phone });
+    if (email) telecom.push({ system: 'email', value: email });
+
+    const participant = participantMemberId || participantRole || participantOnBehalfOfId
+      ? [{
+        role: participantRole ? { display: participantRole } : undefined,
+        member: participantMemberId,
+        onBehalfOf: participantOnBehalfOfId,
+        coveragePeriod: participantCoverageStart || participantCoverageEnd
+          ? { start: participantCoverageStart, end: participantCoverageEnd }
+          : undefined
+      }]
+      : undefined;
+
+    return {
+      id: careTeamId || undefined,
+      identifier: careTeamId || undefined,
+      status: status || 'active',
+      category,
+      name,
+      subject: subjectId,
+      period: periodStart || periodEnd ? { start: periodStart, end: periodEnd } : undefined,
+      participant,
+      reason,
+      managingOrganization,
+      telecom: telecom.length ? telecom : undefined,
+      note: noteRaw ? [noteRaw] : undefined
+    };
+  }).filter(Boolean);
+
+  if (careTeams.length > 0) {
+    canonical.careTeams = careTeams as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

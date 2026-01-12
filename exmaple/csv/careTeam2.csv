@@ -1,0 +1,2 @@
+care_team_id,care_team_status,care_team_name,care_team_subject_id,care_team_participant_member_id,care_team_participant_role,care_team_participant_on_behalf_of_id,care_team_participant_coverage_start,care_team_participant_coverage_end,care_team_reason,care_team_email
+CT-2,active,Hypertension Follow-up Team,PAT-2,PRAC-2,care-manager,ORG-2,2024-02-01,2024-08-01,Hypertension,careteam@example.org

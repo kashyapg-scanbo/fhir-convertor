@@ -28,7 +28,8 @@ import {
     CanonicalCapabilityStatement,
     CanonicalOperationOutcome,
     CanonicalParameters,
-    CanonicalCarePlan
+    CanonicalCarePlan,
+    CanonicalCareTeam
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -82,6 +83,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         operationOutcomes: [],
         parameters: [],
         carePlans: [],
+        careTeams: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -157,6 +159,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (carePlanEvent) {
                 const carePlan = mapV3CarePlan(carePlanEvent);
                 if (carePlan) model.carePlans?.push(carePlan);
+            }
+
+            const careTeamEvent = sub.careTeam || sub.CareTeam;
+            if (careTeamEvent) {
+                const careTeam = mapV3CareTeam(careTeamEvent);
+                if (careTeam) model.careTeams?.push(careTeam);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -833,6 +841,45 @@ function mapV3CarePlan(planEvent: any): CanonicalCarePlan | undefined {
         title: displayName,
         description: description,
         period: periodStart || periodEnd ? { start: periodStart, end: periodEnd } : undefined
+    };
+}
+
+function mapV3CareTeam(teamEvent: any): CanonicalCareTeam | undefined {
+    if (!teamEvent) return undefined;
+    const id = teamEvent.id || teamEvent['cda:id'];
+    const code = teamEvent.code || teamEvent['cda:code'];
+    const statusCode = teamEvent.statusCode || teamEvent['cda:statusCode'];
+    const effectiveTime = teamEvent.effectiveTime || teamEvent['cda:effectiveTime'];
+    const name = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const periodStart = effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value'];
+    const periodEnd = effectiveTime?.high?.['@_value'];
+
+    const teamId = id?.['@_extension'] || id?.['@_root'];
+    if (!teamId && !name) return undefined;
+
+    const participantsRaw = teamEvent.participant || teamEvent.Participant;
+    const participants = Array.isArray(participantsRaw) ? participantsRaw : participantsRaw ? [participantsRaw] : [];
+    const participant = participants.map(part => {
+        const roleCode = part.code || part['cda:code'];
+        const member = part.member || part['cda:member'] || part.participantRole || part['cda:participantRole'];
+        const memberId = member?.id?.['@_extension'] || member?.id?.['@_root'];
+        return {
+            role: roleCode?.['@_code'] || roleCode?.['@_displayName'] ? {
+                code: roleCode?.['@_code'],
+                display: roleCode?.['@_displayName']
+            } : undefined,
+            member: memberId
+        };
+    }).filter(p => p.member);
+
+    return {
+        id: teamId || `CARETEAM-${Date.now()}`,
+        identifier: teamId,
+        status: status || 'active',
+        name: name,
+        period: periodStart || periodEnd ? { start: periodStart, end: periodEnd } : undefined,
+        participant: participant.length ? participant : undefined
     };
 }
 

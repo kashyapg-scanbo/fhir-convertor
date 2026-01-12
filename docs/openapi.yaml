@@ -33,6 +33,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
                 - $ref: '#/components/schemas/CustomJsonParametersOnly'
                 - $ref: '#/components/schemas/CustomJsonCarePlanOnly'
+                - $ref: '#/components/schemas/CustomJsonCareTeamOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -248,6 +249,18 @@ paths:
                       - CARETEAM-1
                     goal_ids:
                       - GOAL-1
+              care_team:
+                summary: CareTeam
+                value:
+                  care_team:
+                    care_team_id: CT-100
+                    status: active
+                    name: Diabetes Care Team
+                    subject_id: P-10001
+                    participant_member_id: PRAC-1
+                    participant_role: primary
+                    managing_org_ids:
+                      - ORG-1
               practitioner:
                 summary: Practitioner
                 value:
@@ -554,7 +567,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -699,7 +712,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -766,6 +779,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCarePlan'
+        care_team:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCareTeam'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCareTeam'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1565,6 +1584,63 @@ components:
               items:
                 type: string
         part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomCareTeam:
+      type: object
+      properties:
+        care_team_id:
+          type: string
+        status:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        name:
+          type: string
+        subject_id:
+          type: string
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        participant_role:
+          type: string
+        participant_member_id:
+          type: string
+        participant_on_behalf_of_id:
+          type: string
+        participant_coverage_start:
+          type: string
+          format: date-time
+        participant_coverage_end:
+          type: string
+          format: date-time
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        managing_org_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        phone:
+          type: string
+        email:
+          type: string
+        note:
           oneOf:
             - type: string
             - type: array
@@ -2643,6 +2719,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [care_plan]
+    CustomJsonCareTeamOnly:
+      title: CareTeam
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [care_team]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

@@ -1,0 +1,23 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Nguyen"
+    }
+  },
+  "care_team": {
+    "care_team_id": "CT-2",
+    "status": "active",
+    "name": "Hypertension Follow-up Team",
+    "subject_id": "PAT-2",
+    "participant_member_id": "PRAC-2",
+    "participant_role": "care-manager",
+    "participant_on_behalf_of_id": "ORG-2",
+    "participant_coverage_start": "2024-02-01",
+    "participant_coverage_end": "2024-08-01",
+    "reason": ["Hypertension"],
+    "managing_org_ids": ["ORG-2"],
+    "email": "careteam@example.org"
+  }
+}

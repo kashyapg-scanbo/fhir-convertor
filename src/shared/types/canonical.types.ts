@@ -689,6 +689,52 @@ export type CanonicalCarePlan = {
   active?: boolean;
 };
 
+export type CanonicalCareTeam = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  name?: string;
+  subject?: string;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  participant?: Array<{
+    role?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    member?: string;
+    onBehalfOf?: string;
+    coveragePeriod?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  managingOrganization?: string[];
+  telecom?: Array<{
+    system?: string;
+    value?: string;
+    use?: string;
+  }>;
+  note?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1433,6 +1479,7 @@ export type CanonicalModel = {
   operationOutcomes?: CanonicalOperationOutcome[]; // OperationOutcome
   parameters?: CanonicalParameters[]; // Parameters
   carePlans?: CanonicalCarePlan[]; // CarePlan
+  careTeams?: CanonicalCareTeam[]; // CareTeam
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

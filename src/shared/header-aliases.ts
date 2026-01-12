@@ -482,6 +482,25 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     care_plan_replaces_ids: ['replaces_ids', 'replaces_id'],
     care_plan_part_of_ids: ['part_of_ids', 'part_of_id']
   },
+  careTeam: {
+    care_team_id: ['careteam_id', 'care_team_identifier', 'careteam_identifier'],
+    care_team_status: ['status'],
+    care_team_category: ['category'],
+    care_team_name: ['name', 'team_name'],
+    care_team_subject_id: ['patient_id', 'subject_id'],
+    care_team_period_start: ['period_start', 'start_date', 'start'],
+    care_team_period_end: ['period_end', 'end_date', 'end'],
+    care_team_participant_role: ['participant_role', 'role'],
+    care_team_participant_member_id: ['participant_member_id', 'member_id', 'participant_member'],
+    care_team_participant_on_behalf_of_id: ['participant_on_behalf_of_id', 'on_behalf_of_id'],
+    care_team_participant_coverage_start: ['participant_coverage_start'],
+    care_team_participant_coverage_end: ['participant_coverage_end'],
+    care_team_reason: ['reason'],
+    care_team_managing_org_ids: ['managing_org_ids', 'managing_org_id'],
+    care_team_phone: ['phone'],
+    care_team_email: ['email'],
+    care_team_note: ['note']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

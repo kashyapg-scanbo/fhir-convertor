@@ -23,6 +23,7 @@ import {
   CanonicalOperationOutcome,
   CanonicalParameters,
   CanonicalCarePlan,
+  CanonicalCareTeam,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -87,6 +88,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const operationOutcomes = extractOperationOutcomes(clinicalDocument);
   const parameters = extractParameters(clinicalDocument);
   const carePlans = extractCarePlans(clinicalDocument, patient.id, encounter?.id);
+  const careTeams = extractCareTeams(clinicalDocument, patient.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -124,6 +126,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (parameters.length) canonical.parameters = parameters;
 
   if (carePlans.length) canonical.carePlans = carePlans;
+  if (careTeams.length) canonical.careTeams = careTeams;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -775,6 +778,44 @@ function extractCarePlans(
   });
 
   return carePlans;
+}
+
+function extractCareTeams(
+  clinicalDocument: any,
+  patientId?: string
+): CanonicalCareTeam[] {
+  const careTeams: CanonicalCareTeam[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isCareTeamSection = sectionCodeValue === '85847-2';
+    if (!isCareTeamSection) return;
+
+    const title = extractText(section?.title || section?.['cda:title']);
+    const text = extractText(section?.text || section?.['cda:text']);
+
+    const performer = entry.performer || entry['cda:performer'];
+    const performers = Array.isArray(performer) ? performer : performer ? [performer] : [];
+    const participants = performers
+      .map(p => extractPerformerId(p))
+      .filter(Boolean)
+      .map(id => ({ member: id as string }));
+
+    if (!title && !text && participants.length === 0) return;
+
+    careTeams.push({
+      id: `CARETEAM-${careTeams.length + 1}`,
+      identifier: `CARETEAM-${careTeams.length + 1}`,
+      status: 'active',
+      name: title || 'Care Team',
+      subject: patientId,
+      note: text ? [text] : undefined,
+      participant: participants.length ? participants : undefined
+    });
+  });
+
+  return careTeams;
 }
 
 function extractProcedures(

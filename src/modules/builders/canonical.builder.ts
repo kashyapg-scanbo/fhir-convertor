@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -745,6 +745,60 @@ export function buildCanonical(parsed: any) {
 
   if (practitionerRoles.length > 0) {
     result.practitionerRoles = practitionerRoles;
+  }
+
+  /* ───── CareTeams (from PRD/ROL) ───── */
+  const careTeams: CanonicalCareTeam[] = [];
+  const careTeamParticipants: Array<{
+    member: string;
+    role?: { code?: string; display?: string };
+    onBehalfOf?: string;
+  }> = [];
+
+  for (const prd of prdSegments) {
+    const providerName = prd?.[1]?.[0] ?? [];
+    const parsedPerson = parseXcn(providerName);
+    if (parsedPerson.id) {
+      careTeamParticipants.push({ member: parsedPerson.id });
+    }
+
+    const orgField = prd?.[6]?.[0] ?? [];
+    const orgId = orgField[0] || orgField[1];
+    if (orgId && careTeamParticipants.length > 0) {
+      careTeamParticipants[careTeamParticipants.length - 1].onBehalfOf = orgId;
+    }
+  }
+
+  for (const rol of rolSegments) {
+    const rolePerson = rol?.[3]?.[0] ?? [];
+    const rolePersonId = rolePerson[0];
+    const roleCode = rol?.[2]?.[0] ?? [];
+    if (rolePersonId) {
+      careTeamParticipants.push({
+        member: rolePersonId,
+        role: roleCode.length > 0 ? { code: roleCode[0], display: roleCode[1] } : undefined
+      });
+    }
+  }
+
+  if (careTeamParticipants.length > 0) {
+    const careTeamId = `CARETEAM-${Date.now()}`;
+    careTeams.push({
+      id: careTeamId,
+      identifier: careTeamId,
+      status: 'active',
+      name: 'Care Team',
+      subject: patientId,
+      participant: careTeamParticipants.map(participant => ({
+        member: participant.member,
+        role: participant.role,
+        onBehalfOf: participant.onBehalfOf
+      }))
+    });
+  }
+
+  if (careTeams.length > 0) {
+    result.careTeams = careTeams;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

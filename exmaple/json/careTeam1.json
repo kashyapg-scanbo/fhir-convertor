@@ -1,0 +1,20 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
+  "care_team": {
+    "care_team_id": "CT-1",
+    "status": "active",
+    "name": "Diabetes Care Team",
+    "subject_id": "PAT-1",
+    "participant_member_id": "PRAC-1",
+    "participant_role": "primary",
+    "managing_org_ids": ["ORG-1"],
+    "phone": "+1-555-0101",
+    "note": "Coordinate quarterly reviews"
+  }
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-1"/>
+      <patient>
+        <name>
+          <family>Doe</family>
+          <given>John</given>
+        </name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="85847-2" codeSystem="2.16.840.1.113883.6.1"/>
+          <title>Diabetes Care Team</title>
+          <text>Coordinate quarterly reviews</text>
+          <entry>
+            <performer>
+              <assignedEntity>
+                <id extension="PRAC-1"/>
+              </assignedEntity>
+            </performer>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

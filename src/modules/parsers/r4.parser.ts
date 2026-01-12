@@ -28,7 +28,8 @@ import {
     CanonicalCapabilityStatement,
     CanonicalOperationOutcome,
     CanonicalParameters,
-    CanonicalCarePlan
+    CanonicalCarePlan,
+    CanonicalCareTeam
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -55,6 +56,7 @@ export function parseR4(input: string): CanonicalModel {
         conditions: [],
         appointments: [],
         carePlans: [],
+        careTeams: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -134,6 +136,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'CarePlan':
                 const carePlan = mapR4CarePlan(res);
                 if (carePlan) model.carePlans?.push(carePlan);
+                break;
+            case 'CareTeam':
+                const careTeam = mapR4CareTeam(res);
+                if (careTeam) model.careTeams?.push(careTeam);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -889,6 +895,53 @@ function mapR4CarePlan(plan: any): CanonicalCarePlan {
       progress: activity.progress?.map((note: any) => note.text).filter(Boolean),
       plannedActivityReference: activity.plannedActivityReference?.reference
     }))
+  };
+}
+
+function mapR4CareTeam(team: any): CanonicalCareTeam {
+  return {
+    id: team.id,
+    identifier: team.identifier?.[0]?.value,
+    status: team.status,
+    category: team.category?.map((cat: any) => ({
+      system: cat.coding?.[0]?.system,
+      code: cat.coding?.[0]?.code,
+      display: cat.coding?.[0]?.display || cat.text
+    })),
+    name: team.name,
+    subject: team.subject?.reference?.replace(/^(Patient|Group)\//, ''),
+    period: team.period ? { start: team.period.start, end: team.period.end } : undefined,
+    participant: team.participant?.map((participant: any) => ({
+      role: participant.role?.coding?.[0]
+        ? {
+          system: participant.role.coding[0].system,
+          code: participant.role.coding[0].code,
+          display: participant.role.coding[0].display
+        }
+        : undefined,
+      member: participant.member?.reference?.replace(/^(CareTeam|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+      onBehalfOf: participant.onBehalfOf?.reference?.replace(/^Organization\//, ''),
+      coveragePeriod: participant.coveragePeriod
+        ? { start: participant.coveragePeriod.start, end: participant.coveragePeriod.end }
+        : undefined
+    })),
+    reason: team.reason?.map((reason: any) => ({
+      reference: reason.reference?.replace(/^Condition\//, ''),
+      code: reason.concept?.coding?.[0]
+        ? {
+          system: reason.concept.coding[0].system,
+          code: reason.concept.coding[0].code,
+          display: reason.concept.coding[0].display
+        }
+        : undefined
+    })),
+    managingOrganization: team.managingOrganization?.map((ref: any) => ref.reference?.replace(/^Organization\//, '')).filter(Boolean),
+    telecom: team.telecom?.map((contact: any) => ({
+      system: contact.system,
+      value: contact.value,
+      use: contact.use
+    })),
+    note: team.note?.map((note: any) => note.text).filter(Boolean)
   };
 }
 
