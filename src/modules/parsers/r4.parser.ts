@@ -18,7 +18,8 @@ import {
     CanonicalSlot,
     CanonicalDiagnosticReport,
     CanonicalRelatedPerson,
-    CanonicalLocation
+    CanonicalLocation,
+    CanonicalEpisodeOfCare
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -48,6 +49,7 @@ export function parseR4(input: string): CanonicalModel {
         diagnosticReports: [],
         relatedPersons: [],
         locations: [],
+        episodesOfCare: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -130,6 +132,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Location':
                 const location = mapR4Location(res);
                 if (location) model.locations?.push(location);
+                break;
+            case 'EpisodeOfCare':
+                const episode = mapR4EpisodeOfCare(res);
+                if (episode) model.episodesOfCare?.push(episode);
                 break;
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
@@ -709,6 +715,57 @@ function mapR4Location(loc: any): CanonicalLocation {
         managingOrganization: loc.managingOrganization?.reference?.replace('Organization/', ''),
         partOf: loc.partOf?.reference?.replace('Location/', ''),
         active: loc.status ? loc.status === 'active' : undefined
+    };
+}
+
+function mapR4EpisodeOfCare(eoc: any): CanonicalEpisodeOfCare {
+    return {
+        id: eoc.id,
+        identifier: eoc.identifier?.[0]?.value,
+        status: eoc.status,
+        statusHistory: eoc.statusHistory?.map((history: any) => ({
+            status: history.status,
+            period: history.period ? {
+                start: history.period.start,
+                end: history.period.end
+            } : undefined
+        })),
+        type: eoc.type?.map((type: any) => ({
+            system: type.coding?.[0]?.system,
+            code: type.coding?.[0]?.code,
+            display: type.coding?.[0]?.display
+        })),
+        reason: eoc.reason?.flatMap((reason: any) => {
+            const concepts = reason.value?.map((value: any) => value.concept).filter(Boolean) ?? [];
+            return concepts.map((concept: any) => ({
+                code: {
+                    system: concept.coding?.[0]?.system,
+                    code: concept.coding?.[0]?.code,
+                    display: concept.coding?.[0]?.display || concept.text
+                }
+            }));
+        }),
+        diagnosis: eoc.diagnosis?.flatMap((diagnosis: any) => {
+            const concepts = diagnosis.condition?.map((value: any) => value.concept).filter(Boolean) ?? [];
+            return concepts.map((concept: any) => ({
+                condition: {
+                    system: concept.coding?.[0]?.system,
+                    code: concept.coding?.[0]?.code,
+                    display: concept.coding?.[0]?.display || concept.text
+                }
+            }));
+        }),
+        patient: eoc.patient?.reference?.replace('Patient/', ''),
+        managingOrganization: eoc.managingOrganization?.reference?.replace('Organization/', ''),
+        period: eoc.period ? {
+            start: eoc.period.start,
+            end: eoc.period.end
+        } : undefined,
+        referralRequest: eoc.referralRequest?.map((ref: any) => ref.reference?.replace('ServiceRequest/', '')).filter(Boolean),
+        careManager: eoc.careManager?.reference?.replace(/^(Practitioner|PractitionerRole)\//, ''),
+        careTeam: eoc.careTeam?.map((ref: any) => ref.reference?.replace('CareTeam/', '')).filter(Boolean),
+        account: eoc.account?.map((ref: any) => ref.reference?.replace('Account/', '')).filter(Boolean),
+        active: eoc.status ? eoc.status === 'active' : undefined
     };
 }
 

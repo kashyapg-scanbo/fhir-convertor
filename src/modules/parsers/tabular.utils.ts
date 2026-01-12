@@ -614,6 +614,60 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (locations.length > 0) canonical.locations = locations as any[];
 
+  const episodesOfCare = rows.map(row => {
+    const episodeId = readValue(row, 'episode_of_care_id');
+    const status = readValue(row, 'episode_status');
+    const type = readValue(row, 'episode_type');
+    const patientId = readValue(row, 'episode_patient_id');
+    const managingOrgId = readValue(row, 'episode_managing_org_id');
+    const periodStart = readValue(row, 'episode_period_start');
+    const periodEnd = readValue(row, 'episode_period_end');
+    const careManagerId = readValue(row, 'episode_care_manager_id');
+    const careTeamRaw = readValue(row, 'episode_care_team_ids');
+    const accountRaw = readValue(row, 'episode_account_ids');
+    const referralRaw = readValue(row, 'episode_referral_request_ids');
+    const reasonRaw = readValue(row, 'episode_reason');
+    const diagnosisRaw = readValue(row, 'episode_diagnosis');
+    const statusHistoryStatus = readValue(row, 'episode_status_history_status');
+    const statusHistoryStart = readValue(row, 'episode_status_history_start');
+    const statusHistoryEnd = readValue(row, 'episode_status_history_end');
+
+    if (!episodeId && !status && !type && !patientId && !periodStart && !periodEnd) return null;
+
+    const statusHistory = (statusHistoryStatus || statusHistoryStart || statusHistoryEnd) ? [{
+      status: statusHistoryStatus,
+      period: (statusHistoryStart || statusHistoryEnd) ? {
+        start: statusHistoryStart,
+        end: statusHistoryEnd
+      } : undefined
+    }] : undefined;
+
+    return {
+      id: episodeId || undefined,
+      identifier: episodeId || undefined,
+      status: status || undefined,
+      type: type ? [{
+        code: type,
+        display: type
+      }] : undefined,
+      reason: reasonRaw ? [{
+        code: { display: reasonRaw }
+      }] : undefined,
+      diagnosis: diagnosisRaw ? [{
+        condition: { display: diagnosisRaw }
+      }] : undefined,
+      patient: patientId || undefined,
+      managingOrganization: managingOrgId || undefined,
+      period: (periodStart || periodEnd) ? { start: periodStart, end: periodEnd } : undefined,
+      referralRequest: referralRaw ? referralRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      careManager: careManagerId || undefined,
+      careTeam: careTeamRaw ? careTeamRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      account: accountRaw ? accountRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      statusHistory
+    };
+  }).filter(Boolean);
+  if (episodesOfCare.length > 0) canonical.episodesOfCare = episodesOfCare as any[];
+
   const documentReferences = rows.map(row => {
     const format = readValue(row, 'document_format');
     const url = readValue(row, 'document_url');

@@ -407,6 +407,25 @@ const GlobalLocationSchema = z.object({
   part_of_id: GlobalIdSchema.optional()
 });
 
+const GlobalEpisodeOfCareSchema = z.object({
+  episode_of_care_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  type: z.string().optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  diagnosis: z.union([z.string(), z.array(z.string())]).optional(),
+  patient_id: GlobalIdSchema.optional(),
+  managing_org_id: GlobalIdSchema.optional(),
+  period_start: z.string().optional(),
+  period_end: z.string().optional(),
+  referral_request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  care_manager_id: GlobalIdSchema.optional(),
+  care_team_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  account_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  status_history_status: z.string().optional(),
+  status_history_start: z.string().optional(),
+  status_history_end: z.string().optional()
+});
+
 const GlobalPractitionerSchema = z.object({
   practitioner_id: GlobalIdSchema.optional(),
   name: GlobalPractitionerNameSchema.optional(),
@@ -505,6 +524,7 @@ const GlobalCustomJSONSchema = z.object({
   diagnostic_report: z.union([GlobalDiagnosticReportSchema, z.array(GlobalDiagnosticReportSchema)]).optional(),
   related_person: z.union([GlobalRelatedPersonSchema, z.array(GlobalRelatedPersonSchema)]).optional(),
   location: z.union([GlobalLocationSchema, z.array(GlobalLocationSchema)]).optional(),
+  episode_of_care: z.union([GlobalEpisodeOfCareSchema, z.array(GlobalEpisodeOfCareSchema)]).optional(),
   practitioner: z.union([GlobalPractitionerSchema, z.array(GlobalPractitionerSchema)]).optional(),
   practitioner_role: z.union([GlobalPractitionerRoleSchema, z.array(GlobalPractitionerRoleSchema)]).optional(),
   organization: z.union([GlobalOrganizationSchema, z.array(GlobalOrganizationSchema)]).optional()
@@ -523,12 +543,13 @@ const GlobalCustomJSONSchema = z.object({
     value.diagnostic_report ||
     value.related_person ||
     value.location ||
+    value.episode_of_care ||
     value.practitioner ||
     value.practitioner_role ||
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -556,6 +577,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   diagnosticReports: 'diagnosticReport',
   relatedPersons: 'relatedPerson',
   locations: 'location',
+  episodesOfCare: 'episodeOfCare',
   practitioners: 'practitioner',
   practitionerRoles: 'practitionerRole',
   organizations: 'organization',
@@ -584,6 +606,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   related_persons: 'relatedPerson',
   location: 'location',
   locations: 'location',
+  episode_of_care: 'episodeOfCare',
+  episode_of_cares: 'episodeOfCare',
   practitioner_role: 'practitionerRole',
   practitioner_roles: 'practitionerRole',
   document_reference: 'documentReference',
@@ -641,6 +665,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   relatedpersons: 'related_person',
   location: 'location',
   locations: 'location',
+  episode_of_care: 'episode_of_care',
+  episode_of_cares: 'episode_of_care',
+  episodeofcare: 'episode_of_care',
+  episodeofcares: 'episode_of_care',
   practitioner: 'practitioner',
   practitioners: 'practitioner',
   practitioner_role: 'practitioner_role',
@@ -1373,6 +1401,62 @@ function normalizeGlobalLocationAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalEpisodeOfCareAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const episodeId = readSectionAliasValue(value, 'episodeOfCare', 'episode_of_care_id');
+  if (normalized.episode_of_care_id === undefined && episodeId !== undefined) {
+    normalized.episode_of_care_id = episodeId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const diagnosis = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_diagnosis'));
+  if (diagnosis && normalized.diagnosis === undefined) normalized.diagnosis = diagnosis;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const managingOrgId = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_managing_org_id'));
+  if (managingOrgId && normalized.managing_org_id === undefined) normalized.managing_org_id = managingOrgId;
+
+  const periodStart = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_period_start'));
+  if (periodStart && normalized.period_start === undefined) normalized.period_start = periodStart;
+
+  const periodEnd = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_period_end'));
+  if (periodEnd && normalized.period_end === undefined) normalized.period_end = periodEnd;
+
+  const referralIds = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_referral_request_ids'));
+  if (referralIds && normalized.referral_request_ids === undefined) normalized.referral_request_ids = referralIds;
+
+  const careManagerId = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_care_manager_id'));
+  if (careManagerId && normalized.care_manager_id === undefined) normalized.care_manager_id = careManagerId;
+
+  const careTeamIds = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_care_team_ids'));
+  if (careTeamIds && normalized.care_team_ids === undefined) normalized.care_team_ids = careTeamIds;
+
+  const accountIds = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_account_ids'));
+  if (accountIds && normalized.account_ids === undefined) normalized.account_ids = accountIds;
+
+  const statusHistoryStatus = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_status_history_status'));
+  if (statusHistoryStatus && normalized.status_history_status === undefined) normalized.status_history_status = statusHistoryStatus;
+
+  const statusHistoryStart = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_status_history_start'));
+  if (statusHistoryStart && normalized.status_history_start === undefined) normalized.status_history_start = statusHistoryStart;
+
+  const statusHistoryEnd = normalizeAliasValue(readSectionAliasValue(value, 'episodeOfCare', 'episode_status_history_end'));
+  if (statusHistoryEnd && normalized.status_history_end === undefined) normalized.status_history_end = statusHistoryEnd;
+
+  return normalized;
+}
+
 function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
@@ -1565,6 +1649,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalRelatedPersonAliases(value);
     case 'location':
       return normalizeGlobalLocationAliases(value);
+    case 'episodeOfCare':
+      return normalizeGlobalEpisodeOfCareAliases(value);
     case 'practitioner':
       return normalizeGlobalPractitionerAliases(value);
     case 'practitionerRole':
@@ -1701,6 +1787,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'diagnosticReport',
     'relatedPerson',
     'location',
+    'episodeOfCare',
     'documentReference',
     'practitioner',
     'practitionerRole',
@@ -1820,6 +1907,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const diagnosticReports = normalizeArray(validated.diagnostic_report);
   const relatedPersons = normalizeArray(validated.related_person);
   const locations = normalizeArray(validated.location);
+  const episodesOfCare = normalizeArray(validated.episode_of_care);
   const practitioners = normalizeArray(validated.practitioner);
   const practitionerRoles = normalizeArray(validated.practitioner_role);
   const organizations = normalizeArray(validated.organization);
@@ -1864,6 +1952,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (locations.length) {
     canonical.locations = locations.map(buildCanonicalLocationGlobal);
   }
+  if (episodesOfCare.length) {
+    canonical.episodesOfCare = episodesOfCare.map(buildCanonicalEpisodeOfCareGlobal);
+  }
   if (practitioners.length) {
     canonical.practitioners = practitioners.map(buildCanonicalPractitionerGlobal);
   }
@@ -1903,7 +1994,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -1920,6 +2011,7 @@ function wrapGlobalPayload(value: any) {
       value.diagnostic_report,
       value.related_person,
       value.location,
+      value.episode_of_care,
       value.practitioner,
       value.practitioner_role,
       value.organization
@@ -1964,6 +2056,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('location_id' in value || 'location_name' in value || 'address_line1' in value) {
       return { location: value };
+    }
+    if ('episode_of_care_id' in value || 'care_manager_id' in value || 'period_start' in value) {
+      return { episode_of_care: value };
     }
     if ('medication_id' in value || 'brand_name' in value || 'strength' in value) {
       return { medication: value };
@@ -2021,6 +2116,9 @@ function looksLikeGlobalResource(value: any) {
     'relationship' in value ||
     'location_id' in value ||
     'location_name' in value ||
+    'episode_of_care_id' in value ||
+    'care_manager_id' in value ||
+    'period_start' in value ||
     'practitioner_id' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
@@ -2478,6 +2576,61 @@ function buildCanonicalLocationGlobal(location: z.infer<typeof GlobalLocationSch
     address,
     managingOrganization: location.managing_org_id,
     partOf: location.part_of_id
+  };
+}
+
+function buildCanonicalEpisodeOfCareGlobal(episode: z.infer<typeof GlobalEpisodeOfCareSchema>) {
+  const reasons = normalizeStringArray(episode.reason).map(value => ({
+    code: {
+      code: value,
+      display: value
+    }
+  }));
+
+  const diagnoses = normalizeStringArray(episode.diagnosis).map(value => ({
+    condition: {
+      code: value,
+      display: value
+    }
+  }));
+
+  const referralRequests = normalizeStringArray(episode.referral_request_ids);
+  const careTeams = normalizeStringArray(episode.care_team_ids);
+  const accounts = normalizeStringArray(episode.account_ids);
+
+  const statusHistory = episode.status_history_status || episode.status_history_start || episode.status_history_end
+    ? [{
+      status: episode.status_history_status,
+      period: episode.status_history_start || episode.status_history_end
+        ? {
+          start: episode.status_history_start,
+          end: episode.status_history_end
+        }
+        : undefined
+    }]
+    : undefined;
+
+  return {
+    id: episode.episode_of_care_id,
+    identifier: episode.episode_of_care_id,
+    status: episode.status,
+    statusHistory,
+    type: episode.type ? [{
+      code: episode.type,
+      display: episode.type
+    }] : undefined,
+    reason: reasons.length ? reasons : undefined,
+    diagnosis: diagnoses.length ? diagnoses : undefined,
+    patient: episode.patient_id,
+    managingOrganization: episode.managing_org_id,
+    period: episode.period_start || episode.period_end ? {
+      start: episode.period_start,
+      end: episode.period_end
+    } : undefined,
+    referralRequest: referralRequests.length ? referralRequests : undefined,
+    careManager: episode.care_manager_id,
+    careTeam: careTeams.length ? careTeams : undefined,
+    account: accounts.length ? accounts : undefined
   };
 }
 

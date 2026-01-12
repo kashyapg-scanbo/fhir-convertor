@@ -210,6 +210,24 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     location_managing_org_id: ['loc_managing_org_id', 'managing_organization_id'],
     location_part_of_id: ['loc_part_of_id', 'part_of_id']
   },
+  episodeOfCare: {
+    episode_of_care_id: ['episode_id', 'episodeofcare_id', 'eoc_id'],
+    episode_status: ['status'],
+    episode_type: ['type'],
+    episode_patient_id: ['patient_id', 'subject_id'],
+    episode_managing_org_id: ['managing_organization_id', 'managing_org_id'],
+    episode_period_start: ['period_start', 'start_date', 'start'],
+    episode_period_end: ['period_end', 'end_date', 'end'],
+    episode_care_manager_id: ['care_manager_id', 'care_manager'],
+    episode_care_team_ids: ['care_team_ids', 'care_team_id', 'care_team'],
+    episode_account_ids: ['account_ids', 'account_id', 'account'],
+    episode_referral_request_ids: ['referral_request_ids', 'referral_request_id', 'referral_request'],
+    episode_reason: ['reason'],
+    episode_diagnosis: ['diagnosis'],
+    episode_status_history_status: ['status_history_status'],
+    episode_status_history_start: ['status_history_start'],
+    episode_status_history_end: ['status_history_end']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

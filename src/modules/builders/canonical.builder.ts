@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1040,6 +1040,35 @@ export function buildCanonical(parsed: any) {
   }
   if (locations.length > 0) {
     result.locations = locations;
+  }
+
+  /* ───── EpisodesOfCare (from PV1) ───── */
+  const episodesOfCare: CanonicalEpisodeOfCare[] = [];
+  if (pv1) {
+    const episodeId = encounter?.id || pv1?.[18]?.[0]?.[0];
+    const admitDate = toFHIRDateTime(pv1?.[43]?.[0]?.[0]) || toFHIRDate(pv1?.[43]?.[0]?.[0]);
+    const dischargeDate = toFHIRDateTime(pv1?.[44]?.[0]?.[0]) || toFHIRDate(pv1?.[44]?.[0]?.[0]);
+    const careManagerId = pv1?.[6]?.[0]?.[0];
+    const status = dischargeDate ? 'finished' : 'active';
+
+    if (episodeId || admitDate || dischargeDate) {
+      episodesOfCare.push({
+        id: episodeId,
+        identifier: episodeId,
+        status,
+        patient: patientId,
+        managingOrganization: encounter?.serviceProviderOrganizationId,
+        period: (admitDate || dischargeDate) ? {
+          start: admitDate,
+          end: dischargeDate
+        } : undefined,
+        careManager: careManagerId
+      });
+    }
+  }
+
+  if (episodesOfCare.length > 0) {
+    result.episodesOfCare = episodesOfCare;
   }
 
   /* ───── Medications (from RXC) ───── */

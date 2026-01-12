@@ -18,7 +18,8 @@ import {
     CanonicalSlot,
     CanonicalDiagnosticReport,
     CanonicalRelatedPerson,
-    CanonicalLocation
+    CanonicalLocation,
+    CanonicalEpisodeOfCare
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -62,6 +63,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         diagnosticReports: [],
         relatedPersons: [],
         locations: [],
+        episodesOfCare: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -99,6 +101,8 @@ export function parseHL7v3(input: string): CanonicalModel {
                 if (encounter) model.encounter = encounter;
                 const location = mapV3LocationFromEncounter(encounterEvent);
                 if (location) model.locations?.push(location);
+                const episode = mapV3EpisodeOfCareFromEncounter(encounterEvent);
+                if (episode) model.episodesOfCare?.push(episode);
 
                 const responsibleParty = encounterEvent.responsibleParty || encounterEvent.ResponsibleParty;
                 if (responsibleParty) {
@@ -270,6 +274,28 @@ function mapV3Encounter(encounterEvent: any): CanonicalEncounter | undefined {
         location: locationStr || undefined,
         participantPractitionerIds: participantId ? [participantId] : undefined,
         serviceProviderOrganizationId: representedOrgIdInfo.identifier || representedOrgIdInfo.id
+    };
+}
+
+function mapV3EpisodeOfCareFromEncounter(encounterEvent: any): CanonicalEpisodeOfCare | undefined {
+    const ids = encounterEvent.id || encounterEvent.Id;
+    const idInfo = pickV3Id(ids);
+    const effectiveTime = encounterEvent.effectiveTime || encounterEvent.EffectiveTime;
+    const startTime = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const endTime = effectiveTime?.high?.['@_value'];
+    const status = mapEpisodeOfCareStatus(encounterEvent.statusCode?.['@_code']);
+
+    if (!idInfo.id && !idInfo.identifier && !startTime && !endTime) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier || idInfo.id,
+        status: status,
+        patient: encounterEvent.subject?.patient?.id?.['@_extension'],
+        period: startTime || endTime ? {
+            start: formatV3DateTime(startTime),
+            end: formatV3DateTime(endTime)
+        } : undefined
     };
 }
 
@@ -919,6 +945,19 @@ function mapEncounterStatus(status?: string): string {
     if (s === 'planned' || s === 'new') return 'planned';
 
     return 'unknown';
+}
+
+function mapEpisodeOfCareStatus(status?: string): string {
+    if (!status) return 'active';
+    const normalized = status.toLowerCase();
+    if (normalized === 'active' || normalized === 'in-progress') return 'active';
+    if (normalized === 'completed' || normalized === 'finished') return 'finished';
+    if (normalized === 'aborted' || normalized === 'cancelled' || normalized === 'canceled') return 'cancelled';
+    if (normalized === 'planned' || normalized === 'new') return 'planned';
+    if (normalized === 'onhold' || normalized === 'on-hold') return 'onhold';
+    if (normalized === 'waitlist') return 'waitlist';
+    if (normalized === 'entered-in-error' || normalized === 'entered_in_error') return 'entered-in-error';
+    return 'active';
 }
 
 function mapEncounterClass(code?: string): string {

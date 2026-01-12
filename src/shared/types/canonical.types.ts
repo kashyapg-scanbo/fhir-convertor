@@ -717,6 +717,49 @@ export type CanonicalRelatedPerson = {
   };
 };
 
+export type CanonicalEpisodeOfCare = {
+  id?: string;
+  identifier?: string;
+  status?: string;
+  statusHistory?: Array<{
+    status?: string;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  type?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  reason?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  diagnosis?: Array<{
+    condition?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  patient?: string;
+  managingOrganization?: string;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  referralRequest?: string[];
+  careManager?: string;
+  careTeam?: string[];
+  account?: string[];
+  active?: boolean;
+};
+
 export type CanonicalDocumentReference = {
   id?: string;
   identifier?: string;
@@ -778,6 +821,7 @@ export type CanonicalModel = {
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport
   relatedPersons?: CanonicalRelatedPerson[]; // RelatedPerson
   locations?: CanonicalLocation[]; // Location
+  episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
   practitioners?: CanonicalPractitioner[];
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];

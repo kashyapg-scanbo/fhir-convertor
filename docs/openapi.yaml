@@ -32,6 +32,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
                 - $ref: '#/components/schemas/CustomJsonLocationOnly'
+                - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
                 - $ref: '#/components/schemas/CustomJsonFull'
             examples:
               patient:
@@ -302,6 +303,28 @@ paths:
                     country: USA
                     managing_org_id: ORG001
                     part_of_id: LOC-PARENT
+              episode_of_care:
+                summary: EpisodeOfCare
+                value:
+                  episode_of_care:
+                    episode_of_care_id: EOC123456
+                    status: active
+                    type: disease-management
+                    reason:
+                      - Diabetes
+                    diagnosis:
+                      - Type 2 diabetes mellitus
+                    patient_id: P-10001
+                    managing_org_id: ORG001
+                    period_start: 2024-01-01T00:00:00Z
+                    period_end: 2024-06-30T00:00:00Z
+                    referral_request_ids:
+                      - SR-100
+                    care_manager_id: 98765
+                    care_team_ids:
+                      - CT-10
+                    account_ids:
+                      - ACC-55
               fullBundle:
                 summary: Full bundle
                 value:
@@ -347,6 +370,12 @@ paths:
                     state: CA
                     postal_code: 90211
                     country: USA
+                  episode_of_care:
+                    episode_of_care_id: EOC123456
+                    status: active
+                    patient_id: P-10001
+                    period_start: 2024-01-01T00:00:00Z
+                    period_end: 2024-06-30T00:00:00Z
       responses:
         '200':
           description: FHIR R5 Bundle
@@ -368,7 +397,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -513,7 +542,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -598,6 +627,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomLocation'
+        episode_of_care:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEpisodeOfCare'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEpisodeOfCare'
         practitioner:
           oneOf:
             - $ref: '#/components/schemas/CustomPractitioner'
@@ -1323,6 +1358,65 @@ components:
           type: string
         part_of_id:
           type: string
+    CustomEpisodeOfCare:
+      type: object
+      properties:
+        episode_of_care_id:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        diagnosis:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        patient_id:
+          type: string
+        managing_org_id:
+          type: string
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        referral_request_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        care_manager_id:
+          type: string
+        care_team_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        account_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        status_history_status:
+          type: string
+        status_history_start:
+          type: string
+          format: date-time
+        status_history_end:
+          type: string
+          format: date-time
     CustomPractitioner:
       type: object
       properties:
@@ -1605,6 +1699,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [location]
+    CustomJsonEpisodeOfCareOnly:
+      title: EpisodeOfCare
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [episode_of_care]
     CustomJsonPractitionerOnly:
       title: Practitioner
       allOf:
