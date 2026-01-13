@@ -725,6 +725,23 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     concept_map_target_display: ['target_display'],
     concept_map_target_relationship: ['target_relationship']
   },
+  namingSystem: {
+    naming_system_id: ['naming_system_identifier', 'namingsystem_id', 'namingsystem_identifier'],
+    naming_system_url: ['url'],
+    naming_system_version: ['version'],
+    naming_system_name: ['name'],
+    naming_system_title: ['title'],
+    naming_system_status: ['status'],
+    naming_system_kind: ['kind'],
+    naming_system_date: ['date'],
+    naming_system_publisher: ['publisher'],
+    naming_system_responsible: ['responsible'],
+    naming_system_description: ['description'],
+    naming_system_usage: ['usage'],
+    naming_system_unique_id_type: ['unique_id_type'],
+    naming_system_unique_id_value: ['unique_id_value'],
+    naming_system_unique_id_preferred: ['unique_id_preferred']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

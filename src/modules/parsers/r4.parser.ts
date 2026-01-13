@@ -39,7 +39,8 @@ import {
     CanonicalQuestionnaireResponse,
     CanonicalCodeSystem,
     CanonicalValueSet,
-    CanonicalConceptMap
+    CanonicalConceptMap,
+    CanonicalNamingSystem
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -77,6 +78,7 @@ export function parseR4(input: string): CanonicalModel {
         codeSystems: [],
         valueSets: [],
         conceptMaps: [],
+        namingSystems: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -200,6 +202,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'ConceptMap':
                 const conceptMap = mapR4ConceptMap(res);
                 if (conceptMap) model.conceptMaps?.push(conceptMap);
+                break;
+            case 'NamingSystem':
+                const namingSystem = mapR4NamingSystem(res);
+                if (namingSystem) model.namingSystems?.push(namingSystem);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1439,6 +1445,32 @@ function mapR4ConceptMap(resource: any): CanonicalConceptMap {
           relationship: target.relationship
         })) : undefined
       })) : undefined
+    }))
+  };
+}
+
+function mapR4NamingSystem(resource: any): CanonicalNamingSystem {
+  if (!resource || resource.resourceType !== 'NamingSystem') return null as any;
+  const uniqueIds = Array.isArray(resource.uniqueId) ? resource.uniqueId : [];
+
+  return {
+    id: resource.id,
+    url: resource.url,
+    identifier: resource.identifier?.[0]?.value,
+    version: resource.version,
+    name: resource.name,
+    title: resource.title,
+    status: resource.status,
+    kind: resource.kind,
+    date: resource.date,
+    publisher: resource.publisher,
+    responsible: resource.responsible,
+    description: resource.description,
+    usage: resource.usage,
+    uniqueId: uniqueIds.map((uniqueId: any) => ({
+      type: uniqueId.type,
+      value: uniqueId.value,
+      preferred: uniqueId.preferred
     }))
   };
 }

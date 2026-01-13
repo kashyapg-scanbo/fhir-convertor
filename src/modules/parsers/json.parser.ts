@@ -667,6 +667,25 @@ const GlobalConceptMapSchema = z.object({
   target_relationship: z.string().optional()
 });
 
+const GlobalNamingSystemSchema = z.object({
+  naming_system_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.string().optional(),
+  version: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  kind: z.string().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  responsible: z.string().optional(),
+  description: z.string().optional(),
+  usage: z.string().optional(),
+  unique_id_type: z.string().optional(),
+  unique_id_value: z.string().optional(),
+  unique_id_preferred: z.union([z.boolean(), z.string()]).optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1095,6 +1114,7 @@ const GlobalCustomJSONSchema = z.object({
   code_system: z.union([GlobalCodeSystemSchema, z.array(GlobalCodeSystemSchema)]).optional(),
   value_set: z.union([GlobalValueSetSchema, z.array(GlobalValueSetSchema)]).optional(),
   concept_map: z.union([GlobalConceptMapSchema, z.array(GlobalConceptMapSchema)]).optional(),
+  naming_system: z.union([GlobalNamingSystemSchema, z.array(GlobalNamingSystemSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1134,6 +1154,7 @@ const GlobalCustomJSONSchema = z.object({
     value.code_system ||
     value.value_set ||
     value.concept_map ||
+    value.naming_system ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1152,7 +1173,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1188,6 +1209,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   codeSystems: 'codeSystem',
   valueSets: 'valueSet',
   conceptMaps: 'conceptMap',
+  namingSystems: 'namingSystem',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1244,6 +1266,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   value_sets: 'valueSet',
   concept_map: 'conceptMap',
   concept_maps: 'conceptMap',
+  naming_system: 'namingSystem',
+  naming_systems: 'namingSystem',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1360,6 +1384,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   concept_maps: 'concept_map',
   conceptmap: 'concept_map',
   conceptmaps: 'concept_map',
+  naming_system: 'naming_system',
+  naming_systems: 'naming_system',
+  namingsystem: 'naming_system',
+  namingsystems: 'naming_system',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4112,6 +4140,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const codeSystems = normalizeArray(validated.code_system);
   const valueSets = normalizeArray(validated.value_set);
   const conceptMaps = normalizeArray(validated.concept_map);
+  const namingSystems = normalizeArray(validated.naming_system);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4193,6 +4222,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (conceptMaps.length) {
     canonical.conceptMaps = conceptMaps.map(buildCanonicalConceptMapGlobal);
   }
+  if (namingSystems.length) {
+    canonical.namingSystems = namingSystems.map(buildCanonicalNamingSystemGlobal);
+  }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
   }
@@ -4271,7 +4303,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4296,6 +4328,7 @@ function wrapGlobalPayload(value: any) {
       value.code_system,
       value.value_set,
       value.concept_map,
+      value.naming_system,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4377,6 +4410,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('concept_map_id' in value || 'element_code' in value || 'target_code' in value) {
       return { concept_map: value };
+    }
+    if ('naming_system_id' in value || 'unique_id_value' in value || 'kind' in value) {
+      return { naming_system: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4493,6 +4529,9 @@ function looksLikeGlobalResource(value: any) {
     'concept_map_id' in value ||
     'element_code' in value ||
     'target_code' in value ||
+    'naming_system_id' in value ||
+    'unique_id_value' in value ||
+    'kind' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5441,6 +5480,33 @@ function buildCanonicalConceptMapGlobal(conceptMap: z.infer<typeof GlobalConcept
     sourceScope: conceptMap.source_scope,
     targetScope: conceptMap.target_scope,
     group: groupEntry
+  };
+}
+
+function buildCanonicalNamingSystemGlobal(namingSystem: z.infer<typeof GlobalNamingSystemSchema>) {
+  const uniqueId = namingSystem.unique_id_type || namingSystem.unique_id_value || namingSystem.unique_id_preferred !== undefined
+    ? [{
+      type: namingSystem.unique_id_type,
+      value: namingSystem.unique_id_value,
+      preferred: normalizeBoolean(namingSystem.unique_id_preferred)
+    }]
+    : undefined;
+
+  return {
+    id: namingSystem.naming_system_id,
+    url: namingSystem.url,
+    identifier: namingSystem.identifier,
+    version: namingSystem.version,
+    name: namingSystem.name,
+    title: namingSystem.title,
+    status: namingSystem.status,
+    kind: namingSystem.kind,
+    date: namingSystem.date,
+    publisher: namingSystem.publisher,
+    responsible: namingSystem.responsible,
+    description: namingSystem.description,
+    usage: namingSystem.usage,
+    uniqueId: uniqueId
   };
 }
 

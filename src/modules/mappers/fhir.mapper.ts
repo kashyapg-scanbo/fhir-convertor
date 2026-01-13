@@ -26,6 +26,7 @@ import { mapQuestionnaireResponses } from './questionnaireResponse.mapper.js';
 import { mapCodeSystems } from './codeSystem.mapper.js';
 import { mapValueSets } from './valueSet.mapper.js';
 import { mapConceptMaps } from './conceptMap.mapper.js';
+import { mapNamingSystems } from './namingSystem.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
@@ -330,6 +331,15 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (conceptMapEntries.length > 0) {
     bundle.entry.push(...conceptMapEntries);
+  }
+
+  const namingSystemEntries = mapNamingSystems({
+    namingSystems: canonical.namingSystems,
+    operation,
+    registry
+  });
+  if (namingSystemEntries.length > 0) {
+    bundle.entry.push(...namingSystemEntries);
   }
 
   const procedureEntries = mapProcedures({

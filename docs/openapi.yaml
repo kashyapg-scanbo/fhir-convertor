@@ -44,6 +44,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonCodeSystemOnly'
                 - $ref: '#/components/schemas/CustomJsonValueSetOnly'
                 - $ref: '#/components/schemas/CustomJsonConceptMapOnly'
+                - $ref: '#/components/schemas/CustomJsonNamingSystemOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -405,6 +406,17 @@ paths:
                     target_code: T001
                     target_display: Target concept
                     target_relationship: equivalent
+              naming_system:
+                summary: NamingSystem
+                value:
+                  naming_system:
+                    naming_system_id: NS-100
+                    url: https://example.org/namingsystems/example
+                    name: ExampleNamingSystem
+                    status: active
+                    kind: identifier
+                    unique_id_type: uri
+                    unique_id_value: https://example.org/namingsystems/example
               practitioner:
                 summary: Practitioner
                 value:
@@ -989,6 +1001,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomConceptMap'
+        naming_system:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNamingSystem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNamingSystem'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2566,6 +2584,44 @@ components:
           type: string
         target_relationship:
           type: string
+    CustomNamingSystem:
+      type: object
+      properties:
+        naming_system_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        kind:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        responsible:
+          type: string
+        description:
+          type: string
+        usage:
+          type: string
+        unique_id_type:
+          type: string
+        unique_id_value:
+          type: string
+        unique_id_preferred:
+          oneOf:
+            - type: boolean
+            - type: string
     CustomProcedure:
       type: object
       properties:
@@ -3705,6 +3761,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [concept_map]
+    CustomJsonNamingSystemOnly:
+      title: NamingSystem
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [naming_system]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

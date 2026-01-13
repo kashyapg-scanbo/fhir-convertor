@@ -1200,6 +1200,52 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.conceptMaps = conceptMaps as any[];
   }
 
+  const namingSystems = rows.map(row => {
+    const namingSystemId = readValue(row, 'naming_system_id');
+    const url = readValue(row, 'naming_system_url');
+    const identifier = readValue(row, 'naming_system_id');
+    const version = readValue(row, 'naming_system_version');
+    const name = readValue(row, 'naming_system_name');
+    const title = readValue(row, 'naming_system_title');
+    const status = readValue(row, 'naming_system_status');
+    const kind = readValue(row, 'naming_system_kind');
+    const date = readValue(row, 'naming_system_date');
+    const publisher = readValue(row, 'naming_system_publisher');
+    const responsible = readValue(row, 'naming_system_responsible');
+    const description = readValue(row, 'naming_system_description');
+    const usage = readValue(row, 'naming_system_usage');
+    const uniqueIdType = readValue(row, 'naming_system_unique_id_type');
+    const uniqueIdValue = readValue(row, 'naming_system_unique_id_value');
+    const uniqueIdPreferred = readValue(row, 'naming_system_unique_id_preferred');
+
+    if (!namingSystemId && !url && !name && !title && !uniqueIdValue) return null;
+
+    const uniqueId = uniqueIdType || uniqueIdValue || uniqueIdPreferred
+      ? [{ type: uniqueIdType, value: uniqueIdValue, preferred: uniqueIdPreferred }]
+      : undefined;
+
+    return {
+      id: namingSystemId || undefined,
+      url: url || undefined,
+      identifier: identifier || undefined,
+      version: version || undefined,
+      name: name || undefined,
+      title: title || undefined,
+      status: status || undefined,
+      kind: kind || undefined,
+      date: date || undefined,
+      publisher: publisher || undefined,
+      responsible: responsible || undefined,
+      description: description || undefined,
+      usage: usage || undefined,
+      uniqueId: uniqueId
+    };
+  }).filter(Boolean);
+
+  if (namingSystems.length > 0) {
+    canonical.namingSystems = namingSystems as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

@@ -39,7 +39,8 @@ import {
     CanonicalQuestionnaireResponse,
     CanonicalCodeSystem,
     CanonicalValueSet,
-    CanonicalConceptMap
+    CanonicalConceptMap,
+    CanonicalNamingSystem
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -104,6 +105,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         codeSystems: [],
         valueSets: [],
         conceptMaps: [],
+        namingSystems: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -245,6 +247,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (conceptMapEvent) {
                 const conceptMap = mapV3ConceptMap(conceptMapEvent);
                 if (conceptMap) model.conceptMaps?.push(conceptMap);
+            }
+
+            const namingSystemEvent = sub.namingSystem || sub.NamingSystem;
+            if (namingSystemEvent) {
+                const namingSystem = mapV3NamingSystem(namingSystemEvent);
+                if (namingSystem) model.namingSystems?.push(namingSystem);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1264,6 +1272,44 @@ function mapV3ConceptMap(conceptMapEvent: any): CanonicalConceptMap | undefined 
                     relationship: 'equivalent'
                 }] : undefined
             }]
+        }] : undefined
+    };
+}
+
+function mapV3NamingSystem(namingSystemEvent: any): CanonicalNamingSystem | undefined {
+    if (!namingSystemEvent) return undefined;
+    const id = namingSystemEvent.id || namingSystemEvent['cda:id'];
+    const name = namingSystemEvent.name || namingSystemEvent['cda:name'];
+    const title = namingSystemEvent.title || namingSystemEvent['cda:title'];
+    const statusCode = namingSystemEvent.statusCode || namingSystemEvent['cda:statusCode'];
+    const effectiveTime = namingSystemEvent.effectiveTime || namingSystemEvent['cda:effectiveTime'];
+    const code = namingSystemEvent.code || namingSystemEvent['cda:code'];
+    const text = namingSystemEvent.text || namingSystemEvent['cda:text'];
+
+    const nsId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const kind = code?.['@_codeSystem'] || code?.['@_codeSystemName'];
+    const definition = typeof text === 'string' ? text : text?.['#text'];
+    const nameText = typeof name === 'string' ? name : name?.['#text'];
+    const titleText = typeof title === 'string' ? title : title?.['#text'];
+
+    if (!nsId && !displayName && !nameText && !titleText) return undefined;
+
+    return {
+        id: nsId || `NAMESYS-${Date.now()}`,
+        identifier: nsId,
+        status: status || 'active',
+        name: nameText,
+        title: titleText,
+        date: date,
+        kind: kind,
+        description: definition,
+        uniqueId: displayName ? [{
+            type: 'uri',
+            value: displayName,
+            preferred: true
         }] : undefined
     };
 }
