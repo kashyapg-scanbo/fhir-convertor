@@ -1,0 +1,55 @@
+{
+  "resourceType": "Communication",
+  "id": "COMM-R4-2",
+  "status": "in-progress",
+  "statusReason": {
+    "coding": [
+      {
+        "code": "awaiting-response",
+        "display": "Awaiting response"
+      }
+    ]
+  },
+  "category": [
+    {
+      "text": "care-coordination"
+    }
+  ],
+  "priority": "urgent",
+  "medium": [
+    {
+      "text": "phone"
+    }
+  ],
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "topic": {
+    "text": "Medication review"
+  },
+  "encounter": {
+    "reference": "Encounter/ENC-2"
+  },
+  "sent": "2024-03-02T10:00:00Z",
+  "recipient": [
+    {
+      "reference": "Practitioner/PRAC-2"
+    },
+    {
+      "reference": "Patient/PAT-2"
+    }
+  ],
+  "sender": {
+    "reference": "Organization/ORG-1"
+  },
+  "reasonCode": [
+    {
+      "text": "Medication reconciliation"
+    }
+  ],
+  "payload": [
+    {
+      "contentString": "Review current meds and confirm adherence"
+    }
+  ]
+}

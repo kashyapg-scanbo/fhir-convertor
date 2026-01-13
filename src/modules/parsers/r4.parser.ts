@@ -32,7 +32,8 @@ import {
     CanonicalCareTeam,
     CanonicalGoal,
     CanonicalServiceRequest,
-    CanonicalTask
+    CanonicalTask,
+    CanonicalCommunication
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -63,6 +64,7 @@ export function parseR4(input: string): CanonicalModel {
         goals: [],
         serviceRequests: [],
         tasks: [],
+        communications: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -158,6 +160,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Task':
                 const task = mapR4Task(res);
                 if (task) model.tasks?.push(task);
+                break;
+            case 'Communication':
+                const communication = mapR4Communication(res);
+                if (communication) model.communications?.push(communication);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1141,6 +1147,67 @@ function mapR4Task(task: any): CanonicalTask {
     insurance: task.insurance?.map((ref: any) => ref.reference?.replace(/^(Coverage|ClaimResponse)\//, '')).filter(Boolean),
     note: task.note?.map((note: any) => note.text).filter(Boolean),
     relevantHistory: task.relevantHistory?.map((ref: any) => ref.reference?.replace(/^Provenance\//, '')).filter(Boolean)
+  };
+}
+
+function mapR4Communication(comm: any): CanonicalCommunication {
+  const reasons = [
+    ...(comm.reason || []).map((reason: any) => reason.reference || reason.concept?.text).filter(Boolean),
+    ...(comm.reasonReference || []).map((ref: any) => ref.reference).filter(Boolean),
+    ...(comm.reasonCode || []).map((code: any) => code.text || code.coding?.[0]?.display).filter(Boolean)
+  ];
+
+  const payloads = (comm.payload || []).map((payload: any) => (
+    payload.contentString ||
+    payload.contentCodeableConcept?.text ||
+    payload.contentCodeableConcept?.coding?.[0]?.display ||
+    payload.contentReference?.reference
+  )).filter(Boolean);
+
+  return {
+    id: comm.id,
+    identifier: comm.identifier?.[0]?.value,
+    instantiatesCanonical: comm.instantiatesCanonical,
+    instantiatesUri: comm.instantiatesUri,
+    basedOn: comm.basedOn?.map((ref: any) => ref.reference).filter(Boolean),
+    partOf: comm.partOf?.map((ref: any) => ref.reference).filter(Boolean),
+    inResponseTo: comm.inResponseTo?.map((ref: any) => ref.reference?.replace(/^Communication\//, '')).filter(Boolean),
+    status: comm.status,
+    statusReason: comm.statusReason?.coding?.[0]
+      ? {
+        system: comm.statusReason.coding[0].system,
+        code: comm.statusReason.coding[0].code,
+        display: comm.statusReason.coding[0].display
+      }
+      : undefined,
+    category: comm.category?.map((cat: any) => ({
+      system: cat.coding?.[0]?.system,
+      code: cat.coding?.[0]?.code,
+      display: cat.coding?.[0]?.display || cat.text
+    })),
+    priority: comm.priority,
+    medium: comm.medium?.map((med: any) => ({
+      system: med.coding?.[0]?.system,
+      code: med.coding?.[0]?.code,
+      display: med.coding?.[0]?.display || med.text
+    })),
+    subject: comm.subject?.reference?.replace(/^(Patient|Group)\//, ''),
+    topic: comm.topic?.coding?.[0] || comm.topic?.text
+      ? {
+        system: comm.topic?.coding?.[0]?.system,
+        code: comm.topic?.coding?.[0]?.code,
+        display: comm.topic?.coding?.[0]?.display || comm.topic?.text
+      }
+      : undefined,
+    about: comm.about?.map((ref: any) => ref.reference).filter(Boolean),
+    encounter: comm.encounter?.reference?.replace(/^Encounter\//, ''),
+    sent: comm.sent,
+    received: comm.received,
+    recipient: comm.recipient?.map((ref: any) => ref.reference?.replace(/^(CareTeam|Device|Endpoint|Group|HealthcareService|Location|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
+    sender: comm.sender?.reference?.replace(/^(CareTeam|Device|Endpoint|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    reason: reasons.length ? reasons : undefined,
+    payload: payloads.length ? payloads : undefined,
+    note: comm.note?.map((note: any) => note.text).filter(Boolean)
   };
 }
 

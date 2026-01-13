@@ -1,0 +1,2 @@
+communication_id,communication_status,communication_topic,communication_subject_id,communication_sent,communication_sender_id,communication_recipient_ids,communication_payload,communication_note
+COMM-1,completed,Follow-up note,PAT-1,2024-03-01T09:15:00Z,PRAC-1,PAT-1,Patient notified of lab results,Left voicemail

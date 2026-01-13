@@ -857,6 +857,63 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.tasks = tasks as any[];
   }
 
+  const communications = rows.map(row => {
+    const commId = readValue(row, 'communication_id');
+    const status = readValue(row, 'communication_status');
+    const statusReason = readValue(row, 'communication_status_reason');
+    const categoryRaw = readValue(row, 'communication_category');
+    const priority = readValue(row, 'communication_priority');
+    const mediumRaw = readValue(row, 'communication_medium');
+    const subjectId = readValue(row, 'communication_subject_id');
+    const topic = readValue(row, 'communication_topic');
+    const aboutRaw = readValue(row, 'communication_about_ids');
+    const encounterId = readValue(row, 'communication_encounter_id');
+    const sent = readValue(row, 'communication_sent');
+    const received = readValue(row, 'communication_received');
+    const recipientRaw = readValue(row, 'communication_recipient_ids');
+    const senderId = readValue(row, 'communication_sender_id');
+    const reasonRaw = readValue(row, 'communication_reason');
+    const payloadRaw = readValue(row, 'communication_payload');
+    const noteRaw = readValue(row, 'communication_note');
+    const instantiatesCanonicalRaw = readValue(row, 'communication_instantiates_canonical');
+    const instantiatesUriRaw = readValue(row, 'communication_instantiates_uri');
+    const basedOnRaw = readValue(row, 'communication_based_on_ids');
+    const partOfRaw = readValue(row, 'communication_part_of_ids');
+    const inResponseToRaw = readValue(row, 'communication_in_response_to_ids');
+
+    if (!commId && !topic && !payloadRaw) return null;
+
+    return {
+      id: commId || undefined,
+      identifier: commId || undefined,
+      instantiatesCanonical: instantiatesCanonicalRaw ? instantiatesCanonicalRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      instantiatesUri: instantiatesUriRaw ? instantiatesUriRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      basedOn: basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      partOf: partOfRaw ? partOfRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      inResponseTo: inResponseToRaw ? inResponseToRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      status: status || 'completed',
+      statusReason: statusReason ? { display: statusReason } : undefined,
+      category: categoryRaw ? categoryRaw.split(',').map(value => ({ display: value.trim() })) : undefined,
+      priority: priority || undefined,
+      medium: mediumRaw ? mediumRaw.split(',').map(value => ({ display: value.trim() })) : undefined,
+      subject: subjectId || undefined,
+      topic: topic ? { display: topic } : undefined,
+      about: aboutRaw ? aboutRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      encounter: encounterId || undefined,
+      sent: sent || undefined,
+      received: received || undefined,
+      recipient: recipientRaw ? recipientRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      sender: senderId || undefined,
+      reason: reasonRaw ? reasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      payload: payloadRaw ? payloadRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      note: noteRaw ? [noteRaw] : undefined
+    };
+  }).filter(Boolean);
+
+  if (communications.length > 0) {
+    canonical.communications = communications as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

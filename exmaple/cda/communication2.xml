@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-2"/>
+      <patient>
+        <name>
+          <family>Smith</family>
+          <given>Alice</given>
+        </name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="COMM"/>
+          <entry>
+            <act>
+              <id extension="COMM-2"/>
+              <code code="PHONE" displayName="Medication review"/>
+              <statusCode code="in-progress"/>
+              <effectiveTime value="20240302"/>
+              <text>Review current meds and confirm adherence</text>
+            </act>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

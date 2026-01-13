@@ -37,6 +37,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonGoalOnly'
                 - $ref: '#/components/schemas/CustomJsonServiceRequestOnly'
                 - $ref: '#/components/schemas/CustomJsonTaskOnly'
+                - $ref: '#/components/schemas/CustomJsonCommunicationOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -302,6 +303,20 @@ paths:
                     for_id: P-10001
                     authored_on: 2024-03-01T08:30:00Z
                     requester_id: PRAC-1
+              communication:
+                summary: Communication
+                value:
+                  communication:
+                    communication_id: COMM-100
+                    status: completed
+                    topic: Follow-up note
+                    subject_id: P-10001
+                    sent: 2024-03-01T09:15:00Z
+                    sender_id: PRAC-1
+                    recipient_ids:
+                      - PAT-1
+                    payload:
+                      - Patient notified of lab results
               practitioner:
                 summary: Practitioner
                 value:
@@ -753,7 +768,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -844,6 +859,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomTask'
+        communication:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCommunication'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCommunication'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1985,6 +2006,103 @@ components:
                 type: string
         group_identifier:
           type: string
+    CustomCommunication:
+      type: object
+      properties:
+        communication_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        priority:
+          type: string
+        medium:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        subject_id:
+          type: string
+        topic:
+          type: string
+        about_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_id:
+          type: string
+        sent:
+          type: string
+          format: date-time
+        received:
+          type: string
+          format: date-time
+        recipient_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        sender_id:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        payload:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        in_response_to_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
     CustomProcedure:
       type: object
       properties:
@@ -3082,6 +3200,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [task]
+    CustomJsonCommunicationOnly:
+      title: Communication
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [communication]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

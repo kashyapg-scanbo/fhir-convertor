@@ -32,7 +32,8 @@ import {
     CanonicalCareTeam,
     CanonicalGoal,
     CanonicalServiceRequest,
-    CanonicalTask
+    CanonicalTask,
+    CanonicalCommunication
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -90,6 +91,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         goals: [],
         serviceRequests: [],
         tasks: [],
+        communications: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -189,6 +191,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (taskEvent) {
                 const task = mapV3Task(taskEvent);
                 if (task) model.tasks?.push(task);
+            }
+
+            const communicationEvent = sub.communication || sub.Communication;
+            if (communicationEvent) {
+                const communication = mapV3Communication(communicationEvent);
+                if (communication) model.communications?.push(communication);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -980,6 +988,32 @@ function mapV3Task(taskEvent: any): CanonicalTask | undefined {
         code: displayName ? { display: displayName } : undefined,
         description: descriptionText || displayName,
         authoredOn: start
+    };
+}
+
+function mapV3Communication(commEvent: any): CanonicalCommunication | undefined {
+    if (!commEvent) return undefined;
+    const id = commEvent.id || commEvent['cda:id'];
+    const code = commEvent.code || commEvent['cda:code'];
+    const statusCode = commEvent.statusCode || commEvent['cda:statusCode'];
+    const effectiveTime = commEvent.effectiveTime || commEvent['cda:effectiveTime'];
+    const text = commEvent.text || commEvent['cda:text'];
+
+    const commId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const sent = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const noteText = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!commId && !displayName && !noteText) return undefined;
+
+    return {
+        id: commId || `COMM-${Date.now()}`,
+        identifier: commId,
+        status: status || 'completed',
+        topic: displayName ? { display: displayName } : undefined,
+        sent: sent,
+        note: noteText ? [noteText] : undefined
     };
 }
 

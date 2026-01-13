@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -951,6 +951,61 @@ export function buildCanonical(parsed: any) {
 
   if (tasks.length > 0) {
     result.tasks = tasks;
+  }
+
+  /* ───── Communications (from ORC/OBR) ───── */
+  const communications: CanonicalCommunication[] = [];
+  const commOrcSegments = parsed.ORC ?? [];
+  const commObrSegments = parsed.OBR ?? [];
+
+  for (const orc of commOrcSegments) {
+    const placerId = orc?.[1]?.[0]?.[0];
+    const fillerId = orc?.[2]?.[0]?.[0];
+    const commId = placerId || fillerId;
+    const status = orc?.[5]?.[0]?.[0] || orc?.[4]?.[0]?.[0];
+    const control = orc?.[0]?.[0]?.[0];
+
+    if (!commId && !control) continue;
+
+    communications.push({
+      id: commId || `COMM-ORC-${Date.now()}`,
+      identifier: commId,
+      status: status || 'completed',
+      subject: patientId,
+      encounter: encounter?.id
+    });
+  }
+
+  for (const obr of commObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const commId = placerId || fillerId;
+    const topicCode = obr?.[3]?.[0] ?? [];
+    const codeValue = topicCode[0];
+    const display = topicCode[1];
+    const system = topicCode[2];
+    const status = obr?.[25]?.[0]?.[0] || obr?.[24]?.[0]?.[0];
+    const sent = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!commId && !codeValue && !display) continue;
+
+    communications.push({
+      id: commId || `COMM-OBR-${Date.now()}`,
+      identifier: commId,
+      status: status || 'completed',
+      topic: codeValue || display ? {
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      } : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      sent: sent
+    });
+  }
+
+  if (communications.length > 0) {
+    result.communications = communications;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

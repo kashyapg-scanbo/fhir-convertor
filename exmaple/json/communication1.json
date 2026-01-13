@@ -1,0 +1,20 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
+  "communication": {
+    "communication_id": "COMM-1",
+    "status": "completed",
+    "topic": "Follow-up note",
+    "subject_id": "PAT-1",
+    "sent": "2024-03-01T09:15:00Z",
+    "sender_id": "PRAC-1",
+    "recipient_ids": ["PAT-1"],
+    "payload": ["Patient notified of lab results"],
+    "note": "Left voicemail"
+  }
+}

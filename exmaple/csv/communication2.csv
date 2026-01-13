@@ -1,0 +1,2 @@
+communication_id,communication_status,communication_status_reason,communication_category,communication_priority,communication_medium,communication_subject_id,communication_topic,communication_encounter_id,communication_sent,communication_recipient_ids,communication_sender_id,communication_reason,communication_payload
+COMM-2,in-progress,Awaiting response,care-coordination,urgent,phone,PAT-2,Medication review,ENC-2,2024-03-02T10:00:00Z,"PRAC-2,PAT-2",ORG-1,Medication reconciliation,"Review current meds and confirm adherence"
