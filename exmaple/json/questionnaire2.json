@@ -1,0 +1,26 @@
+{
+  "questionnaire": {
+    "questionnaire_id": "QNR-2",
+    "url": "https://example.org/qnr/intake",
+    "version": "1.0",
+    "name": "IntakeForm",
+    "title": "Patient Intake",
+    "status": "draft",
+    "date": "2024-03-05T00:00:00Z",
+    "publisher": "Example Health",
+    "description": "Initial patient intake",
+    "subject_type": ["Patient"],
+    "item": [
+      {
+        "link_id": "q1",
+        "text": "Date of birth",
+        "type": "date"
+      },
+      {
+        "link_id": "q2",
+        "text": "Primary complaint",
+        "type": "string"
+      }
+    ]
+  }
+}

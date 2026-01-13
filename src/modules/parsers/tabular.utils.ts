@@ -974,6 +974,45 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.communicationRequests = communicationRequests as any[];
   }
 
+  const questionnaires = rows.map(row => {
+    const questionnaireId = readValue(row, 'questionnaire_id');
+    const url = readValue(row, 'questionnaire_url');
+    const version = readValue(row, 'questionnaire_version');
+    const name = readValue(row, 'questionnaire_name');
+    const title = readValue(row, 'questionnaire_title');
+    const status = readValue(row, 'questionnaire_status');
+    const date = readValue(row, 'questionnaire_date');
+    const publisher = readValue(row, 'questionnaire_publisher');
+    const description = readValue(row, 'questionnaire_description');
+    const subjectTypeRaw = readValue(row, 'questionnaire_subject_type');
+    const itemLinkId = readValue(row, 'questionnaire_item_link_id');
+    const itemText = readValue(row, 'questionnaire_item_text');
+    const itemType = readValue(row, 'questionnaire_item_type');
+
+    if (!questionnaireId && !title && !name) return null;
+
+    return {
+      id: questionnaireId || undefined,
+      identifier: questionnaireId || undefined,
+      url: url || undefined,
+      version: version || undefined,
+      name: name || undefined,
+      title: title || undefined,
+      status: status || 'active',
+      date: date || undefined,
+      publisher: publisher || undefined,
+      description: description || undefined,
+      subjectType: subjectTypeRaw ? subjectTypeRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      item: (itemLinkId || itemText || itemType)
+        ? [{ linkId: itemLinkId, text: itemText, type: itemType }]
+        : undefined
+    };
+  }).filter(Boolean);
+
+  if (questionnaires.length > 0) {
+    canonical.questionnaires = questionnaires as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

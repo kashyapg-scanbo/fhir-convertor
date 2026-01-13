@@ -1,0 +1,2 @@
+questionnaire_id,questionnaire_url,questionnaire_title,questionnaire_status,questionnaire_date,questionnaire_publisher,questionnaire_subject_type,questionnaire_item_link_id,questionnaire_item_text,questionnaire_item_type
+QNR-1,https://example.org/qnr/health-check,Health Check,active,2024-03-01T00:00:00Z,Example Health,Patient,q1,Do you smoke?,boolean

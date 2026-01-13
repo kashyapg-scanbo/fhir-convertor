@@ -34,7 +34,8 @@ import {
     CanonicalServiceRequest,
     CanonicalTask,
     CanonicalCommunication,
-    CanonicalCommunicationRequest
+    CanonicalCommunicationRequest,
+    CanonicalQuestionnaire
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -94,6 +95,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         tasks: [],
         communications: [],
         communicationRequests: [],
+        questionnaires: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -205,6 +207,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (communicationRequestEvent) {
                 const communicationRequest = mapV3CommunicationRequest(communicationRequestEvent);
                 if (communicationRequest) model.communicationRequests?.push(communicationRequest);
+            }
+
+            const questionnaireEvent = sub.questionnaire || sub.Questionnaire;
+            if (questionnaireEvent) {
+                const questionnaire = mapV3Questionnaire(questionnaireEvent);
+                if (questionnaire) model.questionnaires?.push(questionnaire);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1049,6 +1057,32 @@ function mapV3CommunicationRequest(commEvent: any): CanonicalCommunicationReques
         category: displayName ? [{ display: displayName }] : undefined,
         occurrenceDateTime: occurrence,
         note: noteText ? [noteText] : undefined
+    };
+}
+
+function mapV3Questionnaire(qnrEvent: any): CanonicalQuestionnaire | undefined {
+    if (!qnrEvent) return undefined;
+    const id = qnrEvent.id || qnrEvent['cda:id'];
+    const code = qnrEvent.code || qnrEvent['cda:code'];
+    const statusCode = qnrEvent.statusCode || qnrEvent['cda:statusCode'];
+    const effectiveTime = qnrEvent.effectiveTime || qnrEvent['cda:effectiveTime'];
+    const text = qnrEvent.text || qnrEvent['cda:text'];
+
+    const qnrId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const description = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!qnrId && !displayName && !description) return undefined;
+
+    return {
+        id: qnrId || `QNR-${Date.now()}`,
+        identifier: qnrId,
+        status: status || 'active',
+        title: displayName,
+        description: description,
+        date: date
     };
 }
 

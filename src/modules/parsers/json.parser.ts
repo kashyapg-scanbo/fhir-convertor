@@ -554,6 +554,30 @@ const GlobalCommunicationRequestSchema = z.object({
   status_reason_display: z.string().optional()
 });
 
+const GlobalQuestionnaireItemSchema = z.object({
+  link_id: z.string().optional(),
+  text: z.string().optional(),
+  type: z.string().optional()
+});
+
+const GlobalQuestionnaireSchema = z.object({
+  questionnaire_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.string().optional(),
+  version: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  description: z.string().optional(),
+  subject_type: z.union([z.string(), z.array(z.string())]).optional(),
+  item: z.union([GlobalQuestionnaireItemSchema, z.array(GlobalQuestionnaireItemSchema)]).optional(),
+  item_link_id: z.string().optional(),
+  item_text: z.string().optional(),
+  item_type: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -977,6 +1001,7 @@ const GlobalCustomJSONSchema = z.object({
   task: z.union([GlobalTaskSchema, z.array(GlobalTaskSchema)]).optional(),
   communication: z.union([GlobalCommunicationSchema, z.array(GlobalCommunicationSchema)]).optional(),
   communication_request: z.union([GlobalCommunicationRequestSchema, z.array(GlobalCommunicationRequestSchema)]).optional(),
+  questionnaire: z.union([GlobalQuestionnaireSchema, z.array(GlobalQuestionnaireSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1011,6 +1036,7 @@ const GlobalCustomJSONSchema = z.object({
     value.task ||
     value.communication ||
     value.communication_request ||
+    value.questionnaire ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1029,7 +1055,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1060,6 +1086,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   tasks: 'task',
   communications: 'communication',
   communicationRequests: 'communicationRequest',
+  questionnaires: 'questionnaire',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1106,6 +1133,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   communications: 'communication',
   communication_request: 'communicationRequest',
   communication_requests: 'communicationRequest',
+  questionnaire: 'questionnaire',
+  questionnaires: 'questionnaire',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1204,6 +1233,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   communication_requests: 'communication_request',
   communicationrequest: 'communication_request',
   communicationrequests: 'communication_request',
+  questionnaire: 'questionnaire',
+  questionnaires: 'questionnaire',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -2887,6 +2918,53 @@ function normalizeGlobalCommunicationRequestAliases(value: Record<string, unknow
   return normalized;
 }
 
+function normalizeGlobalQuestionnaireAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const questionnaireId = readSectionAliasValue(value, 'questionnaire', 'questionnaire_id');
+  if (normalized.questionnaire_id === undefined && questionnaireId !== undefined) {
+    normalized.questionnaire_id = questionnaireId;
+  }
+
+  const url = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_url'));
+  if (url && normalized.url === undefined) normalized.url = url;
+
+  const version = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_version'));
+  if (version && normalized.version === undefined) normalized.version = version;
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const title = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_title'));
+  if (title && normalized.title === undefined) normalized.title = title;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const date = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_date'));
+  if (date && normalized.date === undefined) normalized.date = date;
+
+  const publisher = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_publisher'));
+  if (publisher && normalized.publisher === undefined) normalized.publisher = publisher;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const subjectType = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_subject_type'));
+  if (subjectType && normalized.subject_type === undefined) normalized.subject_type = subjectType;
+
+  const itemLinkId = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_item_link_id'));
+  if (itemLinkId && normalized.item_link_id === undefined) normalized.item_link_id = itemLinkId;
+
+  const itemText = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_item_text'));
+  if (itemText && normalized.item_text === undefined) normalized.item_text = itemText;
+
+  const itemType = normalizeAliasValue(readSectionAliasValue(value, 'questionnaire', 'questionnaire_item_type'));
+  if (itemType && normalized.item_type === undefined) normalized.item_type = itemType;
+
+  return normalized;
+}
+
 function normalizeGlobalSpecimenAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -3542,6 +3620,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalCommunicationAliases(value);
     case 'communicationRequest':
       return normalizeGlobalCommunicationRequestAliases(value);
+    case 'questionnaire':
+      return normalizeGlobalQuestionnaireAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -3598,6 +3678,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['task', 'task'],
     ['communication', 'communication'],
     ['communicationRequest', 'communication_request'],
+    ['questionnaire', 'questionnaire'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -3851,6 +3932,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const tasks = normalizeArray(validated.task);
   const communications = normalizeArray(validated.communication);
   const communicationRequests = normalizeArray(validated.communication_request);
+  const questionnaires = normalizeArray(validated.questionnaire);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -3916,6 +3998,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (communicationRequests.length) {
     canonical.communicationRequests = communicationRequests.map(buildCanonicalCommunicationRequestGlobal);
+  }
+  if (questionnaires.length) {
+    canonical.questionnaires = questionnaires.map(buildCanonicalQuestionnaireGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -3995,7 +4080,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4015,6 +4100,7 @@ function wrapGlobalPayload(value: any) {
       value.task,
       value.communication,
       value.communication_request,
+      value.questionnaire,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4081,6 +4167,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('communication_request_id' in value || 'occurrence_date' in value || 'authored_on' in value) {
       return { communication_request: value };
+    }
+    if ('questionnaire_id' in value || 'subject_type' in value || 'item_link_id' in value) {
+      return { questionnaire: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4183,6 +4272,9 @@ function looksLikeGlobalResource(value: any) {
     'communication_request_id' in value ||
     'occurrence_date' in value ||
     'authored_on' in value ||
+    'questionnaire_id' in value ||
+    'subject_type' in value ||
+    'item_link_id' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -4942,6 +5034,44 @@ function buildCanonicalCommunicationRequestGlobal(request: z.infer<typeof Global
     informationProvider: informationProviders.length ? informationProviders : undefined,
     reason: reasons.length ? reasons : undefined,
     note: notes.length ? notes : undefined
+  };
+}
+
+function buildCanonicalQuestionnaireGlobal(qnr: z.infer<typeof GlobalQuestionnaireSchema>) {
+  const subjectTypes = normalizeStringArray(qnr.subject_type);
+  const itemsInput = normalizeArray(qnr.item);
+  const items: Array<{ linkId?: string; text?: string; type?: string }> = [];
+
+  for (const item of itemsInput) {
+    if (!item) continue;
+    items.push({
+      linkId: item.link_id,
+      text: item.text,
+      type: item.type
+    });
+  }
+
+  if (qnr.item_link_id || qnr.item_text || qnr.item_type) {
+    items.push({
+      linkId: qnr.item_link_id,
+      text: qnr.item_text,
+      type: qnr.item_type
+    });
+  }
+
+  return {
+    id: qnr.questionnaire_id,
+    identifier: qnr.identifier || qnr.questionnaire_id,
+    url: qnr.url,
+    version: qnr.version,
+    name: qnr.name,
+    title: qnr.title,
+    status: qnr.status,
+    date: qnr.date,
+    publisher: qnr.publisher,
+    description: qnr.description,
+    subjectType: subjectTypes.length ? subjectTypes : undefined,
+    item: items.length ? items : undefined
   };
 }
 

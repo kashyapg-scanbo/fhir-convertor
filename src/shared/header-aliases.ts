@@ -642,6 +642,21 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     communication_request_replaces_ids: ['replaces_ids', 'replaces_id'],
     communication_request_group_identifier: ['group_identifier']
   },
+  questionnaire: {
+    questionnaire_id: ['questionnaire_identifier', 'questionnaireid', 'questionnaire_id'],
+    questionnaire_url: ['url'],
+    questionnaire_version: ['version'],
+    questionnaire_name: ['name'],
+    questionnaire_title: ['title'],
+    questionnaire_status: ['status'],
+    questionnaire_date: ['date'],
+    questionnaire_publisher: ['publisher'],
+    questionnaire_description: ['description'],
+    questionnaire_subject_type: ['subject_type'],
+    questionnaire_item_link_id: ['item_link_id', 'link_id'],
+    questionnaire_item_text: ['item_text', 'question_text'],
+    questionnaire_item_type: ['item_type', 'question_type']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

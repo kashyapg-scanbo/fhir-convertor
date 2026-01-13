@@ -39,6 +39,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonTaskOnly'
                 - $ref: '#/components/schemas/CustomJsonCommunicationOnly'
                 - $ref: '#/components/schemas/CustomJsonCommunicationRequestOnly'
+                - $ref: '#/components/schemas/CustomJsonQuestionnaireOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -332,6 +333,22 @@ paths:
                       - PAT-1
                     payload:
                       - Send follow-up instructions
+              questionnaire:
+                summary: Questionnaire
+                value:
+                  questionnaire:
+                    questionnaire_id: QNR-100
+                    url: https://example.org/qnr/health-check
+                    title: Health Check
+                    status: active
+                    date: 2024-03-01T00:00:00Z
+                    publisher: Example Health
+                    subject_type:
+                      - Patient
+                    item:
+                      - link_id: q1
+                        text: Do you smoke?
+                        type: boolean
               practitioner:
                 summary: Practitioner
                 value:
@@ -783,7 +800,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -886,6 +903,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCommunicationRequest'
+        questionnaire:
+          oneOf:
+            - $ref: '#/components/schemas/CustomQuestionnaire'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomQuestionnaire'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2219,6 +2242,56 @@ components:
                 type: string
         group_identifier:
           type: string
+    CustomQuestionnaire:
+      type: object
+      properties:
+        questionnaire_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        subject_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        item:
+          oneOf:
+            - type: object
+              properties:
+                link_id:
+                  type: string
+                text:
+                  type: string
+                type:
+                  type: string
+            - type: array
+              items:
+                type: object
+                properties:
+                  link_id:
+                    type: string
+                  text:
+                    type: string
+                  type:
+                    type: string
     CustomProcedure:
       type: object
       properties:
@@ -3328,6 +3401,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [communication_request]
+    CustomJsonQuestionnaireOnly:
+      title: Questionnaire
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [questionnaire]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

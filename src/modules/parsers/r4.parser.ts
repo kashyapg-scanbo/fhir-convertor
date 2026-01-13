@@ -34,7 +34,8 @@ import {
     CanonicalServiceRequest,
     CanonicalTask,
     CanonicalCommunication,
-    CanonicalCommunicationRequest
+    CanonicalCommunicationRequest,
+    CanonicalQuestionnaire
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -67,6 +68,7 @@ export function parseR4(input: string): CanonicalModel {
         tasks: [],
         communications: [],
         communicationRequests: [],
+        questionnaires: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -170,6 +172,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'CommunicationRequest':
                 const communicationRequest = mapR4CommunicationRequest(res);
                 if (communicationRequest) model.communicationRequests?.push(communicationRequest);
+                break;
+            case 'Questionnaire':
+                const questionnaire = mapR4Questionnaire(res);
+                if (questionnaire) model.questionnaires?.push(questionnaire);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1270,6 +1276,27 @@ function mapR4CommunicationRequest(request: any): CanonicalCommunicationRequest 
     informationProvider: request.informationProvider?.map((ref: any) => ref.reference?.replace(/^(Device|Endpoint|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
     reason: reasons.length ? reasons : undefined,
     note: request.note?.map((note: any) => note.text).filter(Boolean)
+  };
+}
+
+function mapR4Questionnaire(qnr: any): CanonicalQuestionnaire {
+  return {
+    id: qnr.id,
+    url: qnr.url,
+    identifier: qnr.identifier?.[0]?.value,
+    version: qnr.version,
+    name: qnr.name,
+    title: qnr.title,
+    status: qnr.status,
+    date: qnr.date,
+    publisher: qnr.publisher,
+    description: qnr.description,
+    subjectType: qnr.subjectType,
+    item: qnr.item?.map((item: any) => ({
+      linkId: item.linkId,
+      text: item.text,
+      type: item.type
+    }))
   };
 }
 

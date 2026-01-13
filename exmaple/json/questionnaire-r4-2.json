@@ -1,0 +1,25 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "QNR-R4-2",
+  "url": "https://example.org/qnr/intake",
+  "version": "1.0",
+  "name": "IntakeForm",
+  "title": "Patient Intake",
+  "status": "draft",
+  "date": "2024-03-05T00:00:00Z",
+  "publisher": "Example Health",
+  "description": "Initial patient intake",
+  "subjectType": ["Patient"],
+  "item": [
+    {
+      "linkId": "q1",
+      "text": "Date of birth",
+      "type": "date"
+    },
+    {
+      "linkId": "q2",
+      "text": "Primary complaint",
+      "type": "string"
+    }
+  ]
+}
