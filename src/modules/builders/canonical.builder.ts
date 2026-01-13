@@ -1083,6 +1083,7 @@ export function buildCanonical(parsed: any) {
     questionnaires.push({
       id: questionnaireId || `QNR-${Date.now()}`,
       identifier: questionnaireId,
+      url: questionnaireId ? `urn:hl7v2:questionnaire:${questionnaireId}` : undefined,
       status: 'active',
       title: display,
       name: codeValue,
@@ -1108,6 +1109,11 @@ export function buildCanonical(parsed: any) {
     const questionnaireId = codeParts[0];
     const display = codeParts[1];
     const authored = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+    const questionnaireRef = questionnaireId
+      ? `urn:hl7v2:questionnaire:${questionnaireId}`
+      : responseId
+        ? `urn:hl7v2:questionnaire:${responseId}`
+        : 'urn:hl7v2:questionnaire:obr';
 
     if (!responseId && !questionnaireId && !display) continue;
 
@@ -1115,7 +1121,7 @@ export function buildCanonical(parsed: any) {
       id: responseId || `QNRRESP-${Date.now()}`,
       identifier: responseId,
       status: 'completed',
-      questionnaire: questionnaireId,
+      questionnaire: questionnaireRef,
       subject: patientId,
       encounter: encounter?.id,
       authored: authored,
@@ -1130,9 +1136,11 @@ export function buildCanonical(parsed: any) {
     const value = obx?.[5]?.[0]?.[0];
     if (!linkId && !text && !value) continue;
 
+    const obxQuestionnaireRef = linkId ? `urn:hl7v2:questionnaire:${linkId}` : 'urn:hl7v2:questionnaire:obx';
     questionnaireResponses.push({
       id: `QNRRESP-OBX-${Date.now()}`,
       status: 'completed',
+      questionnaire: obxQuestionnaireRef,
       subject: patientId,
       encounter: encounter?.id,
       item: [{
@@ -1621,34 +1629,6 @@ export function buildCanonical(parsed: any) {
     result.immunizations = immunizations;
   }
 
-  /* ───── CapabilityStatements (from MSH) ───── */
-  const capabilityStatements: CanonicalCapabilityStatement[] = [];
-  if (msh) {
-    const sendingApp = msh?.[2]?.[0]?.[0];
-    const sendingFacility = msh?.[3]?.[0]?.[0];
-    const hl7Version = msh?.[11]?.[0]?.[0];
-    const messageControlId = msh?.[8]?.[0]?.[0];
-    const timestamp = toFHIRDateTime(msh?.[6]?.[0]?.[0]) || toFHIRDate(msh?.[6]?.[0]?.[0]);
-
-    capabilityStatements.push({
-      id: `CAP-${messageControlId || Date.now()}`,
-      url: sendingApp ? `urn:hl7v2:${sendingApp}` : undefined,
-      name: sendingApp || undefined,
-      title: sendingFacility || sendingApp || undefined,
-      status: 'active',
-      date: timestamp,
-      publisher: sendingFacility || sendingApp || undefined,
-      kind: 'instance',
-      fhirVersion: '5.0.0',
-      format: ['hl7v2'],
-      software: sendingApp ? { name: sendingApp, version: hl7Version } : undefined
-    });
-  }
-
-  if (capabilityStatements.length > 0) {
-    result.capabilityStatements = capabilityStatements;
-  }
-
   /* ───── OperationOutcomes (from MSA/ERR) ───── */
   const operationOutcomes: CanonicalOperationOutcome[] = [];
   const msaSegments = parsed.MSA ?? [];
@@ -1744,19 +1724,23 @@ export function buildCanonical(parsed: any) {
 
     const onset = toFHIRDateTime(dg1?.[4]?.[0]?.[0]) || toFHIRDate(dg1?.[4]?.[0]?.[0]);
     const clinicalStatus = dg1?.[5]?.[0]?.[0];
+    const mappedClinicalStatus = mapConditionClinicalStatus(clinicalStatus);
+    const codingSystem = mapCodingSystem(system);
+    const codingDisplay = codingSystem === 'http://snomed.info/sct' ? undefined : display;
 
     conditions.push({
       id: `DG1-${codeValue || Date.now()}`,
       identifier: codeValue,
-      clinicalStatus: clinicalStatus ? {
-        code: clinicalStatus,
-        display: clinicalStatus
+      clinicalStatus: mappedClinicalStatus ? {
+        system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+        code: mappedClinicalStatus,
+        display: mapConditionClinicalStatusDisplay(mappedClinicalStatus)
       } : undefined,
       code: {
         coding: codeValue ? [{
-          system: mapCodingSystem(system),
+          system: codingSystem,
           code: codeValue,
-          display: display
+          display: codingDisplay
         }] : undefined,
         text: display
       },
@@ -1985,6 +1969,8 @@ export function buildCanonical(parsed: any) {
     const display = codeParts[1];
     const system = codeParts[2];
     const severity = al1?.[3]?.[0]?.[0];
+    const mappedSeverity = mapAllergySeverity(severity);
+    const criticality = mappedSeverity === 'severe' ? 'high' : mappedSeverity ? 'low' : undefined;
     const reactionText = al1?.[4]?.[0]?.[0];
     const identificationDate = toFHIRDateTime(al1?.[5]?.[0]?.[0]) || toFHIRDate(al1?.[5]?.[0]?.[0]);
 
@@ -1993,10 +1979,18 @@ export function buildCanonical(parsed: any) {
     allergyIntolerances.push({
       id: setId || `AL1-${codeValue || Date.now()}`,
       identifier: setId || codeValue,
-      clinicalStatus: { code: 'active', display: 'active' },
-      verificationStatus: { code: 'confirmed', display: 'confirmed' },
+      clinicalStatus: {
+        system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical',
+        code: 'active',
+        display: 'active'
+      },
+      verificationStatus: {
+        system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification',
+        code: 'confirmed',
+        display: 'confirmed'
+      },
       type: allergyType ? { code: allergyType, display: allergyType } : undefined,
-      criticality: severity === 'Severe' ? 'high' : severity ? 'low' : undefined,
+      criticality: criticality,
       code: codeValue || display ? {
         system: mapCodingSystem(system),
         code: codeValue,
@@ -2007,7 +2001,10 @@ export function buildCanonical(parsed: any) {
       recordedDate: identificationDate,
       reaction: reactionText ? [{
         description: reactionText,
-        severity: severity ? severity.toLowerCase() : undefined
+        manifestation: [{
+          display: reactionText
+        }],
+        severity: mappedSeverity
       }] : undefined
     });
   }
@@ -2164,8 +2161,10 @@ function mapCodingSystem(system?: string) {
 /* helpers */
 
 function toFHIRDate(date?: string) {
-  if (!date || date.length < 8) return undefined;
-  return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+  if (!date) return undefined;
+  const match = date.match(/^(\d{4})(\d{2})(\d{2})/);
+  if (!match) return undefined;
+  return `${match[1]}-${match[2]}-${match[3]}`;
 }
 
 function mapGender(g?: string) {
@@ -2187,20 +2186,53 @@ function mapObservationStatus(status?: string): string {
   return 'final';
 }
 
-function toFHIRDateTime(dateTime?: string) {
-  if (!dateTime || dateTime.length < 8) return undefined;
-  // Handle formats: YYYYMMDD, YYYYMMDDHH, YYYYMMDDHHMM, YYYYMMDDHHMMSS
-  if (dateTime.length === 8) {
-    return `${dateTime.slice(0, 4)}-${dateTime.slice(4, 6)}-${dateTime.slice(6, 8)}`;
-  }
-  if (dateTime.length >= 10) {
-    const year = dateTime.slice(0, 4);
-    const month = dateTime.slice(4, 6);
-    const day = dateTime.slice(6, 8);
-    const hour = dateTime.slice(8, 10) || '00';
-    const minute = dateTime.length >= 12 ? dateTime.slice(10, 12) : '00';
-    const second = dateTime.length >= 14 ? dateTime.slice(12, 14) : '00';
-    return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
-  }
+function mapConditionClinicalStatus(status?: string) {
+  if (!status) return undefined;
+  const value = status.trim().toUpperCase();
+  if (value === 'A' || value === 'ACTIVE') return 'active';
+  if (value === 'I' || value === 'INACTIVE') return 'inactive';
+  if (value === 'R' || value === 'RESOLVED') return 'resolved';
+  if (value === 'REC' || value === 'RECURRENCE') return 'recurrence';
+  if (value === 'REL' || value === 'RELAPSE') return 'relapse';
+  if (value === 'REM' || value === 'REMISSION') return 'remission';
   return undefined;
+}
+
+function mapConditionClinicalStatusDisplay(code: string) {
+  if (code === 'active') return 'Active';
+  if (code === 'inactive') return 'Inactive';
+  if (code === 'resolved') return 'Resolved';
+  if (code === 'recurrence') return 'Recurrence';
+  if (code === 'relapse') return 'Relapse';
+  if (code === 'remission') return 'Remission';
+  return code;
+}
+
+function mapAllergySeverity(severity?: string) {
+  if (!severity) return undefined;
+  const value = severity.trim().toUpperCase();
+  if (value === 'MI' || value === 'MILD') return 'mild';
+  if (value === 'MO' || value === 'MOD' || value === 'MODERATE') return 'moderate';
+  if (value === 'SV' || value === 'SEV' || value === 'SEVERE') return 'severe';
+  return undefined;
+}
+
+function toFHIRDateTime(dateTime?: string) {
+  if (!dateTime) return undefined;
+  const match = dateTime.match(/^(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?(\d{2})?([+-]\d{4})?$/);
+  if (!match) return undefined;
+  const year = match[1];
+  const month = match[2];
+  const day = match[3];
+  const hour = match[4];
+  const minute = match[5] || '00';
+  const second = match[6] || '00';
+  const tz = match[7];
+
+  if (!hour) {
+    return `${year}-${month}-${day}`;
+  }
+
+  const tzSuffix = tz ? `${tz.slice(0, 3)}:${tz.slice(3, 5)}` : 'Z';
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}${tzSuffix}`;
 }

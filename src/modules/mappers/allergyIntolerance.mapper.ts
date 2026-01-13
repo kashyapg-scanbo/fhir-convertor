@@ -76,7 +76,7 @@ export function mapAllergyIntolerances({
     allergy.reaction = source.reaction?.length
       ? source.reaction.map(reaction => ({
         substance: reaction.substance ? mapCodeableConcept(reaction.substance) : undefined,
-        manifestation: reaction.manifestation?.map(m => ({ concept: mapCodeableConcept(m) })).filter((m: any) => m.concept),
+        manifestation: reaction.manifestation?.map(m => mapCodeableConcept(m)).filter((m: any) => m),
         description: reaction.description,
         onset: reaction.onset,
         severity: reaction.severity,
