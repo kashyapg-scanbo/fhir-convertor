@@ -1,0 +1,18 @@
+{
+  "resourceType": "ValueSet",
+  "url": "",
+  "identifier": [],
+  "version": "",
+  "name": "",
+  "title": "",
+  "status": "",
+  "date": "",
+  "publisher": "",
+  "description": "",
+  "compose": {
+    "include": []
+  },
+  "expansion": {
+    "contains": []
+  }
+}

@@ -37,7 +37,8 @@ import {
     CanonicalCommunicationRequest,
     CanonicalQuestionnaire,
     CanonicalQuestionnaireResponse,
-    CanonicalCodeSystem
+    CanonicalCodeSystem,
+    CanonicalValueSet
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -73,6 +74,7 @@ export function parseR4(input: string): CanonicalModel {
         questionnaires: [],
         questionnaireResponses: [],
         codeSystems: [],
+        valueSets: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -188,6 +190,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'CodeSystem':
                 const codeSystem = mapR4CodeSystem(res);
                 if (codeSystem) model.codeSystems?.push(codeSystem);
+                break;
+            case 'ValueSet':
+                const valueSet = mapR4ValueSet(res);
+                if (valueSet) model.valueSets?.push(valueSet);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1358,6 +1364,43 @@ function mapR4CodeSystem(resource: any): CanonicalCodeSystem {
       display: concept.display,
       definition: concept.definition
     }))
+  };
+}
+
+function mapR4ValueSet(resource: any): CanonicalValueSet {
+  if (!resource || resource.resourceType !== 'ValueSet') return null as any;
+  const includes = Array.isArray(resource.compose?.include) ? resource.compose.include : [];
+  const contains = Array.isArray(resource.expansion?.contains) ? resource.expansion.contains : [];
+
+  return {
+    id: resource.id,
+    url: resource.url,
+    identifier: resource.identifier?.[0]?.value,
+    version: resource.version,
+    name: resource.name,
+    title: resource.title,
+    status: resource.status,
+    date: resource.date,
+    publisher: resource.publisher,
+    description: resource.description,
+    compose: includes.length ? {
+      include: includes.map((include: any) => ({
+        system: include.system,
+        concept: Array.isArray(include.concept)
+          ? include.concept.map((concept: any) => ({
+            code: concept.code,
+            display: concept.display
+          }))
+          : undefined
+      }))
+    } : undefined,
+    expansion: contains.length ? {
+      contains: contains.map((item: any) => ({
+        system: item.system,
+        code: item.code,
+        display: item.display
+      }))
+    } : undefined
   };
 }
 

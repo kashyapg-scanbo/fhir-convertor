@@ -626,6 +626,25 @@ const GlobalCodeSystemSchema = z.object({
   concept_definition: z.string().optional()
 });
 
+const GlobalValueSetSchema = z.object({
+  value_set_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.string().optional(),
+  version: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  description: z.string().optional(),
+  include_system: z.string().optional(),
+  include_code: z.string().optional(),
+  include_display: z.string().optional(),
+  expansion_system: z.string().optional(),
+  expansion_code: z.string().optional(),
+  expansion_display: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1052,6 +1071,7 @@ const GlobalCustomJSONSchema = z.object({
   questionnaire: z.union([GlobalQuestionnaireSchema, z.array(GlobalQuestionnaireSchema)]).optional(),
   questionnaire_response: z.union([GlobalQuestionnaireResponseSchema, z.array(GlobalQuestionnaireResponseSchema)]).optional(),
   code_system: z.union([GlobalCodeSystemSchema, z.array(GlobalCodeSystemSchema)]).optional(),
+  value_set: z.union([GlobalValueSetSchema, z.array(GlobalValueSetSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1089,6 +1109,7 @@ const GlobalCustomJSONSchema = z.object({
     value.questionnaire ||
     value.questionnaire_response ||
     value.code_system ||
+    value.value_set ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1107,7 +1128,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1141,6 +1162,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   questionnaires: 'questionnaire',
   questionnaireResponses: 'questionnaireResponse',
   codeSystems: 'codeSystem',
+  valueSets: 'valueSet',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1193,6 +1215,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   questionnaire_responses: 'questionnaireResponse',
   code_system: 'codeSystem',
   code_systems: 'codeSystem',
+  value_set: 'valueSet',
+  value_sets: 'valueSet',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1301,6 +1325,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   code_systems: 'code_system',
   codesystem: 'code_system',
   codesystems: 'code_system',
+  value_set: 'value_set',
+  value_sets: 'value_set',
+  valueset: 'value_set',
+  valuesets: 'value_set',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4051,6 +4079,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const questionnaires = normalizeArray(validated.questionnaire);
   const questionnaireResponses = normalizeArray(validated.questionnaire_response);
   const codeSystems = normalizeArray(validated.code_system);
+  const valueSets = normalizeArray(validated.value_set);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4125,6 +4154,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (codeSystems.length) {
     canonical.codeSystems = codeSystems.map(buildCanonicalCodeSystemGlobal);
+  }
+  if (valueSets.length) {
+    canonical.valueSets = valueSets.map(buildCanonicalValueSetGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -4204,7 +4236,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4227,6 +4259,7 @@ function wrapGlobalPayload(value: any) {
       value.questionnaire,
       value.questionnaire_response,
       value.code_system,
+      value.value_set,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4302,6 +4335,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('code_system_id' in value || 'url' in value || 'concept_code' in value) {
       return { code_system: value };
+    }
+    if ('value_set_id' in value || 'include_code' in value || 'include_system' in value) {
+      return { value_set: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4412,6 +4448,9 @@ function looksLikeGlobalResource(value: any) {
     'item_answer' in value ||
     'code_system_id' in value ||
     'concept_code' in value ||
+    'value_set_id' in value ||
+    'include_code' in value ||
+    'include_system' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5282,6 +5321,42 @@ function buildCanonicalCodeSystemGlobal(system: z.infer<typeof GlobalCodeSystemS
     content: system.content,
     caseSensitive: normalizeBoolean(system.case_sensitive),
     concept: concepts.length ? concepts : undefined
+  };
+}
+
+function buildCanonicalValueSetGlobal(valueSet: z.infer<typeof GlobalValueSetSchema>) {
+  const includeConcept = valueSet.include_code || valueSet.include_display
+    ? [{
+      code: valueSet.include_code,
+      display: valueSet.include_display
+    }]
+    : undefined;
+
+  const composeInclude = valueSet.include_system || includeConcept
+    ? [{ system: valueSet.include_system, concept: includeConcept }]
+    : undefined;
+
+  const expansionContains = valueSet.expansion_code || valueSet.expansion_display || valueSet.expansion_system
+    ? [{
+      system: valueSet.expansion_system,
+      code: valueSet.expansion_code,
+      display: valueSet.expansion_display
+    }]
+    : undefined;
+
+  return {
+    id: valueSet.value_set_id,
+    url: valueSet.url,
+    identifier: valueSet.identifier,
+    version: valueSet.version,
+    name: valueSet.name,
+    title: valueSet.title,
+    status: valueSet.status,
+    date: valueSet.date,
+    publisher: valueSet.publisher,
+    description: valueSet.description,
+    compose: composeInclude ? { include: composeInclude } : undefined,
+    expansion: expansionContains ? { contains: expansionContains } : undefined
   };
 }
 

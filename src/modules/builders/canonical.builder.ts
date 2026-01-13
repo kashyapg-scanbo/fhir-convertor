@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1179,6 +1179,43 @@ export function buildCanonical(parsed: any) {
 
   if (codeSystems.length > 0) {
     result.codeSystems = codeSystems;
+  }
+
+  /* ───── ValueSets (from OBR) ───── */
+  const valueSets: CanonicalValueSet[] = [];
+  const valueSetObrSegments = parsed.OBR ?? [];
+  for (const obr of valueSetObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const valueSetId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const codeValue = codeParts[0];
+    const display = codeParts[1];
+    const system = codeParts[2];
+    const date = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!valueSetId && !codeValue && !display) continue;
+
+    valueSets.push({
+      id: valueSetId || `VALSET-${Date.now()}`,
+      identifier: valueSetId,
+      status: 'active',
+      title: display,
+      date: date,
+      compose: system || codeValue || display ? {
+        include: [{
+          system: system,
+          concept: codeValue || display ? [{
+            code: codeValue,
+            display: display
+          }] : undefined
+        }]
+      } : undefined
+    });
+  }
+
+  if (valueSets.length > 0) {
+    result.valueSets = valueSets;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

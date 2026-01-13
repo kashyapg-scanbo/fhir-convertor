@@ -42,6 +42,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonQuestionnaireOnly'
                 - $ref: '#/components/schemas/CustomJsonQuestionnaireResponseOnly'
                 - $ref: '#/components/schemas/CustomJsonCodeSystemOnly'
+                - $ref: '#/components/schemas/CustomJsonValueSetOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -377,6 +378,17 @@ paths:
                     concept:
                       - code: EX001
                         display: Example concept
+              value_set:
+                summary: ValueSet
+                value:
+                  value_set:
+                    value_set_id: VS-100
+                    url: https://example.org/valuesets/example
+                    name: ExampleValueSet
+                    status: active
+                    include_system: https://example.org/codesystems/example
+                    include_code: EX001
+                    include_display: Example concept
               practitioner:
                 summary: Practitioner
                 value:
@@ -949,6 +961,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCodeSystem'
+        value_set:
+          oneOf:
+            - $ref: '#/components/schemas/CustomValueSet'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomValueSet'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2448,6 +2466,42 @@ components:
           type: string
         concept_definition:
           type: string
+    CustomValueSet:
+      type: object
+      properties:
+        value_set_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        include_system:
+          type: string
+        include_code:
+          type: string
+        include_display:
+          type: string
+        expansion_system:
+          type: string
+        expansion_code:
+          type: string
+        expansion_display:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -3575,6 +3629,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [code_system]
+    CustomJsonValueSetOnly:
+      title: ValueSet
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [value_set]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

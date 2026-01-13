@@ -1040,6 +1040,36 @@ export type CanonicalCodeSystem = {
   active?: boolean;
 };
 
+export type CanonicalValueSet = {
+  id?: string;
+  url?: string;
+  identifier?: string;
+  version?: string;
+  name?: string;
+  title?: string;
+  status?: string;
+  date?: string;
+  publisher?: string;
+  description?: string;
+  compose?: {
+    include?: Array<{
+      system?: string;
+      concept?: Array<{
+        code?: string;
+        display?: string;
+      }>;
+    }>;
+  };
+  expansion?: {
+    contains?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+  };
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1793,6 +1823,7 @@ export type CanonicalModel = {
   questionnaires?: CanonicalQuestionnaire[]; // Questionnaire
   questionnaireResponses?: CanonicalQuestionnaireResponse[]; // QuestionnaireResponse
   codeSystems?: CanonicalCodeSystem[]; // CodeSystem
+  valueSets?: CanonicalValueSet[]; // ValueSet
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

@@ -1096,6 +1096,54 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.codeSystems = codeSystems as any[];
   }
 
+  const valueSets = rows.map(row => {
+    const valueSetId = readValue(row, 'value_set_id');
+    const url = readValue(row, 'value_set_url');
+    const identifier = readValue(row, 'value_set_identifier');
+    const version = readValue(row, 'value_set_version');
+    const name = readValue(row, 'value_set_name');
+    const title = readValue(row, 'value_set_title');
+    const status = readValue(row, 'value_set_status');
+    const date = readValue(row, 'value_set_date');
+    const publisher = readValue(row, 'value_set_publisher');
+    const description = readValue(row, 'value_set_description');
+    const includeSystem = readValue(row, 'value_set_include_system');
+    const includeCode = readValue(row, 'value_set_include_code');
+    const includeDisplay = readValue(row, 'value_set_include_display');
+    const expansionSystem = readValue(row, 'value_set_expansion_system');
+    const expansionCode = readValue(row, 'value_set_expansion_code');
+    const expansionDisplay = readValue(row, 'value_set_expansion_display');
+
+    if (!valueSetId && !url && !includeCode && !name && !title) return null;
+
+    const includeConcept = includeCode || includeDisplay
+      ? [{ code: includeCode, display: includeDisplay }]
+      : undefined;
+
+    return {
+      id: valueSetId || undefined,
+      url: url || undefined,
+      identifier: identifier || undefined,
+      version: version || undefined,
+      name: name || undefined,
+      title: title || undefined,
+      status: status || undefined,
+      date: date || undefined,
+      publisher: publisher || undefined,
+      description: description || undefined,
+      compose: includeSystem || includeConcept ? {
+        include: [{ system: includeSystem, concept: includeConcept }]
+      } : undefined,
+      expansion: expansionSystem || expansionCode || expansionDisplay ? {
+        contains: [{ system: expansionSystem, code: expansionCode, display: expansionDisplay }]
+      } : undefined
+    };
+  }).filter(Boolean);
+
+  if (valueSets.length > 0) {
+    canonical.valueSets = valueSets as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

@@ -1,0 +1,29 @@
+{
+  "resourceType": "ValueSet",
+  "id": "VS-R4-2",
+  "url": "https://example.org/valuesets/labs",
+  "title": "Lab Value Set",
+  "status": "active",
+  "compose": {
+    "include": [
+      {
+        "system": "https://example.org/codesystems/labs",
+        "concept": [
+          {
+            "code": "LAB001",
+            "display": "Complete blood count"
+          }
+        ]
+      }
+    ]
+  },
+  "expansion": {
+    "contains": [
+      {
+        "system": "https://example.org/codesystems/labs",
+        "code": "LAB001",
+        "display": "Complete blood count"
+      }
+    ]
+  }
+}

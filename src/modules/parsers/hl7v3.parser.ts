@@ -37,7 +37,8 @@ import {
     CanonicalCommunicationRequest,
     CanonicalQuestionnaire,
     CanonicalQuestionnaireResponse,
-    CanonicalCodeSystem
+    CanonicalCodeSystem,
+    CanonicalValueSet
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -100,6 +101,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         questionnaires: [],
         questionnaireResponses: [],
         codeSystems: [],
+        valueSets: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -229,6 +231,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (codeSystemEvent) {
                 const codeSystem = mapV3CodeSystem(codeSystemEvent);
                 if (codeSystem) model.codeSystems?.push(codeSystem);
+            }
+
+            const valueSetEvent = sub.valueSet || sub.ValueSet;
+            if (valueSetEvent) {
+                const valueSet = mapV3ValueSet(valueSetEvent);
+                if (valueSet) model.valueSets?.push(valueSet);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1162,6 +1170,48 @@ function mapV3CodeSystem(codeSystemEvent: any): CanonicalCodeSystem | undefined 
             display: displayName,
             definition: definition
         }] : undefined
+    };
+}
+
+function mapV3ValueSet(valueSetEvent: any): CanonicalValueSet | undefined {
+    if (!valueSetEvent) return undefined;
+    const id = valueSetEvent.id || valueSetEvent['cda:id'];
+    const name = valueSetEvent.name || valueSetEvent['cda:name'];
+    const title = valueSetEvent.title || valueSetEvent['cda:title'];
+    const statusCode = valueSetEvent.statusCode || valueSetEvent['cda:statusCode'];
+    const effectiveTime = valueSetEvent.effectiveTime || valueSetEvent['cda:effectiveTime'];
+    const code = valueSetEvent.code || valueSetEvent['cda:code'];
+    const text = valueSetEvent.text || valueSetEvent['cda:text'];
+
+    const vsId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeValue = code?.['@_code'];
+    const system = code?.['@_codeSystem'];
+    const definition = typeof text === 'string' ? text : text?.['#text'];
+    const nameText = typeof name === 'string' ? name : name?.['#text'];
+    const titleText = typeof title === 'string' ? title : title?.['#text'];
+
+    if (!vsId && !displayName && !nameText && !titleText) return undefined;
+
+    return {
+        id: vsId || `VALSET-${Date.now()}`,
+        identifier: vsId,
+        status: status || 'active',
+        name: nameText,
+        title: titleText,
+        date: date,
+        description: definition,
+        compose: system || codeValue || displayName ? {
+            include: [{
+                system: system,
+                concept: codeValue || displayName ? [{
+                    code: codeValue,
+                    display: displayName
+                }] : undefined
+            }]
+        } : undefined
     };
 }
 

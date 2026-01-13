@@ -32,6 +32,7 @@ import {
   CanonicalQuestionnaire,
   CanonicalQuestionnaireResponse,
   CanonicalCodeSystem,
+  CanonicalValueSet,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -105,6 +106,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const questionnaires = extractQuestionnaires(clinicalDocument);
   const questionnaireResponses = extractQuestionnaireResponses(clinicalDocument, patient.id, encounter?.id);
   const codeSystems = extractCodeSystems(clinicalDocument);
+  const valueSets = extractValueSets(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -151,6 +153,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (questionnaires.length) canonical.questionnaires = questionnaires;
   if (questionnaireResponses.length) canonical.questionnaireResponses = questionnaireResponses;
   if (codeSystems.length) canonical.codeSystems = codeSystems;
+  if (valueSets.length) canonical.valueSets = valueSets;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1196,6 +1199,58 @@ function extractCodeSystems(
   });
 
   return codeSystems;
+}
+
+function extractValueSets(
+  clinicalDocument: any
+): CanonicalValueSet[] {
+  const valueSets: CanonicalValueSet[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isValueSetSection = sectionCodeValue === 'VALUESET';
+    if (!isValueSetSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const vs of acts) {
+      const id = extractId(vs.id || vs['cda:id']);
+      const statusCode = vs.statusCode || vs['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = vs.code || vs['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(vs.text || vs['cda:text']);
+      const effectiveTime = vs.effectiveTime || vs['cda:effectiveTime'];
+      const date = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !codeValue && !text) continue;
+
+      valueSets.push({
+        id: id || `VALUESET-${valueSets.length + 1}`,
+        identifier: id,
+        status: status || 'active',
+        title: displayName,
+        description: text,
+        date: date,
+        compose: codeSystem || codeValue || displayName ? {
+          include: [{
+            system: codeSystem,
+            concept: codeValue || displayName ? [{
+              code: codeValue,
+              display: displayName
+            }] : undefined
+          }]
+        } : undefined
+      });
+    }
+  });
+
+  return valueSets;
 }
 
 function extractProcedures(

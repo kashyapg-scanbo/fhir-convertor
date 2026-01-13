@@ -688,6 +688,23 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     code_system_concept_display: ['concept_display'],
     code_system_concept_definition: ['concept_definition']
   },
+  valueSet: {
+    value_set_id: ['value_set_identifier', 'valueset_id', 'valueset_identifier'],
+    value_set_url: ['url'],
+    value_set_version: ['version'],
+    value_set_name: ['name'],
+    value_set_title: ['title'],
+    value_set_status: ['status'],
+    value_set_date: ['date'],
+    value_set_publisher: ['publisher'],
+    value_set_description: ['description'],
+    value_set_include_system: ['include_system', 'compose_include_system'],
+    value_set_include_code: ['include_code', 'compose_include_code'],
+    value_set_include_display: ['include_display', 'compose_include_display'],
+    value_set_expansion_system: ['expansion_system'],
+    value_set_expansion_code: ['expansion_code'],
+    value_set_expansion_display: ['expansion_display']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

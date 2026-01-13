@@ -1,0 +1,2 @@
+value_set_id,value_set_url,value_set_name,value_set_title,value_set_status,value_set_include_system,value_set_include_code,value_set_include_display
+VS-1,https://example.org/valuesets/example,ExampleValueSet,,active,https://example.org/codesystems/example,EX001,Example concept
