@@ -42,7 +42,8 @@ import {
     CanonicalConceptMap,
     CanonicalNamingSystem,
     CanonicalTerminologyCapabilities,
-    CanonicalProvenance
+    CanonicalProvenance,
+    CanonicalAuditEvent
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -110,6 +111,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         namingSystems: [],
         terminologyCapabilities: [],
         provenances: [],
+        auditEvents: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -269,6 +271,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (provenanceEvent) {
                 const provenance = mapV3Provenance(provenanceEvent);
                 if (provenance) model.provenances?.push(provenance);
+            }
+
+            const auditEvent = sub.auditEvent || sub.AuditEvent;
+            if (auditEvent) {
+                const audit = mapV3AuditEvent(auditEvent);
+                if (audit) model.auditEvents?.push(audit);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1387,6 +1395,33 @@ function mapV3Provenance(provenanceEvent: any): CanonicalProvenance | undefined 
             who: status,
             role: 'source'
         }]
+    };
+}
+
+function mapV3AuditEvent(auditEvent: any): CanonicalAuditEvent | undefined {
+    if (!auditEvent) return undefined;
+    const id = auditEvent.id || auditEvent['cda:id'];
+    const statusCode = auditEvent.statusCode || auditEvent['cda:statusCode'];
+    const effectiveTime = auditEvent.effectiveTime || auditEvent['cda:effectiveTime'];
+    const code = auditEvent.code || auditEvent['cda:code'];
+    const text = auditEvent.text || auditEvent['cda:text'];
+
+    const auditId = id?.['@_extension'] || id?.['@_root'];
+    const recorded = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeValue = code?.['@_code'];
+    const action = statusCode?.['@_code'];
+    const description = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!auditId && !displayName && !codeValue && !description) return undefined;
+
+    return {
+        id: auditId || `AUDIT-${Date.now()}`,
+        recorded: recorded,
+        code: displayName,
+        action: action,
+        severity: codeValue,
+        agent: action ? [{ who: action, role: 'actor' }] : undefined
     };
 }
 

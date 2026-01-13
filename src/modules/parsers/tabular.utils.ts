@@ -1310,6 +1310,38 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.provenances = provenances as any[];
   }
 
+  const auditEvents = rows.map(row => {
+    const auditEventId = readValue(row, 'audit_event_id');
+    const category = readValue(row, 'audit_event_category');
+    const code = readValue(row, 'audit_event_code');
+    const action = readValue(row, 'audit_event_action');
+    const severity = readValue(row, 'audit_event_severity');
+    const recorded = readValue(row, 'audit_event_recorded');
+    const agentWho = readValue(row, 'audit_event_agent_who');
+    const agentRole = readValue(row, 'audit_event_agent_role');
+    const agentRequestor = readValue(row, 'audit_event_agent_requestor');
+
+    if (!auditEventId && !code && !action && !severity) return null;
+
+    const agent = agentWho || agentRole || agentRequestor
+      ? [{ who: agentWho, role: agentRole, requestor: agentRequestor }]
+      : undefined;
+
+    return {
+      id: auditEventId || undefined,
+      category: category || undefined,
+      code: code || undefined,
+      action: action || undefined,
+      severity: severity || undefined,
+      recorded: recorded || undefined,
+      agent: agent
+    };
+  }).filter(Boolean);
+
+  if (auditEvents.length > 0) {
+    canonical.auditEvents = auditEvents as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-AUD-2"/>
+  <creationTime value="20240315100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <auditEvent>
+        <id extension="AUD-V3-2"/>
+        <statusCode code="U"/>
+        <effectiveTime value="20240315"/>
+        <code code="warning" displayName="update"/>
+        <text>update</text>
+      </auditEvent>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

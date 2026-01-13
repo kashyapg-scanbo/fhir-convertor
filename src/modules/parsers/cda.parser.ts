@@ -37,6 +37,7 @@ import {
   CanonicalNamingSystem,
   CanonicalTerminologyCapabilities,
   CanonicalProvenance,
+  CanonicalAuditEvent,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -115,6 +116,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const namingSystems = extractNamingSystems(clinicalDocument);
   const terminologyCapabilities = extractTerminologyCapabilities(clinicalDocument);
   const provenances = extractProvenances(clinicalDocument);
+  const auditEvents = extractAuditEvents(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -166,6 +168,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (namingSystems.length) canonical.namingSystems = namingSystems;
   if (terminologyCapabilities.length) canonical.terminologyCapabilities = terminologyCapabilities;
   if (provenances.length) canonical.provenances = provenances;
+  if (auditEvents.length) canonical.auditEvents = auditEvents;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1449,6 +1452,48 @@ function extractProvenances(
   });
 
   return provenances;
+}
+
+function extractAuditEvents(
+  clinicalDocument: any
+): CanonicalAuditEvent[] {
+  const auditEvents: CanonicalAuditEvent[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isAuditSection = sectionCodeValue === 'AUDITEVENT';
+    if (!isAuditSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const audit of acts) {
+      const id = extractId(audit.id || audit['cda:id']);
+      const statusCode = audit.statusCode || audit['cda:statusCode'];
+      const action = extractAttribute(statusCode, '@_code');
+      const code = audit.code || audit['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(audit.text || audit['cda:text']);
+      const effectiveTime = audit.effectiveTime || audit['cda:effectiveTime'];
+      const recorded = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !codeValue && !text) continue;
+
+      auditEvents.push({
+        id: id || `AUDIT-${auditEvents.length + 1}`,
+        code: displayName,
+        severity: codeValue,
+        action: action,
+        recorded: recorded,
+        agent: text ? [{ who: text, role: 'actor' }] : undefined
+      });
+    }
+  });
+
+  return auditEvents;
 }
 
 function extractProcedures(

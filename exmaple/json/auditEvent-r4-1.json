@@ -1,0 +1,16 @@
+{
+  "resourceType": "AuditEvent",
+  "id": "AUD-R4-1",
+  "category": [{"text": "rest"}],
+  "code": {"text": "read"},
+  "action": "R",
+  "severity": "informational",
+  "recorded": "2024-03-14T10:00:00Z",
+  "agent": [
+    {
+      "role": [{"text": "author"}],
+      "who": {"reference": "Practitioner/PRAC-1"},
+      "requestor": true
+    }
+  ]
+}

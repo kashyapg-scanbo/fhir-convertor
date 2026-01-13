@@ -42,7 +42,8 @@ import {
     CanonicalConceptMap,
     CanonicalNamingSystem,
     CanonicalTerminologyCapabilities,
-    CanonicalProvenance
+    CanonicalProvenance,
+    CanonicalAuditEvent
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -83,6 +84,7 @@ export function parseR4(input: string): CanonicalModel {
         namingSystems: [],
         terminologyCapabilities: [],
         provenances: [],
+        auditEvents: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -218,6 +220,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Provenance':
                 const provenance = mapR4Provenance(res);
                 if (provenance) model.provenances?.push(provenance);
+                break;
+            case 'AuditEvent':
+                const auditEvent = mapR4AuditEvent(res);
+                if (auditEvent) model.auditEvents?.push(auditEvent);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1516,6 +1522,24 @@ function mapR4Provenance(resource: any): CanonicalProvenance {
     agent: agents.map((agent: any) => ({
       who: agent.who?.reference,
       role: agent.role?.[0]?.text
+    }))
+  };
+}
+
+function mapR4AuditEvent(resource: any): CanonicalAuditEvent {
+  if (!resource || resource.resourceType !== 'AuditEvent') return null as any;
+  const agents = Array.isArray(resource.agent) ? resource.agent : [];
+  return {
+    id: resource.id,
+    category: resource.category?.[0]?.text,
+    code: resource.code?.text,
+    action: resource.action,
+    severity: resource.severity,
+    recorded: resource.recorded,
+    agent: agents.map((agent: any) => ({
+      who: agent.who?.reference,
+      role: agent.role?.[0]?.text,
+      requestor: agent.requestor
     }))
   };
 }

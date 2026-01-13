@@ -1149,6 +1149,21 @@ export type CanonicalProvenance = {
   active?: boolean;
 };
 
+export type CanonicalAuditEvent = {
+  id?: string;
+  category?: string;
+  code?: string;
+  action?: string;
+  severity?: string;
+  recorded?: string;
+  agent?: Array<{
+    who?: string;
+    role?: string;
+    requestor?: boolean;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1907,6 +1922,7 @@ export type CanonicalModel = {
   namingSystems?: CanonicalNamingSystem[]; // NamingSystem
   terminologyCapabilities?: CanonicalTerminologyCapabilities[]; // TerminologyCapabilities
   provenances?: CanonicalProvenance[]; // Provenance
+  auditEvents?: CanonicalAuditEvent[]; // AuditEvent
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

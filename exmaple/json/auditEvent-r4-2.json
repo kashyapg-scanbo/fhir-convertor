@@ -1,0 +1,15 @@
+{
+  "resourceType": "AuditEvent",
+  "id": "AUD-R4-2",
+  "category": [{"text": "rest"}],
+  "code": {"text": "update"},
+  "action": "U",
+  "severity": "warning",
+  "recorded": "2024-03-15T09:30:00Z",
+  "agent": [
+    {
+      "role": [{"text": "source"}],
+      "who": {"reference": "Organization/ORG-1"}
+    }
+  ]
+}

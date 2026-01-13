@@ -763,6 +763,17 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     provenance_agent_who: ['agent_who', 'agent_id'],
     provenance_agent_role: ['agent_role']
   },
+  auditEvent: {
+    audit_event_id: ['audit_event_identifier', 'auditevent_id', 'auditevent_identifier'],
+    audit_event_category: ['category'],
+    audit_event_code: ['code'],
+    audit_event_action: ['action'],
+    audit_event_severity: ['severity'],
+    audit_event_recorded: ['recorded'],
+    audit_event_agent_who: ['agent_who', 'agent_id'],
+    audit_event_agent_role: ['agent_role'],
+    audit_event_agent_requestor: ['agent_requestor']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

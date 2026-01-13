@@ -47,6 +47,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonNamingSystemOnly'
                 - $ref: '#/components/schemas/CustomJsonTerminologyCapabilitiesOnly'
                 - $ref: '#/components/schemas/CustomJsonProvenanceOnly'
+                - $ref: '#/components/schemas/CustomJsonAuditEventOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -440,6 +441,19 @@ paths:
                     provenance_activity: Observation recorded
                     provenance_agent_who: Practitioner/PRAC-1
                     provenance_agent_role: author
+              audit_event:
+                summary: AuditEvent
+                value:
+                  audit_event:
+                    audit_event_id: AUD-100
+                    audit_event_category: rest
+                    audit_event_code: read
+                    audit_event_action: R
+                    audit_event_severity: informational
+                    audit_event_recorded: 2024-03-14T10:00:00Z
+                    audit_event_agent_who: Practitioner/PRAC-1
+                    audit_event_agent_role: author
+                    audit_event_agent_requestor: true
               practitioner:
                 summary: Practitioner
                 value:
@@ -891,7 +905,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -1042,42 +1056,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomProvenance'
-        code_system:
+        audit_event:
           oneOf:
-            - $ref: '#/components/schemas/CustomCodeSystem'
+            - $ref: '#/components/schemas/CustomAuditEvent'
             - type: array
               items:
-                $ref: '#/components/schemas/CustomCodeSystem'
-        value_set:
-          oneOf:
-            - $ref: '#/components/schemas/CustomValueSet'
-            - type: array
-              items:
-                $ref: '#/components/schemas/CustomValueSet'
-        concept_map:
-          oneOf:
-            - $ref: '#/components/schemas/CustomConceptMap'
-            - type: array
-              items:
-                $ref: '#/components/schemas/CustomConceptMap'
-        naming_system:
-          oneOf:
-            - $ref: '#/components/schemas/CustomNamingSystem'
-            - type: array
-              items:
-                $ref: '#/components/schemas/CustomNamingSystem'
-        terminology_capabilities:
-          oneOf:
-            - $ref: '#/components/schemas/CustomTerminologyCapabilities'
-            - type: array
-              items:
-                $ref: '#/components/schemas/CustomTerminologyCapabilities'
-        provenance:
-          oneOf:
-            - $ref: '#/components/schemas/CustomProvenance'
-            - type: array
-              items:
-                $ref: '#/components/schemas/CustomProvenance'
+                $ref: '#/components/schemas/CustomAuditEvent'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2741,6 +2725,30 @@ components:
           type: string
         provenance_agent_role:
           type: string
+    CustomAuditEvent:
+      type: object
+      properties:
+        audit_event_id:
+          type: string
+        audit_event_category:
+          type: string
+        audit_event_code:
+          type: string
+        audit_event_action:
+          type: string
+        audit_event_severity:
+          type: string
+        audit_event_recorded:
+          type: string
+          format: date-time
+        audit_event_agent_who:
+          type: string
+        audit_event_agent_role:
+          type: string
+        audit_event_agent_requestor:
+          oneOf:
+            - type: boolean
+            - type: string
     CustomProcedure:
       type: object
       properties:
@@ -3898,6 +3906,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [provenance]
+    CustomJsonAuditEventOnly:
+      title: AuditEvent
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [audit_event]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:
