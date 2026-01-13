@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1216,6 +1216,46 @@ export function buildCanonical(parsed: any) {
 
   if (valueSets.length > 0) {
     result.valueSets = valueSets;
+  }
+
+  /* ───── ConceptMaps (from OBR) ───── */
+  const conceptMaps: CanonicalConceptMap[] = [];
+  const conceptMapObrSegments = parsed.OBR ?? [];
+  for (const obr of conceptMapObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const conceptMapId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const codeValue = codeParts[0];
+    const display = codeParts[1];
+    const system = codeParts[2];
+    const date = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!conceptMapId && !codeValue && !display) continue;
+
+    conceptMaps.push({
+      id: conceptMapId || `CONMAP-${Date.now()}`,
+      identifier: conceptMapId,
+      status: 'active',
+      title: display,
+      date: date,
+      group: system || codeValue || display ? [{
+        source: system,
+        element: [{
+          code: codeValue,
+          display: display,
+          target: display ? [{
+            code: codeValue,
+            display: display,
+            relationship: 'equivalent'
+          }] : undefined
+        }]
+      }] : undefined
+    });
+  }
+
+  if (conceptMaps.length > 0) {
+    result.conceptMaps = conceptMaps;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

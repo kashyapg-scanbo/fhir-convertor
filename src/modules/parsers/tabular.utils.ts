@@ -1144,6 +1144,62 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.valueSets = valueSets as any[];
   }
 
+  const conceptMaps = rows.map(row => {
+    const conceptMapId = readValue(row, 'concept_map_id');
+    const url = readValue(row, 'concept_map_url');
+    const identifier = readValue(row, 'concept_map_id');
+    const version = readValue(row, 'concept_map_version');
+    const name = readValue(row, 'concept_map_name');
+    const title = readValue(row, 'concept_map_title');
+    const status = readValue(row, 'concept_map_status');
+    const date = readValue(row, 'concept_map_date');
+    const publisher = readValue(row, 'concept_map_publisher');
+    const description = readValue(row, 'concept_map_description');
+    const sourceScope = readValue(row, 'concept_map_source_scope');
+    const targetScope = readValue(row, 'concept_map_target_scope');
+    const groupSource = readValue(row, 'concept_map_group_source');
+    const groupTarget = readValue(row, 'concept_map_group_target');
+    const elementCode = readValue(row, 'concept_map_element_code');
+    const elementDisplay = readValue(row, 'concept_map_element_display');
+    const targetCode = readValue(row, 'concept_map_target_code');
+    const targetDisplay = readValue(row, 'concept_map_target_display');
+    const targetRelationship = readValue(row, 'concept_map_target_relationship');
+
+    if (!conceptMapId && !url && !elementCode && !targetCode && !name && !title) return null;
+
+    const targetEntry = targetCode || targetDisplay || targetRelationship
+      ? [{ code: targetCode, display: targetDisplay, relationship: targetRelationship }]
+      : undefined;
+
+    const elementEntry = elementCode || elementDisplay || targetEntry
+      ? [{ code: elementCode, display: elementDisplay, target: targetEntry }]
+      : undefined;
+
+    const groupEntry = groupSource || groupTarget || elementEntry
+      ? [{ source: groupSource, target: groupTarget, element: elementEntry }]
+      : undefined;
+
+    return {
+      id: conceptMapId || undefined,
+      url: url || undefined,
+      identifier: identifier || undefined,
+      version: version || undefined,
+      name: name || undefined,
+      title: title || undefined,
+      status: status || undefined,
+      date: date || undefined,
+      publisher: publisher || undefined,
+      description: description || undefined,
+      sourceScope: sourceScope || undefined,
+      targetScope: targetScope || undefined,
+      group: groupEntry
+    };
+  }).filter(Boolean);
+
+  if (conceptMaps.length > 0) {
+    canonical.conceptMaps = conceptMaps as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

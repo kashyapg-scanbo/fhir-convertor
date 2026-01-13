@@ -705,6 +705,26 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     value_set_expansion_code: ['expansion_code'],
     value_set_expansion_display: ['expansion_display']
   },
+  conceptMap: {
+    concept_map_id: ['concept_map_identifier', 'conceptmap_id', 'conceptmap_identifier'],
+    concept_map_url: ['url'],
+    concept_map_version: ['version'],
+    concept_map_name: ['name'],
+    concept_map_title: ['title'],
+    concept_map_status: ['status'],
+    concept_map_date: ['date'],
+    concept_map_publisher: ['publisher'],
+    concept_map_description: ['description'],
+    concept_map_source_scope: ['source_scope'],
+    concept_map_target_scope: ['target_scope'],
+    concept_map_group_source: ['group_source'],
+    concept_map_group_target: ['group_target'],
+    concept_map_element_code: ['element_code'],
+    concept_map_element_display: ['element_display'],
+    concept_map_target_code: ['target_code'],
+    concept_map_target_display: ['target_display'],
+    concept_map_target_relationship: ['target_relationship']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

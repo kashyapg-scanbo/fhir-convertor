@@ -1070,6 +1070,35 @@ export type CanonicalValueSet = {
   active?: boolean;
 };
 
+export type CanonicalConceptMap = {
+  id?: string;
+  url?: string;
+  identifier?: string;
+  version?: string;
+  name?: string;
+  title?: string;
+  status?: string;
+  date?: string;
+  publisher?: string;
+  description?: string;
+  sourceScope?: string;
+  targetScope?: string;
+  group?: Array<{
+    source?: string;
+    target?: string;
+    element?: Array<{
+      code?: string;
+      display?: string;
+      target?: Array<{
+        code?: string;
+        display?: string;
+        relationship?: string;
+      }>;
+    }>;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1824,6 +1853,7 @@ export type CanonicalModel = {
   questionnaireResponses?: CanonicalQuestionnaireResponse[]; // QuestionnaireResponse
   codeSystems?: CanonicalCodeSystem[]; // CodeSystem
   valueSets?: CanonicalValueSet[]; // ValueSet
+  conceptMaps?: CanonicalConceptMap[]; // ConceptMap
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

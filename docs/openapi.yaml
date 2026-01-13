@@ -43,6 +43,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonQuestionnaireResponseOnly'
                 - $ref: '#/components/schemas/CustomJsonCodeSystemOnly'
                 - $ref: '#/components/schemas/CustomJsonValueSetOnly'
+                - $ref: '#/components/schemas/CustomJsonConceptMapOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -389,6 +390,21 @@ paths:
                     include_system: https://example.org/codesystems/example
                     include_code: EX001
                     include_display: Example concept
+              concept_map:
+                summary: ConceptMap
+                value:
+                  concept_map:
+                    concept_map_id: CM-100
+                    url: https://example.org/conceptmaps/example
+                    name: ExampleConceptMap
+                    status: active
+                    group_source: https://example.org/codesystems/example
+                    group_target: https://example.org/codesystems/target
+                    element_code: EX001
+                    element_display: Example concept
+                    target_code: T001
+                    target_display: Target concept
+                    target_relationship: equivalent
               practitioner:
                 summary: Practitioner
                 value:
@@ -967,6 +983,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomValueSet'
+        concept_map:
+          oneOf:
+            - $ref: '#/components/schemas/CustomConceptMap'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomConceptMap'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2502,6 +2524,48 @@ components:
           type: string
         expansion_display:
           type: string
+    CustomConceptMap:
+      type: object
+      properties:
+        concept_map_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        source_scope:
+          type: string
+        target_scope:
+          type: string
+        group_source:
+          type: string
+        group_target:
+          type: string
+        element_code:
+          type: string
+        element_display:
+          type: string
+        target_code:
+          type: string
+        target_display:
+          type: string
+        target_relationship:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -3635,6 +3699,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [value_set]
+    CustomJsonConceptMapOnly:
+      title: ConceptMap
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [concept_map]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

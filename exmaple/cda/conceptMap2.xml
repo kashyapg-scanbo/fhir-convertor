@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="CONCEPTMAP"/>
+          <entry>
+            <act>
+              <id extension="CM-CDA-2"/>
+              <statusCode code="active"/>
+              <effectiveTime value="20240307"/>
+              <code code="LAB001" displayName="Complete blood count" codeSystem="https://example.org/codesystems/labs"/>
+              <text>Complete blood count</text>
+            </act>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

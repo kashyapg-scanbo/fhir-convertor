@@ -1,0 +1,15 @@
+{
+  "concept_map": {
+    "concept_map_id": "CM-2",
+    "url": "https://example.org/conceptmaps/labs",
+    "title": "Lab Concept Map",
+    "status": "active",
+    "group_source": "https://example.org/codesystems/labs",
+    "group_target": "https://example.org/codesystems/target",
+    "element_code": "LAB001",
+    "element_display": "Complete blood count",
+    "target_code": "T100",
+    "target_display": "CBC target",
+    "target_relationship": "equivalent"
+  }
+}

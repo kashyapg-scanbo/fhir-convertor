@@ -1,0 +1,26 @@
+{
+  "resourceType": "ConceptMap",
+  "id": "CM-R4-2",
+  "url": "https://example.org/conceptmaps/labs",
+  "title": "Lab Concept Map",
+  "status": "active",
+  "group": [
+    {
+      "source": "https://example.org/codesystems/labs",
+      "target": "https://example.org/codesystems/target",
+      "element": [
+        {
+          "code": "LAB001",
+          "display": "Complete blood count",
+          "target": [
+            {
+              "code": "T100",
+              "display": "CBC target",
+              "relationship": "equivalent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

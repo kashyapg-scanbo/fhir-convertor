@@ -645,6 +645,28 @@ const GlobalValueSetSchema = z.object({
   expansion_display: z.string().optional()
 });
 
+const GlobalConceptMapSchema = z.object({
+  concept_map_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.string().optional(),
+  version: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  description: z.string().optional(),
+  source_scope: z.string().optional(),
+  target_scope: z.string().optional(),
+  group_source: z.string().optional(),
+  group_target: z.string().optional(),
+  element_code: z.string().optional(),
+  element_display: z.string().optional(),
+  target_code: z.string().optional(),
+  target_display: z.string().optional(),
+  target_relationship: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1072,6 +1094,7 @@ const GlobalCustomJSONSchema = z.object({
   questionnaire_response: z.union([GlobalQuestionnaireResponseSchema, z.array(GlobalQuestionnaireResponseSchema)]).optional(),
   code_system: z.union([GlobalCodeSystemSchema, z.array(GlobalCodeSystemSchema)]).optional(),
   value_set: z.union([GlobalValueSetSchema, z.array(GlobalValueSetSchema)]).optional(),
+  concept_map: z.union([GlobalConceptMapSchema, z.array(GlobalConceptMapSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1110,6 +1133,7 @@ const GlobalCustomJSONSchema = z.object({
     value.questionnaire_response ||
     value.code_system ||
     value.value_set ||
+    value.concept_map ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1128,7 +1152,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1163,6 +1187,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   questionnaireResponses: 'questionnaireResponse',
   codeSystems: 'codeSystem',
   valueSets: 'valueSet',
+  conceptMaps: 'conceptMap',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1217,6 +1242,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   code_systems: 'codeSystem',
   value_set: 'valueSet',
   value_sets: 'valueSet',
+  concept_map: 'conceptMap',
+  concept_maps: 'conceptMap',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1329,6 +1356,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   value_sets: 'value_set',
   valueset: 'value_set',
   valuesets: 'value_set',
+  concept_map: 'concept_map',
+  concept_maps: 'concept_map',
+  conceptmap: 'concept_map',
+  conceptmaps: 'concept_map',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4080,6 +4111,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const questionnaireResponses = normalizeArray(validated.questionnaire_response);
   const codeSystems = normalizeArray(validated.code_system);
   const valueSets = normalizeArray(validated.value_set);
+  const conceptMaps = normalizeArray(validated.concept_map);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4157,6 +4189,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (valueSets.length) {
     canonical.valueSets = valueSets.map(buildCanonicalValueSetGlobal);
+  }
+  if (conceptMaps.length) {
+    canonical.conceptMaps = conceptMaps.map(buildCanonicalConceptMapGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -4236,7 +4271,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4260,6 +4295,7 @@ function wrapGlobalPayload(value: any) {
       value.questionnaire_response,
       value.code_system,
       value.value_set,
+      value.concept_map,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4338,6 +4374,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('value_set_id' in value || 'include_code' in value || 'include_system' in value) {
       return { value_set: value };
+    }
+    if ('concept_map_id' in value || 'element_code' in value || 'target_code' in value) {
+      return { concept_map: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4451,6 +4490,9 @@ function looksLikeGlobalResource(value: any) {
     'value_set_id' in value ||
     'include_code' in value ||
     'include_system' in value ||
+    'concept_map_id' in value ||
+    'element_code' in value ||
+    'target_code' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5357,6 +5399,48 @@ function buildCanonicalValueSetGlobal(valueSet: z.infer<typeof GlobalValueSetSch
     description: valueSet.description,
     compose: composeInclude ? { include: composeInclude } : undefined,
     expansion: expansionContains ? { contains: expansionContains } : undefined
+  };
+}
+
+function buildCanonicalConceptMapGlobal(conceptMap: z.infer<typeof GlobalConceptMapSchema>) {
+  const targetEntry = conceptMap.target_code || conceptMap.target_display || conceptMap.target_relationship
+    ? [{
+      code: conceptMap.target_code,
+      display: conceptMap.target_display,
+      relationship: conceptMap.target_relationship
+    }]
+    : undefined;
+
+  const elementEntry = conceptMap.element_code || conceptMap.element_display || targetEntry
+    ? [{
+      code: conceptMap.element_code,
+      display: conceptMap.element_display,
+      target: targetEntry
+    }]
+    : undefined;
+
+  const groupEntry = conceptMap.group_source || conceptMap.group_target || elementEntry
+    ? [{
+      source: conceptMap.group_source,
+      target: conceptMap.group_target,
+      element: elementEntry
+    }]
+    : undefined;
+
+  return {
+    id: conceptMap.concept_map_id,
+    url: conceptMap.url,
+    identifier: conceptMap.identifier,
+    version: conceptMap.version,
+    name: conceptMap.name,
+    title: conceptMap.title,
+    status: conceptMap.status,
+    date: conceptMap.date,
+    publisher: conceptMap.publisher,
+    description: conceptMap.description,
+    sourceScope: conceptMap.source_scope,
+    targetScope: conceptMap.target_scope,
+    group: groupEntry
   };
 }
 

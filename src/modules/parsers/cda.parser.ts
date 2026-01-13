@@ -33,6 +33,7 @@ import {
   CanonicalQuestionnaireResponse,
   CanonicalCodeSystem,
   CanonicalValueSet,
+  CanonicalConceptMap,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -107,6 +108,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const questionnaireResponses = extractQuestionnaireResponses(clinicalDocument, patient.id, encounter?.id);
   const codeSystems = extractCodeSystems(clinicalDocument);
   const valueSets = extractValueSets(clinicalDocument);
+  const conceptMaps = extractConceptMaps(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -154,6 +156,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (questionnaireResponses.length) canonical.questionnaireResponses = questionnaireResponses;
   if (codeSystems.length) canonical.codeSystems = codeSystems;
   if (valueSets.length) canonical.valueSets = valueSets;
+  if (conceptMaps.length) canonical.conceptMaps = conceptMaps;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1251,6 +1254,61 @@ function extractValueSets(
   });
 
   return valueSets;
+}
+
+function extractConceptMaps(
+  clinicalDocument: any
+): CanonicalConceptMap[] {
+  const conceptMaps: CanonicalConceptMap[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isConceptMapSection = sectionCodeValue === 'CONCEPTMAP';
+    if (!isConceptMapSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const cm of acts) {
+      const id = extractId(cm.id || cm['cda:id']);
+      const statusCode = cm.statusCode || cm['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = cm.code || cm['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(cm.text || cm['cda:text']);
+      const effectiveTime = cm.effectiveTime || cm['cda:effectiveTime'];
+      const date = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !codeValue && !text) continue;
+
+      conceptMaps.push({
+        id: id || `CONCEPTMAP-${conceptMaps.length + 1}`,
+        identifier: id,
+        status: status || 'active',
+        title: displayName,
+        description: text,
+        date: date,
+        group: codeSystem || codeValue || displayName ? [{
+          source: codeSystem,
+          element: [{
+            code: codeValue,
+            display: displayName,
+            target: displayName ? [{
+              code: codeValue,
+              display: displayName,
+              relationship: 'equivalent'
+            }] : undefined
+          }]
+        }] : undefined
+      });
+    }
+  });
+
+  return conceptMaps;
 }
 
 function extractProcedures(

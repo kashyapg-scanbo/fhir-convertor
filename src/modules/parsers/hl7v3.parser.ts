@@ -38,7 +38,8 @@ import {
     CanonicalQuestionnaire,
     CanonicalQuestionnaireResponse,
     CanonicalCodeSystem,
-    CanonicalValueSet
+    CanonicalValueSet,
+    CanonicalConceptMap
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -102,6 +103,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         questionnaireResponses: [],
         codeSystems: [],
         valueSets: [],
+        conceptMaps: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -237,6 +239,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (valueSetEvent) {
                 const valueSet = mapV3ValueSet(valueSetEvent);
                 if (valueSet) model.valueSets?.push(valueSet);
+            }
+
+            const conceptMapEvent = sub.conceptMap || sub.ConceptMap;
+            if (conceptMapEvent) {
+                const conceptMap = mapV3ConceptMap(conceptMapEvent);
+                if (conceptMap) model.conceptMaps?.push(conceptMap);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1212,6 +1220,51 @@ function mapV3ValueSet(valueSetEvent: any): CanonicalValueSet | undefined {
                 }] : undefined
             }]
         } : undefined
+    };
+}
+
+function mapV3ConceptMap(conceptMapEvent: any): CanonicalConceptMap | undefined {
+    if (!conceptMapEvent) return undefined;
+    const id = conceptMapEvent.id || conceptMapEvent['cda:id'];
+    const name = conceptMapEvent.name || conceptMapEvent['cda:name'];
+    const title = conceptMapEvent.title || conceptMapEvent['cda:title'];
+    const statusCode = conceptMapEvent.statusCode || conceptMapEvent['cda:statusCode'];
+    const effectiveTime = conceptMapEvent.effectiveTime || conceptMapEvent['cda:effectiveTime'];
+    const code = conceptMapEvent.code || conceptMapEvent['cda:code'];
+    const text = conceptMapEvent.text || conceptMapEvent['cda:text'];
+
+    const mapId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeValue = code?.['@_code'];
+    const system = code?.['@_codeSystem'];
+    const definition = typeof text === 'string' ? text : text?.['#text'];
+    const nameText = typeof name === 'string' ? name : name?.['#text'];
+    const titleText = typeof title === 'string' ? title : title?.['#text'];
+
+    if (!mapId && !displayName && !nameText && !titleText) return undefined;
+
+    return {
+        id: mapId || `CONMAP-${Date.now()}`,
+        identifier: mapId,
+        status: status || 'active',
+        name: nameText,
+        title: titleText,
+        date: date,
+        description: definition,
+        group: system || codeValue || displayName ? [{
+            source: system,
+            element: [{
+                code: codeValue,
+                display: displayName,
+                target: displayName ? [{
+                    code: codeValue,
+                    display: displayName,
+                    relationship: 'equivalent'
+                }] : undefined
+            }]
+        }] : undefined
     };
 }
 

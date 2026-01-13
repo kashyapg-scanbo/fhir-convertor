@@ -38,7 +38,8 @@ import {
     CanonicalQuestionnaire,
     CanonicalQuestionnaireResponse,
     CanonicalCodeSystem,
-    CanonicalValueSet
+    CanonicalValueSet,
+    CanonicalConceptMap
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -75,6 +76,7 @@ export function parseR4(input: string): CanonicalModel {
         questionnaireResponses: [],
         codeSystems: [],
         valueSets: [],
+        conceptMaps: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -194,6 +196,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'ValueSet':
                 const valueSet = mapR4ValueSet(res);
                 if (valueSet) model.valueSets?.push(valueSet);
+                break;
+            case 'ConceptMap':
+                const conceptMap = mapR4ConceptMap(res);
+                if (conceptMap) model.conceptMaps?.push(conceptMap);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1401,6 +1407,39 @@ function mapR4ValueSet(resource: any): CanonicalValueSet {
         display: item.display
       }))
     } : undefined
+  };
+}
+
+function mapR4ConceptMap(resource: any): CanonicalConceptMap {
+  if (!resource || resource.resourceType !== 'ConceptMap') return null as any;
+  const groups = Array.isArray(resource.group) ? resource.group : [];
+
+  return {
+    id: resource.id,
+    url: resource.url,
+    identifier: resource.identifier?.[0]?.value,
+    version: resource.version,
+    name: resource.name,
+    title: resource.title,
+    status: resource.status,
+    date: resource.date,
+    publisher: resource.publisher,
+    description: resource.description,
+    sourceScope: resource.sourceScopeUri || resource.sourceScopeCanonical || resource.sourceUri || resource.sourceCanonical,
+    targetScope: resource.targetScopeUri || resource.targetScopeCanonical || resource.targetUri || resource.targetCanonical,
+    group: groups.map((group: any) => ({
+      source: group.source,
+      target: group.target,
+      element: Array.isArray(group.element) ? group.element.map((element: any) => ({
+        code: element.code,
+        display: element.display,
+        target: Array.isArray(element.target) ? element.target.map((target: any) => ({
+          code: target.code,
+          display: target.display,
+          relationship: target.relationship
+        })) : undefined
+      })) : undefined
+    }))
   };
 }
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-CM-2"/>
+  <creationTime value="20240307100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <conceptMap>
+        <id extension="CM-V3-2"/>
+        <title>Lab Concept Map</title>
+        <statusCode code="active"/>
+        <effectiveTime value="20240307"/>
+        <code code="LAB001" displayName="Complete blood count" codeSystem="https://example.org/codesystems/labs"/>
+        <text>Complete blood count</text>
+      </conceptMap>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>
