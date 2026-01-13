@@ -1,0 +1,28 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "meddisp-r4-2",
+  "status": "completed",
+  "medicationCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "code": "5640",
+        "display": "Ibuprofen 200 MG Oral Tablet"
+      }
+    ],
+    "text": "Ibuprofen"
+  },
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "quantity": {
+    "value": 20,
+    "unit": "tablet"
+  },
+  "daysSupply": {
+    "value": 10,
+    "unit": "day"
+  },
+  "whenPrepared": "2024-03-05T09:00:00Z",
+  "whenHandedOver": "2024-03-05T10:00:00Z"
+}

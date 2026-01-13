@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities, CanonicalProvenance, CanonicalAuditEvent, CanonicalConsent } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalMedicationAdministration, CanonicalMedicationDispense, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities, CanonicalProvenance, CanonicalAuditEvent, CanonicalConsent } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1538,6 +1538,46 @@ export function buildCanonical(parsed: any) {
 
   if (medicationAdministrations.length > 0) {
     result.medicationAdministrations = medicationAdministrations;
+  }
+
+  /* ───── MedicationDispenses (from RXD) ───── */
+  const medicationDispenses: CanonicalMedicationDispense[] = [];
+  const rxdSegments = parsed.RXD ?? [];
+  for (const rxd of rxdSegments) {
+    const dispenseCode = rxd?.[1]?.[0] ?? [];
+    const medCode = dispenseCode[0];
+    const medDisplay = dispenseCode[1];
+    const medSystem = dispenseCode[2];
+    if (!medCode && !medDisplay) continue;
+
+    const quantityValue = rxd?.[3]?.[0]?.[0];
+    const quantityUnit = rxd?.[4]?.[0]?.[0];
+    const whenHandedOver = toFHIRDateTime(rxd?.[7]?.[0]?.[0]) || toFHIRDate(rxd?.[7]?.[0]?.[0]);
+
+    medicationDispenses.push({
+      id: `RXD-${medCode || Date.now()}`,
+      identifier: medCode,
+      status: 'completed',
+      medicationCodeableConcept: medCode || medDisplay ? {
+        coding: medCode ? [{
+          system: mapCodingSystem(medSystem),
+          code: medCode,
+          display: medDisplay
+        }] : undefined,
+        text: medDisplay
+      } : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      whenHandedOver: whenHandedOver,
+      quantity: quantityValue ? {
+        value: Number(quantityValue),
+        unit: quantityUnit
+      } : undefined
+    });
+  }
+
+  if (medicationDispenses.length > 0) {
+    result.medicationDispenses = medicationDispenses;
   }
 
   /* ───── Immunizations (from RXA) ───── */

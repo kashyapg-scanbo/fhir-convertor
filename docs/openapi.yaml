@@ -29,6 +29,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonMedicationOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationRequestOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
+                - $ref: '#/components/schemas/CustomJsonMedicationDispenseOnly'
                 - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
                 - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
                 - $ref: '#/components/schemas/CustomJsonParametersOnly'
@@ -212,6 +213,19 @@ paths:
                     occurrence_date: 2024-02-01T10:00:00Z
                     dose_value: 2
                     dose_unit: mg
+              medication_dispense:
+                summary: MedicationDispense
+                value:
+                  medication_dispense:
+                    medication_dispense_id: MEDDISP-100
+                    status: completed
+                    medication:
+                      medication_id: MED-200
+                      name: Amoxicillin
+                    patient_id: P-10001
+                    quantity_value: 30
+                    quantity_unit: tablet
+                    when_handed_over: 2024-02-03T10:00:00Z
               capability_statement:
                 summary: CapabilityStatement
                 value:
@@ -920,7 +934,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -963,6 +977,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomMedicationAdministration'
+        medication_dispense:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationDispense'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationDispense'
         capability_statement:
           oneOf:
             - $ref: '#/components/schemas/CustomCapabilityStatement'
@@ -1652,6 +1672,128 @@ components:
         rate_unit:
           type: string
     CustomMedicationAdministrationMedication:
+      type: object
+      properties:
+        medication_id:
+          type: string
+        code_system:
+          type: string
+        name:
+          type: string
+    CustomMedicationDispense:
+      type: object
+      properties:
+        medication_dispense_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        status:
+          type: string
+        status_changed:
+          type: string
+          format: date-time
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        medication:
+          $ref: '#/components/schemas/CustomMedicationDispenseMedication'
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        performer_actor_id:
+          type: string
+        performer_function:
+          type: string
+        location:
+          type: string
+        authorizing_prescription_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        type:
+          type: string
+        quantity_value:
+          type: number
+        quantity_unit:
+          type: string
+        days_supply_value:
+          type: number
+        days_supply_unit:
+          type: string
+        recorded:
+          type: string
+          format: date-time
+        when_prepared:
+          type: string
+          format: date-time
+        when_handed_over:
+          type: string
+          format: date-time
+        destination:
+          type: string
+        receiver_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        rendered_dosage_instruction:
+          type: string
+        dosage_instruction:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        substitution_was_substituted:
+          oneOf:
+            - type: boolean
+            - type: string
+        substitution_type:
+          type: string
+        substitution_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        substitution_responsible_party:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        event_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomMedicationDispenseMedication:
       type: object
       properties:
         medication_id:
@@ -3847,6 +3989,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [medication_administration]
+    CustomJsonMedicationDispenseOnly:
+      title: MedicationDispense
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [medication_dispense]
     CustomJsonCapabilityStatementOnly:
       title: CapabilityStatement
       allOf:

@@ -295,6 +295,45 @@ const GlobalMedicationAdministrationSchema = z.object({
   rate_unit: z.string().optional()
 });
 
+const GlobalMedicationDispenseSchema = z.object({
+  medication_dispense_id: GlobalIdSchema.optional(),
+  patient_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  status_changed: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  medication: z.object({
+    medication_id: GlobalIdSchema.optional(),
+    code_system: z.string().optional(),
+    name: z.string().optional()
+  }).optional(),
+  supporting_info_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  performer_actor_id: GlobalIdSchema.optional(),
+  performer_function: z.string().optional(),
+  location: z.string().optional(),
+  authorizing_prescription_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  type: z.string().optional(),
+  quantity_value: GlobalNumberSchema.optional(),
+  quantity_unit: z.string().optional(),
+  days_supply_value: GlobalNumberSchema.optional(),
+  days_supply_unit: z.string().optional(),
+  recorded: z.string().optional(),
+  when_prepared: z.string().optional(),
+  when_handed_over: z.string().optional(),
+  destination: z.string().optional(),
+  receiver_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  rendered_dosage_instruction: z.string().optional(),
+  dosage_instruction: z.union([z.string(), z.array(z.string())]).optional(),
+  substitution_was_substituted: z.union([z.boolean(), z.string()]).optional(),
+  substitution_type: z.string().optional(),
+  substitution_reason: z.union([z.string(), z.array(z.string())]).optional(),
+  substitution_responsible_party: z.string().optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  part_of_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  event_history_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalCapabilityStatementSchema = z.object({
   capability_statement_id: GlobalIdSchema.optional(),
   url: z.string().optional(),
@@ -1146,6 +1185,7 @@ const GlobalCustomJSONSchema = z.object({
   medication_request: z.union([GlobalMedicationRequestSchema, z.array(GlobalMedicationRequestSchema)]).optional(),
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
+  medication_dispense: z.union([GlobalMedicationDispenseSchema, z.array(GlobalMedicationDispenseSchema)]).optional(),
   capability_statement: z.union([GlobalCapabilityStatementSchema, z.array(GlobalCapabilityStatementSchema)]).optional(),
   operation_outcome: z.union([GlobalOperationOutcomeSchema, z.array(GlobalOperationOutcomeSchema)]).optional(),
   parameters: z.union([GlobalParametersSchema, z.array(GlobalParametersSchema)]).optional(),
@@ -1190,6 +1230,7 @@ const GlobalCustomJSONSchema = z.object({
     value.medication_request ||
     value.medication_statement ||
     value.medication_administration ||
+    value.medication_dispense ||
     value.capability_statement ||
     value.operation_outcome ||
     value.parameters ||
@@ -1228,7 +1269,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1249,6 +1290,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationRequests: 'medicationRequest',
   medicationStatements: 'medicationStatement',
   medicationAdministrations: 'medicationAdministration',
+  medicationDispenses: 'medicationDispense',
   capabilityStatements: 'capabilityStatement',
   operationOutcomes: 'operationOutcome',
   parameters: 'parameters',
@@ -1296,6 +1338,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   medication_statements: 'medicationStatement',
   medication_administration: 'medicationAdministration',
   medication_administrations: 'medicationAdministration',
+  medication_dispense: 'medicationDispense',
+  medication_dispenses: 'medicationDispense',
+  medicationdispense: 'medicationDispense',
+  medicationdispenses: 'medicationDispense',
   capability_statement: 'capabilityStatement',
   capability_statements: 'capabilityStatement',
   operation_outcome: 'operationOutcome',
@@ -1402,6 +1448,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   medication_administrations: 'medication_administration',
   medicationadministration: 'medication_administration',
   medicationadministrations: 'medication_administration',
+  medication_dispense: 'medication_dispense',
+  medication_dispenses: 'medication_dispense',
+  medicationdispense: 'medication_dispense',
+  medicationdispenses: 'medication_dispense',
   capability_statement: 'capability_statement',
   capability_statements: 'capability_statement',
   capabilitystatement: 'capability_statement',
@@ -1901,6 +1951,128 @@ function normalizeGlobalMedicationAdministrationAliases(value: Record<string, un
   const medCode = normalizeAliasValue(readSectionAliasValue(value, 'medicationAdministration', 'medication_administration_medication_code'));
   const medSystem = normalizeAliasValue(readSectionAliasValue(value, 'medicationAdministration', 'medication_administration_medication_code_system'));
   const medDisplay = normalizeAliasValue(readSectionAliasValue(value, 'medicationAdministration', 'medication_administration_medication_display'));
+  if ((medCode || medDisplay) && normalized.medication === undefined) {
+    normalized.medication = {
+      medication_id: medCode,
+      code_system: medSystem,
+      name: medDisplay
+    };
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalMedicationDispenseAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const dispenseId = readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_id');
+  if (normalized.medication_dispense_id === undefined && dispenseId !== undefined) {
+    normalized.medication_dispense_id = dispenseId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const statusChanged = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_status_changed'));
+  if (statusChanged && normalized.status_changed === undefined) normalized.status_changed = statusChanged;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_subject_id'));
+  if (subjectId && normalized.patient_id === undefined) normalized.patient_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const location = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_location'));
+  if (location && normalized.location === undefined) normalized.location = location;
+
+  const quantityValue = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_quantity_value'));
+  if (quantityValue && normalized.quantity_value === undefined) normalized.quantity_value = quantityValue;
+
+  const quantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_quantity_unit'));
+  if (quantityUnit && normalized.quantity_unit === undefined) normalized.quantity_unit = quantityUnit;
+
+  const daysSupplyValue = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_days_supply_value'));
+  if (daysSupplyValue && normalized.days_supply_value === undefined) normalized.days_supply_value = daysSupplyValue;
+
+  const daysSupplyUnit = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_days_supply_unit'));
+  if (daysSupplyUnit && normalized.days_supply_unit === undefined) normalized.days_supply_unit = daysSupplyUnit;
+
+  const recorded = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_recorded'));
+  if (recorded && normalized.recorded === undefined) normalized.recorded = recorded;
+
+  const whenPrepared = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_when_prepared'));
+  if (whenPrepared && normalized.when_prepared === undefined) normalized.when_prepared = whenPrepared;
+
+  const whenHandedOver = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_when_handed_over'));
+  if (whenHandedOver && normalized.when_handed_over === undefined) normalized.when_handed_over = whenHandedOver;
+
+  const destination = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_destination'));
+  if (destination && normalized.destination === undefined) normalized.destination = destination;
+
+  const authorizingPrescriptions = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_authorizing_prescription_ids'));
+  if (authorizingPrescriptions && normalized.authorizing_prescription_ids === undefined) {
+    normalized.authorizing_prescription_ids = authorizingPrescriptions;
+  }
+
+  const receiverIds = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_receiver_ids'));
+  if (receiverIds && normalized.receiver_ids === undefined) normalized.receiver_ids = receiverIds;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const renderedDosage = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_rendered_dosage_instruction'));
+  if (renderedDosage && normalized.rendered_dosage_instruction === undefined) {
+    normalized.rendered_dosage_instruction = renderedDosage;
+  }
+
+  const dosageInstruction = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_dosage_instruction'));
+  if (dosageInstruction && normalized.dosage_instruction === undefined) {
+    normalized.dosage_instruction = dosageInstruction;
+  }
+
+  const substitutionWasSubstituted = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_substitution_was_substituted'));
+  if (substitutionWasSubstituted && normalized.substitution_was_substituted === undefined) {
+    normalized.substitution_was_substituted = substitutionWasSubstituted;
+  }
+
+  const substitutionType = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_substitution_type'));
+  if (substitutionType && normalized.substitution_type === undefined) normalized.substitution_type = substitutionType;
+
+  const substitutionReason = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_substitution_reason'));
+  if (substitutionReason && normalized.substitution_reason === undefined) normalized.substitution_reason = substitutionReason;
+
+  const substitutionResponsibleParty = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_substitution_responsible_party'));
+  if (substitutionResponsibleParty && normalized.substitution_responsible_party === undefined) {
+    normalized.substitution_responsible_party = substitutionResponsibleParty;
+  }
+
+  const supportingInfoIds = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_supporting_info_ids'));
+  if (supportingInfoIds && normalized.supporting_info_ids === undefined) normalized.supporting_info_ids = supportingInfoIds;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const partOfIds = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_part_of_ids'));
+  if (partOfIds && normalized.part_of_ids === undefined) normalized.part_of_ids = partOfIds;
+
+  const eventHistoryIds = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_event_history_ids'));
+  if (eventHistoryIds && normalized.event_history_ids === undefined) normalized.event_history_ids = eventHistoryIds;
+
+  const performerActorId = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_performer_actor_id'));
+  if (performerActorId && normalized.performer_actor_id === undefined) normalized.performer_actor_id = performerActorId;
+
+  const performerFunction = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_performer_function'));
+  if (performerFunction && normalized.performer_function === undefined) normalized.performer_function = performerFunction;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const medCode = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_medication_code'));
+  const medSystem = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_medication_code_system'));
+  const medDisplay = normalizeAliasValue(readSectionAliasValue(value, 'medicationDispense', 'medication_dispense_medication_display'));
   if ((medCode || medDisplay) && normalized.medication === undefined) {
     normalized.medication = {
       medication_id: medCode,
@@ -3879,6 +4051,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationStatementAliases(value);
     case 'medicationAdministration':
       return normalizeGlobalMedicationAdministrationAliases(value);
+    case 'medicationDispense':
+      return normalizeGlobalMedicationDispenseAliases(value);
     case 'capabilityStatement':
       return normalizeGlobalCapabilityStatementAliases(value);
     case 'operationOutcome':
@@ -3949,6 +4123,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationRequest', 'medication_request'],
     ['medicationStatement', 'medication_statement'],
     ['medicationAdministration', 'medication_administration'],
+    ['medicationDispense', 'medication_dispense'],
     ['capabilityStatement', 'capability_statement'],
     ['operationOutcome', 'operation_outcome'],
     ['parameters', 'parameters'],
@@ -4072,6 +4247,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationRequest',
     'medicationStatement',
     'medicationAdministration',
+    'medicationDispense',
     'capabilityStatement',
     'operationOutcome',
     'parameters',
@@ -4204,6 +4380,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationRequests = normalizeArray(validated.medication_request);
   const medicationStatements = normalizeArray(validated.medication_statement);
   const medicationAdministrations = normalizeArray(validated.medication_administration);
+  const medicationDispenses = normalizeArray(validated.medication_dispense);
   const capabilityStatements = normalizeArray(validated.capability_statement);
   const operationOutcomes = normalizeArray(validated.operation_outcome);
   const parametersList = normalizeArray(validated.parameters);
@@ -4259,6 +4436,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (medicationAdministrations.length) {
     canonical.medicationAdministrations = medicationAdministrations.map(buildCanonicalMedicationAdministrationGlobal);
+  }
+  if (medicationDispenses.length) {
+    canonical.medicationDispenses = medicationDispenses.map(buildCanonicalMedicationDispenseGlobal);
   }
   if (capabilityStatements.length) {
     canonical.capabilityStatements = capabilityStatements.map(buildCanonicalCapabilityStatementGlobal);
@@ -4398,7 +4578,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4408,6 +4588,7 @@ function wrapGlobalPayload(value: any) {
       value.medication_request,
       value.medication_statement,
       value.medication_administration,
+      value.medication_dispense,
       value.capability_statement,
       value.operation_outcome,
       value.parameters,
@@ -4464,6 +4645,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('medication_administration_id' in value || 'occurrence_date' in value || 'dose_value' in value) {
       return { medication_administration: value };
+    }
+    if ('medication_dispense_id' in value || 'when_handed_over' in value || 'quantity_value' in value) {
+      return { medication_dispense: value };
     }
     if ('capability_statement_id' in value || 'capability_statement_url' in value || 'fhir_version' in value) {
       return { capability_statement: value };
@@ -4601,6 +4785,9 @@ function looksLikeGlobalResource(value: any) {
     'effective_date' in value ||
     'medication_administration_id' in value ||
     'dose_value' in value ||
+    'medication_dispense_id' in value ||
+    'quantity_value' in value ||
+    'when_handed_over' in value ||
     'capability_statement_id' in value ||
     'capability_statement_url' in value ||
     'fhir_version' in value ||
@@ -4948,6 +5135,81 @@ function buildCanonicalMedicationAdministrationGlobal(admin: z.infer<typeof Glob
       dose: doseQuantity || undefined,
       rateQuantity
     } : undefined
+  };
+}
+
+function buildCanonicalMedicationDispenseGlobal(dispense: z.infer<typeof GlobalMedicationDispenseSchema>) {
+  const medText = dispense.medication?.name;
+  const medCoding = dispense.medication?.medication_id ? [{
+    system: dispense.medication?.code_system || 'urn:hl7-org:local',
+    code: dispense.medication.medication_id,
+    display: dispense.medication?.name
+  }] : undefined;
+
+  const categories = normalizeStringArray(dispense.category);
+  const supportingInfo = normalizeStringArray(dispense.supporting_info_ids);
+  const authorizingPrescriptions = normalizeStringArray(dispense.authorizing_prescription_ids);
+  const receivers = normalizeStringArray(dispense.receiver_ids);
+  const notes = normalizeStringArray(dispense.note);
+  const basedOn = normalizeStringArray(dispense.based_on_ids);
+  const partOf = normalizeStringArray(dispense.part_of_ids);
+  const eventHistory = normalizeStringArray(dispense.event_history_ids);
+  const substitutionReasons = normalizeStringArray(dispense.substitution_reason);
+
+  const quantity = parseQuantity(dispense.quantity_value !== undefined ? String(dispense.quantity_value) : undefined);
+  if (quantity && dispense.quantity_unit) quantity.unit = dispense.quantity_unit;
+
+  const daysSupply = parseQuantity(dispense.days_supply_value !== undefined ? String(dispense.days_supply_value) : undefined);
+  if (daysSupply && dispense.days_supply_unit) daysSupply.unit = dispense.days_supply_unit;
+
+  const dosageText = normalizeStringArray(dispense.dosage_instruction).join('; ');
+
+  const hasSubstitution = dispense.substitution_was_substituted !== undefined ||
+    dispense.substitution_type ||
+    substitutionReasons.length ||
+    dispense.substitution_responsible_party;
+
+  return {
+    id: dispense.medication_dispense_id,
+    identifier: dispense.medication_dispense_id,
+    basedOn: basedOn.length ? basedOn : undefined,
+    partOf: partOf.length ? partOf : undefined,
+    status: dispense.status,
+    statusChanged: dispense.status_changed,
+    category: categories.length ? categories.map(value => ({ code: value, display: value })) : undefined,
+    medicationCodeableConcept: medText || medCoding ? {
+      coding: medCoding,
+      text: medText
+    } : undefined,
+    subject: dispense.patient_id,
+    encounter: dispense.encounter_id,
+    supportingInformation: supportingInfo.length ? supportingInfo : undefined,
+    performer: dispense.performer_actor_id || dispense.performer_function ? [{
+      function: dispense.performer_function ? { code: dispense.performer_function, display: dispense.performer_function } : undefined,
+      actor: dispense.performer_actor_id || undefined
+    }] : undefined,
+    location: dispense.location,
+    authorizingPrescription: authorizingPrescriptions.length ? authorizingPrescriptions : undefined,
+    type: dispense.type ? { code: dispense.type, display: dispense.type } : undefined,
+    quantity: quantity || undefined,
+    daysSupply: daysSupply || undefined,
+    recorded: dispense.recorded,
+    whenPrepared: dispense.when_prepared,
+    whenHandedOver: dispense.when_handed_over,
+    destination: dispense.destination,
+    receiver: receivers.length ? receivers : undefined,
+    note: notes.length ? notes : undefined,
+    renderedDosageInstruction: dispense.rendered_dosage_instruction,
+    dosageInstruction: dosageText ? [{ text: dosageText }] : undefined,
+    substitution: hasSubstitution ? {
+      wasSubstituted: normalizeBoolean(dispense.substitution_was_substituted as any),
+      type: dispense.substitution_type ? { code: dispense.substitution_type, display: dispense.substitution_type } : undefined,
+      reason: substitutionReasons.length
+        ? substitutionReasons.map(value => ({ code: value, display: value }))
+        : undefined,
+      responsibleParty: dispense.substitution_responsible_party
+    } : undefined,
+    eventHistory: eventHistory.length ? eventHistory : undefined
   };
 }
 

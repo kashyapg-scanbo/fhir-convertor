@@ -345,6 +345,90 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationAdministrations.length > 0) canonical.medicationAdministrations = medicationAdministrations as any[];
 
+  const medicationDispenses = rows.map(row => {
+    const dispenseId = readValue(row, 'medication_dispense_id');
+    const status = readValue(row, 'medication_dispense_status');
+    const medCode = readValue(row, 'medication_dispense_medication_code');
+    const medDisplay = readValue(row, 'medication_dispense_medication_display');
+    const medSystem = readValue(row, 'medication_dispense_medication_code_system');
+    if (!dispenseId && !medCode && !medDisplay) return null;
+
+    const statusChanged = readValue(row, 'medication_dispense_status_changed');
+    const categoryRaw = readValue(row, 'medication_dispense_category');
+    const supportingInfoRaw = readValue(row, 'medication_dispense_supporting_info_ids');
+    const authorizingRaw = readValue(row, 'medication_dispense_authorizing_prescription_ids');
+    const receiverRaw = readValue(row, 'medication_dispense_receiver_ids');
+    const note = readValue(row, 'medication_dispense_note');
+    const basedOnRaw = readValue(row, 'medication_dispense_based_on_ids');
+    const partOfRaw = readValue(row, 'medication_dispense_part_of_ids');
+    const eventHistoryRaw = readValue(row, 'medication_dispense_event_history_ids');
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const quantityValue = readNumber(row, 'medication_dispense_quantity_value');
+    const quantityUnit = readValue(row, 'medication_dispense_quantity_unit');
+    const daysSupplyValue = readNumber(row, 'medication_dispense_days_supply_value');
+    const daysSupplyUnit = readValue(row, 'medication_dispense_days_supply_unit');
+
+    const substitutionReasonRaw = readValue(row, 'medication_dispense_substitution_reason');
+    const substitutionWasSubstituted = readBoolean(row, 'medication_dispense_substitution_was_substituted');
+
+    return {
+      id: dispenseId || undefined,
+      identifier: dispenseId || undefined,
+      basedOn: toList(basedOnRaw),
+      partOf: toList(partOfRaw),
+      status: status || undefined,
+      statusChanged: statusChanged || undefined,
+      category: toList(categoryRaw)?.map(value => ({ code: value, display: value })),
+      medicationCodeableConcept: (medCode || medDisplay) ? {
+        coding: medCode ? [{
+          system: medSystem,
+          code: medCode,
+          display: medDisplay
+        }] : undefined,
+        text: medDisplay
+      } : undefined,
+      subject: readValue(row, 'medication_dispense_subject_id'),
+      encounter: readValue(row, 'medication_dispense_encounter_id'),
+      supportingInformation: toList(supportingInfoRaw),
+      performer: (readValue(row, 'medication_dispense_performer_actor_id') || readValue(row, 'medication_dispense_performer_function')) ? [{
+        function: readValue(row, 'medication_dispense_performer_function')
+          ? { code: readValue(row, 'medication_dispense_performer_function'), display: readValue(row, 'medication_dispense_performer_function') }
+          : undefined,
+        actor: readValue(row, 'medication_dispense_performer_actor_id') || undefined
+      }] : undefined,
+      location: readValue(row, 'medication_dispense_location') || undefined,
+      authorizingPrescription: toList(authorizingRaw),
+      type: readValue(row, 'medication_dispense_type') ? {
+        code: readValue(row, 'medication_dispense_type'),
+        display: readValue(row, 'medication_dispense_type')
+      } : undefined,
+      quantity: quantityValue !== undefined ? { value: quantityValue, unit: quantityUnit || undefined } : undefined,
+      daysSupply: daysSupplyValue !== undefined ? { value: daysSupplyValue, unit: daysSupplyUnit || undefined } : undefined,
+      recorded: readValue(row, 'medication_dispense_recorded') || undefined,
+      whenPrepared: readValue(row, 'medication_dispense_when_prepared') || undefined,
+      whenHandedOver: readValue(row, 'medication_dispense_when_handed_over') || undefined,
+      destination: readValue(row, 'medication_dispense_destination') || undefined,
+      receiver: toList(receiverRaw),
+      note: note ? [note] : undefined,
+      renderedDosageInstruction: readValue(row, 'medication_dispense_rendered_dosage_instruction') || undefined,
+      dosageInstruction: readValue(row, 'medication_dispense_dosage_instruction')
+        ? [{ text: readValue(row, 'medication_dispense_dosage_instruction') }]
+        : undefined,
+      substitution: (substitutionWasSubstituted !== undefined || substitutionReasonRaw || readValue(row, 'medication_dispense_substitution_type') || readValue(row, 'medication_dispense_substitution_responsible_party')) ? {
+        wasSubstituted: substitutionWasSubstituted,
+        type: readValue(row, 'medication_dispense_substitution_type')
+          ? { code: readValue(row, 'medication_dispense_substitution_type'), display: readValue(row, 'medication_dispense_substitution_type') }
+          : undefined,
+        reason: toList(substitutionReasonRaw)?.map(value => ({ code: value, display: value })),
+        responsibleParty: readValue(row, 'medication_dispense_substitution_responsible_party') || undefined
+      } : undefined,
+      eventHistory: toList(eventHistoryRaw)
+    };
+  }).filter(Boolean);
+  if (medicationDispenses.length > 0) canonical.medicationDispenses = medicationDispenses as any[];
+
   const capabilityStatements = rows.map(row => {
     const capabilityId = readValue(row, 'capability_statement_id');
     const url = readValue(row, 'capability_statement_url');

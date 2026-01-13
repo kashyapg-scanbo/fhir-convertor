@@ -12,6 +12,7 @@ import {
     CanonicalDocumentReference,
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
+    CanonicalMedicationDispense,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
@@ -67,6 +68,7 @@ export function parseR4(input: string): CanonicalModel {
         medicationRequests: [],
         medicationStatements: [],
         medicationAdministrations: [],
+        medicationDispenses: [],
         procedures: [],
         conditions: [],
         appointments: [],
@@ -270,6 +272,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'MedicationAdministration':
                 const medicationAdministration = mapR4MedicationAdministration(res);
                 if (medicationAdministration) model.medicationAdministrations?.push(medicationAdministration);
+                break;
+            case 'MedicationDispense':
+                const medicationDispense = mapR4MedicationDispense(res);
+                if (medicationDispense) model.medicationDispenses?.push(medicationDispense);
                 break;
             case 'Immunization':
                 const immunization = mapR4Immunization(res);
@@ -662,6 +668,80 @@ function mapR4MedicationAdministration(admin: any): CanonicalMedicationAdministr
             } : undefined
         } : undefined,
         eventHistory: admin.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
+    };
+}
+
+function mapR4MedicationDispense(dispense: any): CanonicalMedicationDispense {
+    return {
+        id: dispense.id,
+        identifier: dispense.identifier?.[0]?.value,
+        basedOn: dispense.basedOn?.map((ref: any) => ref.reference).filter(Boolean),
+        partOf: dispense.partOf?.map((ref: any) => ref.reference).filter(Boolean),
+        status: dispense.status,
+        statusChanged: dispense.statusChanged,
+        category: dispense.category?.map((cat: any) => cat.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        medicationCodeableConcept: dispense.medicationCodeableConcept ? {
+            coding: dispense.medicationCodeableConcept.coding?.map((coding: any) => ({
+                system: coding.system,
+                code: coding.code,
+                display: coding.display
+            })),
+            text: dispense.medicationCodeableConcept.text
+        } : undefined,
+        medicationReference: dispense.medicationReference?.reference?.replace('Medication/', ''),
+        subject: dispense.subject?.reference?.replace('Patient/', ''),
+        encounter: dispense.encounter?.reference?.replace('Encounter/', ''),
+        supportingInformation: dispense.supportingInformation?.map((ref: any) => ref.reference).filter(Boolean),
+        performer: dispense.performer?.map((perf: any) => ({
+            function: perf.function?.coding?.[0] ? {
+                system: perf.function.coding[0].system,
+                code: perf.function.coding[0].code,
+                display: perf.function.coding[0].display
+            } : undefined,
+            actor: perf.actor?.reference?.split('/').pop()
+        })),
+        location: dispense.location?.reference?.replace('Location/', ''),
+        authorizingPrescription: dispense.authorizingPrescription?.map((ref: any) => ref.reference).filter(Boolean),
+        type: dispense.type?.coding?.[0] ? {
+            system: dispense.type.coding[0].system,
+            code: dispense.type.coding[0].code,
+            display: dispense.type.coding[0].display
+        } : undefined,
+        quantity: dispense.quantity ? {
+            value: dispense.quantity.value,
+            unit: dispense.quantity.unit
+        } : undefined,
+        daysSupply: dispense.daysSupply ? {
+            value: dispense.daysSupply.value,
+            unit: dispense.daysSupply.unit
+        } : undefined,
+        recorded: dispense.recorded,
+        whenPrepared: dispense.whenPrepared,
+        whenHandedOver: dispense.whenHandedOver,
+        destination: dispense.destination?.reference?.replace('Location/', ''),
+        receiver: dispense.receiver?.map((ref: any) => ref.reference).filter(Boolean),
+        note: dispense.note?.map((note: any) => note.text).filter(Boolean),
+        renderedDosageInstruction: dispense.renderedDosageInstruction,
+        dosageInstruction: dispense.dosageInstruction,
+        substitution: dispense.substitution ? {
+            wasSubstituted: dispense.substitution.wasSubstituted,
+            type: dispense.substitution.type?.coding?.[0] ? {
+                system: dispense.substitution.type.coding[0].system,
+                code: dispense.substitution.type.coding[0].code,
+                display: dispense.substitution.type.coding[0].display
+            } : undefined,
+            reason: dispense.substitution.reason?.map((r: any) => ({
+                system: r?.coding?.[0]?.system,
+                code: r?.coding?.[0]?.code,
+                display: r?.coding?.[0]?.display
+            })),
+            responsibleParty: dispense.substitution.responsibleParty?.reference
+        } : undefined,
+        eventHistory: dispense.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
     };
 }
 

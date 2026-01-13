@@ -1,0 +1,22 @@
+{
+  "medication_dispense": {
+    "medication_dispense_id": "MEDDISP-2",
+    "status": "completed",
+    "status_changed": "2024-03-05T12:30:00Z",
+    "category": "outpatient",
+    "medication": {
+      "medication_id": "MED-2",
+      "name": "Ibuprofen"
+    },
+    "patient_id": "PAT-2",
+    "quantity_value": 20,
+    "quantity_unit": "tablet",
+    "days_supply_value": 10,
+    "days_supply_unit": "day",
+    "when_prepared": "2024-03-05T09:00:00Z",
+    "when_handed_over": "2024-03-05T10:00:00Z",
+    "receiver_ids": ["Patient/PAT-2"],
+    "substitution_was_substituted": false,
+    "note": "Dispensed at front desk"
+  }
+}

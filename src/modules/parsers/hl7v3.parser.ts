@@ -12,6 +12,7 @@ import {
     CanonicalMedicationRequest,
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
+    CanonicalMedicationDispense,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
@@ -81,6 +82,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         medicationRequests: [],
         medicationStatements: [],
         medicationAdministrations: [],
+        medicationDispenses: [],
         procedures: [],
         conditions: [],
         appointments: [],
@@ -319,6 +321,9 @@ export function parseHL7v3(input: string): CanonicalModel {
 
                 const medicationAdministration = mapV3MedicationAdministration(substanceAdministration);
                 if (medicationAdministration) model.medicationAdministrations?.push(medicationAdministration);
+
+                const medicationDispense = mapV3MedicationDispense(substanceAdministration);
+                if (medicationDispense) model.medicationDispenses?.push(medicationDispense);
             }
 
             const procedureEvent = sub.procedure || sub.Procedure;
@@ -867,6 +872,47 @@ function mapV3MedicationAdministration(substanceAdmin: any): CanonicalMedication
                 value: Number(dose['@_value']),
                 unit: dose?.['@_unit']
             } : undefined
+        } : undefined
+    };
+}
+
+function mapV3MedicationDispense(substanceAdmin: any): CanonicalMedicationDispense | undefined {
+    const consumable = substanceAdmin.consumable || substanceAdmin.Consumable;
+    const manufacturedProduct = consumable?.manufacturedProduct || consumable?.ManufacturedProduct;
+    const manufacturedMaterial = manufacturedProduct?.manufacturedMaterial || manufacturedProduct?.ManufacturedMaterial;
+    const code = manufacturedMaterial?.code || manufacturedMaterial?.Code;
+
+    const medCode = code?.['@_code'];
+    const medDisplay = code?.['@_displayName'];
+    const medSystem = code?.['@_codeSystem'];
+
+    if (!medCode && !medDisplay) return undefined;
+
+    const status = substanceAdmin.statusCode?.['@_code'] || 'completed';
+    const whenHandedOver = formatV3DateTime(
+        substanceAdmin.effectiveTime?.['@_value'] ||
+        substanceAdmin.EffectiveTime?.['@_value'] ||
+        substanceAdmin.effectiveTime?.low?.['@_value']
+    );
+
+    const dose = substanceAdmin.doseQuantity || substanceAdmin.DoseQuantity;
+
+    return {
+        id: `MEDDISP-${medCode || Date.now()}`,
+        identifier: medCode,
+        status,
+        medicationCodeableConcept: medCode || medDisplay ? {
+            coding: medCode ? [{
+                system: medSystem,
+                code: medCode,
+                display: medDisplay
+            }] : undefined,
+            text: medDisplay
+        } : undefined,
+        whenHandedOver,
+        quantity: dose?.['@_value'] ? {
+            value: Number(dose['@_value']),
+            unit: dose?.['@_unit']
         } : undefined
     };
 }

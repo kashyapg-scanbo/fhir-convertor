@@ -11,6 +11,7 @@ import { mapMedicationRequests } from './medicationRequest.mapper.js';
 import { mapMedications } from './medication.mapper.js';
 import { mapMedicationStatements } from './medicationStatement.mapper.js';
 import { mapMedicationAdministrations } from './medicationAdministration.mapper.js';
+import { mapMedicationDispenses } from './medicationDispense.mapper.js';
 import { mapCapabilityStatements } from './capabilityStatement.mapper.js';
 import { mapOperationOutcomes } from './operationOutcome.mapper.js';
 import { mapParameters } from './parameters.mapper.js';
@@ -177,6 +178,18 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (medicationAdministrationEntries.length > 0) {
     bundle.entry.push(...medicationAdministrationEntries);
+  }
+
+  const medicationDispenseEntries = mapMedicationDispenses({
+    medicationDispenses: canonical.medicationDispenses,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (medicationDispenseEntries.length > 0) {
+    bundle.entry.push(...medicationDispenseEntries);
   }
 
   const capabilityEntries = mapCapabilityStatements({

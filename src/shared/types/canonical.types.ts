@@ -519,6 +519,84 @@ export type CanonicalMedicationAdministration = {
   active?: boolean;
 };
 
+export type CanonicalMedicationDispense = {
+  id?: string;
+  identifier?: string;
+  basedOn?: string[];
+  partOf?: string[];
+  status?: string;
+  notPerformedReason?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  statusChanged?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  medicationCodeableConcept?: {
+    coding?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    text?: string;
+  };
+  medicationReference?: string;
+  subject?: string;
+  encounter?: string;
+  supportingInformation?: string[];
+  performer?: Array<{
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    actor?: string;
+  }>;
+  location?: string;
+  authorizingPrescription?: string[];
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  quantity?: {
+    value?: number;
+    unit?: string;
+  };
+  daysSupply?: {
+    value?: number;
+    unit?: string;
+  };
+  recorded?: string;
+  whenPrepared?: string;
+  whenHandedOver?: string;
+  destination?: string;
+  receiver?: string[];
+  note?: string[];
+  renderedDosageInstruction?: string;
+  dosageInstruction?: any[];
+  substitution?: {
+    wasSubstituted?: boolean;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reason?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    responsibleParty?: string;
+  };
+  eventHistory?: string[];
+  active?: boolean;
+};
+
 export type CanonicalCapabilityStatement = {
   id?: string;
   url?: string;
@@ -1916,6 +1994,7 @@ export type CanonicalModel = {
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
+  medicationDispenses?: CanonicalMedicationDispense[]; // MedicationDispense
   capabilityStatements?: CanonicalCapabilityStatement[]; // CapabilityStatement
   operationOutcomes?: CanonicalOperationOutcome[]; // OperationOutcome
   parameters?: CanonicalParameters[]; // Parameters

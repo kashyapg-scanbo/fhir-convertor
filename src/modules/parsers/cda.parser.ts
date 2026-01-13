@@ -6,6 +6,7 @@ import {
   CanonicalMedicationRequest,
   CanonicalMedicationStatement,
   CanonicalMedicationAdministration,
+  CanonicalMedicationDispense,
   CanonicalProcedure,
   CanonicalCondition,
   CanonicalAppointment,
@@ -86,6 +87,12 @@ export function parseCDA(cdaXml: string): CanonicalModel {
     encounter?.id,
     practitionerData.authorIds[0]
   );
+  const medicationDispenses = extractMedicationDispenses(
+    clinicalDocument,
+    patient.id,
+    encounter?.id,
+    practitionerData.authorIds[0]
+  );
   const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
   const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const appointments = extractAppointments(clinicalDocument, patient.id);
@@ -138,6 +145,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (medications.length) canonical.medications = medications;
   if (medicationStatements.length) canonical.medicationStatements = medicationStatements;
   if (medicationAdministrations.length) canonical.medicationAdministrations = medicationAdministrations;
+  if (medicationDispenses.length) canonical.medicationDispenses = medicationDispenses;
   if (procedures.length) canonical.procedures = procedures;
   if (conditions.length) canonical.conditions = conditions;
   if (appointments.length) canonical.appointments = appointments;
@@ -629,6 +637,76 @@ function extractMedicationAdministrations(
   });
 
   return administrations;
+}
+
+function extractMedicationDispenses(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string,
+  defaultPerformerId?: string
+): CanonicalMedicationDispense[] {
+  const dispenses: CanonicalMedicationDispense[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isDispenseSection = sectionCodeValue === 'MEDICATIONDISPENSE';
+    if (!isDispenseSection) return;
+
+    const admin = entry.substanceAdministration || entry['cda:substanceAdministration'];
+    if (!admin) return;
+    const list = Array.isArray(admin) ? admin : [admin];
+
+    for (const substance of list) {
+      const consumable = substance.consumable || substance['cda:consumable'];
+      const manufacturedProduct = consumable?.manufacturedProduct || consumable?.['cda:manufacturedProduct'];
+      const manufacturedMaterial = manufacturedProduct?.manufacturedMaterial || manufacturedProduct?.['cda:manufacturedMaterial'];
+      const code = manufacturedMaterial?.code || manufacturedMaterial?.['cda:code'];
+      const medCode = extractAttribute(code, '@_code');
+      const medSystem = extractAttribute(code, '@_codeSystem');
+      const medDisplay = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      if (!medCode && !medDisplay) continue;
+
+      const statusCode = substance.statusCode || substance['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code') || 'completed';
+
+      const effectiveTime = substance.effectiveTime || substance['cda:effectiveTime'];
+      const effectiveNode = Array.isArray(effectiveTime) ? effectiveTime[0] : effectiveTime;
+      const whenHandedOver =
+        extractAttribute(effectiveNode, '@_value') ||
+        extractAttribute(effectiveNode?.low, '@_value');
+
+      const doseQuantity = substance.doseQuantity || substance['cda:doseQuantity'];
+      const doseValue = extractAttribute(doseQuantity, '@_value');
+      const doseUnit = extractAttribute(doseQuantity, '@_unit');
+
+      const performerId =
+        extractPerformerId(substance.performer || substance['cda:performer']) ||
+        defaultPerformerId;
+
+      dispenses.push({
+        id: `MEDDISP-${medCode || dispenses.length + 1}`,
+        identifier: medCode,
+        status: status,
+        medicationCodeableConcept: medCode || medDisplay ? {
+          coding: medCode ? [{
+            system: mapCodeSystem(medSystem),
+            code: medCode,
+            display: medDisplay
+          }] : undefined,
+          text: medDisplay
+        } : undefined,
+        subject: patientId,
+        encounter: encounterId,
+        whenHandedOver: formatCDADateTime(whenHandedOver),
+        performer: performerId ? [{ actor: performerId }] : undefined,
+        quantity: doseValue ? { value: Number(doseValue), unit: doseUnit } : undefined
+      });
+    }
+  });
+
+  return dispenses;
 }
 
 function extractImmunizations(
