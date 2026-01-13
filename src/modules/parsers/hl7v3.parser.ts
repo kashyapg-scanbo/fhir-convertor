@@ -35,7 +35,8 @@ import {
     CanonicalTask,
     CanonicalCommunication,
     CanonicalCommunicationRequest,
-    CanonicalQuestionnaire
+    CanonicalQuestionnaire,
+    CanonicalQuestionnaireResponse
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -96,6 +97,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         communications: [],
         communicationRequests: [],
         questionnaires: [],
+        questionnaireResponses: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -213,6 +215,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (questionnaireEvent) {
                 const questionnaire = mapV3Questionnaire(questionnaireEvent);
                 if (questionnaire) model.questionnaires?.push(questionnaire);
+            }
+
+            const questionnaireResponseEvent = sub.questionnaireResponse || sub.QuestionnaireResponse;
+            if (questionnaireResponseEvent) {
+                const questionnaireResponse = mapV3QuestionnaireResponse(questionnaireResponseEvent);
+                if (questionnaireResponse) model.questionnaireResponses?.push(questionnaireResponse);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1083,6 +1091,32 @@ function mapV3Questionnaire(qnrEvent: any): CanonicalQuestionnaire | undefined {
         title: displayName,
         description: description,
         date: date
+    };
+}
+
+function mapV3QuestionnaireResponse(respEvent: any): CanonicalQuestionnaireResponse | undefined {
+    if (!respEvent) return undefined;
+    const id = respEvent.id || respEvent['cda:id'];
+    const statusCode = respEvent.statusCode || respEvent['cda:statusCode'];
+    const effectiveTime = respEvent.effectiveTime || respEvent['cda:effectiveTime'];
+    const text = respEvent.text || respEvent['cda:text'];
+    const qnrRef = respEvent.questionnaire || respEvent.Questionnaire;
+    const qnrId = qnrRef?.id?.['@_extension'] || qnrRef?.id?.['@_root'];
+
+    const respId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const authored = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const answerText = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!respId && !answerText) return undefined;
+
+    return {
+        id: respId || `QNRRESP-${Date.now()}`,
+        identifier: respId,
+        status: status || 'completed',
+        questionnaire: qnrId,
+        authored: authored,
+        item: answerText ? [{ linkId: 'q1', text: 'Response', answer: [answerText] }] : undefined
     };
 }
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="QNRRESP"/>
+          <entry>
+            <act>
+              <id extension="QNRRESP-2"/>
+              <statusCode code="in-progress"/>
+              <effectiveTime value="20240305"/>
+              <text>Headache</text>
+            </act>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

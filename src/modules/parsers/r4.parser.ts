@@ -35,7 +35,8 @@ import {
     CanonicalTask,
     CanonicalCommunication,
     CanonicalCommunicationRequest,
-    CanonicalQuestionnaire
+    CanonicalQuestionnaire,
+    CanonicalQuestionnaireResponse
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -69,6 +70,7 @@ export function parseR4(input: string): CanonicalModel {
         communications: [],
         communicationRequests: [],
         questionnaires: [],
+        questionnaireResponses: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -176,6 +178,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Questionnaire':
                 const questionnaire = mapR4Questionnaire(res);
                 if (questionnaire) model.questionnaires?.push(questionnaire);
+                break;
+            case 'QuestionnaireResponse':
+                const questionnaireResponse = mapR4QuestionnaireResponse(res);
+                if (questionnaireResponse) model.questionnaireResponses?.push(questionnaireResponse);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1297,6 +1303,31 @@ function mapR4Questionnaire(qnr: any): CanonicalQuestionnaire {
       text: item.text,
       type: item.type
     }))
+  };
+}
+
+function mapR4QuestionnaireResponse(resp: any): CanonicalQuestionnaireResponse {
+  const items = (resp.item || []).map((item: any) => ({
+    linkId: item.linkId,
+    text: item.text,
+    answer: (item.answer || []).map((ans: any) => (
+      ans.valueString ?? ans.valueBoolean ?? ans.valueInteger ?? ans.valueDecimal ?? ans.valueDate ?? ans.valueDateTime ?? ans.valueTime
+    )).filter(value => value !== undefined).map(value => String(value))
+  }));
+
+  return {
+    id: resp.id,
+    identifier: resp.identifier?.[0]?.value,
+    basedOn: resp.basedOn?.map((ref: any) => ref.reference?.replace(/^(CarePlan|ServiceRequest)\//, '')).filter(Boolean),
+    partOf: resp.partOf?.map((ref: any) => ref.reference?.replace(/^(Observation|Procedure)\//, '')).filter(Boolean),
+    questionnaire: resp.questionnaire,
+    status: resp.status,
+    subject: resp.subject?.reference,
+    encounter: resp.encounter?.reference?.replace(/^Encounter\//, ''),
+    authored: resp.authored,
+    author: resp.author?.reference,
+    source: resp.source?.reference,
+    item: items.length ? items : undefined
   };
 }
 

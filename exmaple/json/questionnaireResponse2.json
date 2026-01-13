@@ -1,0 +1,24 @@
+{
+  "questionnaire_response": {
+    "questionnaire_response_id": "QNRRESP-2",
+    "questionnaire": "https://example.org/qnr/intake",
+    "status": "in-progress",
+    "subject_id": "PAT-2",
+    "encounter_id": "ENC-2",
+    "authored": "2024-03-05T10:15:00Z",
+    "author_id": "PRAC-2",
+    "source_id": "PAT-2",
+    "item": [
+      {
+        "link_id": "q1",
+        "text": "Date of birth",
+        "answer": ["1990-02-14"]
+      },
+      {
+        "link_id": "q2",
+        "text": "Primary complaint",
+        "answer": ["Headache"]
+      }
+    ]
+  }
+}

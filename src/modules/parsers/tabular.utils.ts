@@ -1013,6 +1013,47 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.questionnaires = questionnaires as any[];
   }
 
+  const questionnaireResponses = rows.map(row => {
+    const responseId = readValue(row, 'questionnaire_response_id');
+    const questionnaire = readValue(row, 'questionnaire_response_questionnaire');
+    const status = readValue(row, 'questionnaire_response_status');
+    const subjectId = readValue(row, 'questionnaire_response_subject_id');
+    const encounterId = readValue(row, 'questionnaire_response_encounter_id');
+    const authored = readValue(row, 'questionnaire_response_authored');
+    const authorId = readValue(row, 'questionnaire_response_author_id');
+    const sourceId = readValue(row, 'questionnaire_response_source_id');
+    const basedOnRaw = readValue(row, 'questionnaire_response_based_on_ids');
+    const partOfRaw = readValue(row, 'questionnaire_response_part_of_ids');
+    const itemLinkId = readValue(row, 'questionnaire_response_item_link_id');
+    const itemText = readValue(row, 'questionnaire_response_item_text');
+    const itemAnswerRaw = readValue(row, 'questionnaire_response_item_answer');
+
+    if (!responseId && !questionnaire && !itemAnswerRaw) return null;
+
+    const answers = itemAnswerRaw ? itemAnswerRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+
+    return {
+      id: responseId || undefined,
+      identifier: responseId || undefined,
+      basedOn: basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      partOf: partOfRaw ? partOfRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      questionnaire: questionnaire || undefined,
+      status: status || 'completed',
+      subject: subjectId || undefined,
+      encounter: encounterId || undefined,
+      authored: authored || undefined,
+      author: authorId || undefined,
+      source: sourceId || undefined,
+      item: (itemLinkId || itemText || answers)
+        ? [{ linkId: itemLinkId, text: itemText, answer: answers }]
+        : undefined
+    };
+  }).filter(Boolean);
+
+  if (questionnaireResponses.length > 0) {
+    canonical.questionnaireResponses = questionnaireResponses as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1093,6 +1093,58 @@ export function buildCanonical(parsed: any) {
 
   if (questionnaires.length > 0) {
     result.questionnaires = questionnaires;
+  }
+
+  /* ───── QuestionnaireResponses (from OBR/OBX) ───── */
+  const questionnaireResponses: CanonicalQuestionnaireResponse[] = [];
+  const qnrRespObrSegments = parsed.OBR ?? [];
+  const qnrRespObxSegments = parsed.OBX ?? [];
+
+  for (const obr of qnrRespObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const responseId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const questionnaireId = codeParts[0];
+    const display = codeParts[1];
+    const authored = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!responseId && !questionnaireId && !display) continue;
+
+    questionnaireResponses.push({
+      id: responseId || `QNRRESP-${Date.now()}`,
+      identifier: responseId,
+      status: 'completed',
+      questionnaire: questionnaireId,
+      subject: patientId,
+      encounter: encounter?.id,
+      authored: authored,
+      item: display ? [{ linkId: questionnaireId || `Q${questionnaireResponses.length + 1}`, text: display }] : undefined
+    });
+  }
+
+  for (const obx of qnrRespObxSegments) {
+    const codeParts = obx?.[2]?.[0] ?? [];
+    const linkId = codeParts[0];
+    const text = codeParts[1] || linkId;
+    const value = obx?.[5]?.[0]?.[0];
+    if (!linkId && !text && !value) continue;
+
+    questionnaireResponses.push({
+      id: `QNRRESP-OBX-${Date.now()}`,
+      status: 'completed',
+      subject: patientId,
+      encounter: encounter?.id,
+      item: [{
+        linkId: linkId,
+        text: text,
+        answer: value ? [String(value)] : undefined
+      }]
+    });
+  }
+
+  if (questionnaireResponses.length > 0) {
+    result.questionnaireResponses = questionnaireResponses;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

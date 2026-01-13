@@ -657,6 +657,21 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     questionnaire_item_text: ['item_text', 'question_text'],
     questionnaire_item_type: ['item_type', 'question_type']
   },
+  questionnaireResponse: {
+    questionnaire_response_id: ['questionnaire_response_identifier', 'questionnaireresponse_id', 'questionnaire_responseid'],
+    questionnaire_response_questionnaire: ['questionnaire'],
+    questionnaire_response_status: ['status'],
+    questionnaire_response_subject_id: ['subject_id', 'patient_id'],
+    questionnaire_response_encounter_id: ['encounter_id'],
+    questionnaire_response_authored: ['authored'],
+    questionnaire_response_author_id: ['author_id'],
+    questionnaire_response_source_id: ['source_id'],
+    questionnaire_response_item_link_id: ['item_link_id', 'link_id'],
+    questionnaire_response_item_text: ['item_text', 'question_text'],
+    questionnaire_response_item_answer: ['item_answer', 'answer'],
+    questionnaire_response_based_on_ids: ['based_on_ids', 'based_on_id'],
+    questionnaire_response_part_of_ids: ['part_of_ids', 'part_of_id']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

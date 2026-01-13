@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-qnrresp-2"/>
+  <creationTime value="20240305100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <questionnaireResponse>
+        <id extension="QNRRESP-V3-2"/>
+        <statusCode code="in-progress"/>
+        <effectiveTime value="20240305"/>
+        <text>Headache</text>
+      </questionnaireResponse>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

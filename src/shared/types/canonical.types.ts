@@ -999,6 +999,25 @@ export type CanonicalQuestionnaire = {
   active?: boolean;
 };
 
+export type CanonicalQuestionnaireResponse = {
+  id?: string;
+  identifier?: string;
+  basedOn?: string[];
+  partOf?: string[];
+  questionnaire?: string;
+  status?: string;
+  subject?: string;
+  encounter?: string;
+  authored?: string;
+  author?: string;
+  source?: string;
+  item?: Array<{
+    linkId?: string;
+    text?: string;
+    answer?: string[];
+  }>;
+  active?: boolean;
+};
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1750,6 +1769,7 @@ export type CanonicalModel = {
   communications?: CanonicalCommunication[]; // Communication
   communicationRequests?: CanonicalCommunicationRequest[]; // CommunicationRequest
   questionnaires?: CanonicalQuestionnaire[]; // Questionnaire
+  questionnaireResponses?: CanonicalQuestionnaireResponse[]; // QuestionnaireResponse
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

@@ -578,6 +578,29 @@ const GlobalQuestionnaireSchema = z.object({
   item_type: z.string().optional()
 });
 
+const GlobalQuestionnaireResponseItemSchema = z.object({
+  link_id: z.string().optional(),
+  text: z.string().optional(),
+  answer: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalQuestionnaireResponseSchema = z.object({
+  questionnaire_response_id: GlobalIdSchema.optional(),
+  questionnaire: z.string().optional(),
+  status: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  authored: z.string().optional(),
+  author_id: GlobalIdSchema.optional(),
+  source_id: GlobalIdSchema.optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  part_of_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  item: z.union([GlobalQuestionnaireResponseItemSchema, z.array(GlobalQuestionnaireResponseItemSchema)]).optional(),
+  item_link_id: z.string().optional(),
+  item_text: z.string().optional(),
+  item_answer: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1002,6 +1025,7 @@ const GlobalCustomJSONSchema = z.object({
   communication: z.union([GlobalCommunicationSchema, z.array(GlobalCommunicationSchema)]).optional(),
   communication_request: z.union([GlobalCommunicationRequestSchema, z.array(GlobalCommunicationRequestSchema)]).optional(),
   questionnaire: z.union([GlobalQuestionnaireSchema, z.array(GlobalQuestionnaireSchema)]).optional(),
+  questionnaire_response: z.union([GlobalQuestionnaireResponseSchema, z.array(GlobalQuestionnaireResponseSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1037,6 +1061,7 @@ const GlobalCustomJSONSchema = z.object({
     value.communication ||
     value.communication_request ||
     value.questionnaire ||
+    value.questionnaire_response ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1055,7 +1080,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1087,6 +1112,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   communications: 'communication',
   communicationRequests: 'communicationRequest',
   questionnaires: 'questionnaire',
+  questionnaireResponses: 'questionnaireResponse',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1135,6 +1161,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   communication_requests: 'communicationRequest',
   questionnaire: 'questionnaire',
   questionnaires: 'questionnaire',
+  questionnaire_response: 'questionnaireResponse',
+  questionnaire_responses: 'questionnaireResponse',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1235,6 +1263,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   communicationrequests: 'communication_request',
   questionnaire: 'questionnaire',
   questionnaires: 'questionnaire',
+  questionnaire_response: 'questionnaire_response',
+  questionnaire_responses: 'questionnaire_response',
+  questionnaireresponse: 'questionnaire_response',
+  questionnaireresponses: 'questionnaire_response',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -2965,6 +2997,53 @@ function normalizeGlobalQuestionnaireAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalQuestionnaireResponseAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const responseId = readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_id');
+  if (normalized.questionnaire_response_id === undefined && responseId !== undefined) {
+    normalized.questionnaire_response_id = responseId;
+  }
+
+  const questionnaire = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_questionnaire'));
+  if (questionnaire && normalized.questionnaire === undefined) normalized.questionnaire = questionnaire;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const authored = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_authored'));
+  if (authored && normalized.authored === undefined) normalized.authored = authored;
+
+  const authorId = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_author_id'));
+  if (authorId && normalized.author_id === undefined) normalized.author_id = authorId;
+
+  const sourceId = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_source_id'));
+  if (sourceId && normalized.source_id === undefined) normalized.source_id = sourceId;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const partOfIds = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_part_of_ids'));
+  if (partOfIds && normalized.part_of_ids === undefined) normalized.part_of_ids = partOfIds;
+
+  const itemLinkId = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_item_link_id'));
+  if (itemLinkId && normalized.item_link_id === undefined) normalized.item_link_id = itemLinkId;
+
+  const itemText = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_item_text'));
+  if (itemText && normalized.item_text === undefined) normalized.item_text = itemText;
+
+  const itemAnswer = normalizeAliasValue(readSectionAliasValue(value, 'questionnaireResponse', 'questionnaire_response_item_answer'));
+  if (itemAnswer && normalized.item_answer === undefined) normalized.item_answer = itemAnswer;
+
+  return normalized;
+}
+
 function normalizeGlobalSpecimenAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -3622,6 +3701,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalCommunicationRequestAliases(value);
     case 'questionnaire':
       return normalizeGlobalQuestionnaireAliases(value);
+    case 'questionnaireResponse':
+      return normalizeGlobalQuestionnaireResponseAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -3679,6 +3760,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['communication', 'communication'],
     ['communicationRequest', 'communication_request'],
     ['questionnaire', 'questionnaire'],
+    ['questionnaireResponse', 'questionnaire_response'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -3933,6 +4015,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const communications = normalizeArray(validated.communication);
   const communicationRequests = normalizeArray(validated.communication_request);
   const questionnaires = normalizeArray(validated.questionnaire);
+  const questionnaireResponses = normalizeArray(validated.questionnaire_response);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4001,6 +4084,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (questionnaires.length) {
     canonical.questionnaires = questionnaires.map(buildCanonicalQuestionnaireGlobal);
+  }
+  if (questionnaireResponses.length) {
+    canonical.questionnaireResponses = questionnaireResponses.map(buildCanonicalQuestionnaireResponseGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -4080,7 +4166,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4101,6 +4187,7 @@ function wrapGlobalPayload(value: any) {
       value.communication,
       value.communication_request,
       value.questionnaire,
+      value.questionnaire_response,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4170,6 +4257,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('questionnaire_id' in value || 'subject_type' in value || 'item_link_id' in value) {
       return { questionnaire: value };
+    }
+    if ('questionnaire_response_id' in value || 'authored' in value || 'item_answer' in value) {
+      return { questionnaire_response: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4275,6 +4365,9 @@ function looksLikeGlobalResource(value: any) {
     'questionnaire_id' in value ||
     'subject_type' in value ||
     'item_link_id' in value ||
+    'questionnaire_response_id' in value ||
+    'authored' in value ||
+    'item_answer' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5071,6 +5164,47 @@ function buildCanonicalQuestionnaireGlobal(qnr: z.infer<typeof GlobalQuestionnai
     publisher: qnr.publisher,
     description: qnr.description,
     subjectType: subjectTypes.length ? subjectTypes : undefined,
+    item: items.length ? items : undefined
+  };
+}
+
+function buildCanonicalQuestionnaireResponseGlobal(resp: z.infer<typeof GlobalQuestionnaireResponseSchema>) {
+  const basedOn = normalizeStringArray(resp.based_on_ids);
+  const partOf = normalizeStringArray(resp.part_of_ids);
+  const itemsInput = normalizeArray(resp.item);
+  const items: Array<{ linkId?: string; text?: string; answer?: string[] }> = [];
+
+  for (const item of itemsInput) {
+    if (!item) continue;
+    const answers = normalizeStringArray(item.answer);
+    items.push({
+      linkId: item.link_id,
+      text: item.text,
+      answer: answers.length ? answers : undefined
+    });
+  }
+
+  if (resp.item_link_id || resp.item_text || resp.item_answer) {
+    const answers = normalizeStringArray(resp.item_answer);
+    items.push({
+      linkId: resp.item_link_id,
+      text: resp.item_text,
+      answer: answers.length ? answers : undefined
+    });
+  }
+
+  return {
+    id: resp.questionnaire_response_id,
+    identifier: resp.questionnaire_response_id,
+    basedOn: basedOn.length ? basedOn : undefined,
+    partOf: partOf.length ? partOf : undefined,
+    questionnaire: resp.questionnaire,
+    status: resp.status,
+    subject: resp.subject_id,
+    encounter: resp.encounter_id,
+    authored: resp.authored,
+    author: resp.author_id,
+    source: resp.source_id,
     item: items.length ? items : undefined
   };
 }
