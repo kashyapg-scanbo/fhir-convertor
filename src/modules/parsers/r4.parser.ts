@@ -40,7 +40,8 @@ import {
     CanonicalCodeSystem,
     CanonicalValueSet,
     CanonicalConceptMap,
-    CanonicalNamingSystem
+    CanonicalNamingSystem,
+    CanonicalTerminologyCapabilities
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -79,6 +80,7 @@ export function parseR4(input: string): CanonicalModel {
         valueSets: [],
         conceptMaps: [],
         namingSystems: [],
+        terminologyCapabilities: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -206,6 +208,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'NamingSystem':
                 const namingSystem = mapR4NamingSystem(res);
                 if (namingSystem) model.namingSystems?.push(namingSystem);
+                break;
+            case 'TerminologyCapabilities':
+                const terminologyCapabilities = mapR4TerminologyCapabilities(res);
+                if (terminologyCapabilities) model.terminologyCapabilities?.push(terminologyCapabilities);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1472,6 +1478,24 @@ function mapR4NamingSystem(resource: any): CanonicalNamingSystem {
       value: uniqueId.value,
       preferred: uniqueId.preferred
     }))
+  };
+}
+
+function mapR4TerminologyCapabilities(resource: any): CanonicalTerminologyCapabilities {
+  if (!resource || resource.resourceType !== 'TerminologyCapabilities') return null as any;
+  return {
+    id: resource.id,
+    url: resource.url,
+    identifier: resource.identifier?.[0]?.value,
+    version: resource.version,
+    name: resource.name,
+    title: resource.title,
+    status: resource.status,
+    date: resource.date,
+    publisher: resource.publisher,
+    description: resource.description,
+    kind: resource.kind,
+    codeSearch: resource.codeSearch
   };
 }
 

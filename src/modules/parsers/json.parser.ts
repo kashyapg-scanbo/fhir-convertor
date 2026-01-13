@@ -686,6 +686,21 @@ const GlobalNamingSystemSchema = z.object({
   unique_id_preferred: z.union([z.boolean(), z.string()]).optional()
 });
 
+const GlobalTerminologyCapabilitiesSchema = z.object({
+  terminology_capabilities_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.string().optional(),
+  version: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  description: z.string().optional(),
+  kind: z.string().optional(),
+  code_search: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1115,6 +1130,7 @@ const GlobalCustomJSONSchema = z.object({
   value_set: z.union([GlobalValueSetSchema, z.array(GlobalValueSetSchema)]).optional(),
   concept_map: z.union([GlobalConceptMapSchema, z.array(GlobalConceptMapSchema)]).optional(),
   naming_system: z.union([GlobalNamingSystemSchema, z.array(GlobalNamingSystemSchema)]).optional(),
+  terminology_capabilities: z.union([GlobalTerminologyCapabilitiesSchema, z.array(GlobalTerminologyCapabilitiesSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1155,6 +1171,7 @@ const GlobalCustomJSONSchema = z.object({
     value.value_set ||
     value.concept_map ||
     value.naming_system ||
+    value.terminology_capabilities ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1173,7 +1190,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1210,6 +1227,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   valueSets: 'valueSet',
   conceptMaps: 'conceptMap',
   namingSystems: 'namingSystem',
+  terminologyCapabilities: 'terminologyCapabilities',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1268,6 +1286,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   concept_maps: 'conceptMap',
   naming_system: 'namingSystem',
   naming_systems: 'namingSystem',
+  terminology_capabilities: 'terminologyCapabilities',
+  terminology_capability: 'terminologyCapabilities',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1388,6 +1408,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   naming_systems: 'naming_system',
   namingsystem: 'naming_system',
   namingsystems: 'naming_system',
+  terminology_capabilities: 'terminology_capabilities',
+  terminology_capability: 'terminology_capabilities',
+  terminologycapabilities: 'terminology_capabilities',
+  terminologycapability: 'terminology_capabilities',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4141,6 +4165,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const valueSets = normalizeArray(validated.value_set);
   const conceptMaps = normalizeArray(validated.concept_map);
   const namingSystems = normalizeArray(validated.naming_system);
+  const terminologyCapabilities = normalizeArray(validated.terminology_capabilities);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4225,6 +4250,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (namingSystems.length) {
     canonical.namingSystems = namingSystems.map(buildCanonicalNamingSystemGlobal);
   }
+  if (terminologyCapabilities.length) {
+    canonical.terminologyCapabilities = terminologyCapabilities.map(buildCanonicalTerminologyCapabilitiesGlobal);
+  }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
   }
@@ -4303,7 +4331,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4329,6 +4357,7 @@ function wrapGlobalPayload(value: any) {
       value.value_set,
       value.concept_map,
       value.naming_system,
+      value.terminology_capabilities,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4413,6 +4442,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('naming_system_id' in value || 'unique_id_value' in value || 'kind' in value) {
       return { naming_system: value };
+    }
+    if ('terminology_capabilities_id' in value || 'code_search' in value || 'kind' in value) {
+      return { terminology_capabilities: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4532,6 +4564,8 @@ function looksLikeGlobalResource(value: any) {
     'naming_system_id' in value ||
     'unique_id_value' in value ||
     'kind' in value ||
+    'terminology_capabilities_id' in value ||
+    'code_search' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5507,6 +5541,23 @@ function buildCanonicalNamingSystemGlobal(namingSystem: z.infer<typeof GlobalNam
     description: namingSystem.description,
     usage: namingSystem.usage,
     uniqueId: uniqueId
+  };
+}
+
+function buildCanonicalTerminologyCapabilitiesGlobal(tc: z.infer<typeof GlobalTerminologyCapabilitiesSchema>) {
+  return {
+    id: tc.terminology_capabilities_id,
+    url: tc.url,
+    identifier: tc.identifier,
+    version: tc.version,
+    name: tc.name,
+    title: tc.title,
+    status: tc.status,
+    date: tc.date,
+    publisher: tc.publisher,
+    description: tc.description,
+    kind: tc.kind,
+    codeSearch: tc.code_search
   };
 }
 

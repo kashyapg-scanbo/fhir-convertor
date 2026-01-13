@@ -40,7 +40,8 @@ import {
     CanonicalCodeSystem,
     CanonicalValueSet,
     CanonicalConceptMap,
-    CanonicalNamingSystem
+    CanonicalNamingSystem,
+    CanonicalTerminologyCapabilities
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -106,6 +107,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         valueSets: [],
         conceptMaps: [],
         namingSystems: [],
+        terminologyCapabilities: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -253,6 +255,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (namingSystemEvent) {
                 const namingSystem = mapV3NamingSystem(namingSystemEvent);
                 if (namingSystem) model.namingSystems?.push(namingSystem);
+            }
+
+            const terminologyCapabilitiesEvent = sub.terminologyCapabilities || sub.TerminologyCapabilities;
+            if (terminologyCapabilitiesEvent) {
+                const terminologyCapabilities = mapV3TerminologyCapabilities(terminologyCapabilitiesEvent);
+                if (terminologyCapabilities) model.terminologyCapabilities?.push(terminologyCapabilities);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1311,6 +1319,39 @@ function mapV3NamingSystem(namingSystemEvent: any): CanonicalNamingSystem | unde
             value: displayName,
             preferred: true
         }] : undefined
+    };
+}
+
+function mapV3TerminologyCapabilities(terminologyCapabilitiesEvent: any): CanonicalTerminologyCapabilities | undefined {
+    if (!terminologyCapabilitiesEvent) return undefined;
+    const id = terminologyCapabilitiesEvent.id || terminologyCapabilitiesEvent['cda:id'];
+    const name = terminologyCapabilitiesEvent.name || terminologyCapabilitiesEvent['cda:name'];
+    const title = terminologyCapabilitiesEvent.title || terminologyCapabilitiesEvent['cda:title'];
+    const statusCode = terminologyCapabilitiesEvent.statusCode || terminologyCapabilitiesEvent['cda:statusCode'];
+    const effectiveTime = terminologyCapabilitiesEvent.effectiveTime || terminologyCapabilitiesEvent['cda:effectiveTime'];
+    const code = terminologyCapabilitiesEvent.code || terminologyCapabilitiesEvent['cda:code'];
+    const text = terminologyCapabilitiesEvent.text || terminologyCapabilitiesEvent['cda:text'];
+
+    const tcId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const kind = code?.['@_codeSystem'] || code?.['@_codeSystemName'];
+    const description = typeof text === 'string' ? text : text?.['#text'];
+    const nameText = typeof name === 'string' ? name : name?.['#text'];
+    const titleText = typeof title === 'string' ? title : title?.['#text'];
+
+    if (!tcId && !displayName && !nameText && !titleText) return undefined;
+
+    return {
+        id: tcId || `TERMCAP-${Date.now()}`,
+        identifier: tcId,
+        status: status || 'active',
+        name: nameText,
+        title: titleText,
+        date: date,
+        kind: kind,
+        description: description
     };
 }
 

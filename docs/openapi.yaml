@@ -45,6 +45,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonValueSetOnly'
                 - $ref: '#/components/schemas/CustomJsonConceptMapOnly'
                 - $ref: '#/components/schemas/CustomJsonNamingSystemOnly'
+                - $ref: '#/components/schemas/CustomJsonTerminologyCapabilitiesOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -417,6 +418,16 @@ paths:
                     kind: identifier
                     unique_id_type: uri
                     unique_id_value: https://example.org/namingsystems/example
+              terminology_capabilities:
+                summary: TerminologyCapabilities
+                value:
+                  terminology_capabilities:
+                    terminology_capabilities_id: TC-100
+                    url: https://example.org/terminology/capabilities
+                    name: ExampleTermCaps
+                    status: active
+                    kind: instance
+                    code_search: in-compose
               practitioner:
                 summary: Practitioner
                 value:
@@ -1007,6 +1018,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomNamingSystem'
+        terminology_capabilities:
+          oneOf:
+            - $ref: '#/components/schemas/CustomTerminologyCapabilities'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomTerminologyCapabilities'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2622,6 +2639,34 @@ components:
           oneOf:
             - type: boolean
             - type: string
+    CustomTerminologyCapabilities:
+      type: object
+      properties:
+        terminology_capabilities_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        kind:
+          type: string
+        code_search:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -3767,6 +3812,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [naming_system]
+    CustomJsonTerminologyCapabilitiesOnly:
+      title: TerminologyCapabilities
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [terminology_capabilities]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

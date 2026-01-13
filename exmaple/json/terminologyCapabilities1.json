@@ -1,0 +1,10 @@
+{
+  "terminology_capabilities": {
+    "terminology_capabilities_id": "TC-1",
+    "url": "https://example.org/terminology/capabilities",
+    "name": "ExampleTermCaps",
+    "status": "active",
+    "kind": "instance",
+    "code_search": "in-compose"
+  }
+}

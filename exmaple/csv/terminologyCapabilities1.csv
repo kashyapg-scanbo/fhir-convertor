@@ -1,0 +1,2 @@
+terminology_capabilities_id,terminology_capabilities_url,terminology_capabilities_name,terminology_capabilities_title,terminology_capabilities_status,terminology_capabilities_kind,terminology_capabilities_code_search
+TC-1,https://example.org/terminology/capabilities,ExampleTermCaps,,active,instance,in-compose

@@ -1246,6 +1246,42 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.namingSystems = namingSystems as any[];
   }
 
+  const terminologyCapabilities = rows.map(row => {
+    const tcId = readValue(row, 'terminology_capabilities_id');
+    const url = readValue(row, 'terminology_capabilities_url');
+    const identifier = readValue(row, 'terminology_capabilities_id');
+    const version = readValue(row, 'terminology_capabilities_version');
+    const name = readValue(row, 'terminology_capabilities_name');
+    const title = readValue(row, 'terminology_capabilities_title');
+    const status = readValue(row, 'terminology_capabilities_status');
+    const date = readValue(row, 'terminology_capabilities_date');
+    const publisher = readValue(row, 'terminology_capabilities_publisher');
+    const description = readValue(row, 'terminology_capabilities_description');
+    const kind = readValue(row, 'terminology_capabilities_kind');
+    const codeSearch = readValue(row, 'terminology_capabilities_code_search');
+
+    if (!tcId && !url && !name && !title && !codeSearch) return null;
+
+    return {
+      id: tcId || undefined,
+      url: url || undefined,
+      identifier: identifier || undefined,
+      version: version || undefined,
+      name: name || undefined,
+      title: title || undefined,
+      status: status || undefined,
+      date: date || undefined,
+      publisher: publisher || undefined,
+      description: description || undefined,
+      kind: kind || undefined,
+      codeSearch: codeSearch || undefined
+    };
+  }).filter(Boolean);
+
+  if (terminologyCapabilities.length > 0) {
+    canonical.terminologyCapabilities = terminologyCapabilities as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

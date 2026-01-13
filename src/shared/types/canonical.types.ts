@@ -1121,6 +1121,22 @@ export type CanonicalNamingSystem = {
   active?: boolean;
 };
 
+export type CanonicalTerminologyCapabilities = {
+  id?: string;
+  url?: string;
+  identifier?: string;
+  version?: string;
+  name?: string;
+  title?: string;
+  status?: string;
+  date?: string;
+  publisher?: string;
+  description?: string;
+  kind?: string;
+  codeSearch?: string;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1877,6 +1893,7 @@ export type CanonicalModel = {
   valueSets?: CanonicalValueSet[]; // ValueSet
   conceptMaps?: CanonicalConceptMap[]; // ConceptMap
   namingSystems?: CanonicalNamingSystem[]; // NamingSystem
+  terminologyCapabilities?: CanonicalTerminologyCapabilities[]; // TerminologyCapabilities
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

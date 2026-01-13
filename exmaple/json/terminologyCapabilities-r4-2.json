@@ -1,0 +1,10 @@
+{
+  "resourceType": "TerminologyCapabilities",
+  "id": "TC-R4-2",
+  "url": "https://example.org/terminology/capabilities-labs",
+  "title": "Lab TermCaps",
+  "status": "active",
+  "kind": "capability",
+  "codeSearch": "in-expansion",
+  "publisher": "Example Health"
+}

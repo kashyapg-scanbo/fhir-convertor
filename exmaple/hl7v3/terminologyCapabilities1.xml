@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-TC-1"/>
+  <creationTime value="20240310100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <terminologyCapabilities>
+        <id extension="TC-V3-1"/>
+        <name>ExampleTermCaps</name>
+        <statusCode code="active"/>
+        <effectiveTime value="20240310"/>
+        <code code="in-compose" displayName="ExampleTermCaps" codeSystem="instance"/>
+        <text>Terminology capabilities</text>
+      </terminologyCapabilities>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

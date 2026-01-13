@@ -742,6 +742,19 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     naming_system_unique_id_value: ['unique_id_value'],
     naming_system_unique_id_preferred: ['unique_id_preferred']
   },
+  terminologyCapabilities: {
+    terminology_capabilities_id: ['terminology_capabilities_identifier', 'terminologycapabilities_id', 'terminologycapabilities_identifier'],
+    terminology_capabilities_url: ['url'],
+    terminology_capabilities_version: ['version'],
+    terminology_capabilities_name: ['name'],
+    terminology_capabilities_title: ['title'],
+    terminology_capabilities_status: ['status'],
+    terminology_capabilities_date: ['date'],
+    terminology_capabilities_publisher: ['publisher'],
+    terminology_capabilities_description: ['description'],
+    terminology_capabilities_kind: ['kind'],
+    terminology_capabilities_code_search: ['code_search', 'code_search_mode']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

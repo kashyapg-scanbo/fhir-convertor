@@ -35,6 +35,7 @@ import {
   CanonicalValueSet,
   CanonicalConceptMap,
   CanonicalNamingSystem,
+  CanonicalTerminologyCapabilities,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -111,6 +112,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const valueSets = extractValueSets(clinicalDocument);
   const conceptMaps = extractConceptMaps(clinicalDocument);
   const namingSystems = extractNamingSystems(clinicalDocument);
+  const terminologyCapabilities = extractTerminologyCapabilities(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -160,6 +162,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (valueSets.length) canonical.valueSets = valueSets;
   if (conceptMaps.length) canonical.conceptMaps = conceptMaps;
   if (namingSystems.length) canonical.namingSystems = namingSystems;
+  if (terminologyCapabilities.length) canonical.terminologyCapabilities = terminologyCapabilities;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1361,6 +1364,51 @@ function extractNamingSystems(
   });
 
   return namingSystems;
+}
+
+function extractTerminologyCapabilities(
+  clinicalDocument: any
+): CanonicalTerminologyCapabilities[] {
+  const terminologyCapabilities: CanonicalTerminologyCapabilities[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isTerminologyCapabilitiesSection = sectionCodeValue === 'TERMCAP';
+    if (!isTerminologyCapabilitiesSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const tc of acts) {
+      const id = extractId(tc.id || tc['cda:id']);
+      const statusCode = tc.statusCode || tc['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = tc.code || tc['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const kind = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(tc.text || tc['cda:text']);
+      const effectiveTime = tc.effectiveTime || tc['cda:effectiveTime'];
+      const date = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !codeValue && !text) continue;
+
+      terminologyCapabilities.push({
+        id: id || `TERMCAP-${terminologyCapabilities.length + 1}`,
+        identifier: id,
+        status: status || 'active',
+        name: displayName,
+        description: text,
+        date: date,
+        kind: kind,
+        codeSearch: codeValue
+      });
+    }
+  });
+
+  return terminologyCapabilities;
 }
 
 function extractProcedures(
