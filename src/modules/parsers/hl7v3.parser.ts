@@ -29,7 +29,8 @@ import {
     CanonicalOperationOutcome,
     CanonicalParameters,
     CanonicalCarePlan,
-    CanonicalCareTeam
+    CanonicalCareTeam,
+    CanonicalGoal
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -84,6 +85,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         parameters: [],
         carePlans: [],
         careTeams: [],
+        goals: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -165,6 +167,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (careTeamEvent) {
                 const careTeam = mapV3CareTeam(careTeamEvent);
                 if (careTeam) model.careTeams?.push(careTeam);
+            }
+
+            const goalEvent = sub.goal || sub.Goal;
+            if (goalEvent) {
+                const goal = mapV3Goal(goalEvent);
+                if (goal) model.goals?.push(goal);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -880,6 +888,31 @@ function mapV3CareTeam(teamEvent: any): CanonicalCareTeam | undefined {
         name: name,
         period: periodStart || periodEnd ? { start: periodStart, end: periodEnd } : undefined,
         participant: participant.length ? participant : undefined
+    };
+}
+
+function mapV3Goal(goalEvent: any): CanonicalGoal | undefined {
+    if (!goalEvent) return undefined;
+    const id = goalEvent.id || goalEvent['cda:id'];
+    const code = goalEvent.code || goalEvent['cda:code'];
+    const statusCode = goalEvent.statusCode || goalEvent['cda:statusCode'];
+    const effectiveTime = goalEvent.effectiveTime || goalEvent['cda:effectiveTime'];
+    const text = goalEvent.text || goalEvent['cda:text'];
+
+    const goalId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const startDate = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const descriptionText = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!goalId && !displayName && !descriptionText) return undefined;
+
+    return {
+        id: goalId || `GOAL-${Date.now()}`,
+        identifier: goalId,
+        lifecycleStatus: status || 'active',
+        description: { text: displayName || descriptionText },
+        startDate: startDate
     };
 }
 

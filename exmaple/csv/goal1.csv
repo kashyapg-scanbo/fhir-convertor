@@ -1,0 +1,2 @@
+goal_id,goal_lifecycle_status,goal_description,goal_subject_id,goal_start_date,goal_target_measure,goal_target_detail,goal_target_due_date,goal_priority,goal_note
+GOAL-1,active,Lower HbA1c to 7.0,PAT-1,2024-01-01,HbA1c,7.0,2024-06-30,high-priority,Track labs quarterly

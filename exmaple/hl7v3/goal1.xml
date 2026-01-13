@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-goal-1"/>
+  <creationTime value="20240101120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <goal>
+        <id extension="GV3-1"/>
+        <code displayName="Lower HbA1c to 7.0"/>
+        <statusCode code="active"/>
+        <effectiveTime value="20240101"/>
+      </goal>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -635,6 +635,63 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.careTeams = careTeams as any[];
   }
 
+  const goals = rows.map(row => {
+    const goalId = readValue(row, 'goal_id');
+    const lifecycleStatus = readValue(row, 'goal_lifecycle_status');
+    const achievementStatus = readValue(row, 'goal_achievement_status');
+    const categoryRaw = readValue(row, 'goal_category');
+    const continuous = readBoolean(row, 'goal_continuous');
+    const priority = readValue(row, 'goal_priority');
+    const description = readValue(row, 'goal_description');
+    const subjectId = readValue(row, 'goal_subject_id');
+    const startDate = readValue(row, 'goal_start_date');
+    const startCode = readValue(row, 'goal_start_code');
+    const targetMeasure = readValue(row, 'goal_target_measure');
+    const targetDetail = readValue(row, 'goal_target_detail');
+    const targetDueDate = readValue(row, 'goal_target_due_date');
+    const statusDate = readValue(row, 'goal_status_date');
+    const statusReason = readValue(row, 'goal_status_reason');
+    const sourceId = readValue(row, 'goal_source_id');
+    const addressesRaw = readValue(row, 'goal_addresses');
+    const noteRaw = readValue(row, 'goal_note');
+    const outcomeRaw = readValue(row, 'goal_outcome');
+
+    if (!goalId && !description && !subjectId) return null;
+
+    return {
+      id: goalId || undefined,
+      identifier: goalId || undefined,
+      lifecycleStatus: lifecycleStatus || 'active',
+      achievementStatus: achievementStatus ? { display: achievementStatus } : undefined,
+      category: categoryRaw
+        ? categoryRaw.split(',').map(value => ({ display: value.trim() }))
+        : undefined,
+      continuous: continuous,
+      priority: priority ? { display: priority } : undefined,
+      description: description ? { text: description } : undefined,
+      subject: subjectId,
+      startDate: startDate,
+      startCodeableConcept: startCode ? { display: startCode } : undefined,
+      target: (targetMeasure || targetDetail || targetDueDate)
+        ? [{
+          measure: targetMeasure ? { display: targetMeasure } : undefined,
+          detailString: targetDetail,
+          dueDate: targetDueDate
+        }]
+        : undefined,
+      statusDate: statusDate,
+      statusReason: statusReason,
+      source: sourceId,
+      addresses: addressesRaw ? addressesRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      note: noteRaw ? [noteRaw] : undefined,
+      outcome: outcomeRaw ? outcomeRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined
+    };
+  }).filter(Boolean);
+
+  if (goals.length > 0) {
+    canonical.goals = goals as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

@@ -501,6 +501,27 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     care_team_email: ['email'],
     care_team_note: ['note']
   },
+  goal: {
+    goal_id: ['goal_identifier', 'goalid'],
+    goal_lifecycle_status: ['lifecycle_status', 'status'],
+    goal_achievement_status: ['achievement_status'],
+    goal_category: ['category'],
+    goal_continuous: ['continuous'],
+    goal_priority: ['priority'],
+    goal_description: ['description', 'goal_description'],
+    goal_subject_id: ['subject_id', 'patient_id'],
+    goal_start_date: ['start_date'],
+    goal_start_code: ['start_code', 'start_codeable_concept'],
+    goal_target_measure: ['target_measure'],
+    goal_target_detail: ['target_detail', 'detail'],
+    goal_target_due_date: ['target_due_date', 'due_date'],
+    goal_status_date: ['status_date'],
+    goal_status_reason: ['status_reason'],
+    goal_source_id: ['source_id'],
+    goal_addresses: ['addresses', 'addressed'],
+    goal_note: ['note'],
+    goal_outcome: ['outcome']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

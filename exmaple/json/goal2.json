@@ -1,0 +1,23 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Nguyen"
+    }
+  },
+  "goal": {
+    "goal_id": "GOAL-2",
+    "lifecycle_status": "active",
+    "description": "Reduce systolic BP below 130",
+    "subject_id": "PAT-2",
+    "start_date": "2024-02-01",
+    "target_measure": "Systolic BP",
+    "target_detail": "<130",
+    "target_due_date": "2024-08-01",
+    "status_reason": "New treatment plan",
+    "source_id": "PRAC-2",
+    "addresses": ["Hypertension"],
+    "outcome": ["Observation/OBS-1"]
+  }
+}

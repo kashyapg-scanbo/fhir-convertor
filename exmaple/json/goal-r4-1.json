@@ -1,0 +1,21 @@
+{
+  "resourceType": "Goal",
+  "id": "GOAL-R4-1",
+  "lifecycleStatus": "active",
+  "description": {
+    "text": "Lower HbA1c to 7.0"
+  },
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "startDate": "2024-01-01",
+  "target": [
+    {
+      "measure": {
+        "text": "HbA1c"
+      },
+      "detailString": "7.0",
+      "dueDate": "2024-06-30"
+    }
+  ]
+}

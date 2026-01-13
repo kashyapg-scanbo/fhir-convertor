@@ -34,6 +34,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonParametersOnly'
                 - $ref: '#/components/schemas/CustomJsonCarePlanOnly'
                 - $ref: '#/components/schemas/CustomJsonCareTeamOnly'
+                - $ref: '#/components/schemas/CustomJsonGoalOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -261,6 +262,18 @@ paths:
                     participant_role: primary
                     managing_org_ids:
                       - ORG-1
+              goal:
+                summary: Goal
+                value:
+                  goal:
+                    goal_id: GOAL-100
+                    lifecycle_status: active
+                    description: Lower HbA1c to 7.0
+                    subject_id: P-10001
+                    start_date: 2024-01-01
+                    target_measure: HbA1c
+                    target_detail: 7.0
+                    target_due_date: 2024-06-30
               practitioner:
                 summary: Practitioner
                 value:
@@ -567,7 +580,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -712,7 +725,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -785,6 +798,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCareTeam'
+        goal:
+          oneOf:
+            - $ref: '#/components/schemas/CustomGoal'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomGoal'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1641,6 +1660,66 @@ components:
         email:
           type: string
         note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomGoal:
+      type: object
+      properties:
+        goal_id:
+          type: string
+        lifecycle_status:
+          type: string
+        achievement_status:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        continuous:
+          type: boolean
+        priority:
+          type: string
+        description:
+          type: string
+        subject_id:
+          type: string
+        start_date:
+          type: string
+          format: date
+        start_code:
+          type: string
+        target_measure:
+          type: string
+        target_detail:
+          type: string
+        target_due_date:
+          type: string
+          format: date
+        status_date:
+          type: string
+          format: date
+        status_reason:
+          type: string
+        source_id:
+          type: string
+        addresses:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        outcome:
           oneOf:
             - type: string
             - type: array
@@ -2725,6 +2804,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [care_team]
+    CustomJsonGoalOnly:
+      title: Goal
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [goal]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

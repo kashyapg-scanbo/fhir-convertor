@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -799,6 +799,43 @@ export function buildCanonical(parsed: any) {
 
   if (careTeams.length > 0) {
     result.careTeams = careTeams;
+  }
+
+  /* ───── Goals (from OBX/GOL) ───── */
+  const goals: CanonicalGoal[] = [];
+  const golSegments = parsed.GOL ?? [];
+  for (const gol of golSegments) {
+    const goalId = gol?.[0]?.[0]?.[0];
+    const goalDesc = gol?.[3]?.[0]?.[1] || gol?.[3]?.[0]?.[0];
+    const status = gol?.[4]?.[0]?.[0];
+    if (!goalId && !goalDesc) continue;
+    goals.push({
+      id: goalId || `GOL-${Date.now()}`,
+      identifier: goalId,
+      lifecycleStatus: status || 'active',
+      description: { text: goalDesc },
+      subject: patientId
+    });
+  }
+
+  if (goals.length === 0 && obxSegments.length > 0) {
+    for (const obx of obxSegments) {
+      const codeParts = obx?.[2]?.[0] ?? [];
+      const display = codeParts[1] || codeParts[0];
+      if (!display) continue;
+      goals.push({
+        id: `GOAL-${Date.now()}`,
+        identifier: codeParts[0],
+        lifecycleStatus: 'active',
+        description: { text: display },
+        subject: patientId
+      });
+      break;
+    }
+  }
+
+  if (goals.length > 0) {
+    result.goals = goals;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

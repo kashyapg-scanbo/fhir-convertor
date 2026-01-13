@@ -29,7 +29,8 @@ import {
     CanonicalOperationOutcome,
     CanonicalParameters,
     CanonicalCarePlan,
-    CanonicalCareTeam
+    CanonicalCareTeam,
+    CanonicalGoal
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -57,6 +58,7 @@ export function parseR4(input: string): CanonicalModel {
         appointments: [],
         carePlans: [],
         careTeams: [],
+        goals: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -140,6 +142,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'CareTeam':
                 const careTeam = mapR4CareTeam(res);
                 if (careTeam) model.careTeams?.push(careTeam);
+                break;
+            case 'Goal':
+                const goal = mapR4Goal(res);
+                if (goal) model.goals?.push(goal);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -942,6 +948,70 @@ function mapR4CareTeam(team: any): CanonicalCareTeam {
       use: contact.use
     })),
     note: team.note?.map((note: any) => note.text).filter(Boolean)
+  };
+}
+
+function mapR4Goal(goal: any): CanonicalGoal {
+  return {
+    id: goal.id,
+    identifier: goal.identifier?.[0]?.value,
+    lifecycleStatus: goal.lifecycleStatus,
+    achievementStatus: goal.achievementStatus?.coding?.[0]
+      ? {
+        system: goal.achievementStatus.coding[0].system,
+        code: goal.achievementStatus.coding[0].code,
+        display: goal.achievementStatus.coding[0].display
+      }
+      : undefined,
+    category: goal.category?.map((cat: any) => ({
+      system: cat.coding?.[0]?.system,
+      code: cat.coding?.[0]?.code,
+      display: cat.coding?.[0]?.display || cat.text
+    })),
+    continuous: goal.continuous,
+    priority: goal.priority?.coding?.[0]
+      ? {
+        system: goal.priority.coding[0].system,
+        code: goal.priority.coding[0].code,
+        display: goal.priority.coding[0].display
+      }
+      : undefined,
+    description: goal.description?.coding?.[0] || goal.description?.text
+      ? {
+        system: goal.description?.coding?.[0]?.system,
+        code: goal.description?.coding?.[0]?.code,
+        display: goal.description?.coding?.[0]?.display,
+        text: goal.description?.text
+      }
+      : undefined,
+    subject: goal.subject?.reference?.replace(/^(Patient|Group|Organization)\//, ''),
+    startDate: goal.startDate,
+    startCodeableConcept: goal.startCodeableConcept?.coding?.[0]
+      ? {
+        system: goal.startCodeableConcept.coding[0].system,
+        code: goal.startCodeableConcept.coding[0].code,
+        display: goal.startCodeableConcept.coding[0].display
+      }
+      : undefined,
+    target: goal.target?.map((target: any) => ({
+      measure: target.measure?.coding?.[0]
+        ? {
+          system: target.measure.coding[0].system,
+          code: target.measure.coding[0].code,
+          display: target.measure.coding[0].display
+        }
+        : undefined,
+      detailString: target.detailString,
+      detailBoolean: target.detailBoolean,
+      detailInteger: target.detailInteger,
+      dueDate: target.dueDate
+    })),
+    statusDate: goal.statusDate,
+    statusReason: goal.statusReason,
+    source: goal.source?.reference?.replace(/^(CareTeam|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    addresses: goal.addresses?.map((ref: any) => ref.reference).filter(Boolean),
+    note: goal.note?.map((note: any) => note.text).filter(Boolean),
+    outcome: goal.outcome?.map((ref: any) => ref.reference).filter(Boolean)
   };
 }
 

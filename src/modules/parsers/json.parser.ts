@@ -395,6 +395,28 @@ const GlobalCareTeamSchema = z.object({
   note: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalGoalSchema = z.object({
+  goal_id: GlobalIdSchema.optional(),
+  lifecycle_status: z.string().optional(),
+  achievement_status: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  continuous: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  priority: z.string().optional(),
+  description: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  start_date: z.string().optional(),
+  start_code: z.string().optional(),
+  target_measure: z.string().optional(),
+  target_detail: z.string().optional(),
+  target_due_date: z.string().optional(),
+  status_date: z.string().optional(),
+  status_reason: z.string().optional(),
+  source_id: GlobalIdSchema.optional(),
+  addresses: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  outcome: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -813,6 +835,7 @@ const GlobalCustomJSONSchema = z.object({
   parameters: z.union([GlobalParametersSchema, z.array(GlobalParametersSchema)]).optional(),
   care_plan: z.union([GlobalCarePlanSchema, z.array(GlobalCarePlanSchema)]).optional(),
   care_team: z.union([GlobalCareTeamSchema, z.array(GlobalCareTeamSchema)]).optional(),
+  goal: z.union([GlobalGoalSchema, z.array(GlobalGoalSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -840,6 +863,9 @@ const GlobalCustomJSONSchema = z.object({
     value.capability_statement ||
     value.operation_outcome ||
     value.parameters ||
+    value.care_plan ||
+    value.care_team ||
+    value.goal ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -858,7 +884,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -884,6 +910,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   parameters: 'parameters',
   carePlans: 'carePlan',
   careTeams: 'careTeam',
+  goals: 'goal',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -920,6 +947,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   care_plans: 'carePlan',
   care_team: 'careTeam',
   care_teams: 'careTeam',
+  goal: 'goal',
+  goals: 'goal',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1004,6 +1033,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   care_teams: 'care_team',
   careteam: 'care_team',
   careteams: 'care_team',
+  goal: 'goal',
+  goals: 'goal',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -2221,6 +2252,71 @@ function normalizeGlobalCareTeamAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalGoalAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const goalId = readSectionAliasValue(value, 'goal', 'goal_id');
+  if (normalized.goal_id === undefined && goalId !== undefined) {
+    normalized.goal_id = goalId;
+  }
+
+  const lifecycleStatus = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_lifecycle_status'));
+  if (lifecycleStatus && normalized.lifecycle_status === undefined) normalized.lifecycle_status = lifecycleStatus;
+
+  const achievementStatus = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_achievement_status'));
+  if (achievementStatus && normalized.achievement_status === undefined) normalized.achievement_status = achievementStatus;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const continuous = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_continuous'));
+  if (continuous && normalized.continuous === undefined) normalized.continuous = continuous;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_priority'));
+  if (priority && normalized.priority === undefined) normalized.priority = priority;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const startDate = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_start_date'));
+  if (startDate && normalized.start_date === undefined) normalized.start_date = startDate;
+
+  const startCode = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_start_code'));
+  if (startCode && normalized.start_code === undefined) normalized.start_code = startCode;
+
+  const targetMeasure = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_target_measure'));
+  if (targetMeasure && normalized.target_measure === undefined) normalized.target_measure = targetMeasure;
+
+  const targetDetail = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_target_detail'));
+  if (targetDetail && normalized.target_detail === undefined) normalized.target_detail = targetDetail;
+
+  const targetDueDate = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_target_due_date'));
+  if (targetDueDate && normalized.target_due_date === undefined) normalized.target_due_date = targetDueDate;
+
+  const statusDate = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_status_date'));
+  if (statusDate && normalized.status_date === undefined) normalized.status_date = statusDate;
+
+  const statusReason = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_status_reason'));
+  if (statusReason && normalized.status_reason === undefined) normalized.status_reason = statusReason;
+
+  const sourceId = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_source_id'));
+  if (sourceId && normalized.source_id === undefined) normalized.source_id = sourceId;
+
+  const addresses = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_addresses'));
+  if (addresses && normalized.addresses === undefined) normalized.addresses = addresses;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const outcome = normalizeAliasValue(readSectionAliasValue(value, 'goal', 'goal_outcome'));
+  if (outcome && normalized.outcome === undefined) normalized.outcome = outcome;
+
+  return normalized;
+}
+
 function normalizeGlobalSpecimenAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -2866,6 +2962,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalCarePlanAliases(value);
     case 'careTeam':
       return normalizeGlobalCareTeamAliases(value);
+    case 'goal':
+      return normalizeGlobalGoalAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -2917,6 +3015,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['parameters', 'parameters'],
     ['carePlan', 'care_plan'],
     ['careTeam', 'care_team'],
+    ['goal', 'goal'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -3033,6 +3132,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'parameters',
     'carePlan',
     'careTeam',
+    'goal',
     'procedure',
     'condition',
     'appointment',
@@ -3163,6 +3263,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const parametersList = normalizeArray(validated.parameters);
   const carePlans = normalizeArray(validated.care_plan);
   const careTeams = normalizeArray(validated.care_team);
+  const goals = normalizeArray(validated.goal);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -3213,6 +3314,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (careTeams.length) {
     canonical.careTeams = careTeams.map(buildCanonicalCareTeamGlobal);
+  }
+  if (goals.length) {
+    canonical.goals = goals.map(buildCanonicalGoalGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -3292,7 +3396,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -3307,6 +3411,7 @@ function wrapGlobalPayload(value: any) {
       value.parameters,
       value.care_plan,
       value.care_team,
+      value.goal,
       value.procedure,
       value.condition,
       value.appointment,
@@ -3358,6 +3463,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('care_team_id' in value || 'participant_member_id' in value || 'participant_role' in value) {
       return { care_team: value };
+    }
+    if ('goal_id' in value || 'lifecycle_status' in value || 'description' in value) {
+      return { goal: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -3448,6 +3556,8 @@ function looksLikeGlobalResource(value: any) {
     'intent' in value ||
     'care_team_id' in value ||
     'participant_member_id' in value ||
+    'goal_id' in value ||
+    'lifecycle_status' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -3948,6 +4058,40 @@ function buildCanonicalCareTeamGlobal(team: z.infer<typeof GlobalCareTeamSchema>
     managingOrganization: managingOrgs.length ? managingOrgs : undefined,
     telecom: telecom.length ? telecom : undefined,
     note: notes.length ? notes : undefined
+  };
+}
+
+function buildCanonicalGoalGlobal(goal: z.infer<typeof GlobalGoalSchema>) {
+  const categories = normalizeStringArray(goal.category);
+  const addresses = normalizeStringArray(goal.addresses);
+  const notes = normalizeStringArray(goal.note);
+  const outcomes = normalizeStringArray(goal.outcome);
+
+  return {
+    id: goal.goal_id,
+    identifier: goal.goal_id,
+    lifecycleStatus: goal.lifecycle_status,
+    achievementStatus: goal.achievement_status
+      ? { code: goal.achievement_status, display: goal.achievement_status }
+      : undefined,
+    category: categories.length ? categories.map(value => ({ code: value, display: value })) : undefined,
+    continuous: normalizeBoolean(goal.continuous),
+    priority: goal.priority ? { code: goal.priority, display: goal.priority } : undefined,
+    description: goal.description ? { text: goal.description } : undefined,
+    subject: goal.subject_id,
+    startDate: goal.start_date,
+    startCodeableConcept: goal.start_code ? { code: goal.start_code, display: goal.start_code } : undefined,
+    target: (goal.target_measure || goal.target_detail || goal.target_due_date) ? [{
+      measure: goal.target_measure ? { code: goal.target_measure, display: goal.target_measure } : undefined,
+      detailString: goal.target_detail,
+      dueDate: goal.target_due_date
+    }] : undefined,
+    statusDate: goal.status_date,
+    statusReason: goal.status_reason,
+    source: goal.source_id,
+    addresses: addresses.length ? addresses : undefined,
+    note: notes.length ? notes : undefined,
+    outcome: outcomes.length ? outcomes : undefined
   };
 }
 

@@ -24,6 +24,7 @@ import {
   CanonicalParameters,
   CanonicalCarePlan,
   CanonicalCareTeam,
+  CanonicalGoal,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -89,6 +90,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const parameters = extractParameters(clinicalDocument);
   const carePlans = extractCarePlans(clinicalDocument, patient.id, encounter?.id);
   const careTeams = extractCareTeams(clinicalDocument, patient.id);
+  const goals = extractGoals(clinicalDocument, patient.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -127,6 +129,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
 
   if (carePlans.length) canonical.carePlans = carePlans;
   if (careTeams.length) canonical.careTeams = careTeams;
+  if (goals.length) canonical.goals = goals;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -816,6 +819,48 @@ function extractCareTeams(
   });
 
   return careTeams;
+}
+
+function extractGoals(
+  clinicalDocument: any,
+  patientId?: string
+): CanonicalGoal[] {
+  const goals: CanonicalGoal[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isGoalSection = sectionCodeValue === '61146-7';
+    if (!isGoalSection) return;
+
+    const observation = entry.observation || entry['cda:observation'];
+    if (!observation) return;
+    const observations = Array.isArray(observation) ? observation : [observation];
+
+    for (const obs of observations) {
+      const id = extractId(obs.id || obs['cda:id']);
+      const statusCode = obs.statusCode || obs['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = obs.code || obs['cda:code'];
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+
+      const effectiveTime = obs.effectiveTime || obs['cda:effectiveTime'];
+      const start = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName) continue;
+
+      goals.push({
+        id: id || `GOAL-${goals.length + 1}`,
+        identifier: id,
+        lifecycleStatus: status || 'active',
+        description: displayName ? { text: displayName } : undefined,
+        subject: patientId,
+        startDate: start
+      });
+    }
+  });
+
+  return goals;
 }
 
 function extractProcedures(

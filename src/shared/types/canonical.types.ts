@@ -735,6 +735,59 @@ export type CanonicalCareTeam = {
   active?: boolean;
 };
 
+export type CanonicalGoal = {
+  id?: string;
+  identifier?: string;
+  lifecycleStatus?: string;
+  achievementStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  continuous?: boolean;
+  priority?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  description?: {
+    system?: string;
+    code?: string;
+    display?: string;
+    text?: string;
+  };
+  subject?: string;
+  startDate?: string;
+  startCodeableConcept?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  target?: Array<{
+    measure?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    detailString?: string;
+    detailBoolean?: boolean;
+    detailInteger?: number;
+    dueDate?: string;
+  }>;
+  statusDate?: string;
+  statusReason?: string;
+  source?: string;
+  addresses?: string[];
+  note?: string[];
+  outcome?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1480,6 +1533,7 @@ export type CanonicalModel = {
   parameters?: CanonicalParameters[]; // Parameters
   carePlans?: CanonicalCarePlan[]; // CarePlan
   careTeams?: CanonicalCareTeam[]; // CareTeam
+  goals?: CanonicalGoal[]; // Goal
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment
