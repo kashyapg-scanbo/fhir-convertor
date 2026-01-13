@@ -1,0 +1,15 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "CS-R4-1",
+  "url": "https://example.org/codesystems/example",
+  "name": "ExampleCodes",
+  "status": "active",
+  "content": "complete",
+  "concept": [
+    {
+      "code": "EX001",
+      "display": "Example concept",
+      "definition": "Sample definition"
+    }
+  ]
+}

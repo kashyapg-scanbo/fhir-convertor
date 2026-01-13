@@ -601,6 +601,31 @@ const GlobalQuestionnaireResponseSchema = z.object({
   item_answer: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalCodeSystemConceptSchema = z.object({
+  code: z.string().optional(),
+  display: z.string().optional(),
+  definition: z.string().optional()
+});
+
+const GlobalCodeSystemSchema = z.object({
+  code_system_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.string().optional(),
+  version: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  status: z.string().optional(),
+  date: z.string().optional(),
+  publisher: z.string().optional(),
+  description: z.string().optional(),
+  content: z.string().optional(),
+  case_sensitive: z.union([z.boolean(), z.string()]).optional(),
+  concept: z.union([GlobalCodeSystemConceptSchema, z.array(GlobalCodeSystemConceptSchema)]).optional(),
+  concept_code: z.string().optional(),
+  concept_display: z.string().optional(),
+  concept_definition: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1026,6 +1051,7 @@ const GlobalCustomJSONSchema = z.object({
   communication_request: z.union([GlobalCommunicationRequestSchema, z.array(GlobalCommunicationRequestSchema)]).optional(),
   questionnaire: z.union([GlobalQuestionnaireSchema, z.array(GlobalQuestionnaireSchema)]).optional(),
   questionnaire_response: z.union([GlobalQuestionnaireResponseSchema, z.array(GlobalQuestionnaireResponseSchema)]).optional(),
+  code_system: z.union([GlobalCodeSystemSchema, z.array(GlobalCodeSystemSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1062,6 +1088,7 @@ const GlobalCustomJSONSchema = z.object({
     value.communication_request ||
     value.questionnaire ||
     value.questionnaire_response ||
+    value.code_system ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1080,7 +1107,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1113,6 +1140,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   communicationRequests: 'communicationRequest',
   questionnaires: 'questionnaire',
   questionnaireResponses: 'questionnaireResponse',
+  codeSystems: 'codeSystem',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1163,6 +1191,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   questionnaires: 'questionnaire',
   questionnaire_response: 'questionnaireResponse',
   questionnaire_responses: 'questionnaireResponse',
+  code_system: 'codeSystem',
+  code_systems: 'codeSystem',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1267,6 +1297,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   questionnaire_responses: 'questionnaire_response',
   questionnaireresponse: 'questionnaire_response',
   questionnaireresponses: 'questionnaire_response',
+  code_system: 'code_system',
+  code_systems: 'code_system',
+  codesystem: 'code_system',
+  codesystems: 'code_system',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4016,6 +4050,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const communicationRequests = normalizeArray(validated.communication_request);
   const questionnaires = normalizeArray(validated.questionnaire);
   const questionnaireResponses = normalizeArray(validated.questionnaire_response);
+  const codeSystems = normalizeArray(validated.code_system);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4087,6 +4122,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (questionnaireResponses.length) {
     canonical.questionnaireResponses = questionnaireResponses.map(buildCanonicalQuestionnaireResponseGlobal);
+  }
+  if (codeSystems.length) {
+    canonical.codeSystems = codeSystems.map(buildCanonicalCodeSystemGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -4166,7 +4204,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4188,6 +4226,7 @@ function wrapGlobalPayload(value: any) {
       value.communication_request,
       value.questionnaire,
       value.questionnaire_response,
+      value.code_system,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4260,6 +4299,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('questionnaire_response_id' in value || 'authored' in value || 'item_answer' in value) {
       return { questionnaire_response: value };
+    }
+    if ('code_system_id' in value || 'url' in value || 'concept_code' in value) {
+      return { code_system: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4368,6 +4410,8 @@ function looksLikeGlobalResource(value: any) {
     'questionnaire_response_id' in value ||
     'authored' in value ||
     'item_answer' in value ||
+    'code_system_id' in value ||
+    'concept_code' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5206,6 +5250,38 @@ function buildCanonicalQuestionnaireResponseGlobal(resp: z.infer<typeof GlobalQu
     author: resp.author_id,
     source: resp.source_id,
     item: items.length ? items : undefined
+  };
+}
+
+function buildCanonicalCodeSystemGlobal(system: z.infer<typeof GlobalCodeSystemSchema>) {
+  const concepts = normalizeArray(system.concept).map(concept => ({
+    code: concept.code,
+    display: concept.display,
+    definition: concept.definition
+  }));
+
+  if (system.concept_code || system.concept_display || system.concept_definition) {
+    concepts.push({
+      code: system.concept_code,
+      display: system.concept_display,
+      definition: system.concept_definition
+    });
+  }
+
+  return {
+    id: system.code_system_id,
+    url: system.url,
+    identifier: system.identifier,
+    version: system.version,
+    name: system.name,
+    title: system.title,
+    status: system.status,
+    date: system.date,
+    publisher: system.publisher,
+    description: system.description,
+    content: system.content,
+    caseSensitive: normalizeBoolean(system.case_sensitive),
+    concept: concepts.length ? concepts : undefined
   };
 }
 

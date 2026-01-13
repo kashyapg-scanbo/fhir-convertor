@@ -1,0 +1,16 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "CS-R4-2",
+  "url": "https://example.org/codesystems/labs",
+  "title": "Lab Codes",
+  "status": "active",
+  "content": "fragment",
+  "caseSensitive": true,
+  "concept": [
+    {
+      "code": "LAB001",
+      "display": "Complete blood count",
+      "definition": "CBC panel"
+    }
+  ]
+}

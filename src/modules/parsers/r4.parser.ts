@@ -36,7 +36,8 @@ import {
     CanonicalCommunication,
     CanonicalCommunicationRequest,
     CanonicalQuestionnaire,
-    CanonicalQuestionnaireResponse
+    CanonicalQuestionnaireResponse,
+    CanonicalCodeSystem
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -71,6 +72,7 @@ export function parseR4(input: string): CanonicalModel {
         communicationRequests: [],
         questionnaires: [],
         questionnaireResponses: [],
+        codeSystems: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -182,6 +184,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'QuestionnaireResponse':
                 const questionnaireResponse = mapR4QuestionnaireResponse(res);
                 if (questionnaireResponse) model.questionnaireResponses?.push(questionnaireResponse);
+                break;
+            case 'CodeSystem':
+                const codeSystem = mapR4CodeSystem(res);
+                if (codeSystem) model.codeSystems?.push(codeSystem);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1328,6 +1334,30 @@ function mapR4QuestionnaireResponse(resp: any): CanonicalQuestionnaireResponse {
     author: resp.author?.reference,
     source: resp.source?.reference,
     item: items.length ? items : undefined
+  };
+}
+
+function mapR4CodeSystem(resource: any): CanonicalCodeSystem {
+  if (!resource || resource.resourceType !== 'CodeSystem') return null as any;
+  const concepts = Array.isArray(resource.concept) ? resource.concept : [];
+  return {
+    id: resource.id,
+    url: resource.url,
+    identifier: resource.identifier?.[0]?.value,
+    version: resource.version,
+    name: resource.name,
+    title: resource.title,
+    status: resource.status,
+    date: resource.date,
+    publisher: resource.publisher,
+    description: resource.description,
+    content: resource.content,
+    case_sensitive: resource.caseSensitive,
+    concept: concepts.map((concept: any) => ({
+      code: concept.code,
+      display: concept.display,
+      definition: concept.definition
+    }))
   };
 }
 

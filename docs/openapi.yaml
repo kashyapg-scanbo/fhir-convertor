@@ -41,6 +41,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonCommunicationRequestOnly'
                 - $ref: '#/components/schemas/CustomJsonQuestionnaireOnly'
                 - $ref: '#/components/schemas/CustomJsonQuestionnaireResponseOnly'
+                - $ref: '#/components/schemas/CustomJsonCodeSystemOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -364,6 +365,18 @@ paths:
                         text: Do you smoke?
                         answer:
                           - "false"
+              code_system:
+                summary: CodeSystem
+                value:
+                  code_system:
+                    code_system_id: CS-100
+                    url: https://example.org/codesystems/example
+                    name: ExampleCodes
+                    status: active
+                    content: complete
+                    concept:
+                      - code: EX001
+                        display: Example concept
               practitioner:
                 summary: Practitioner
                 value:
@@ -930,6 +943,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomQuestionnaireResponse'
+        code_system:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCodeSystem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCodeSystem'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2373,6 +2392,62 @@ components:
                       - type: array
                         items:
                           type: string
+    CustomCodeSystem:
+      type: object
+      properties:
+        code_system_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        case_sensitive:
+          oneOf:
+            - type: boolean
+            - type: string
+        concept:
+          oneOf:
+            - type: object
+              properties:
+                code:
+                  type: string
+                display:
+                  type: string
+                definition:
+                  type: string
+            - type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  display:
+                    type: string
+                  definition:
+                    type: string
+        concept_code:
+          type: string
+        concept_display:
+          type: string
+        concept_definition:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -3494,6 +3569,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [questionnaire_response]
+    CustomJsonCodeSystemOnly:
+      title: CodeSystem
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [code_system]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

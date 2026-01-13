@@ -23,6 +23,7 @@ import { mapCommunications } from './communication.mapper.js';
 import { mapCommunicationRequests } from './communicationRequest.mapper.js';
 import { mapQuestionnaires } from './questionnaire.mapper.js';
 import { mapQuestionnaireResponses } from './questionnaireResponse.mapper.js';
+import { mapCodeSystems } from './codeSystem.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
@@ -300,6 +301,15 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (questionnaireResponseEntries.length > 0) {
     bundle.entry.push(...questionnaireResponseEntries);
+  }
+
+  const codeSystemEntries = mapCodeSystems({
+    codeSystems: canonical.codeSystems,
+    operation,
+    registry
+  });
+  if (codeSystemEntries.length > 0) {
+    bundle.entry.push(...codeSystemEntries);
   }
 
   const procedureEntries = mapProcedures({

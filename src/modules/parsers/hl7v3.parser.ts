@@ -36,7 +36,8 @@ import {
     CanonicalCommunication,
     CanonicalCommunicationRequest,
     CanonicalQuestionnaire,
-    CanonicalQuestionnaireResponse
+    CanonicalQuestionnaireResponse,
+    CanonicalCodeSystem
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -98,6 +99,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         communicationRequests: [],
         questionnaires: [],
         questionnaireResponses: [],
+        codeSystems: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -221,6 +223,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (questionnaireResponseEvent) {
                 const questionnaireResponse = mapV3QuestionnaireResponse(questionnaireResponseEvent);
                 if (questionnaireResponse) model.questionnaireResponses?.push(questionnaireResponse);
+            }
+
+            const codeSystemEvent = sub.codeSystem || sub.CodeSystem;
+            if (codeSystemEvent) {
+                const codeSystem = mapV3CodeSystem(codeSystemEvent);
+                if (codeSystem) model.codeSystems?.push(codeSystem);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1117,6 +1125,43 @@ function mapV3QuestionnaireResponse(respEvent: any): CanonicalQuestionnaireRespo
         questionnaire: qnrId,
         authored: authored,
         item: answerText ? [{ linkId: 'q1', text: 'Response', answer: [answerText] }] : undefined
+    };
+}
+
+function mapV3CodeSystem(codeSystemEvent: any): CanonicalCodeSystem | undefined {
+    if (!codeSystemEvent) return undefined;
+    const id = codeSystemEvent.id || codeSystemEvent['cda:id'];
+    const name = codeSystemEvent.name || codeSystemEvent['cda:name'];
+    const title = codeSystemEvent.title || codeSystemEvent['cda:title'];
+    const statusCode = codeSystemEvent.statusCode || codeSystemEvent['cda:statusCode'];
+    const effectiveTime = codeSystemEvent.effectiveTime || codeSystemEvent['cda:effectiveTime'];
+    const code = codeSystemEvent.code || codeSystemEvent['cda:code'];
+    const text = codeSystemEvent.text || codeSystemEvent['cda:text'];
+
+    const csId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeValue = code?.['@_code'];
+    const definition = typeof text === 'string' ? text : text?.['#text'];
+    const nameText = typeof name === 'string' ? name : name?.['#text'];
+    const titleText = typeof title === 'string' ? title : title?.['#text'];
+
+    if (!csId && !displayName && !nameText && !titleText) return undefined;
+
+    return {
+        id: csId || `CODESYS-${Date.now()}`,
+        identifier: csId,
+        status: status || 'active',
+        name: nameText,
+        title: titleText,
+        date: date,
+        description: definition,
+        concept: codeValue || displayName ? [{
+            code: codeValue,
+            display: displayName,
+            definition: definition
+        }] : undefined
     };
 }
 

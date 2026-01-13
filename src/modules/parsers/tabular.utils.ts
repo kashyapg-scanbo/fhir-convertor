@@ -1054,6 +1054,48 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.questionnaireResponses = questionnaireResponses as any[];
   }
 
+  const codeSystems = rows.map(row => {
+    const codeSystemId = readValue(row, 'code_system_id');
+    const url = readValue(row, 'code_system_url');
+    const identifier = readValue(row, 'code_system_id');
+    const version = readValue(row, 'code_system_version');
+    const name = readValue(row, 'code_system_name');
+    const title = readValue(row, 'code_system_title');
+    const status = readValue(row, 'code_system_status');
+    const date = readValue(row, 'code_system_date');
+    const publisher = readValue(row, 'code_system_publisher');
+    const description = readValue(row, 'code_system_description');
+    const content = readValue(row, 'code_system_content');
+    const caseSensitive = readValue(row, 'code_system_case_sensitive');
+    const conceptCode = readValue(row, 'code_system_concept_code');
+    const conceptDisplay = readValue(row, 'code_system_concept_display');
+    const conceptDefinition = readValue(row, 'code_system_concept_definition');
+
+    if (!codeSystemId && !url && !conceptCode && !name && !title) return null;
+
+    return {
+      id: codeSystemId || undefined,
+      url: url || undefined,
+      identifier: identifier || undefined,
+      version: version || undefined,
+      name: name || undefined,
+      title: title || undefined,
+      status: status || undefined,
+      date: date || undefined,
+      publisher: publisher || undefined,
+      description: description || undefined,
+      content: content || undefined,
+      caseSensitive: caseSensitive || undefined,
+      concept: (conceptCode || conceptDisplay || conceptDefinition)
+        ? [{ code: conceptCode, display: conceptDisplay, definition: conceptDefinition }]
+        : undefined
+    };
+  }).filter(Boolean);
+
+  if (codeSystems.length > 0) {
+    canonical.codeSystems = codeSystems as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

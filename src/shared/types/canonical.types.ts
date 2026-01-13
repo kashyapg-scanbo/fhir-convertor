@@ -1018,6 +1018,28 @@ export type CanonicalQuestionnaireResponse = {
   }>;
   active?: boolean;
 };
+
+export type CanonicalCodeSystem = {
+  id?: string;
+  url?: string;
+  identifier?: string;
+  version?: string;
+  name?: string;
+  title?: string;
+  status?: string;
+  date?: string;
+  publisher?: string;
+  description?: string;
+  content?: string;
+  caseSensitive?: boolean;
+  concept?: Array<{
+    code?: string;
+    display?: string;
+    definition?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1770,6 +1792,7 @@ export type CanonicalModel = {
   communicationRequests?: CanonicalCommunicationRequest[]; // CommunicationRequest
   questionnaires?: CanonicalQuestionnaire[]; // Questionnaire
   questionnaireResponses?: CanonicalQuestionnaireResponse[]; // QuestionnaireResponse
+  codeSystems?: CanonicalCodeSystem[]; // CodeSystem
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

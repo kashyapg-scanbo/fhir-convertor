@@ -1,0 +1,2 @@
+code_system_id,code_system_url,code_system_name,code_system_title,code_system_status,code_system_content,code_system_concept_code,code_system_concept_display,code_system_concept_definition
+CS-1,https://example.org/codesystems/example,ExampleCodes,,active,complete,EX001,Example concept,Sample definition

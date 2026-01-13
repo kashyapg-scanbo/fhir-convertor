@@ -672,6 +672,22 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     questionnaire_response_based_on_ids: ['based_on_ids', 'based_on_id'],
     questionnaire_response_part_of_ids: ['part_of_ids', 'part_of_id']
   },
+  codeSystem: {
+    code_system_id: ['code_system_identifier', 'codesystem_id', 'codesystem_identifier'],
+    code_system_url: ['url'],
+    code_system_version: ['version'],
+    code_system_name: ['name'],
+    code_system_title: ['title'],
+    code_system_status: ['status'],
+    code_system_date: ['date'],
+    code_system_publisher: ['publisher'],
+    code_system_description: ['description'],
+    code_system_content: ['content'],
+    code_system_case_sensitive: ['case_sensitive'],
+    code_system_concept_code: ['concept_code'],
+    code_system_concept_display: ['concept_display'],
+    code_system_concept_definition: ['concept_definition']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

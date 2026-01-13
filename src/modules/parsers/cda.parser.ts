@@ -31,6 +31,7 @@ import {
   CanonicalCommunicationRequest,
   CanonicalQuestionnaire,
   CanonicalQuestionnaireResponse,
+  CanonicalCodeSystem,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -103,6 +104,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const communicationRequests = extractCommunicationRequests(clinicalDocument, patient.id, encounter?.id);
   const questionnaires = extractQuestionnaires(clinicalDocument);
   const questionnaireResponses = extractQuestionnaireResponses(clinicalDocument, patient.id, encounter?.id);
+  const codeSystems = extractCodeSystems(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -148,6 +150,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (communicationRequests.length) canonical.communicationRequests = communicationRequests;
   if (questionnaires.length) canonical.questionnaires = questionnaires;
   if (questionnaireResponses.length) canonical.questionnaireResponses = questionnaireResponses;
+  if (codeSystems.length) canonical.codeSystems = codeSystems;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1144,6 +1147,55 @@ function extractQuestionnaireResponses(
   });
 
   return responses;
+}
+
+function extractCodeSystems(
+  clinicalDocument: any
+): CanonicalCodeSystem[] {
+  const codeSystems: CanonicalCodeSystem[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isCodeSystemSection = sectionCodeValue === 'CODESYS';
+    if (!isCodeSystemSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const cs of acts) {
+      const id = extractId(cs.id || cs['cda:id']);
+      const statusCode = cs.statusCode || cs['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = cs.code || cs['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(cs.text || cs['cda:text']);
+      const effectiveTime = cs.effectiveTime || cs['cda:effectiveTime'];
+      const date = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !codeValue && !text) continue;
+
+      codeSystems.push({
+        id: id || `CODESYS-${codeSystems.length + 1}`,
+        identifier: id,
+        url: codeSystem,
+        status: status || 'active',
+        title: displayName,
+        description: text,
+        date: date,
+        concept: codeValue || displayName ? [{
+          code: codeValue,
+          display: displayName,
+          definition: text
+        }] : undefined
+      });
+    }
+  });
+
+  return codeSystems;
 }
 
 function extractProcedures(
