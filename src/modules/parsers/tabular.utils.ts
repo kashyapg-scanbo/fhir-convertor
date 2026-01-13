@@ -1282,6 +1282,34 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.terminologyCapabilities = terminologyCapabilities as any[];
   }
 
+  const provenances = rows.map(row => {
+    const provId = readValue(row, 'provenance_id');
+    const targetIds = readValue(row, 'provenance_target_ids');
+    const recorded = readValue(row, 'provenance_recorded');
+    const activity = readValue(row, 'provenance_activity');
+    const agentWho = readValue(row, 'provenance_agent_who');
+    const agentRole = readValue(row, 'provenance_agent_role');
+
+    if (!provId && !targetIds && !activity && !recorded) return null;
+
+    const targets = targetIds ? targetIds.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const agent = agentWho || agentRole
+      ? [{ who: agentWho, role: agentRole }]
+      : undefined;
+
+    return {
+      id: provId || undefined,
+      target: targets,
+      recorded: recorded || undefined,
+      activity: activity || undefined,
+      agent: agent
+    };
+  }).filter(Boolean);
+
+  if (provenances.length > 0) {
+    canonical.provenances = provenances as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

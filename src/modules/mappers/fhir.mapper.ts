@@ -28,6 +28,7 @@ import { mapValueSets } from './valueSet.mapper.js';
 import { mapConceptMaps } from './conceptMap.mapper.js';
 import { mapNamingSystems } from './namingSystem.mapper.js';
 import { mapTerminologyCapabilities } from './terminologyCapabilities.mapper.js';
+import { mapProvenances } from './provenance.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
@@ -350,6 +351,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (terminologyCapabilitiesEntries.length > 0) {
     bundle.entry.push(...terminologyCapabilitiesEntries);
+  }
+
+  const provenanceEntries = mapProvenances({
+    provenances: canonical.provenances,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (provenanceEntries.length > 0) {
+    bundle.entry.push(...provenanceEntries);
   }
 
   const procedureEntries = mapProcedures({

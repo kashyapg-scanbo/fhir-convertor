@@ -1,0 +1,10 @@
+{
+  "provenance": {
+    "provenance_id": "PROV-2",
+    "target_ids": ["Condition/COND-1"],
+    "recorded": "2024-03-13T09:30:00Z",
+    "activity": "Condition updated",
+    "agent_who": "Organization/ORG-1",
+    "agent_role": "source"
+  }
+}

@@ -701,6 +701,15 @@ const GlobalTerminologyCapabilitiesSchema = z.object({
   code_search: z.string().optional()
 });
 
+const GlobalProvenanceSchema = z.object({
+  provenance_id: GlobalIdSchema.optional(),
+  target_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  recorded: z.string().optional(),
+  activity: z.string().optional(),
+  agent_who: z.string().optional(),
+  agent_role: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1131,6 +1140,7 @@ const GlobalCustomJSONSchema = z.object({
   concept_map: z.union([GlobalConceptMapSchema, z.array(GlobalConceptMapSchema)]).optional(),
   naming_system: z.union([GlobalNamingSystemSchema, z.array(GlobalNamingSystemSchema)]).optional(),
   terminology_capabilities: z.union([GlobalTerminologyCapabilitiesSchema, z.array(GlobalTerminologyCapabilitiesSchema)]).optional(),
+  provenance: z.union([GlobalProvenanceSchema, z.array(GlobalProvenanceSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1172,6 +1182,7 @@ const GlobalCustomJSONSchema = z.object({
     value.concept_map ||
     value.naming_system ||
     value.terminology_capabilities ||
+    value.provenance ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1190,7 +1201,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1228,6 +1239,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   conceptMaps: 'conceptMap',
   namingSystems: 'namingSystem',
   terminologyCapabilities: 'terminologyCapabilities',
+  provenances: 'provenance',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1288,6 +1300,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   naming_systems: 'namingSystem',
   terminology_capabilities: 'terminologyCapabilities',
   terminology_capability: 'terminologyCapabilities',
+  provenance: 'provenance',
+  provenances: 'provenance',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1412,6 +1426,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   terminology_capability: 'terminology_capabilities',
   terminologycapabilities: 'terminology_capabilities',
   terminologycapability: 'terminology_capabilities',
+  provenance: 'provenance',
+  provenances: 'provenance',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4166,6 +4182,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const conceptMaps = normalizeArray(validated.concept_map);
   const namingSystems = normalizeArray(validated.naming_system);
   const terminologyCapabilities = normalizeArray(validated.terminology_capabilities);
+  const provenances = normalizeArray(validated.provenance);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4253,6 +4270,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (terminologyCapabilities.length) {
     canonical.terminologyCapabilities = terminologyCapabilities.map(buildCanonicalTerminologyCapabilitiesGlobal);
   }
+  if (provenances.length) {
+    canonical.provenances = provenances.map(buildCanonicalProvenanceGlobal);
+  }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
   }
@@ -4331,7 +4351,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4358,6 +4378,7 @@ function wrapGlobalPayload(value: any) {
       value.concept_map,
       value.naming_system,
       value.terminology_capabilities,
+      value.provenance,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4445,6 +4466,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('terminology_capabilities_id' in value || 'code_search' in value || 'kind' in value) {
       return { terminology_capabilities: value };
+    }
+    if ('provenance_id' in value || 'activity' in value || 'recorded' in value) {
+      return { provenance: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4566,6 +4590,9 @@ function looksLikeGlobalResource(value: any) {
     'kind' in value ||
     'terminology_capabilities_id' in value ||
     'code_search' in value ||
+    'provenance_id' in value ||
+    'activity' in value ||
+    'recorded' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5558,6 +5585,24 @@ function buildCanonicalTerminologyCapabilitiesGlobal(tc: z.infer<typeof GlobalTe
     description: tc.description,
     kind: tc.kind,
     codeSearch: tc.code_search
+  };
+}
+
+function buildCanonicalProvenanceGlobal(prov: z.infer<typeof GlobalProvenanceSchema>) {
+  const targets = normalizeStringArray(prov.target_ids);
+  const agent = prov.agent_who || prov.agent_role
+    ? [{
+      who: prov.agent_who,
+      role: prov.agent_role
+    }]
+    : undefined;
+
+  return {
+    id: prov.provenance_id,
+    target: targets.length ? targets : undefined,
+    recorded: prov.recorded,
+    activity: prov.activity,
+    agent: agent
   };
 }
 

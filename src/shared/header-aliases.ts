@@ -755,6 +755,14 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     terminology_capabilities_kind: ['kind'],
     terminology_capabilities_code_search: ['code_search', 'code_search_mode']
   },
+  provenance: {
+    provenance_id: ['provenance_identifier', 'provenanceid'],
+    provenance_target_ids: ['target_ids', 'targets'],
+    provenance_recorded: ['recorded'],
+    provenance_activity: ['activity'],
+    provenance_agent_who: ['agent_who', 'agent_id'],
+    provenance_agent_role: ['agent_role']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

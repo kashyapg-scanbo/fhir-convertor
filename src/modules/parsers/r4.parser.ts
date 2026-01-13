@@ -41,7 +41,8 @@ import {
     CanonicalValueSet,
     CanonicalConceptMap,
     CanonicalNamingSystem,
-    CanonicalTerminologyCapabilities
+    CanonicalTerminologyCapabilities,
+    CanonicalProvenance
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -81,6 +82,7 @@ export function parseR4(input: string): CanonicalModel {
         conceptMaps: [],
         namingSystems: [],
         terminologyCapabilities: [],
+        provenances: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -212,6 +214,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'TerminologyCapabilities':
                 const terminologyCapabilities = mapR4TerminologyCapabilities(res);
                 if (terminologyCapabilities) model.terminologyCapabilities?.push(terminologyCapabilities);
+                break;
+            case 'Provenance':
+                const provenance = mapR4Provenance(res);
+                if (provenance) model.provenances?.push(provenance);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1496,6 +1502,21 @@ function mapR4TerminologyCapabilities(resource: any): CanonicalTerminologyCapabi
     description: resource.description,
     kind: resource.kind,
     codeSearch: resource.codeSearch
+  };
+}
+
+function mapR4Provenance(resource: any): CanonicalProvenance {
+  if (!resource || resource.resourceType !== 'Provenance') return null as any;
+  const agents = Array.isArray(resource.agent) ? resource.agent : [];
+  return {
+    id: resource.id,
+    target: resource.target?.map((target: any) => target.reference).filter(Boolean),
+    recorded: resource.recorded,
+    activity: resource.activity?.text,
+    agent: agents.map((agent: any) => ({
+      who: agent.who?.reference,
+      role: agent.role?.[0]?.text
+    }))
   };
 }
 

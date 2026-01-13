@@ -41,7 +41,8 @@ import {
     CanonicalValueSet,
     CanonicalConceptMap,
     CanonicalNamingSystem,
-    CanonicalTerminologyCapabilities
+    CanonicalTerminologyCapabilities,
+    CanonicalProvenance
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -108,6 +109,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         conceptMaps: [],
         namingSystems: [],
         terminologyCapabilities: [],
+        provenances: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -261,6 +263,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (terminologyCapabilitiesEvent) {
                 const terminologyCapabilities = mapV3TerminologyCapabilities(terminologyCapabilitiesEvent);
                 if (terminologyCapabilities) model.terminologyCapabilities?.push(terminologyCapabilities);
+            }
+
+            const provenanceEvent = sub.provenance || sub.Provenance;
+            if (provenanceEvent) {
+                const provenance = mapV3Provenance(provenanceEvent);
+                if (provenance) model.provenances?.push(provenance);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1352,6 +1360,33 @@ function mapV3TerminologyCapabilities(terminologyCapabilitiesEvent: any): Canoni
         date: date,
         kind: kind,
         description: description
+    };
+}
+
+function mapV3Provenance(provenanceEvent: any): CanonicalProvenance | undefined {
+    if (!provenanceEvent) return undefined;
+    const id = provenanceEvent.id || provenanceEvent['cda:id'];
+    const statusCode = provenanceEvent.statusCode || provenanceEvent['cda:statusCode'];
+    const effectiveTime = provenanceEvent.effectiveTime || provenanceEvent['cda:effectiveTime'];
+    const code = provenanceEvent.code || provenanceEvent['cda:code'];
+    const text = provenanceEvent.text || provenanceEvent['cda:text'];
+
+    const provId = id?.['@_extension'] || id?.['@_root'];
+    const recorded = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const activity = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const description = typeof text === 'string' ? text : text?.['#text'];
+    const status = statusCode?.['@_code'];
+
+    if (!provId && !activity && !description) return undefined;
+
+    return {
+        id: provId || `PROV-${Date.now()}`,
+        recorded: recorded,
+        activity: activity || description,
+        agent: [{
+            who: status,
+            role: 'source'
+        }]
     };
 }
 

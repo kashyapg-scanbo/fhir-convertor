@@ -1,0 +1,17 @@
+{
+  "resourceType": "Provenance",
+  "id": "PROV-R4-2",
+  "target": [
+    {"reference": "Condition/COND-1"}
+  ],
+  "recorded": "2024-03-13T09:30:00Z",
+  "activity": {
+    "text": "Condition updated"
+  },
+  "agent": [
+    {
+      "role": [{"text": "source"}],
+      "who": {"reference": "Organization/ORG-1"}
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-PROV-1"/>
+  <creationTime value="20240312100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <provenance>
+        <id extension="PROV-V3-1"/>
+        <statusCode code="author"/>
+        <effectiveTime value="20240312"/>
+        <code code="PROVOBS" displayName="Observation recorded"/>
+        <text>Observation recorded</text>
+      </provenance>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

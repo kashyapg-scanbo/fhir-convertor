@@ -1137,6 +1137,18 @@ export type CanonicalTerminologyCapabilities = {
   active?: boolean;
 };
 
+export type CanonicalProvenance = {
+  id?: string;
+  target?: string[];
+  recorded?: string;
+  activity?: string;
+  agent?: Array<{
+    who?: string;
+    role?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1894,6 +1906,7 @@ export type CanonicalModel = {
   conceptMaps?: CanonicalConceptMap[]; // ConceptMap
   namingSystems?: CanonicalNamingSystem[]; // NamingSystem
   terminologyCapabilities?: CanonicalTerminologyCapabilities[]; // TerminologyCapabilities
+  provenances?: CanonicalProvenance[]; // Provenance
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

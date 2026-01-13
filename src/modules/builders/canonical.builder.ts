@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities, CanonicalProvenance } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1320,6 +1320,31 @@ export function buildCanonical(parsed: any) {
 
   if (terminologyCapabilities.length > 0) {
     result.terminologyCapabilities = terminologyCapabilities;
+  }
+
+  /* ───── Provenances (from OBR) ───── */
+  const provenances: CanonicalProvenance[] = [];
+  const provenanceObrSegments = parsed.OBR ?? [];
+  for (const obr of provenanceObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const provId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const codeValue = codeParts[0];
+    const display = codeParts[1];
+    const date = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!provId && !codeValue && !display) continue;
+
+    provenances.push({
+      id: provId || `PROV-${Date.now()}`,
+      recorded: date,
+      activity: display || codeValue
+    });
+  }
+
+  if (provenances.length > 0) {
+    result.provenances = provenances;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

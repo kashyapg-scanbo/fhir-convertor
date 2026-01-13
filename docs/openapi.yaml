@@ -46,6 +46,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonConceptMapOnly'
                 - $ref: '#/components/schemas/CustomJsonNamingSystemOnly'
                 - $ref: '#/components/schemas/CustomJsonTerminologyCapabilitiesOnly'
+                - $ref: '#/components/schemas/CustomJsonProvenanceOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -428,6 +429,17 @@ paths:
                     status: active
                     kind: instance
                     code_search: in-compose
+              provenance:
+                summary: Provenance
+                value:
+                  provenance:
+                    provenance_id: PROV-100
+                    provenance_target_ids:
+                      - Observation/OBS-1
+                    provenance_recorded: 2024-03-12T10:00:00Z
+                    provenance_activity: Observation recorded
+                    provenance_agent_who: Practitioner/PRAC-1
+                    provenance_agent_role: author
               practitioner:
                 summary: Practitioner
                 value:
@@ -879,7 +891,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -1024,6 +1036,48 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomTerminologyCapabilities'
+        provenance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomProvenance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomProvenance'
+        code_system:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCodeSystem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCodeSystem'
+        value_set:
+          oneOf:
+            - $ref: '#/components/schemas/CustomValueSet'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomValueSet'
+        concept_map:
+          oneOf:
+            - $ref: '#/components/schemas/CustomConceptMap'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomConceptMap'
+        naming_system:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNamingSystem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNamingSystem'
+        terminology_capabilities:
+          oneOf:
+            - $ref: '#/components/schemas/CustomTerminologyCapabilities'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomTerminologyCapabilities'
+        provenance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomProvenance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomProvenance'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2667,6 +2721,26 @@ components:
           type: string
         code_search:
           type: string
+    CustomProvenance:
+      type: object
+      properties:
+        provenance_id:
+          type: string
+        provenance_target_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        provenance_recorded:
+          type: string
+          format: date-time
+        provenance_activity:
+          type: string
+        provenance_agent_who:
+          type: string
+        provenance_agent_role:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -3818,6 +3892,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [terminology_capabilities]
+    CustomJsonProvenanceOnly:
+      title: Provenance
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [provenance]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

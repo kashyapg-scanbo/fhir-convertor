@@ -1,0 +1,17 @@
+{
+  "resourceType": "Provenance",
+  "id": "PROV-R4-1",
+  "target": [
+    {"reference": "Observation/OBS-1"}
+  ],
+  "recorded": "2024-03-12T10:00:00Z",
+  "activity": {
+    "text": "Observation recorded"
+  },
+  "agent": [
+    {
+      "role": [{"text": "author"}],
+      "who": {"reference": "Practitioner/PRAC-1"}
+    }
+  ]
+}
