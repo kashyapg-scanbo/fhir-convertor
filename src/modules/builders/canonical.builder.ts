@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1006,6 +1006,63 @@ export function buildCanonical(parsed: any) {
 
   if (communications.length > 0) {
     result.communications = communications;
+  }
+
+  /* ───── CommunicationRequests (from ORC/OBR) ───── */
+  const communicationRequests: CanonicalCommunicationRequest[] = [];
+  const commReqOrcSegments = parsed.ORC ?? [];
+  const commReqObrSegments = parsed.OBR ?? [];
+
+  for (const orc of commReqOrcSegments) {
+    const placerId = orc?.[1]?.[0]?.[0];
+    const fillerId = orc?.[2]?.[0]?.[0];
+    const reqId = placerId || fillerId;
+    const status = orc?.[5]?.[0]?.[0] || orc?.[4]?.[0]?.[0];
+    const control = orc?.[0]?.[0]?.[0];
+
+    if (!reqId && !control) continue;
+
+    communicationRequests.push({
+      id: reqId || `COMMREQ-ORC-${Date.now()}`,
+      identifier: reqId,
+      status: status || 'active',
+      intent: 'order',
+      subject: patientId,
+      encounter: encounter?.id
+    });
+  }
+
+  for (const obr of commReqObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const reqId = placerId || fillerId;
+    const topicCode = obr?.[3]?.[0] ?? [];
+    const codeValue = topicCode[0];
+    const display = topicCode[1];
+    const system = topicCode[2];
+    const status = obr?.[25]?.[0]?.[0] || obr?.[24]?.[0]?.[0];
+    const occurrence = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!reqId && !codeValue && !display) continue;
+
+    communicationRequests.push({
+      id: reqId || `COMMREQ-OBR-${Date.now()}`,
+      identifier: reqId,
+      status: status || 'active',
+      intent: 'order',
+      category: codeValue || display ? [{
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      }] : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      occurrenceDateTime: occurrence
+    });
+  }
+
+  if (communicationRequests.length > 0) {
+    result.communicationRequests = communicationRequests;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

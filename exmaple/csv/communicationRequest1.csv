@@ -1,0 +1,2 @@
+communication_request_id,communication_request_status,communication_request_intent,communication_request_subject_id,communication_request_occurrence_date,communication_request_requester_id,communication_request_recipient_ids,communication_request_payload
+COMREQ-1,active,order,PAT-1,2024-03-02T09:00:00Z,PRAC-1,PAT-1,Send follow-up instructions

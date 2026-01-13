@@ -20,6 +20,7 @@ import { mapGoals } from './goal.mapper.js';
 import { mapServiceRequests } from './serviceRequest.mapper.js';
 import { mapTasks } from './task.mapper.js';
 import { mapCommunications } from './communication.mapper.js';
+import { mapCommunicationRequests } from './communicationRequest.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
@@ -264,6 +265,18 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (communicationEntries.length > 0) {
     bundle.entry.push(...communicationEntries);
+  }
+
+  const communicationRequestEntries = mapCommunicationRequests({
+    communicationRequests: canonical.communicationRequests,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (communicationRequestEntries.length > 0) {
+    bundle.entry.push(...communicationRequestEntries);
   }
 
   const procedureEntries = mapProcedures({

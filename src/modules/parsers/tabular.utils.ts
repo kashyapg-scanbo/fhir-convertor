@@ -914,6 +914,66 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.communications = communications as any[];
   }
 
+  const communicationRequests = rows.map(row => {
+    const requestId = readValue(row, 'communication_request_id');
+    const status = readValue(row, 'communication_request_status');
+    const statusReason = readValue(row, 'communication_request_status_reason');
+    const intent = readValue(row, 'communication_request_intent');
+    const categoryRaw = readValue(row, 'communication_request_category');
+    const priority = readValue(row, 'communication_request_priority');
+    const doNotPerform = readBoolean(row, 'communication_request_do_not_perform');
+    const mediumRaw = readValue(row, 'communication_request_medium');
+    const subjectId = readValue(row, 'communication_request_subject_id');
+    const aboutRaw = readValue(row, 'communication_request_about_ids');
+    const encounterId = readValue(row, 'communication_request_encounter_id');
+    const payloadRaw = readValue(row, 'communication_request_payload');
+    const occurrenceDate = readValue(row, 'communication_request_occurrence_date');
+    const occurrenceStart = readValue(row, 'communication_request_occurrence_start');
+    const occurrenceEnd = readValue(row, 'communication_request_occurrence_end');
+    const authoredOn = readValue(row, 'communication_request_authored_on');
+    const requesterId = readValue(row, 'communication_request_requester_id');
+    const recipientRaw = readValue(row, 'communication_request_recipient_ids');
+    const informationProviderRaw = readValue(row, 'communication_request_information_provider_ids');
+    const reasonRaw = readValue(row, 'communication_request_reason');
+    const noteRaw = readValue(row, 'communication_request_note');
+    const basedOnRaw = readValue(row, 'communication_request_based_on_ids');
+    const replacesRaw = readValue(row, 'communication_request_replaces_ids');
+    const groupIdentifier = readValue(row, 'communication_request_group_identifier');
+
+    if (!requestId && !payloadRaw && !subjectId) return null;
+
+    return {
+      id: requestId || undefined,
+      identifier: requestId || undefined,
+      basedOn: basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      replaces: replacesRaw ? replacesRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      groupIdentifier: groupIdentifier || undefined,
+      status: status || 'active',
+      statusReason: statusReason ? { display: statusReason } : undefined,
+      intent: intent || 'order',
+      category: categoryRaw ? categoryRaw.split(',').map(value => ({ display: value.trim() })) : undefined,
+      priority: priority || undefined,
+      doNotPerform: doNotPerform,
+      medium: mediumRaw ? mediumRaw.split(',').map(value => ({ display: value.trim() })) : undefined,
+      subject: subjectId || undefined,
+      about: aboutRaw ? aboutRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      encounter: encounterId || undefined,
+      payload: payloadRaw ? payloadRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      occurrenceDateTime: occurrenceDate,
+      occurrencePeriod: (occurrenceStart || occurrenceEnd) ? { start: occurrenceStart, end: occurrenceEnd } : undefined,
+      authoredOn: authoredOn || undefined,
+      requester: requesterId || undefined,
+      recipient: recipientRaw ? recipientRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      informationProvider: informationProviderRaw ? informationProviderRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      reason: reasonRaw ? reasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      note: noteRaw ? [noteRaw] : undefined
+    };
+  }).filter(Boolean);
+
+  if (communicationRequests.length > 0) {
+    canonical.communicationRequests = communicationRequests as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

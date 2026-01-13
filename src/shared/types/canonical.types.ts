@@ -936,6 +936,49 @@ export type CanonicalCommunication = {
   active?: boolean;
 };
 
+export type CanonicalCommunicationRequest = {
+  id?: string;
+  identifier?: string;
+  basedOn?: string[];
+  replaces?: string[];
+  groupIdentifier?: string;
+  status?: string;
+  statusReason?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  intent?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  priority?: string;
+  doNotPerform?: boolean;
+  medium?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  subject?: string;
+  about?: string[];
+  encounter?: string;
+  payload?: string[];
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  authoredOn?: string;
+  requester?: string;
+  recipient?: string[];
+  informationProvider?: string[];
+  reason?: string[];
+  note?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1685,6 +1728,7 @@ export type CanonicalModel = {
   serviceRequests?: CanonicalServiceRequest[]; // ServiceRequest
   tasks?: CanonicalTask[]; // Task
   communications?: CanonicalCommunication[]; // Communication
+  communicationRequests?: CanonicalCommunicationRequest[]; // CommunicationRequest
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

@@ -33,7 +33,8 @@ import {
     CanonicalGoal,
     CanonicalServiceRequest,
     CanonicalTask,
-    CanonicalCommunication
+    CanonicalCommunication,
+    CanonicalCommunicationRequest
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -65,6 +66,7 @@ export function parseR4(input: string): CanonicalModel {
         serviceRequests: [],
         tasks: [],
         communications: [],
+        communicationRequests: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -164,6 +166,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Communication':
                 const communication = mapR4Communication(res);
                 if (communication) model.communications?.push(communication);
+                break;
+            case 'CommunicationRequest':
+                const communicationRequest = mapR4CommunicationRequest(res);
+                if (communicationRequest) model.communicationRequests?.push(communicationRequest);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1208,6 +1214,62 @@ function mapR4Communication(comm: any): CanonicalCommunication {
     reason: reasons.length ? reasons : undefined,
     payload: payloads.length ? payloads : undefined,
     note: comm.note?.map((note: any) => note.text).filter(Boolean)
+  };
+}
+
+function mapR4CommunicationRequest(request: any): CanonicalCommunicationRequest {
+  const reasons = [
+    ...(request.reason || []).map((reason: any) => reason.reference || reason.concept?.text).filter(Boolean),
+    ...(request.reasonReference || []).map((ref: any) => ref.reference).filter(Boolean),
+    ...(request.reasonCode || []).map((code: any) => code.text || code.coding?.[0]?.display).filter(Boolean)
+  ];
+
+  const payloads = (request.payload || []).map((payload: any) => (
+    payload.contentString ||
+    payload.contentCodeableConcept?.text ||
+    payload.contentCodeableConcept?.coding?.[0]?.display ||
+    payload.contentReference?.reference
+  )).filter(Boolean);
+
+  return {
+    id: request.id,
+    identifier: request.identifier?.[0]?.value,
+    basedOn: request.basedOn?.map((ref: any) => ref.reference).filter(Boolean),
+    replaces: request.replaces?.map((ref: any) => ref.reference?.replace(/^CommunicationRequest\//, '')).filter(Boolean),
+    groupIdentifier: request.groupIdentifier?.value,
+    status: request.status,
+    statusReason: request.statusReason?.coding?.[0]
+      ? {
+        system: request.statusReason.coding[0].system,
+        code: request.statusReason.coding[0].code,
+        display: request.statusReason.coding[0].display
+      }
+      : undefined,
+    intent: request.intent,
+    category: request.category?.map((cat: any) => ({
+      system: cat.coding?.[0]?.system,
+      code: cat.coding?.[0]?.code,
+      display: cat.coding?.[0]?.display || cat.text
+    })),
+    priority: request.priority,
+    doNotPerform: request.doNotPerform,
+    medium: request.medium?.map((med: any) => ({
+      system: med.coding?.[0]?.system,
+      code: med.coding?.[0]?.code,
+      display: med.coding?.[0]?.display || med.text
+    })),
+    subject: request.subject?.reference?.replace(/^(Patient|Group)\//, ''),
+    about: request.about?.map((ref: any) => ref.reference).filter(Boolean),
+    encounter: request.encounter?.reference?.replace(/^Encounter\//, ''),
+    payload: payloads.length ? payloads : undefined,
+    occurrenceDateTime: request.occurrenceDateTime,
+    occurrencePeriod: request.occurrencePeriod ? { start: request.occurrencePeriod.start, end: request.occurrencePeriod.end } : undefined,
+    authoredOn: request.authoredOn,
+    requester: request.requester?.reference?.replace(/^(Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    recipient: request.recipient?.map((ref: any) => ref.reference?.replace(/^(CareTeam|Device|Endpoint|Group|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
+    informationProvider: request.informationProvider?.map((ref: any) => ref.reference?.replace(/^(Device|Endpoint|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
+    reason: reasons.length ? reasons : undefined,
+    note: request.note?.map((note: any) => note.text).filter(Boolean)
   };
 }
 

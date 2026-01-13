@@ -1,0 +1,66 @@
+{
+  "resourceType": "CommunicationRequest",
+  "id": "COMREQ-R4-2",
+  "status": "on-hold",
+  "statusReason": {
+    "coding": [
+      {
+        "code": "auth",
+        "display": "Awaiting authorization"
+      }
+    ]
+  },
+  "intent": "order",
+  "category": [
+    {
+      "text": "care-coordination"
+    }
+  ],
+  "priority": "urgent",
+  "medium": [
+    {
+      "text": "phone"
+    }
+  ],
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "encounter": {
+    "reference": "Encounter/ENC-2"
+  },
+  "occurrencePeriod": {
+    "start": "2024-03-03T09:00:00Z",
+    "end": "2024-03-03T11:00:00Z"
+  },
+  "requester": {
+    "reference": "Organization/ORG-1"
+  },
+  "recipient": [
+    {
+      "reference": "Practitioner/PRAC-2"
+    },
+    {
+      "reference": "Patient/PAT-2"
+    }
+  ],
+  "informationProvider": [
+    {
+      "reference": "Practitioner/PRAC-2"
+    }
+  ],
+  "reasonCode": [
+    {
+      "text": "Medication reconciliation"
+    }
+  ],
+  "payload": [
+    {
+      "contentString": "Call patient to review meds"
+    }
+  ],
+  "note": [
+    {
+      "text": "Schedule after lab results"
+    }
+  ]
+}

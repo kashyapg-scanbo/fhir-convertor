@@ -33,7 +33,8 @@ import {
     CanonicalGoal,
     CanonicalServiceRequest,
     CanonicalTask,
-    CanonicalCommunication
+    CanonicalCommunication,
+    CanonicalCommunicationRequest
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -92,6 +93,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         serviceRequests: [],
         tasks: [],
         communications: [],
+        communicationRequests: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -197,6 +199,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (communicationEvent) {
                 const communication = mapV3Communication(communicationEvent);
                 if (communication) model.communications?.push(communication);
+            }
+
+            const communicationRequestEvent = sub.communicationRequest || sub.CommunicationRequest;
+            if (communicationRequestEvent) {
+                const communicationRequest = mapV3CommunicationRequest(communicationRequestEvent);
+                if (communicationRequest) model.communicationRequests?.push(communicationRequest);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1013,6 +1021,33 @@ function mapV3Communication(commEvent: any): CanonicalCommunication | undefined 
         status: status || 'completed',
         topic: displayName ? { display: displayName } : undefined,
         sent: sent,
+        note: noteText ? [noteText] : undefined
+    };
+}
+
+function mapV3CommunicationRequest(commEvent: any): CanonicalCommunicationRequest | undefined {
+    if (!commEvent) return undefined;
+    const id = commEvent.id || commEvent['cda:id'];
+    const code = commEvent.code || commEvent['cda:code'];
+    const statusCode = commEvent.statusCode || commEvent['cda:statusCode'];
+    const effectiveTime = commEvent.effectiveTime || commEvent['cda:effectiveTime'];
+    const text = commEvent.text || commEvent['cda:text'];
+
+    const reqId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const occurrence = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const noteText = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!reqId && !displayName && !noteText) return undefined;
+
+    return {
+        id: reqId || `COMMREQ-${Date.now()}`,
+        identifier: reqId,
+        status: status || 'active',
+        intent: 'order',
+        category: displayName ? [{ display: displayName }] : undefined,
+        occurrenceDateTime: occurrence,
         note: noteText ? [noteText] : undefined
     };
 }

@@ -28,6 +28,7 @@ import {
   CanonicalServiceRequest,
   CanonicalTask,
   CanonicalCommunication,
+  CanonicalCommunicationRequest,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -97,6 +98,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const serviceRequests = extractServiceRequests(clinicalDocument, patient.id, encounter?.id);
   const tasks = extractTasks(clinicalDocument, patient.id, encounter?.id);
   const communications = extractCommunications(clinicalDocument, patient.id, encounter?.id);
+  const communicationRequests = extractCommunicationRequests(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -139,6 +141,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (serviceRequests.length) canonical.serviceRequests = serviceRequests;
   if (tasks.length) canonical.tasks = tasks;
   if (communications.length) canonical.communications = communications;
+  if (communicationRequests.length) canonical.communicationRequests = communicationRequests;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1006,6 +1009,52 @@ function extractCommunications(
   });
 
   return communications;
+}
+
+function extractCommunicationRequests(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalCommunicationRequest[] {
+  const requests: CanonicalCommunicationRequest[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isCommunicationRequestSection = sectionCodeValue === 'COMREQ';
+    if (!isCommunicationRequestSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const comm of acts) {
+      const id = extractId(comm.id || comm['cda:id']);
+      const statusCode = comm.statusCode || comm['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = comm.code || comm['cda:code'];
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(comm.text || comm['cda:text']);
+      const effectiveTime = comm.effectiveTime || comm['cda:effectiveTime'];
+      const occurrence = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !text) continue;
+
+      requests.push({
+        id: id || `COMMREQ-${requests.length + 1}`,
+        identifier: id,
+        status: status || 'active',
+        intent: 'order',
+        category: displayName ? [{ display: displayName }] : undefined,
+        subject: patientId,
+        encounter: encounterId,
+        occurrenceDateTime: occurrence,
+        note: text ? [text] : undefined
+      });
+    }
+  });
+
+  return requests;
 }
 
 function extractProcedures(
