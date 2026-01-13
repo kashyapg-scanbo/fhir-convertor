@@ -1,0 +1,24 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
+  "task": {
+    "task_id": "TASK-1",
+    "status": "requested",
+    "intent": "order",
+    "code": {
+      "code": "LAB",
+      "display": "Collect specimen"
+    },
+    "for_id": "PAT-1",
+    "encounter_id": "ENC-1",
+    "authored_on": "2024-03-01T08:30:00Z",
+    "requester_id": "PRAC-1",
+    "requested_performer_ids": ["PRAC-2"],
+    "note": "Fasting required"
+  }
+}

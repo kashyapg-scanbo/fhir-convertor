@@ -692,6 +692,171 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.goals = goals as any[];
   }
 
+  const serviceRequests = rows.map(row => {
+    const requestId = readValue(row, 'service_request_id');
+    const status = readValue(row, 'service_request_status');
+    const intent = readValue(row, 'service_request_intent');
+    const categoryRaw = readValue(row, 'service_request_category');
+    const priority = readValue(row, 'service_request_priority');
+    const doNotPerform = readBoolean(row, 'service_request_do_not_perform');
+    const code = readValue(row, 'service_request_code');
+    const codeSystem = readValue(row, 'service_request_code_system');
+    const codeDisplay = readValue(row, 'service_request_code_display');
+    const subjectId = readValue(row, 'service_request_subject_id');
+    const encounterId = readValue(row, 'service_request_encounter_id');
+    const occurrenceDate = readValue(row, 'service_request_occurrence_date');
+    const occurrenceStart = readValue(row, 'service_request_occurrence_start');
+    const occurrenceEnd = readValue(row, 'service_request_occurrence_end');
+    const asNeeded = readBoolean(row, 'service_request_as_needed');
+    const authoredOn = readValue(row, 'service_request_authored_on');
+    const requesterId = readValue(row, 'service_request_requester_id');
+    const performerType = readValue(row, 'service_request_performer_type');
+    const performerIdsRaw = readValue(row, 'service_request_performer_ids');
+    const locationIdsRaw = readValue(row, 'service_request_location_ids');
+    const reasonRaw = readValue(row, 'service_request_reason');
+    const supportingInfoRaw = readValue(row, 'service_request_supporting_info_ids');
+    const specimenRaw = readValue(row, 'service_request_specimen_ids');
+    const bodySiteRaw = readValue(row, 'service_request_body_site');
+    const noteRaw = readValue(row, 'service_request_note');
+    const instructionRaw = readValue(row, 'service_request_patient_instruction');
+    const instantiatesCanonicalRaw = readValue(row, 'service_request_instantiates_canonical');
+    const instantiatesUriRaw = readValue(row, 'service_request_instantiates_uri');
+    const basedOnRaw = readValue(row, 'service_request_based_on_ids');
+    const replacesRaw = readValue(row, 'service_request_replaces_ids');
+    const requisition = readValue(row, 'service_request_requisition');
+
+    if (!requestId && !code && !codeDisplay) return null;
+
+    return {
+      id: requestId || undefined,
+      identifier: requestId || undefined,
+      status: status || 'active',
+      intent: intent || 'order',
+      category: categoryRaw
+        ? categoryRaw.split(',').map(value => ({ display: value.trim() }))
+        : undefined,
+      priority: priority || undefined,
+      doNotPerform: doNotPerform,
+      code: (code || codeDisplay) ? {
+        system: codeSystem,
+        code: code,
+        display: codeDisplay || code
+      } : undefined,
+      subject: subjectId,
+      encounter: encounterId,
+      occurrenceDateTime: occurrenceDate,
+      occurrencePeriod: (occurrenceStart || occurrenceEnd)
+        ? { start: occurrenceStart, end: occurrenceEnd }
+        : undefined,
+      asNeededBoolean: asNeeded,
+      authoredOn: authoredOn,
+      requester: requesterId,
+      performerType: performerType ? { display: performerType } : undefined,
+      performer: performerIdsRaw ? performerIdsRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      location: locationIdsRaw ? locationIdsRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      reason: reasonRaw ? reasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      supportingInfo: supportingInfoRaw ? supportingInfoRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      specimen: specimenRaw ? specimenRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      bodySite: bodySiteRaw ? bodySiteRaw.split(',').map(value => ({ display: value.trim() })) : undefined,
+      note: noteRaw ? [noteRaw] : undefined,
+      patientInstruction: instructionRaw ? [instructionRaw] : undefined,
+      instantiatesCanonical: instantiatesCanonicalRaw ? instantiatesCanonicalRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      instantiatesUri: instantiatesUriRaw ? instantiatesUriRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      basedOn: basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      replaces: replacesRaw ? replacesRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      requisition
+    };
+  }).filter(Boolean);
+
+  if (serviceRequests.length > 0) {
+    canonical.serviceRequests = serviceRequests as any[];
+  }
+
+  const tasks = rows.map(row => {
+    const taskId = readValue(row, 'task_id');
+    const status = readValue(row, 'task_status');
+    const statusReason = readValue(row, 'task_status_reason');
+    const businessStatus = readValue(row, 'task_business_status');
+    const intent = readValue(row, 'task_intent');
+    const priority = readValue(row, 'task_priority');
+    const doNotPerform = readBoolean(row, 'task_do_not_perform');
+    const code = readValue(row, 'task_code');
+    const codeSystem = readValue(row, 'task_code_system');
+    const codeDisplay = readValue(row, 'task_code_display');
+    const description = readValue(row, 'task_description');
+    const focusId = readValue(row, 'task_focus_id');
+    const forId = readValue(row, 'task_for_id');
+    const encounterId = readValue(row, 'task_encounter_id');
+    const requestedStart = readValue(row, 'task_requested_start');
+    const requestedEnd = readValue(row, 'task_requested_end');
+    const executionStart = readValue(row, 'task_execution_start');
+    const executionEnd = readValue(row, 'task_execution_end');
+    const authoredOn = readValue(row, 'task_authored_on');
+    const lastModified = readValue(row, 'task_last_modified');
+    const requesterId = readValue(row, 'task_requester_id');
+    const requestedPerformerRaw = readValue(row, 'task_requested_performer_ids');
+    const ownerId = readValue(row, 'task_owner_id');
+    const performerId = readValue(row, 'task_performer_id');
+    const performerFunction = readValue(row, 'task_performer_function');
+    const location = readValue(row, 'task_location');
+    const reasonRaw = readValue(row, 'task_reason');
+    const insuranceRaw = readValue(row, 'task_insurance_ids');
+    const noteRaw = readValue(row, 'task_note');
+    const relevantHistoryRaw = readValue(row, 'task_relevant_history_ids');
+    const instantiatesCanonical = readValue(row, 'task_instantiates_canonical');
+    const instantiatesUri = readValue(row, 'task_instantiates_uri');
+    const basedOnRaw = readValue(row, 'task_based_on_ids');
+    const partOfRaw = readValue(row, 'task_part_of_ids');
+    const groupIdentifier = readValue(row, 'task_group_identifier');
+
+    if (!taskId && !code && !description) return null;
+
+    return {
+      id: taskId || undefined,
+      identifier: taskId || undefined,
+      instantiatesCanonical: instantiatesCanonical || undefined,
+      instantiatesUri: instantiatesUri || undefined,
+      basedOn: basedOnRaw ? basedOnRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      partOf: partOfRaw ? partOfRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      groupIdentifier: groupIdentifier || undefined,
+      status: status || 'requested',
+      statusReason: statusReason || undefined,
+      businessStatus: businessStatus || undefined,
+      intent: intent || 'order',
+      priority: priority || undefined,
+      doNotPerform: doNotPerform,
+      code: (code || codeDisplay) ? {
+        system: codeSystem,
+        code: code,
+        display: codeDisplay || code
+      } : undefined,
+      description: description || undefined,
+      focus: focusId || undefined,
+      for: forId || undefined,
+      encounter: encounterId || undefined,
+      requestedPeriod: (requestedStart || requestedEnd) ? { start: requestedStart, end: requestedEnd } : undefined,
+      executionPeriod: (executionStart || executionEnd) ? { start: executionStart, end: executionEnd } : undefined,
+      authoredOn: authoredOn || undefined,
+      lastModified: lastModified || undefined,
+      requester: requesterId || undefined,
+      requestedPerformer: requestedPerformerRaw ? requestedPerformerRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      owner: ownerId || undefined,
+      performer: (performerId || performerFunction) ? [{
+        actor: performerId || undefined,
+        function: performerFunction ? { display: performerFunction } : undefined
+      }] : undefined,
+      location: location || undefined,
+      reason: reasonRaw ? reasonRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      insurance: insuranceRaw ? insuranceRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      note: noteRaw ? [noteRaw] : undefined,
+      relevantHistory: relevantHistoryRaw ? relevantHistoryRaw.split(',').map(value => value.trim()).filter(Boolean) : undefined
+    };
+  }).filter(Boolean);
+
+  if (tasks.length > 0) {
+    canonical.tasks = tasks as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

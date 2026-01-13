@@ -417,6 +417,82 @@ const GlobalGoalSchema = z.object({
   outcome: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalServiceRequestSchema = z.object({
+  service_request_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  intent: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  priority: z.string().optional(),
+  do_not_perform: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  occurrence_date: z.string().optional(),
+  occurrence_start: z.string().optional(),
+  occurrence_end: z.string().optional(),
+  as_needed: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  authored_on: z.string().optional(),
+  requester_id: GlobalIdSchema.optional(),
+  performer_type: z.string().optional(),
+  performer_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  location_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  supporting_info_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  specimen_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  body_site: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  patient_instruction: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates_canonical: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates_uri: z.union([z.string(), z.array(z.string())]).optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  replaces_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  requisition: z.string().optional()
+});
+
+const GlobalTaskSchema = z.object({
+  task_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  status_reason: z.string().optional(),
+  business_status: z.string().optional(),
+  intent: z.string().optional(),
+  priority: z.string().optional(),
+  do_not_perform: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  description: z.string().optional(),
+  focus_id: GlobalIdSchema.optional(),
+  for_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  requested_start: z.string().optional(),
+  requested_end: z.string().optional(),
+  execution_start: z.string().optional(),
+  execution_end: z.string().optional(),
+  authored_on: z.string().optional(),
+  last_modified: z.string().optional(),
+  requester_id: GlobalIdSchema.optional(),
+  requested_performer_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  owner_id: GlobalIdSchema.optional(),
+  performer_id: GlobalIdSchema.optional(),
+  performer_function: z.string().optional(),
+  location: z.string().optional(),
+  reason: z.union([z.string(), z.array(z.string())]).optional(),
+  insurance_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  relevant_history_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates_canonical: z.string().optional(),
+  instantiates_uri: z.string().optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  part_of_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  group_identifier: z.string().optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -836,6 +912,8 @@ const GlobalCustomJSONSchema = z.object({
   care_plan: z.union([GlobalCarePlanSchema, z.array(GlobalCarePlanSchema)]).optional(),
   care_team: z.union([GlobalCareTeamSchema, z.array(GlobalCareTeamSchema)]).optional(),
   goal: z.union([GlobalGoalSchema, z.array(GlobalGoalSchema)]).optional(),
+  service_request: z.union([GlobalServiceRequestSchema, z.array(GlobalServiceRequestSchema)]).optional(),
+  task: z.union([GlobalTaskSchema, z.array(GlobalTaskSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -866,6 +944,8 @@ const GlobalCustomJSONSchema = z.object({
     value.care_plan ||
     value.care_team ||
     value.goal ||
+    value.service_request ||
+    value.task ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -884,7 +964,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -911,6 +991,8 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   carePlans: 'carePlan',
   careTeams: 'careTeam',
   goals: 'goal',
+  serviceRequests: 'serviceRequest',
+  tasks: 'task',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -949,6 +1031,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   care_teams: 'careTeam',
   goal: 'goal',
   goals: 'goal',
+  service_request: 'serviceRequest',
+  service_requests: 'serviceRequest',
+  task: 'task',
+  tasks: 'task',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1035,6 +1121,12 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   careteams: 'care_team',
   goal: 'goal',
   goals: 'goal',
+  service_request: 'service_request',
+  service_requests: 'service_request',
+  servicerequest: 'service_request',
+  servicerequests: 'service_request',
+  task: 'task',
+  tasks: 'task',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -2317,6 +2409,226 @@ function normalizeGlobalGoalAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalServiceRequestAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const code = isPlainRecord(normalized.code) ? { ...normalized.code } : {};
+
+  const serviceRequestId = readSectionAliasValue(value, 'serviceRequest', 'service_request_id');
+  if (normalized.service_request_id === undefined && serviceRequestId !== undefined) {
+    normalized.service_request_id = serviceRequestId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const intent = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_intent'));
+  if (intent && normalized.intent === undefined) normalized.intent = intent;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_priority'));
+  if (priority && normalized.priority === undefined) normalized.priority = priority;
+
+  const doNotPerform = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_do_not_perform'));
+  if (doNotPerform && normalized.do_not_perform === undefined) normalized.do_not_perform = doNotPerform;
+
+  const codeValue = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_code'));
+  if (codeValue && code.code === undefined) code.code = codeValue;
+
+  const codeSystem = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_code_system'));
+  if (codeSystem && code.code_system === undefined) code.code_system = codeSystem;
+
+  const codeDisplay = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_code_display'));
+  if (codeDisplay && code.display === undefined) code.display = codeDisplay;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const occurrenceDate = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_occurrence_date'));
+  if (occurrenceDate && normalized.occurrence_date === undefined) normalized.occurrence_date = occurrenceDate;
+
+  const occurrenceStart = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_occurrence_start'));
+  if (occurrenceStart && normalized.occurrence_start === undefined) normalized.occurrence_start = occurrenceStart;
+
+  const occurrenceEnd = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_occurrence_end'));
+  if (occurrenceEnd && normalized.occurrence_end === undefined) normalized.occurrence_end = occurrenceEnd;
+
+  const asNeeded = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_as_needed'));
+  if (asNeeded && normalized.as_needed === undefined) normalized.as_needed = asNeeded;
+
+  const authoredOn = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_authored_on'));
+  if (authoredOn && normalized.authored_on === undefined) normalized.authored_on = authoredOn;
+
+  const requesterId = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_requester_id'));
+  if (requesterId && normalized.requester_id === undefined) normalized.requester_id = requesterId;
+
+  const performerType = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_performer_type'));
+  if (performerType && normalized.performer_type === undefined) normalized.performer_type = performerType;
+
+  const performerIds = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_performer_ids'));
+  if (performerIds && normalized.performer_ids === undefined) normalized.performer_ids = performerIds;
+
+  const locationIds = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_location_ids'));
+  if (locationIds && normalized.location_ids === undefined) normalized.location_ids = locationIds;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const supportingInfoIds = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_supporting_info_ids'));
+  if (supportingInfoIds && normalized.supporting_info_ids === undefined) normalized.supporting_info_ids = supportingInfoIds;
+
+  const specimenIds = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_specimen_ids'));
+  if (specimenIds && normalized.specimen_ids === undefined) normalized.specimen_ids = specimenIds;
+
+  const bodySite = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_body_site'));
+  if (bodySite && normalized.body_site === undefined) normalized.body_site = bodySite;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const patientInstruction = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_patient_instruction'));
+  if (patientInstruction && normalized.patient_instruction === undefined) normalized.patient_instruction = patientInstruction;
+
+  const instantiatesCanonical = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_instantiates_canonical'));
+  if (instantiatesCanonical && normalized.instantiates_canonical === undefined) normalized.instantiates_canonical = instantiatesCanonical;
+
+  const instantiatesUri = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_instantiates_uri'));
+  if (instantiatesUri && normalized.instantiates_uri === undefined) normalized.instantiates_uri = instantiatesUri;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const replacesIds = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_replaces_ids'));
+  if (replacesIds && normalized.replaces_ids === undefined) normalized.replaces_ids = replacesIds;
+
+  const requisition = normalizeAliasValue(readSectionAliasValue(value, 'serviceRequest', 'service_request_requisition'));
+  if (requisition && normalized.requisition === undefined) normalized.requisition = requisition;
+
+  if (Object.keys(code).length > 0) normalized.code = code;
+
+  return normalized;
+}
+
+function normalizeGlobalTaskAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+  const code = isPlainRecord(normalized.code) ? { ...normalized.code } : {};
+
+  const taskId = readSectionAliasValue(value, 'task', 'task_id');
+  if (normalized.task_id === undefined && taskId !== undefined) {
+    normalized.task_id = taskId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const statusReason = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_status_reason'));
+  if (statusReason && normalized.status_reason === undefined) normalized.status_reason = statusReason;
+
+  const businessStatus = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_business_status'));
+  if (businessStatus && normalized.business_status === undefined) normalized.business_status = businessStatus;
+
+  const intent = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_intent'));
+  if (intent && normalized.intent === undefined) normalized.intent = intent;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_priority'));
+  if (priority && normalized.priority === undefined) normalized.priority = priority;
+
+  const doNotPerform = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_do_not_perform'));
+  if (doNotPerform && normalized.do_not_perform === undefined) normalized.do_not_perform = doNotPerform;
+
+  const codeValue = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_code'));
+  if (codeValue && code.code === undefined) code.code = codeValue;
+
+  const codeSystem = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_code_system'));
+  if (codeSystem && code.code_system === undefined) code.code_system = codeSystem;
+
+  const codeDisplay = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_code_display'));
+  if (codeDisplay && code.display === undefined) code.display = codeDisplay;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const focusId = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_focus_id'));
+  if (focusId && normalized.focus_id === undefined) normalized.focus_id = focusId;
+
+  const forId = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_for_id'));
+  if (forId && normalized.for_id === undefined) normalized.for_id = forId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const requestedStart = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_requested_start'));
+  if (requestedStart && normalized.requested_start === undefined) normalized.requested_start = requestedStart;
+
+  const requestedEnd = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_requested_end'));
+  if (requestedEnd && normalized.requested_end === undefined) normalized.requested_end = requestedEnd;
+
+  const executionStart = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_execution_start'));
+  if (executionStart && normalized.execution_start === undefined) normalized.execution_start = executionStart;
+
+  const executionEnd = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_execution_end'));
+  if (executionEnd && normalized.execution_end === undefined) normalized.execution_end = executionEnd;
+
+  const authoredOn = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_authored_on'));
+  if (authoredOn && normalized.authored_on === undefined) normalized.authored_on = authoredOn;
+
+  const lastModified = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_last_modified'));
+  if (lastModified && normalized.last_modified === undefined) normalized.last_modified = lastModified;
+
+  const requesterId = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_requester_id'));
+  if (requesterId && normalized.requester_id === undefined) normalized.requester_id = requesterId;
+
+  const requestedPerformers = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_requested_performer_ids'));
+  if (requestedPerformers && normalized.requested_performer_ids === undefined) normalized.requested_performer_ids = requestedPerformers;
+
+  const ownerId = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_owner_id'));
+  if (ownerId && normalized.owner_id === undefined) normalized.owner_id = ownerId;
+
+  const performerId = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_performer_id'));
+  if (performerId && normalized.performer_id === undefined) normalized.performer_id = performerId;
+
+  const performerFunction = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_performer_function'));
+  if (performerFunction && normalized.performer_function === undefined) normalized.performer_function = performerFunction;
+
+  const location = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_location'));
+  if (location && normalized.location === undefined) normalized.location = location;
+
+  const reason = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_reason'));
+  if (reason && normalized.reason === undefined) normalized.reason = reason;
+
+  const insuranceIds = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_insurance_ids'));
+  if (insuranceIds && normalized.insurance_ids === undefined) normalized.insurance_ids = insuranceIds;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const relevantHistoryIds = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_relevant_history_ids'));
+  if (relevantHistoryIds && normalized.relevant_history_ids === undefined) normalized.relevant_history_ids = relevantHistoryIds;
+
+  const instantiatesCanonical = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_instantiates_canonical'));
+  if (instantiatesCanonical && normalized.instantiates_canonical === undefined) normalized.instantiates_canonical = instantiatesCanonical;
+
+  const instantiatesUri = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_instantiates_uri'));
+  if (instantiatesUri && normalized.instantiates_uri === undefined) normalized.instantiates_uri = instantiatesUri;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const partOfIds = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_part_of_ids'));
+  if (partOfIds && normalized.part_of_ids === undefined) normalized.part_of_ids = partOfIds;
+
+  const groupIdentifier = normalizeAliasValue(readSectionAliasValue(value, 'task', 'task_group_identifier'));
+  if (groupIdentifier && normalized.group_identifier === undefined) normalized.group_identifier = groupIdentifier;
+
+  if (Object.keys(code).length > 0) normalized.code = code;
+
+  return normalized;
+}
+
 function normalizeGlobalSpecimenAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -2964,6 +3276,10 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalCareTeamAliases(value);
     case 'goal':
       return normalizeGlobalGoalAliases(value);
+    case 'serviceRequest':
+      return normalizeGlobalServiceRequestAliases(value);
+    case 'task':
+      return normalizeGlobalTaskAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -3016,6 +3332,8 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['carePlan', 'care_plan'],
     ['careTeam', 'care_team'],
     ['goal', 'goal'],
+    ['serviceRequest', 'service_request'],
+    ['task', 'task'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -3133,6 +3451,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'carePlan',
     'careTeam',
     'goal',
+    'serviceRequest',
     'procedure',
     'condition',
     'appointment',
@@ -3264,6 +3583,8 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const carePlans = normalizeArray(validated.care_plan);
   const careTeams = normalizeArray(validated.care_team);
   const goals = normalizeArray(validated.goal);
+  const serviceRequests = normalizeArray(validated.service_request);
+  const tasks = normalizeArray(validated.task);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -3317,6 +3638,12 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (goals.length) {
     canonical.goals = goals.map(buildCanonicalGoalGlobal);
+  }
+  if (serviceRequests.length) {
+    canonical.serviceRequests = serviceRequests.map(buildCanonicalServiceRequestGlobal);
+  }
+  if (tasks.length) {
+    canonical.tasks = tasks.map(buildCanonicalTaskGlobal);
   }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
@@ -3396,7 +3723,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -3412,6 +3739,8 @@ function wrapGlobalPayload(value: any) {
       value.care_plan,
       value.care_team,
       value.goal,
+      value.service_request,
+      value.task,
       value.procedure,
       value.condition,
       value.appointment,
@@ -3466,6 +3795,12 @@ function wrapGlobalPayload(value: any) {
     }
     if ('goal_id' in value || 'lifecycle_status' in value || 'description' in value) {
       return { goal: value };
+    }
+    if ('service_request_id' in value || 'requester_id' in value || 'occurrence_date' in value) {
+      return { service_request: value };
+    }
+    if ('task_id' in value || 'task_status' in value || 'task_intent' in value) {
+      return { task: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -3558,6 +3893,10 @@ function looksLikeGlobalResource(value: any) {
     'participant_member_id' in value ||
     'goal_id' in value ||
     'lifecycle_status' in value ||
+    'service_request_id' in value ||
+    'requester_id' in value ||
+    'task_id' in value ||
+    'task_status' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -4092,6 +4431,124 @@ function buildCanonicalGoalGlobal(goal: z.infer<typeof GlobalGoalSchema>) {
     addresses: addresses.length ? addresses : undefined,
     note: notes.length ? notes : undefined,
     outcome: outcomes.length ? outcomes : undefined
+  };
+}
+
+function buildCanonicalServiceRequestGlobal(request: z.infer<typeof GlobalServiceRequestSchema>) {
+  const categories = normalizeStringArray(request.category);
+  const performers = normalizeStringArray(request.performer_ids);
+  const locations = normalizeStringArray(request.location_ids);
+  const reasons = normalizeStringArray(request.reason);
+  const supportingInfo = normalizeStringArray(request.supporting_info_ids);
+  const specimens = normalizeStringArray(request.specimen_ids);
+  const bodySites = normalizeStringArray(request.body_site);
+  const notes = normalizeStringArray(request.note);
+  const instructions = normalizeStringArray(request.patient_instruction);
+  const instantiatesCanonical = normalizeStringArray(request.instantiates_canonical);
+  const instantiatesUri = normalizeStringArray(request.instantiates_uri);
+  const basedOn = normalizeStringArray(request.based_on_ids);
+  const replaces = normalizeStringArray(request.replaces_ids);
+
+  return {
+    id: request.service_request_id,
+    identifier: request.service_request_id,
+    instantiatesCanonical: instantiatesCanonical.length ? instantiatesCanonical : undefined,
+    instantiatesUri: instantiatesUri.length ? instantiatesUri : undefined,
+    basedOn: basedOn.length ? basedOn : undefined,
+    replaces: replaces.length ? replaces : undefined,
+    requisition: request.requisition,
+    status: request.status,
+    intent: request.intent,
+    category: categories.length ? categories.map(value => ({ code: value, display: value })) : undefined,
+    priority: request.priority,
+    doNotPerform: normalizeBoolean(request.do_not_perform),
+    code: (request.code?.code || request.code?.code_system || request.code?.display)
+      ? {
+        code: request.code?.code,
+        system: request.code?.code_system,
+        display: request.code?.display
+      }
+      : undefined,
+    subject: request.subject_id,
+    encounter: request.encounter_id,
+    occurrenceDateTime: request.occurrence_date,
+    occurrencePeriod: request.occurrence_start || request.occurrence_end
+      ? { start: request.occurrence_start, end: request.occurrence_end }
+      : undefined,
+    asNeededBoolean: normalizeBoolean(request.as_needed),
+    authoredOn: request.authored_on,
+    requester: request.requester_id,
+    performerType: request.performer_type ? { code: request.performer_type, display: request.performer_type } : undefined,
+    performer: performers.length ? performers : undefined,
+    location: locations.length ? locations : undefined,
+    reason: reasons.length ? reasons : undefined,
+    supportingInfo: supportingInfo.length ? supportingInfo : undefined,
+    specimen: specimens.length ? specimens : undefined,
+    bodySite: bodySites.length ? bodySites.map(value => ({ code: value, display: value })) : undefined,
+    note: notes.length ? notes : undefined,
+    patientInstruction: instructions.length ? instructions : undefined
+  };
+}
+
+function buildCanonicalTaskGlobal(task: z.infer<typeof GlobalTaskSchema>) {
+  const requestedPerformers = normalizeStringArray(task.requested_performer_ids);
+  const reasons = normalizeStringArray(task.reason);
+  const insuranceIds = normalizeStringArray(task.insurance_ids);
+  const notes = normalizeStringArray(task.note);
+  const relevantHistory = normalizeStringArray(task.relevant_history_ids);
+  const basedOn = normalizeStringArray(task.based_on_ids);
+  const partOf = normalizeStringArray(task.part_of_ids);
+
+  return {
+    id: task.task_id,
+    identifier: task.task_id,
+    instantiatesCanonical: task.instantiates_canonical,
+    instantiatesUri: task.instantiates_uri,
+    basedOn: basedOn.length ? basedOn : undefined,
+    groupIdentifier: task.group_identifier,
+    partOf: partOf.length ? partOf : undefined,
+    status: task.status,
+    statusReason: task.status_reason,
+    businessStatus: task.business_status,
+    intent: task.intent,
+    priority: task.priority,
+    doNotPerform: normalizeBoolean(task.do_not_perform),
+    code: (task.code?.code || task.code?.code_system || task.code?.display)
+      ? {
+        code: task.code?.code,
+        system: task.code?.code_system,
+        display: task.code?.display
+      }
+      : undefined,
+    description: task.description,
+    focus: task.focus_id,
+    for: task.for_id,
+    encounter: task.encounter_id,
+    requestedPeriod: task.requested_start || task.requested_end
+      ? { start: task.requested_start, end: task.requested_end }
+      : undefined,
+    executionPeriod: task.execution_start || task.execution_end
+      ? { start: task.execution_start, end: task.execution_end }
+      : undefined,
+    authoredOn: task.authored_on,
+    lastModified: task.last_modified,
+    requester: task.requester_id,
+    requestedPerformer: requestedPerformers.length ? requestedPerformers : undefined,
+    owner: task.owner_id,
+    performer: (task.performer_id || task.performer_function)
+      ? [{
+        actor: task.performer_id,
+        function: task.performer_function ? {
+          code: task.performer_function,
+          display: task.performer_function
+        } : undefined
+      }]
+      : undefined,
+    location: task.location,
+    reason: reasons.length ? reasons : undefined,
+    insurance: insuranceIds.length ? insuranceIds : undefined,
+    note: notes.length ? notes : undefined,
+    relevantHistory: relevantHistory.length ? relevantHistory : undefined
   };
 }
 

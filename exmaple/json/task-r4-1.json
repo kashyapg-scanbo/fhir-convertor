@@ -1,0 +1,22 @@
+{
+  "resourceType": "Task",
+  "id": "TASK-R4-1",
+  "status": "requested",
+  "intent": "order",
+  "code": {
+    "coding": [
+      {
+        "code": "LAB",
+        "display": "Collect specimen"
+      }
+    ],
+    "text": "Collect specimen"
+  },
+  "for": {
+    "reference": "Patient/PAT-1"
+  },
+  "authoredOn": "2024-03-01T08:30:00Z",
+  "requester": {
+    "reference": "Practitioner/PRAC-1"
+  }
+}

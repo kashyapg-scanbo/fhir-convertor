@@ -35,6 +35,8 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonCarePlanOnly'
                 - $ref: '#/components/schemas/CustomJsonCareTeamOnly'
                 - $ref: '#/components/schemas/CustomJsonGoalOnly'
+                - $ref: '#/components/schemas/CustomJsonServiceRequestOnly'
+                - $ref: '#/components/schemas/CustomJsonTaskOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -274,6 +276,32 @@ paths:
                     target_measure: HbA1c
                     target_detail: 7.0
                     target_due_date: 2024-06-30
+              service_request:
+                summary: ServiceRequest
+                value:
+                  service_request:
+                    service_request_id: SR-100
+                    status: active
+                    intent: order
+                    code:
+                      code: LAB
+                      display: Basic Metabolic Panel
+                    subject_id: P-10001
+                    occurrence_date: 2024-03-01T09:00:00Z
+                    requester_id: PRAC-1
+              task:
+                summary: Task
+                value:
+                  task:
+                    task_id: TASK-100
+                    status: requested
+                    intent: order
+                    code:
+                      code: LAB
+                      display: Collect specimen
+                    for_id: P-10001
+                    authored_on: 2024-03-01T08:30:00Z
+                    requester_id: PRAC-1
               practitioner:
                 summary: Practitioner
                 value:
@@ -580,7 +608,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -725,7 +753,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -804,6 +832,18 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomGoal'
+        service_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomServiceRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomServiceRequest'
+        task:
+          oneOf:
+            - $ref: '#/components/schemas/CustomTask'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomTask'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -1725,6 +1765,226 @@ components:
             - type: array
               items:
                 type: string
+    CustomServiceRequest:
+      type: object
+      properties:
+        service_request_id:
+          type: string
+        status:
+          type: string
+        intent:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        priority:
+          type: string
+        do_not_perform:
+          type: boolean
+        code:
+          $ref: '#/components/schemas/CustomProcedureCode'
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_start:
+          type: string
+          format: date-time
+        occurrence_end:
+          type: string
+          format: date-time
+        as_needed:
+          type: boolean
+        authored_on:
+          type: string
+          format: date-time
+        requester_id:
+          type: string
+        performer_type:
+          type: string
+        performer_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        location_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        specimen_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        body_site:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        patient_instruction:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        replaces_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        requisition:
+          type: string
+    CustomTask:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        business_status:
+          type: string
+        intent:
+          type: string
+        priority:
+          type: string
+        do_not_perform:
+          type: boolean
+        code:
+          $ref: '#/components/schemas/CustomProcedureCode'
+        description:
+          type: string
+        focus_id:
+          type: string
+        for_id:
+          type: string
+        encounter_id:
+          type: string
+        requested_start:
+          type: string
+          format: date-time
+        requested_end:
+          type: string
+          format: date-time
+        execution_start:
+          type: string
+          format: date-time
+        execution_end:
+          type: string
+          format: date-time
+        authored_on:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        requester_id:
+          type: string
+        requested_performer_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        owner_id:
+          type: string
+        performer_id:
+          type: string
+        performer_function:
+          type: string
+        location:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        insurance_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        relevant_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          type: string
+        instantiates_uri:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        group_identifier:
+          type: string
     CustomProcedure:
       type: object
       properties:
@@ -2810,6 +3070,18 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [goal]
+    CustomJsonServiceRequestOnly:
+      title: ServiceRequest
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [service_request]
+    CustomJsonTaskOnly:
+      title: Task
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [task]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

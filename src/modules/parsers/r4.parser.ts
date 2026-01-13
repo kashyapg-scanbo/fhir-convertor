@@ -30,7 +30,9 @@ import {
     CanonicalParameters,
     CanonicalCarePlan,
     CanonicalCareTeam,
-    CanonicalGoal
+    CanonicalGoal,
+    CanonicalServiceRequest,
+    CanonicalTask
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -59,6 +61,8 @@ export function parseR4(input: string): CanonicalModel {
         carePlans: [],
         careTeams: [],
         goals: [],
+        serviceRequests: [],
+        tasks: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -146,6 +150,14 @@ export function parseR4(input: string): CanonicalModel {
             case 'Goal':
                 const goal = mapR4Goal(res);
                 if (goal) model.goals?.push(goal);
+                break;
+            case 'ServiceRequest':
+                const serviceRequest = mapR4ServiceRequest(res);
+                if (serviceRequest) model.serviceRequests?.push(serviceRequest);
+                break;
+            case 'Task':
+                const task = mapR4Task(res);
+                if (task) model.tasks?.push(task);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1012,6 +1024,123 @@ function mapR4Goal(goal: any): CanonicalGoal {
     addresses: goal.addresses?.map((ref: any) => ref.reference).filter(Boolean),
     note: goal.note?.map((note: any) => note.text).filter(Boolean),
     outcome: goal.outcome?.map((ref: any) => ref.reference).filter(Boolean)
+  };
+}
+
+function mapR4ServiceRequest(request: any): CanonicalServiceRequest {
+  const reasons = [
+    ...(request.reason || []).map((reason: any) => reason.reference || reason.concept?.text).filter(Boolean),
+    ...(request.reasonReference || []).map((ref: any) => ref.reference).filter(Boolean),
+    ...(request.reasonCode || []).map((code: any) => code.text).filter(Boolean)
+  ];
+
+  return {
+    id: request.id,
+    identifier: request.identifier?.[0]?.value,
+    instantiatesCanonical: request.instantiatesCanonical,
+    instantiatesUri: request.instantiatesUri,
+    basedOn: request.basedOn?.map((ref: any) => ref.reference?.replace(/^(CarePlan|MedicationRequest|ServiceRequest)\//, '')).filter(Boolean),
+    replaces: request.replaces?.map((ref: any) => ref.reference?.replace(/^ServiceRequest\//, '')).filter(Boolean),
+    requisition: request.requisition?.value,
+    status: request.status,
+    intent: request.intent,
+    category: request.category?.map((cat: any) => ({
+      system: cat.coding?.[0]?.system,
+      code: cat.coding?.[0]?.code,
+      display: cat.coding?.[0]?.display || cat.text
+    })),
+    priority: request.priority,
+    doNotPerform: request.doNotPerform,
+    code: request.code?.coding?.[0] || request.code?.text
+      ? {
+        system: request.code?.coding?.[0]?.system,
+        code: request.code?.coding?.[0]?.code,
+        display: request.code?.coding?.[0]?.display || request.code?.text
+      }
+      : undefined,
+    subject: request.subject?.reference?.replace(/^(Patient|Group|Location|Device)\//, ''),
+    encounter: request.encounter?.reference?.replace(/^Encounter\//, ''),
+    occurrenceDateTime: request.occurrenceDateTime,
+    occurrencePeriod: request.occurrencePeriod ? { start: request.occurrencePeriod.start, end: request.occurrencePeriod.end } : undefined,
+    asNeededBoolean: request.asNeededBoolean,
+    authoredOn: request.authoredOn,
+    requester: request.requester?.reference?.replace(/^(Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    performerType: request.performerType?.coding?.[0]
+      ? {
+        system: request.performerType.coding[0].system,
+        code: request.performerType.coding[0].code,
+        display: request.performerType.coding[0].display
+      }
+      : undefined,
+    performer: request.performer?.map((ref: any) => ref.reference?.replace(/^(CareTeam|Device|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
+    location: request.location?.map((loc: any) => loc.reference?.replace(/^Location\//, '')).filter(Boolean),
+    reason: reasons.length ? reasons : undefined,
+    supportingInfo: request.supportingInfo?.map((info: any) => info.reference || info.concept?.text).filter(Boolean),
+    specimen: request.specimen?.map((ref: any) => ref.reference?.replace(/^Specimen\//, '')).filter(Boolean),
+    bodySite: request.bodySite?.map((site: any) => ({
+      system: site.coding?.[0]?.system,
+      code: site.coding?.[0]?.code,
+      display: site.coding?.[0]?.display || site.text
+    })),
+    note: request.note?.map((note: any) => note.text).filter(Boolean),
+    patientInstruction: request.patientInstruction?.map((instruction: any) => instruction.instructionMarkdown).filter(Boolean)
+  };
+}
+
+function mapR4Task(task: any): CanonicalTask {
+  const reasons = [
+    ...(task.reason || []).map((reason: any) => reason.reference || reason.concept?.text).filter(Boolean),
+    ...(task.reasonReference || []).map((ref: any) => ref.reference).filter(Boolean),
+    ...(task.reasonCode || []).map((code: any) => code.text || code.coding?.[0]?.display).filter(Boolean)
+  ];
+
+  return {
+    id: task.id,
+    identifier: task.identifier?.[0]?.value,
+    instantiatesCanonical: task.instantiatesCanonical,
+    instantiatesUri: task.instantiatesUri,
+    basedOn: task.basedOn?.map((ref: any) => ref.reference?.replace(/^(CarePlan|ServiceRequest|Task|Procedure|Observation|MedicationRequest|Appointment|Encounter)\//, '')).filter(Boolean),
+    groupIdentifier: task.groupIdentifier?.value,
+    partOf: task.partOf?.map((ref: any) => ref.reference?.replace(/^Task\//, '')).filter(Boolean),
+    status: task.status,
+    statusReason: task.statusReason?.concept?.text || task.statusReason?.concept?.coding?.[0]?.display || task.statusReason?.concept?.coding?.[0]?.code,
+    businessStatus: task.businessStatus?.text || task.businessStatus?.coding?.[0]?.display || task.businessStatus?.coding?.[0]?.code,
+    intent: task.intent,
+    priority: task.priority,
+    doNotPerform: task.doNotPerform,
+    code: task.code?.coding?.[0] || task.code?.text
+      ? {
+        system: task.code?.coding?.[0]?.system,
+        code: task.code?.coding?.[0]?.code,
+        display: task.code?.coding?.[0]?.display || task.code?.text
+      }
+      : undefined,
+    description: task.description,
+    focus: task.focus?.reference,
+    for: task.for?.reference,
+    encounter: task.encounter?.reference?.replace(/^Encounter\//, ''),
+    requestedPeriod: task.requestedPeriod ? { start: task.requestedPeriod.start, end: task.requestedPeriod.end } : undefined,
+    executionPeriod: task.executionPeriod ? { start: task.executionPeriod.start, end: task.executionPeriod.end } : undefined,
+    authoredOn: task.authoredOn,
+    lastModified: task.lastModified,
+    requester: task.requester?.reference?.replace(/^(Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    requestedPerformer: task.requestedPerformer?.map((ref: any) => ref.reference?.replace(/^(CareTeam|Device|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')).filter(Boolean),
+    owner: task.owner?.reference?.replace(/^(CareTeam|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    performer: task.performer?.map((performer: any) => ({
+      actor: performer.actor?.reference?.replace(/^(CareTeam|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+      function: performer.function?.coding?.[0]
+        ? {
+          system: performer.function.coding[0].system,
+          code: performer.function.coding[0].code,
+          display: performer.function.coding[0].display
+        }
+        : undefined
+    })),
+    location: task.location?.reference?.replace(/^Location\//, ''),
+    reason: reasons.length ? reasons : undefined,
+    insurance: task.insurance?.map((ref: any) => ref.reference?.replace(/^(Coverage|ClaimResponse)\//, '')).filter(Boolean),
+    note: task.note?.map((note: any) => note.text).filter(Boolean),
+    relevantHistory: task.relevantHistory?.map((ref: any) => ref.reference?.replace(/^Provenance\//, '')).filter(Boolean)
   };
 }
 

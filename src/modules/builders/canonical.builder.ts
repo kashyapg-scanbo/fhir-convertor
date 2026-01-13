@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -836,6 +836,121 @@ export function buildCanonical(parsed: any) {
 
   if (goals.length > 0) {
     result.goals = goals;
+  }
+
+  /* ───── ServiceRequests (from ORC/OBR) ───── */
+  const serviceRequests: CanonicalServiceRequest[] = [];
+  const srOrcSegments = parsed.ORC ?? [];
+  const srObrSegments = parsed.OBR ?? [];
+
+  for (const orc of srOrcSegments) {
+    const placerId = orc?.[1]?.[0]?.[0];
+    const fillerId = orc?.[2]?.[0]?.[0];
+    const requestId = placerId || fillerId;
+    const status = orc?.[4]?.[0]?.[0];
+    const control = orc?.[0]?.[0]?.[0];
+
+    if (!requestId && !control) continue;
+
+    serviceRequests.push({
+      id: requestId || `ORC-${Date.now()}`,
+      identifier: requestId,
+      status: status || 'active',
+      intent: 'order',
+      subject: patientId,
+      encounter: encounter?.id
+    });
+  }
+
+  for (const obr of srObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const requestId = placerId || fillerId;
+    const serviceCode = obr?.[3]?.[0] ?? [];
+    const codeValue = serviceCode[0];
+    const display = serviceCode[1];
+    const system = serviceCode[2];
+    const status = obr?.[24]?.[0]?.[0];
+    const authoredOn = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!requestId && !codeValue && !display) continue;
+
+    serviceRequests.push({
+      id: requestId || `OBR-${Date.now()}`,
+      identifier: requestId,
+      status: status || 'active',
+      intent: 'order',
+      code: codeValue || display ? {
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      } : undefined,
+      subject: patientId,
+      encounter: encounter?.id,
+      authoredOn: authoredOn
+    });
+  }
+
+  if (serviceRequests.length > 0) {
+    result.serviceRequests = serviceRequests;
+  }
+
+  /* ───── Tasks (from ORC/OBR) ───── */
+  const tasks: CanonicalTask[] = [];
+  const taskOrcSegments = parsed.ORC ?? [];
+  const taskObrSegments = parsed.OBR ?? [];
+
+  for (const orc of taskOrcSegments) {
+    const placerId = orc?.[1]?.[0]?.[0];
+    const fillerId = orc?.[2]?.[0]?.[0];
+    const taskId = placerId || fillerId;
+    const status = orc?.[5]?.[0]?.[0] || orc?.[4]?.[0]?.[0];
+    const control = orc?.[0]?.[0]?.[0];
+
+    if (!taskId && !control) continue;
+
+    tasks.push({
+      id: taskId || `TASK-ORC-${Date.now()}`,
+      identifier: taskId,
+      status: status || 'requested',
+      intent: 'order',
+      for: patientId,
+      encounter: encounter?.id
+    });
+  }
+
+  for (const obr of taskObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const taskId = placerId || fillerId;
+    const taskCode = obr?.[3]?.[0] ?? [];
+    const codeValue = taskCode[0];
+    const display = taskCode[1];
+    const system = taskCode[2];
+    const status = obr?.[25]?.[0]?.[0] || obr?.[24]?.[0]?.[0];
+    const authoredOn = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!taskId && !codeValue && !display) continue;
+
+    tasks.push({
+      id: taskId || `TASK-OBR-${Date.now()}`,
+      identifier: taskId,
+      status: status || 'requested',
+      intent: 'order',
+      code: codeValue || display ? {
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      } : undefined,
+      description: display || undefined,
+      for: patientId,
+      encounter: encounter?.id,
+      authoredOn: authoredOn
+    });
+  }
+
+  if (tasks.length > 0) {
+    result.tasks = tasks;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

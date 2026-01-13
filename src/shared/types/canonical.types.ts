@@ -788,6 +788,111 @@ export type CanonicalGoal = {
   active?: boolean;
 };
 
+export type CanonicalServiceRequest = {
+  id?: string;
+  identifier?: string;
+  instantiatesCanonical?: string[];
+  instantiatesUri?: string[];
+  basedOn?: string[];
+  replaces?: string[];
+  requisition?: string;
+  status?: string;
+  intent?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  priority?: string;
+  doNotPerform?: boolean;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  quantityString?: string;
+  subject?: string;
+  encounter?: string;
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  asNeededBoolean?: boolean;
+  authoredOn?: string;
+  requester?: string;
+  performerType?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  performer?: string[];
+  location?: string[];
+  reason?: string[];
+  supportingInfo?: string[];
+  specimen?: string[];
+  bodySite?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  note?: string[];
+  patientInstruction?: string[];
+  active?: boolean;
+};
+
+export type CanonicalTask = {
+  id?: string;
+  identifier?: string;
+  instantiatesCanonical?: string;
+  instantiatesUri?: string;
+  basedOn?: string[];
+  groupIdentifier?: string;
+  partOf?: string[];
+  status?: string;
+  statusReason?: string;
+  businessStatus?: string;
+  intent?: string;
+  priority?: string;
+  doNotPerform?: boolean;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  description?: string;
+  focus?: string;
+  for?: string;
+  encounter?: string;
+  requestedPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  executionPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  authoredOn?: string;
+  lastModified?: string;
+  requester?: string;
+  requestedPerformer?: string[];
+  owner?: string;
+  performer?: Array<{
+    actor?: string;
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  location?: string;
+  reason?: string[];
+  insurance?: string[];
+  note?: string[];
+  relevantHistory?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1534,6 +1639,8 @@ export type CanonicalModel = {
   carePlans?: CanonicalCarePlan[]; // CarePlan
   careTeams?: CanonicalCareTeam[]; // CareTeam
   goals?: CanonicalGoal[]; // Goal
+  serviceRequests?: CanonicalServiceRequest[]; // ServiceRequest
+  tasks?: CanonicalTask[]; // Task
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

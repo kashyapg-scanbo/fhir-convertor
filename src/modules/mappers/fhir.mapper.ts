@@ -17,6 +17,8 @@ import { mapParameters } from './parameters.mapper.js';
 import { mapCarePlans } from './carePlan.mapper.js';
 import { mapCareTeams } from './careTeam.mapper.js';
 import { mapGoals } from './goal.mapper.js';
+import { mapServiceRequests } from './serviceRequest.mapper.js';
+import { mapTasks } from './task.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
@@ -225,6 +227,30 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (goalEntries.length > 0) {
     bundle.entry.push(...goalEntries);
+  }
+
+  const serviceRequestEntries = mapServiceRequests({
+    serviceRequests: canonical.serviceRequests,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (serviceRequestEntries.length > 0) {
+    bundle.entry.push(...serviceRequestEntries);
+  }
+
+  const taskEntries = mapTasks({
+    tasks: canonical.tasks,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (taskEntries.length > 0) {
+    bundle.entry.push(...taskEntries);
   }
 
   const procedureEntries = mapProcedures({

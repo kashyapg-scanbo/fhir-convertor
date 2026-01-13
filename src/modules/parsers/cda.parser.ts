@@ -25,6 +25,8 @@ import {
   CanonicalCarePlan,
   CanonicalCareTeam,
   CanonicalGoal,
+  CanonicalServiceRequest,
+  CanonicalTask,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -91,6 +93,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const carePlans = extractCarePlans(clinicalDocument, patient.id, encounter?.id);
   const careTeams = extractCareTeams(clinicalDocument, patient.id);
   const goals = extractGoals(clinicalDocument, patient.id);
+  const serviceRequests = extractServiceRequests(clinicalDocument, patient.id, encounter?.id);
+  const tasks = extractTasks(clinicalDocument, patient.id, encounter?.id);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -130,6 +134,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (carePlans.length) canonical.carePlans = carePlans;
   if (careTeams.length) canonical.careTeams = careTeams;
   if (goals.length) canonical.goals = goals;
+  if (serviceRequests.length) canonical.serviceRequests = serviceRequests;
+  if (tasks.length) canonical.tasks = tasks;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -861,6 +867,97 @@ function extractGoals(
   });
 
   return goals;
+}
+
+function extractServiceRequests(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalServiceRequest[] {
+  const requests: CanonicalServiceRequest[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isPlanSection = sectionCodeValue === '46209-3';
+    if (!isPlanSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const req of acts) {
+      const id = extractId(req.id || req['cda:id']);
+      const statusCode = req.statusCode || req['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = req.code || req['cda:code'];
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const effectiveTime = req.effectiveTime || req['cda:effectiveTime'];
+      const start = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName) continue;
+
+      requests.push({
+        id: id || `SR-${requests.length + 1}`,
+        identifier: id,
+        status: status || 'active',
+        intent: 'order',
+        code: displayName ? { display: displayName } : undefined,
+        subject: patientId,
+        encounter: encounterId,
+        authoredOn: start
+      });
+    }
+  });
+
+  return requests;
+}
+
+function extractTasks(
+  clinicalDocument: any,
+  patientId?: string,
+  encounterId?: string
+): CanonicalTask[] {
+  const tasks: CanonicalTask[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isTaskSection = sectionCodeValue === 'TASK';
+    if (!isTaskSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const task of acts) {
+      const id = extractId(task.id || task['cda:id']);
+      const statusCode = task.statusCode || task['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = task.code || task['cda:code'];
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(task.text || task['cda:text']);
+
+      const effectiveTime = task.effectiveTime || task['cda:effectiveTime'];
+      const start = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !text) continue;
+
+      tasks.push({
+        id: id || `TASK-${tasks.length + 1}`,
+        identifier: id,
+        status: status || 'requested',
+        intent: 'order',
+        code: displayName ? { display: displayName } : undefined,
+        description: text || displayName || undefined,
+        for: patientId,
+        encounter: encounterId,
+        authoredOn: start
+      });
+    }
+  });
+
+  return tasks;
 }
 
 function extractProcedures(

@@ -30,7 +30,9 @@ import {
     CanonicalParameters,
     CanonicalCarePlan,
     CanonicalCareTeam,
-    CanonicalGoal
+    CanonicalGoal,
+    CanonicalServiceRequest,
+    CanonicalTask
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -86,6 +88,8 @@ export function parseHL7v3(input: string): CanonicalModel {
         carePlans: [],
         careTeams: [],
         goals: [],
+        serviceRequests: [],
+        tasks: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -173,6 +177,18 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (goalEvent) {
                 const goal = mapV3Goal(goalEvent);
                 if (goal) model.goals?.push(goal);
+            }
+
+            const serviceRequestEvent = sub.serviceRequest || sub.ServiceRequest;
+            if (serviceRequestEvent) {
+                const serviceRequest = mapV3ServiceRequest(serviceRequestEvent);
+                if (serviceRequest) model.serviceRequests?.push(serviceRequest);
+            }
+
+            const taskEvent = sub.task || sub.Task;
+            if (taskEvent) {
+                const task = mapV3Task(taskEvent);
+                if (task) model.tasks?.push(task);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -913,6 +929,57 @@ function mapV3Goal(goalEvent: any): CanonicalGoal | undefined {
         lifecycleStatus: status || 'active',
         description: { text: displayName || descriptionText },
         startDate: startDate
+    };
+}
+
+function mapV3ServiceRequest(requestEvent: any): CanonicalServiceRequest | undefined {
+    if (!requestEvent) return undefined;
+    const id = requestEvent.id || requestEvent['cda:id'];
+    const code = requestEvent.code || requestEvent['cda:code'];
+    const statusCode = requestEvent.statusCode || requestEvent['cda:statusCode'];
+    const effectiveTime = requestEvent.effectiveTime || requestEvent['cda:effectiveTime'];
+
+    const requestId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const start = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+
+    if (!requestId && !displayName) return undefined;
+
+    return {
+        id: requestId || `SR-${Date.now()}`,
+        identifier: requestId,
+        status: status || 'active',
+        intent: 'order',
+        code: displayName ? { display: displayName } : undefined,
+        authoredOn: start
+    };
+}
+
+function mapV3Task(taskEvent: any): CanonicalTask | undefined {
+    if (!taskEvent) return undefined;
+    const id = taskEvent.id || taskEvent['cda:id'];
+    const code = taskEvent.code || taskEvent['cda:code'];
+    const statusCode = taskEvent.statusCode || taskEvent['cda:statusCode'];
+    const effectiveTime = taskEvent.effectiveTime || taskEvent['cda:effectiveTime'];
+    const text = taskEvent.text || taskEvent['cda:text'];
+
+    const taskId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const status = statusCode?.['@_code'];
+    const start = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const descriptionText = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!taskId && !displayName && !descriptionText) return undefined;
+
+    return {
+        id: taskId || `TASK-${Date.now()}`,
+        identifier: taskId,
+        status: status || 'requested',
+        intent: 'order',
+        code: displayName ? { display: displayName } : undefined,
+        description: descriptionText || displayName,
+        authoredOn: start
     };
 }
 
