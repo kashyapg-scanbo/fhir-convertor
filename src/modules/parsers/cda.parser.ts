@@ -38,6 +38,7 @@ import {
   CanonicalTerminologyCapabilities,
   CanonicalProvenance,
   CanonicalAuditEvent,
+  CanonicalConsent,
   CanonicalPatient,
   CanonicalModel,
   CanonicalObservation,
@@ -117,6 +118,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const terminologyCapabilities = extractTerminologyCapabilities(clinicalDocument);
   const provenances = extractProvenances(clinicalDocument);
   const auditEvents = extractAuditEvents(clinicalDocument);
+  const consents = extractConsents(clinicalDocument);
   const custodianOrgs = extractCustodianOrganizations(clinicalDocument);
   const organizations = mergeOrganizations(practitionerData.organizations, custodianOrgs);
   const documentReference = buildDocumentReference({
@@ -169,6 +171,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (terminologyCapabilities.length) canonical.terminologyCapabilities = terminologyCapabilities;
   if (provenances.length) canonical.provenances = provenances;
   if (auditEvents.length) canonical.auditEvents = auditEvents;
+  if (consents.length) canonical.consents = consents;
   if (practitionerData.practitioners.length) canonical.practitioners = practitionerData.practitioners;
   if (practitionerData.practitionerRoles.length) canonical.practitionerRoles = practitionerData.practitionerRoles;
   if (organizations.length) canonical.organizations = organizations;
@@ -1494,6 +1497,47 @@ function extractAuditEvents(
   });
 
   return auditEvents;
+}
+
+function extractConsents(
+  clinicalDocument: any
+): CanonicalConsent[] {
+  const consents: CanonicalConsent[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isConsentSection = sectionCodeValue === 'CONSENT';
+    if (!isConsentSection) return;
+
+    const act = entry.act || entry['cda:act'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const consent of acts) {
+      const id = extractId(consent.id || consent['cda:id']);
+      const statusCode = consent.statusCode || consent['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = consent.code || consent['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const text = extractText(consent.text || consent['cda:text']);
+      const effectiveTime = consent.effectiveTime || consent['cda:effectiveTime'];
+      const date = formatCDADateTime(extractAttribute(effectiveTime, '@_value') || extractAttribute(effectiveTime?.low, '@_value'));
+
+      if (!id && !displayName && !text) continue;
+
+      consents.push({
+        id: id || `CONSENT-${consents.length + 1}`,
+        status: status || 'active',
+        category: displayName,
+        date: date,
+        decision: codeValue
+      });
+    }
+  });
+
+  return consents;
 }
 
 function extractProcedures(

@@ -722,6 +722,17 @@ const GlobalAuditEventSchema = z.object({
   agent_requestor: z.union([z.boolean(), z.string()]).optional()
 });
 
+const GlobalConsentSchema = z.object({
+  consent_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  category: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  date: z.string().optional(),
+  decision: z.string().optional(),
+  grantor_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  grantee_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalProcedureSchema = z.object({
   procedure_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
@@ -1154,6 +1165,7 @@ const GlobalCustomJSONSchema = z.object({
   terminology_capabilities: z.union([GlobalTerminologyCapabilitiesSchema, z.array(GlobalTerminologyCapabilitiesSchema)]).optional(),
   provenance: z.union([GlobalProvenanceSchema, z.array(GlobalProvenanceSchema)]).optional(),
   audit_event: z.union([GlobalAuditEventSchema, z.array(GlobalAuditEventSchema)]).optional(),
+  consent: z.union([GlobalConsentSchema, z.array(GlobalConsentSchema)]).optional(),
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
@@ -1197,6 +1209,7 @@ const GlobalCustomJSONSchema = z.object({
     value.terminology_capabilities ||
     value.provenance ||
     value.audit_event ||
+    value.consent ||
     value.procedure ||
     value.condition ||
     value.appointment ||
@@ -1215,7 +1228,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1255,6 +1268,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   terminologyCapabilities: 'terminologyCapabilities',
   provenances: 'provenance',
   auditEvents: 'auditEvent',
+  consents: 'consent',
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
@@ -1319,6 +1333,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   provenances: 'provenance',
   audit_event: 'auditEvent',
   audit_events: 'auditEvent',
+  consent: 'consent',
+  consents: 'consent',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -1449,6 +1465,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   audit_events: 'audit_event',
   auditevent: 'audit_event',
   auditevents: 'audit_event',
+  consent: 'consent',
+  consents: 'consent',
   procedure: 'procedure',
   procedures: 'procedure',
   condition: 'condition',
@@ -4205,6 +4223,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const terminologyCapabilities = normalizeArray(validated.terminology_capabilities);
   const provenances = normalizeArray(validated.provenance);
   const auditEvents = normalizeArray(validated.audit_event);
+  const consents = normalizeArray(validated.consent);
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
@@ -4298,6 +4317,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (auditEvents.length) {
     canonical.auditEvents = auditEvents.map(buildCanonicalAuditEventGlobal);
   }
+  if (consents.length) {
+    canonical.consents = consents.map(buildCanonicalConsentGlobal);
+  }
   if (procedures.length) {
     canonical.procedures = procedures.map(buildCanonicalProcedureGlobal);
   }
@@ -4376,7 +4398,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4405,6 +4427,7 @@ function wrapGlobalPayload(value: any) {
       value.terminology_capabilities,
       value.provenance,
       value.audit_event,
+      value.consent,
       value.procedure,
       value.condition,
       value.appointment,
@@ -4498,6 +4521,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('audit_event_id' in value || 'severity' in value || 'action' in value) {
       return { audit_event: value };
+    }
+    if ('consent_id' in value || 'decision' in value || 'grantor_ids' in value) {
+      return { consent: value };
     }
     if ('procedure_id' in value || 'occurrence_date' in value || 'code' in value) {
       return { procedure: value };
@@ -4625,6 +4651,8 @@ function looksLikeGlobalResource(value: any) {
     'audit_event_id' in value ||
     'severity' in value ||
     'action' in value ||
+    'consent_id' in value ||
+    'decision' in value ||
     'procedure_id' in value ||
     'occurrence_date' in value ||
     'occurrence_start' in value ||
@@ -5655,6 +5683,22 @@ function buildCanonicalAuditEventGlobal(event: z.infer<typeof GlobalAuditEventSc
     severity: event.severity,
     recorded: event.recorded,
     agent: agent
+  };
+}
+
+function buildCanonicalConsentGlobal(consent: z.infer<typeof GlobalConsentSchema>) {
+  const grantors = normalizeStringArray(consent.grantor_ids);
+  const grantees = normalizeStringArray(consent.grantee_ids);
+
+  return {
+    id: consent.consent_id,
+    status: consent.status,
+    category: consent.category,
+    subject: consent.subject_id,
+    date: consent.date,
+    decision: consent.decision,
+    grantor: grantors.length ? grantors : undefined,
+    grantee: grantees.length ? grantees : undefined
   };
 }
 

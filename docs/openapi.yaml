@@ -48,6 +48,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonTerminologyCapabilitiesOnly'
                 - $ref: '#/components/schemas/CustomJsonProvenanceOnly'
                 - $ref: '#/components/schemas/CustomJsonAuditEventOnly'
+                - $ref: '#/components/schemas/CustomJsonConsentOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
@@ -454,6 +455,20 @@ paths:
                     audit_event_agent_who: Practitioner/PRAC-1
                     audit_event_agent_role: author
                     audit_event_agent_requestor: true
+              consent:
+                summary: Consent
+                value:
+                  consent:
+                    consent_id: CONS-100
+                    consent_status: active
+                    consent_category: privacy
+                    consent_subject_id: Patient/PAT-1
+                    consent_date: 2024-03-16
+                    consent_decision: permit
+                    consent_grantor_ids:
+                      - Patient/PAT-1
+                    consent_grantee_ids:
+                      - Organization/ORG-1
               practitioner:
                 summary: Practitioner
                 value:
@@ -1062,6 +1077,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomAuditEvent'
+        consent:
+          oneOf:
+            - $ref: '#/components/schemas/CustomConsent'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomConsent'
         procedure:
           oneOf:
             - $ref: '#/components/schemas/CustomProcedure'
@@ -2749,6 +2770,34 @@ components:
           oneOf:
             - type: boolean
             - type: string
+    CustomConsent:
+      type: object
+      properties:
+        consent_id:
+          type: string
+        consent_status:
+          type: string
+        consent_category:
+          type: string
+        consent_subject_id:
+          type: string
+        consent_date:
+          type: string
+          format: date
+        consent_decision:
+          type: string
+        consent_grantor_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        consent_grantee_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
     CustomProcedure:
       type: object
       properties:
@@ -3912,6 +3961,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [audit_event]
+    CustomJsonConsentOnly:
+      title: Consent
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [consent]
     CustomJsonProcedureOnly:
       title: Procedure
       allOf:

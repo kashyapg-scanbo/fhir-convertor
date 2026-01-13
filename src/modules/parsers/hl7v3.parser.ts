@@ -43,7 +43,8 @@ import {
     CanonicalNamingSystem,
     CanonicalTerminologyCapabilities,
     CanonicalProvenance,
-    CanonicalAuditEvent
+    CanonicalAuditEvent,
+    CanonicalConsent
 } from '../../shared/types/canonical.types.js';
 
 const parser = new XMLParser({
@@ -112,6 +113,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         terminologyCapabilities: [],
         provenances: [],
         auditEvents: [],
+        consents: [],
         practitioners: [],
         practitionerRoles: [],
         organizations: [],
@@ -277,6 +279,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (auditEvent) {
                 const audit = mapV3AuditEvent(auditEvent);
                 if (audit) model.auditEvents?.push(audit);
+            }
+
+            const consentEvent = sub.consent || sub.Consent;
+            if (consentEvent) {
+                const consent = mapV3Consent(consentEvent);
+                if (consent) model.consents?.push(consent);
             }
 
             const scheduleEvent = sub.schedule || sub.Schedule;
@@ -1422,6 +1430,32 @@ function mapV3AuditEvent(auditEvent: any): CanonicalAuditEvent | undefined {
         action: action,
         severity: codeValue,
         agent: action ? [{ who: action, role: 'actor' }] : undefined
+    };
+}
+
+function mapV3Consent(consentEvent: any): CanonicalConsent | undefined {
+    if (!consentEvent) return undefined;
+    const id = consentEvent.id || consentEvent['cda:id'];
+    const statusCode = consentEvent.statusCode || consentEvent['cda:statusCode'];
+    const effectiveTime = consentEvent.effectiveTime || consentEvent['cda:effectiveTime'];
+    const code = consentEvent.code || consentEvent['cda:code'];
+    const text = consentEvent.text || consentEvent['cda:text'];
+
+    const consentId = id?.['@_extension'] || id?.['@_root'];
+    const status = statusCode?.['@_code'];
+    const date = effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const decision = code?.['@_code'];
+    const description = typeof text === 'string' ? text : text?.['#text'];
+
+    if (!consentId && !displayName && !description) return undefined;
+
+    return {
+        id: consentId || `CONSENT-${Date.now()}`,
+        status: status || 'active',
+        category: displayName,
+        date: date,
+        decision: decision || undefined
     };
 }
 

@@ -1164,6 +1164,18 @@ export type CanonicalAuditEvent = {
   active?: boolean;
 };
 
+export type CanonicalConsent = {
+  id?: string;
+  status?: string;
+  category?: string;
+  subject?: string;
+  date?: string;
+  decision?: string;
+  grantor?: string[];
+  grantee?: string[];
+  active?: boolean;
+};
+
 export type CanonicalProcedure = {
   id?: string;
   identifier?: string;
@@ -1923,6 +1935,7 @@ export type CanonicalModel = {
   terminologyCapabilities?: CanonicalTerminologyCapabilities[]; // TerminologyCapabilities
   provenances?: CanonicalProvenance[]; // Provenance
   auditEvents?: CanonicalAuditEvent[]; // AuditEvent
+  consents?: CanonicalConsent[]; // Consent
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment

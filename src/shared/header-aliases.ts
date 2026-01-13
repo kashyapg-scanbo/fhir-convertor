@@ -774,6 +774,16 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     audit_event_agent_role: ['agent_role'],
     audit_event_agent_requestor: ['agent_requestor']
   },
+  consent: {
+    consent_id: ['consent_identifier', 'consentid'],
+    consent_status: ['status'],
+    consent_category: ['category'],
+    consent_subject_id: ['subject_id', 'patient_id'],
+    consent_date: ['date'],
+    consent_decision: ['decision'],
+    consent_grantor_ids: ['grantor_ids', 'grantor_id'],
+    consent_grantee_ids: ['grantee_ids', 'grantee_id']
+  },
   documentReference: {
     document_id: ['doc_id', 'document_identifier', 'documentid'],
     document_title: ['doc_title'],

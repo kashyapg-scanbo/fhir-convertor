@@ -43,7 +43,8 @@ import {
     CanonicalNamingSystem,
     CanonicalTerminologyCapabilities,
     CanonicalProvenance,
-    CanonicalAuditEvent
+    CanonicalAuditEvent,
+    CanonicalConsent
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -85,6 +86,7 @@ export function parseR4(input: string): CanonicalModel {
         terminologyCapabilities: [],
         provenances: [],
         auditEvents: [],
+        consents: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -224,6 +226,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'AuditEvent':
                 const auditEvent = mapR4AuditEvent(res);
                 if (auditEvent) model.auditEvents?.push(auditEvent);
+                break;
+            case 'Consent':
+                const consent = mapR4Consent(res);
+                if (consent) model.consents?.push(consent);
                 break;
             case 'Schedule':
                 const schedule = mapR4Schedule(res);
@@ -1541,6 +1547,20 @@ function mapR4AuditEvent(resource: any): CanonicalAuditEvent {
       role: agent.role?.[0]?.text,
       requestor: agent.requestor
     }))
+  };
+}
+
+function mapR4Consent(resource: any): CanonicalConsent {
+  if (!resource || resource.resourceType !== 'Consent') return null as any;
+  return {
+    id: resource.id,
+    status: resource.status,
+    category: resource.category?.[0]?.text,
+    subject: resource.subject?.reference,
+    date: resource.date,
+    decision: resource.decision,
+    grantor: resource.grantor?.map((ref: any) => ref.reference).filter(Boolean),
+    grantee: resource.grantee?.map((ref: any) => ref.reference).filter(Boolean)
   };
 }
 

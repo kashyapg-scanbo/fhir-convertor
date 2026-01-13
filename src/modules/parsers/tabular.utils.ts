@@ -1342,6 +1342,37 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     canonical.auditEvents = auditEvents as any[];
   }
 
+  const consents = rows.map(row => {
+    const consentId = readValue(row, 'consent_id');
+    const status = readValue(row, 'consent_status');
+    const category = readValue(row, 'consent_category');
+    const subjectId = readValue(row, 'consent_subject_id');
+    const date = readValue(row, 'consent_date');
+    const decision = readValue(row, 'consent_decision');
+    const grantorIds = readValue(row, 'consent_grantor_ids');
+    const granteeIds = readValue(row, 'consent_grantee_ids');
+
+    if (!consentId && !status && !decision) return null;
+
+    const grantors = grantorIds ? grantorIds.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+    const grantees = granteeIds ? granteeIds.split(',').map(value => value.trim()).filter(Boolean) : undefined;
+
+    return {
+      id: consentId || undefined,
+      status: status || undefined,
+      category: category || undefined,
+      subject: subjectId || undefined,
+      date: date || undefined,
+      decision: decision || undefined,
+      grantor: grantors,
+      grantee: grantees
+    };
+  }).filter(Boolean);
+
+  if (consents.length > 0) {
+    canonical.consents = consents as any[];
+  }
+
   const procedures = rows.map(row => {
     const procCode = readValue(row, 'procedure_code');
     const procDisplay = readValue(row, 'procedure_display');

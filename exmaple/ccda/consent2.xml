@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="CONSENT"/>
+          <entry>
+            <act>
+              <id extension="CONS-CCDA-2"/>
+              <statusCode code="active"/>
+              <effectiveTime value="20240317"/>
+              <code code="deny" displayName="treatment"/>
+              <text>treatment</text>
+            </act>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

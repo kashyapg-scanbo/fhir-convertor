@@ -1,5 +1,5 @@
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities, CanonicalProvenance, CanonicalAuditEvent } from '../../shared/types/canonical.types.js';
+import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities, CanonicalProvenance, CanonicalAuditEvent, CanonicalConsent } from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -1373,6 +1373,34 @@ export function buildCanonical(parsed: any) {
 
   if (auditEvents.length > 0) {
     result.auditEvents = auditEvents;
+  }
+
+  /* ───── Consents (from OBR) ───── */
+  const consents: CanonicalConsent[] = [];
+  const consentObrSegments = parsed.OBR ?? [];
+  for (const obr of consentObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const consentId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const codeValue = codeParts[0];
+    const display = codeParts[1];
+    const status = codeParts[2];
+    const date = toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!consentId && !codeValue && !display) continue;
+
+    consents.push({
+      id: consentId || `CONSENT-${Date.now()}`,
+      status: status || 'active',
+      category: display,
+      date: date,
+      decision: codeValue
+    });
+  }
+
+  if (consents.length > 0) {
+    result.consents = consents;
   }
 
   /* ───── MedicationRequests (from RXO, RXE) ───── */

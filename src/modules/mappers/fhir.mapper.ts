@@ -30,6 +30,7 @@ import { mapNamingSystems } from './namingSystem.mapper.js';
 import { mapTerminologyCapabilities } from './terminologyCapabilities.mapper.js';
 import { mapProvenances } from './provenance.mapper.js';
 import { mapAuditEvents } from './auditEvent.mapper.js';
+import { mapConsents } from './consent.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
@@ -372,6 +373,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (auditEventEntries.length > 0) {
     bundle.entry.push(...auditEventEntries);
+  }
+
+  const consentEntries = mapConsents({
+    consents: canonical.consents,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (consentEntries.length > 0) {
+    bundle.entry.push(...consentEntries);
   }
 
   const procedureEntries = mapProcedures({
