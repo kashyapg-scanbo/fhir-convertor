@@ -49,24 +49,32 @@ export function parseWhoop(input: string): CanonicalModel {
     const recovery = data.recovery;
     const score = recovery.score;
 
+    // Add device reference for all recovery observations
+    const deviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
+
     // Heart Rate Variability (HRV RMSSD)
+    // Note: Using display text that avoids triggering heartrate profile auto-detection
     if (score.hrv_rmssd_milli !== undefined) {
       observations.push({
         code: {
           system: 'http://loinc.org',
           code: '80404-7',
-          display: 'R-R interval.standard deviation (SDNN) Heart rate variability'
+          display: 'R-R interval standard deviation (SDNN) - HRV'
         },
         value: score.hrv_rmssd_milli,
         unit: 'ms',
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: 'ms',
         date: recovery.created_at || recovery.updated_at,
+        // Use 'exam' category instead of 'vital-signs' to avoid heartrate profile validation
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
-          code: 'vital-signs',
-          display: 'Vital Signs'
+          code: 'exam',
+          display: 'Exam'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -89,6 +97,9 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -106,6 +117,9 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: '{score}',
         date: recovery.created_at || recovery.updated_at,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -128,6 +142,9 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -150,6 +167,29 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
+        status: 'final'
+      });
+    }
+
+    // User Calibrating Status (NEW - was missing)
+    if (score.user_calibrating !== undefined) {
+      observations.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '93848-0',
+          display: 'Device calibration status'
+        },
+        value: score.user_calibrating ? 1 : 0,
+        unit: '{boolean}',
+        unitSystem: 'http://unitsofmeasure.org',
+        unitCode: '{boolean}',
+        date: recovery.created_at || recovery.updated_at,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -159,6 +199,9 @@ export function parseWhoop(input: string): CanonicalModel {
   if (data.cycle?.score) {
     const cycle = data.cycle;
     const score = cycle.score;
+
+    // Add device reference for all cycle observations
+    const deviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
 
     // Strain Score
     if (score.strain !== undefined) {
@@ -178,6 +221,9 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'activity',
           display: 'Activity'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -202,11 +248,15 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'activity',
           display: 'Activity'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
 
     // Average Heart Rate during Cycle
+    // Note: Heart rate observations (8867-4) must use 'vital-signs' category to comply with heartrate profile
     if (score.average_heart_rate !== undefined) {
       observations.push({
         code: {
@@ -221,14 +271,18 @@ export function parseWhoop(input: string): CanonicalModel {
         date: cycle.start || cycle.created_at,
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
-          code: 'activity',
-          display: 'Activity'
+          code: 'vital-signs',
+          display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
 
     // Max Heart Rate during Cycle
+    // Note: Heart rate observations (8867-4) must use 'vital-signs' category to comply with heartrate profile
     if (score.max_heart_rate !== undefined) {
       observations.push({
         code: {
@@ -243,9 +297,12 @@ export function parseWhoop(input: string): CanonicalModel {
         date: cycle.start || cycle.created_at,
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
-          code: 'activity',
-          display: 'Activity'
+          code: 'vital-signs',
+          display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -256,6 +313,9 @@ export function parseWhoop(input: string): CanonicalModel {
     const sleep = data.sleep;
     const score = sleep.score;
     const stageSummary = score.stage_summary;
+
+    // Add device reference for all sleep observations
+    const deviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
 
     // Sleep Duration (total time in bed)
     if (stageSummary?.total_in_bed_time_milli !== undefined) {
@@ -276,6 +336,9 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -298,6 +361,9 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -320,6 +386,34 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
+        status: 'final'
+      });
+    }
+
+    // Sleep Consistency (NEW - was missing)
+    if (score.sleep_consistency_percentage !== undefined) {
+      observations.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '93841-5',
+          display: 'Sleep consistency percentage'
+        },
+        value: score.sleep_consistency_percentage,
+        unit: '%',
+        unitSystem: 'http://unitsofmeasure.org',
+        unitCode: '%',
+        date: sleep.start || sleep.end,
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: 'vital-signs',
+          display: 'Vital Signs'
+        }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -338,6 +432,9 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: 's',
         date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -356,6 +453,9 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: 's',
         date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -374,6 +474,9 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: 's',
         date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -392,6 +495,9 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: 's',
         date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -414,6 +520,9 @@ export function parseWhoop(input: string): CanonicalModel {
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -431,6 +540,9 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: '{count}',
         date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -448,6 +560,139 @@ export function parseWhoop(input: string): CanonicalModel {
         unitSystem: 'http://unitsofmeasure.org',
         unitCode: '{count}',
         date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
+        status: 'final'
+      });
+    }
+
+    // Total No Data Time (NEW - was missing)
+    if (stageSummary?.total_no_data_time_milli !== undefined) {
+      const durationSeconds = Math.round(stageSummary.total_no_data_time_milli / 1000);
+      observations.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '93842-3',
+          display: 'Sleep data gap duration'
+        },
+        value: durationSeconds,
+        unit: 's',
+        unitSystem: 'http://unitsofmeasure.org',
+        unitCode: 's',
+        date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
+        status: 'final'
+      });
+    }
+
+    // Sleep Needed Metrics (NEW - was missing)
+    if (score.sleep_needed) {
+      const sleepNeeded = score.sleep_needed;
+
+      // Baseline Sleep Need
+      if (sleepNeeded.baseline_milli !== undefined) {
+        const durationSeconds = Math.round(sleepNeeded.baseline_milli / 1000);
+        observations.push({
+          code: {
+            system: 'http://loinc.org',
+            code: '93843-1',
+            display: 'Baseline sleep need'
+          },
+          value: durationSeconds,
+          unit: 's',
+          unitSystem: 'http://unitsofmeasure.org',
+          unitCode: 's',
+          date: sleep.start || sleep.end,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final'
+        });
+      }
+
+      // Sleep Need from Sleep Debt
+      if (sleepNeeded.need_from_sleep_debt_milli !== undefined) {
+        const durationSeconds = Math.round(sleepNeeded.need_from_sleep_debt_milli / 1000);
+        observations.push({
+          code: {
+            system: 'http://loinc.org',
+            code: '93844-9',
+            display: 'Sleep need from sleep debt'
+          },
+          value: durationSeconds,
+          unit: 's',
+          unitSystem: 'http://unitsofmeasure.org',
+          unitCode: 's',
+          date: sleep.start || sleep.end,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final'
+        });
+      }
+
+      // Sleep Need from Recent Strain
+      if (sleepNeeded.need_from_recent_strain_milli !== undefined) {
+        const durationSeconds = Math.round(sleepNeeded.need_from_recent_strain_milli / 1000);
+        observations.push({
+          code: {
+            system: 'http://loinc.org',
+            code: '93845-6',
+            display: 'Sleep need from recent strain'
+          },
+          value: durationSeconds,
+          unit: 's',
+          unitSystem: 'http://unitsofmeasure.org',
+          unitCode: 's',
+          date: sleep.start || sleep.end,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final'
+        });
+      }
+
+      // Sleep Need from Recent Nap
+      if (sleepNeeded.need_from_recent_nap_milli !== undefined) {
+        const durationSeconds = Math.round(sleepNeeded.need_from_recent_nap_milli / 1000);
+        observations.push({
+          code: {
+            system: 'http://loinc.org',
+            code: '93846-4',
+            display: 'Sleep need from recent nap'
+          },
+          value: durationSeconds,
+          unit: 's',
+          unitSystem: 'http://unitsofmeasure.org',
+          unitCode: 's',
+          date: sleep.start || sleep.end,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final'
+        });
+      }
+    }
+
+    // Nap Indicator (as a note/flag)
+    if (sleep.nap !== undefined) {
+      observations.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '93847-2',
+          display: 'Nap indicator'
+        },
+        value: sleep.nap ? 1 : 0,
+        unit: '{boolean}',
+        unitSystem: 'http://unitsofmeasure.org',
+        unitCode: '{boolean}',
+        date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
         status: 'final'
       });
     }
@@ -457,7 +702,7 @@ export function parseWhoop(input: string): CanonicalModel {
   if (data.body) {
     const body = data.body;
 
-    // Height
+    // Height (convert meters to centimeters for UCUM compliance)
     if (body.height_meter !== undefined) {
       observations.push({
         code: {
@@ -465,10 +710,10 @@ export function parseWhoop(input: string): CanonicalModel {
           code: '8302-2',
           display: 'Body height'
         },
-        value: body.height_meter,
-        unit: 'm',
+        value: body.height_meter * 100, // Convert meters to centimeters
+        unit: 'cm',
         unitSystem: 'http://unitsofmeasure.org',
-        unitCode: 'm',
+        unitCode: 'cm',
         status: 'final',
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',

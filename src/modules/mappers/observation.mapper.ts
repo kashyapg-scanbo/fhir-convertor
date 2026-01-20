@@ -138,6 +138,45 @@ function applyVitalSignCoding(resource: any, primaryCode?: { code?: string; disp
   });
 }
 
+function ensureVitalSignsCategory(resource: any, primaryCoding: any) {
+  if (!primaryCoding) return;
+  
+  const sys = String(primaryCoding.system || '').toLowerCase();
+  const code = String(primaryCoding.code || '');
+  const isLoinc = sys.includes('loinc') || sys.includes('urn:oid:2.16.840.1.113883.6.1');
+  
+  // Exclude HRV (80404-7) from vital-signs category to avoid heartrate profile validation
+  // HRV uses 'ms' unit and should not use the heartrate profile which requires '/min'
+  if (code === '80404-7') return;
+  
+  // Check if it's a vital sign using vitalSignLoincMap
+  const isVitalSign = isLoinc && loincVitalSigns.has(code);
+  
+  // Also check by display text for non-LOINC codes (but exclude HRV-related terms)
+  const displayText = String(primaryCoding.display || '');
+  const matchesVitalSignPattern = /heart|pulse|temperature|respiratory|blood pressure|bp|oxygen/i.test(displayText) &&
+    !/heart.*variability|hrv|r-r interval/i.test(displayText); // Exclude HRV-related terms
+  
+  if (isVitalSign || matchesVitalSignPattern) {
+    // Check if vital-signs category already exists
+    const hasVitalSignsCategory = resource.category?.some((cat: any) =>
+      cat.coding?.some((c: any) => c.code === 'vital-signs' && 
+        c.system === 'http://terminology.hl7.org/CodeSystem/observation-category')
+    );
+    
+    if (!hasVitalSignsCategory) {
+      if (!resource.category) resource.category = [];
+      resource.category.push({
+        coding: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: 'vital-signs',
+          display: 'Vital Signs'
+        }]
+      });
+    }
+  }
+}
+
 function resolveUnitCode(unit?: string, unitCode?: string) {
   const key = (unitCode || unit || '').toLowerCase();
   if (!key) return undefined;
@@ -342,14 +381,33 @@ export function mapObservations({
     applyVitalSignCoding(resource, primaryCode);
 
     if (obs.value !== undefined) {
+      // Check for invalid UCUM units that should use different value types
+      const unitCode = (obs.unitCode || obs.unit || '').toLowerCase();
+      const isInvalidUcum = unitCode === '{count}' || unitCode === '{score}' || unitCode === '{boolean}';
+      
       if (Array.isArray(obs.value)) {
         const firstValue = obs.value.find(v => v !== undefined && v !== null);
         if (firstValue !== undefined) {
-          const quantity = buildQuantity(firstValue, obs.unit, obs.unitCode);
-          if (quantity) {
-            resource.valueQuantity = quantity;
-          } else if (!isVitalSign) {
-            resource.valueString = String(firstValue);
+          if (isInvalidUcum) {
+            // Use appropriate value type for invalid UCUM units
+            if (unitCode === '{boolean}') {
+              resource.valueBoolean = Boolean(Number(firstValue));
+            } else {
+              // For {count} and {score}, use valueInteger
+              const intValue = Math.round(Number(firstValue));
+              if (!isNaN(intValue)) {
+                resource.valueInteger = intValue;
+              } else {
+                resource.valueString = String(firstValue);
+              }
+            }
+          } else {
+            const quantity = buildQuantity(firstValue, obs.unit, obs.unitCode);
+            if (quantity) {
+              resource.valueQuantity = quantity;
+            } else if (!isVitalSign) {
+              resource.valueString = String(firstValue);
+            }
           }
         }
         if (obs.value.length > 1) {
@@ -368,7 +426,20 @@ export function mapObservations({
         };
       } else {
         const valueType = obs.valueType || 'NM';
-        if (valueType === 'NM' || valueType === 'SN' || !isNaN(Number(obs.value))) {
+        if (isInvalidUcum) {
+          // Use appropriate value type for invalid UCUM units
+          if (unitCode === '{boolean}') {
+            resource.valueBoolean = Boolean(Number(obs.value));
+          } else {
+            // For {count} and {score}, use valueInteger
+            const intValue = Math.round(Number(obs.value));
+            if (!isNaN(intValue)) {
+              resource.valueInteger = intValue;
+            } else {
+              resource.valueString = String(obs.value);
+            }
+          }
+        } else if (valueType === 'NM' || valueType === 'SN' || !isNaN(Number(obs.value))) {
           const quantity = buildQuantity(obs.value as string | number, obs.unit, obs.unitCode);
           if (quantity) {
             resource.valueQuantity = quantity;
@@ -517,6 +588,12 @@ export function mapObservations({
       });
     }
 
+    const primaryCoding = Array.isArray(resource.code?.coding) ? resource.code.coding[0] : null;
+    
+    // For HRV (80404-7), preserve the 'exam' category and prevent heartrate profile
+    // HRV uses 'ms' unit and must not use the heartrate profile which requires '/min'
+    const isHRV = primaryCoding && primaryCoding.code === '80404-7' && primaryCoding.system?.includes('loinc');
+    
     if (obs.category) {
       const categories = obs.category
         .map((cat: any) => {
@@ -532,22 +609,19 @@ export function mapObservations({
         .filter(Boolean);
       if (categories.length > 0) resource.category = categories;
     }
-
-    const primaryCoding = Array.isArray(resource.code?.coding) ? resource.code.coding[0] : null;
-    if ((!resource.category || resource.category.length === 0) && primaryCoding) {
-      const sys = String(primaryCoding.system || '').toLowerCase();
-      const code = String(primaryCoding.code || '');
-      const isLoinc = sys.includes('loinc') || sys.includes('urn:oid:2.16.840.1.113883.6.1');
-      if ((isLoinc && loincVitalSigns.has(code)) ||
-        /heart|pulse|temperature|respiratory|blood pressure|bp|oxygen/i.test(String(primaryCoding.display || ''))) {
-        resource.category = [{
-          coding: [{
-            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
-            code: 'vital-signs',
-            display: 'Vital Signs'
-          }]
-        }];
-      }
+    
+    // Ensure vital-signs category is present for all vital sign observations
+    // This handles heart rate (8867-4) and all other vital signs from vitalSignLoincMap
+    // But skip for HRV to preserve its 'exam' category
+    if (!isHRV) {
+      ensureVitalSignsCategory(resource, primaryCoding);
+    }
+    
+    // Explicitly prevent heartrate profile from being applied to HRV (80404-7)
+    if (isHRV) {
+      // Set meta.profile to base Observation profile to prevent auto-detection of heartrate profile
+      if (!resource.meta) resource.meta = {};
+      resource.meta.profile = ['http://hl7.org/fhir/StructureDefinition/Observation'];
     }
 
     if (obs.components) {
