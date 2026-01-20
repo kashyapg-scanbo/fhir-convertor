@@ -1398,6 +1398,15 @@ export type CanonicalAppointment = {
   id?: string;
   identifier?: string;
   status?: string;
+  extension?: Array<{
+    url: string;
+    valueString?: string;
+    valueBoolean?: boolean;
+    valueDateTime?: string;
+    valueUri?: string;
+    valueCode?: string;
+    valueId?: string;
+  }>;
   cancellationReason?: {
     system?: string;
     code?: string;
@@ -2032,4 +2041,5 @@ export type CanonicalModel = {
   practitionerRoles?: CanonicalPractitionerRole[];
   organizations?: CanonicalOrganization[];
   documentReferences?: CanonicalDocumentReference[];
+  sourcePayloads?: Record<string, unknown>;
 };

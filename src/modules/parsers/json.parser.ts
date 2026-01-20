@@ -1282,6 +1282,12 @@ const TABULAR_HEADER_SET = new Set(
   ]).map(key => normalizeHeader(key))
 );
 
+const FLAT_KNOWN_KEYS = new Set(
+  Object.values(HEADER_ALIAS_SECTIONS)
+    .flatMap(section => [...Object.keys(section), ...Object.values(section).flat()])
+    .map(key => normalizeAliasKey(key))
+);
+
 const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   patient: 'patient',
   encounter: 'encounter',
@@ -1412,6 +1418,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   document_reference: 'documentReference',
   document_references: 'documentReference'
 };
+
+Object.keys(SECTION_KEY_ALIASES).forEach(key => {
+  FLAT_KNOWN_KEYS.add(normalizeAliasKey(key));
+});
 
 const STRUCTURED_SECTION_LOOKUP = new Map<string, keyof typeof HEADER_ALIAS_SECTIONS>(
   Object.entries(SECTION_KEY_ALIASES).map(([key, section]) => [normalizeAliasKey(key), section])
@@ -1593,6 +1603,110 @@ function normalizeGlobalPayload(value: unknown): unknown {
     remapped[canonicalKey] = rawValue;
   }
   return remapped;
+}
+
+const MESSAGE_TYPE_KEYS = new Set([
+  'source_system',
+  'source',
+  'vendor',
+  'system',
+  'message_type',
+  'messagetype'
+]);
+
+function isNonEmptyValue(value: unknown) {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+function extractLeftoverFromRecord(record: Record<string, unknown>) {
+  const leftover: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    if (FLAT_KNOWN_KEYS.has(normalizeAliasKey(key))) continue;
+    if (!isNonEmptyValue(value)) continue;
+    leftover[key] = value;
+  }
+  return leftover;
+}
+
+function extractFlatLeftoverPayload(payload: unknown): Record<string, unknown> | undefined {
+  if (Array.isArray(payload)) {
+    const rows = payload
+      .map(item => (isPlainRecord(item) ? extractLeftoverFromRecord(item) : {}))
+      .filter(row => Object.keys(row).length > 0);
+    if (rows.length === 0) return undefined;
+    return rows.length === 1 ? rows[0] : { rows };
+  }
+
+  if (isPlainRecord(payload)) {
+    if (Array.isArray(payload.rows)) {
+      const rows = payload.rows
+        .filter(isPlainRecord)
+        .map(row => extractLeftoverFromRecord(row))
+        .filter(row => Object.keys(row).length > 0);
+      if (rows.length === 0) return undefined;
+      return rows.length === 1 ? rows[0] : { rows };
+    }
+    const leftover = extractLeftoverFromRecord(payload);
+    return Object.keys(leftover).length > 0 ? leftover : undefined;
+  }
+
+  return undefined;
+}
+
+function buildLeftoverSourcePayloads(canonical: CanonicalModel, leftover: Record<string, unknown>) {
+  const payloads: Record<string, unknown> = {};
+
+  const addPayload = (resourceType: string, id?: string) => {
+    if (id) {
+      payloads[`${resourceType}:${id}`] = leftover;
+    } else {
+      payloads[`${resourceType}:*`] = leftover;
+    }
+  };
+
+  if (canonical.appointments?.length) {
+    const appt = canonical.appointments[0];
+    addPayload('Appointment', appt.identifier || appt.id);
+    return payloads;
+  }
+  if (canonical.encounter) {
+    addPayload('Encounter', canonical.encounter.id);
+    return payloads;
+  }
+  if (canonical.patient) {
+    addPayload('Patient', canonical.patient.identifier || canonical.patient.id);
+    return payloads;
+  }
+  if (canonical.observations?.length) {
+    addPayload('Observation', canonical.observations[0]?.setId as string | undefined);
+    return payloads;
+  }
+
+  return Object.keys(payloads).length > 0 ? payloads : undefined;
+}
+
+function resolveMessageType(payload: unknown): string | undefined {
+  const readFromRecord = (record: Record<string, unknown>) => {
+    for (const [key, value] of Object.entries(record)) {
+      if (!MESSAGE_TYPE_KEYS.has(normalizeAliasKey(key))) continue;
+      if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    return undefined;
+  };
+
+  if (isPlainRecord(payload)) return readFromRecord(payload);
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      if (!isPlainRecord(item)) continue;
+      const candidate = readFromRecord(item);
+      if (candidate) return candidate;
+    }
+  }
+
+  return undefined;
 }
 
 function normalizeAliasValue(value: unknown): string | undefined {
@@ -4333,7 +4447,16 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
 
   if (looksLikeTabularJson(parsed)) {
     const rows = coerceTabularRows(parsed) || [];
-    if (rows.length > 0) return mapTabularRowsToCanonical(rows, 'JSON');
+    if (rows.length > 0) {
+      const messageType = resolveMessageType(parsed) || 'JSON';
+      const canonical = mapTabularRowsToCanonical(rows, messageType);
+      const leftover = extractFlatLeftoverPayload(parsed);
+      if (leftover) {
+        const payloads = buildLeftoverSourcePayloads(canonical, leftover);
+        if (payloads) canonical.sourcePayloads = payloads;
+      }
+      return canonical;
+    }
   }
 
   const normalizedGlobalCandidate = isPlainRecord(parsed) ? normalizeGlobalPayload(parsed) : parsed;
@@ -4357,7 +4480,15 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
 
   if (looksLikeStructuredAliasJson(parsed)) {
     const rows = buildRowsFromStructuredAliasJson(parsed);
-    if (rows.length > 0) return mapTabularRowsToCanonical(rows, 'JSON');
+    if (rows.length > 0) {
+      const canonical = mapTabularRowsToCanonical(rows, 'JSON');
+      const leftover = extractFlatLeftoverPayload(parsed);
+      if (leftover) {
+        const payloads = buildLeftoverSourcePayloads(canonical, leftover);
+        if (payloads) canonical.sourcePayloads = payloads;
+      }
+      return canonical;
+    }
   }
 
   throw new Error('JSON validation failed: payload must match the global custom JSON schema.');
@@ -4549,12 +4680,94 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
     canonical.organizations = organizations.map(buildCanonicalOrganizationGlobal);
   }
 
+  // Source payloads are attached only for flat JSON via leftover-only extensions.
+
   return canonical;
 }
 
 function normalizeArray<T>(value?: T | T[]): T[] {
   if (!value) return [];
   return Array.isArray(value) ? value : [value];
+}
+
+function collectSourcePayloads(resources: Record<string, unknown[] | undefined>) {
+  const payloads: Record<string, unknown> = {};
+  const idKeys: Record<string, string[]> = {
+    patient: ['patient_id', 'id', 'identifier'],
+    encounter: ['encounter_id', 'id', 'identifier'],
+    medication: ['medication_id', 'id', 'identifier'],
+    medication_request: ['medication_request_id', 'id', 'identifier'],
+    medication_statement: ['medication_statement_id', 'id', 'identifier'],
+    medication_administration: ['medication_administration_id', 'id', 'identifier'],
+    medication_dispense: ['medication_dispense_id', 'id', 'identifier'],
+    capability_statement: ['capability_statement_id', 'id', 'identifier'],
+    operation_outcome: ['operation_outcome_id', 'id', 'identifier'],
+    parameters: ['id', 'identifier'],
+    care_plan: ['care_plan_id', 'id', 'identifier'],
+    care_team: ['care_team_id', 'id', 'identifier'],
+    goal: ['goal_id', 'id', 'identifier'],
+    service_request: ['service_request_id', 'id', 'identifier'],
+    task: ['task_id', 'id', 'identifier'],
+    communication: ['communication_id', 'id', 'identifier'],
+    communication_request: ['communication_request_id', 'id', 'identifier'],
+    questionnaire: ['questionnaire_id', 'id', 'identifier'],
+    questionnaire_response: ['questionnaire_response_id', 'id', 'identifier'],
+    code_system: ['code_system_id', 'id', 'identifier'],
+    value_set: ['value_set_id', 'id', 'identifier'],
+    concept_map: ['concept_map_id', 'id', 'identifier'],
+    naming_system: ['naming_system_id', 'id', 'identifier'],
+    terminology_capabilities: ['terminology_capabilities_id', 'id', 'identifier'],
+    provenance: ['provenance_id', 'id', 'identifier'],
+    audit_event: ['audit_event_id', 'id', 'identifier'],
+    consent: ['consent_id', 'id', 'identifier'],
+    procedure: ['procedure_id', 'id', 'identifier'],
+    condition: ['condition_id', 'id', 'identifier'],
+    appointment: ['appointment_id', 'id', 'identifier'],
+    schedule: ['schedule_id', 'id', 'identifier'],
+    slot: ['slot_id', 'id', 'identifier'],
+    diagnostic_report: ['diagnostic_report_id', 'id', 'identifier'],
+    related_person: ['related_person_id', 'id', 'identifier'],
+    location: ['location_id', 'id', 'identifier'],
+    episode_of_care: ['episode_of_care_id', 'id', 'identifier'],
+    specimen: ['specimen_id', 'id', 'identifier'],
+    imaging_study: ['imaging_study_id', 'id', 'identifier'],
+    allergy_intolerance: ['allergy_id', 'allergy_intolerance_id', 'id', 'identifier'],
+    immunization: ['immunization_id', 'id', 'identifier'],
+    practitioner: ['practitioner_id', 'id', 'identifier'],
+    practitioner_role: ['practitioner_role_id', 'id', 'identifier'],
+    organization: ['organization_id', 'id', 'identifier']
+  };
+
+  const normalizeId = (value: unknown) => {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === 'string') return value.trim() || undefined;
+    if (typeof value === 'number') return String(value);
+    return undefined;
+  };
+
+  Object.entries(resources).forEach(([section, items]) => {
+    if (!items || !items.length) return;
+    const keys = idKeys[section] || ['id', 'identifier'];
+    items.forEach((item, index) => {
+      if (!item || typeof item !== 'object') return;
+      const record = item as Record<string, unknown>;
+      let id: string | undefined;
+      for (const key of keys) {
+        const value = normalizeId(record[key]);
+        if (value) {
+          id = value;
+          break;
+        }
+      }
+      if (!id) id = `index-${index}`;
+      const resourceType = section
+        .replace(/_([a-z])/g, (_, char: string) => char.toUpperCase())
+        .replace(/^./, char => char.toUpperCase());
+      payloads[`${resourceType}:${id}`] = record;
+    });
+  });
+
+  return payloads;
 }
 
 function normalizeBoolean(value?: string | number | boolean): boolean | undefined {

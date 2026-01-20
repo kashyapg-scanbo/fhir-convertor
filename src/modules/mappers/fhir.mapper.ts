@@ -554,6 +554,26 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
     bundle.entry.push(...documentReferenceEntries);
   }
 
+  const sourcePayloads = canonical.sourcePayloads;
+  if (sourcePayloads && bundle.entry.length > 0) {
+    bundle.entry.forEach((entry: any) => {
+      const resource = entry?.resource;
+      if (!resource?.resourceType) return;
+      const identifierValue = resource.identifier?.[0]?.value || resource.id;
+      if (!identifierValue) return;
+      const key = `${resource.resourceType}:${identifierValue}`;
+      const payload = sourcePayloads[key] ?? sourcePayloads[`${resource.resourceType}:*`];
+      if (!payload) return;
+      const extensionEntry = {
+        url: 'urn:scanbo:source-payload',
+        valueString: JSON.stringify(payload)
+      };
+      resource.extension = resource.extension?.length
+        ? [...resource.extension, extensionEntry]
+        : [extensionEntry];
+    });
+  }
+
   bundle.entry = (bundle.entry || [])
     .map((entry: any) => {
       if (!entry || !entry.resource) return null;

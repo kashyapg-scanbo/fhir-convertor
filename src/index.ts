@@ -5,8 +5,6 @@ import fs from 'fs';
 import YAML from 'yaml';
 import swaggerUi from 'swagger-ui-express';
 import { convertLegacyData, InputFormat, FhirOutputVersion } from './modules/pipeline/convert.pipeline.js';
-import { parseCustomJSON } from './modules/parsers/json.parser.js';
-import { mapCanonicalToFHIR } from './modules/mappers/fhir.mapper.js';
 
 const app = express();
 const bodyLimit = '50mb';
@@ -64,9 +62,15 @@ app.post('/convert', async (req, res) => {
           format = 'json';
         }
       }
+    }
+    // Check if request is direct JSON object (no input key)
+    else if (req.body && typeof req.body === 'object') {
+      input = JSON.stringify(req.body);
+      format = (req.query.format as InputFormat) || 'json';
+      fhirVersion = (req.query.fhirVersion as FhirOutputVersion) || 'r5';
     } else {
       return res.status(400).json({
-        error: 'Invalid request body. Expected { input: string, format?: string } or raw text/XML body'
+        error: 'Invalid request body. Expected { input: string, format?: string }, raw text/XML body, or JSON object'
       });
     }
 
@@ -79,34 +83,6 @@ app.post('/convert', async (req, res) => {
     res.json(result);
   } catch (e: any) {
     console.error('Conversion error:', e);
-    res.status(400).json({ error: e.message });
-  }
-});
-
-/**
- * POST /json
- *
- * Accepts custom JSON body and returns a FHIR R5 Bundle.
- * Body can be:
- * 1) JSON object matching the custom schema
- * 2) { input: string } where input is JSON text matching the custom schema
- */
-app.post('/json', async (req, res) => {
-  try {
-    if (!req.body) {
-      return res.status(400).json({ error: 'Request body is required' });
-    }
-
-    const input = (req.body && typeof req.body === 'object' && 'input' in req.body)
-      ? req.body.input
-      : req.body;
-
-    const canonical = parseCustomJSON(input);
-    const result = mapCanonicalToFHIR(canonical, 'r5');
-
-    res.json(result);
-  } catch (e: any) {
-    console.error('JSON conversion error:', e);
     res.status(400).json({ error: e.message });
   }
 });

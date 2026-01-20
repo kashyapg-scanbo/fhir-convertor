@@ -53,6 +53,7 @@ export function mapAppointments({
     appointment.minutesDuration = source.minutesDuration ?? undefined;
     appointment.created = source.created || undefined;
     appointment.cancellationDate = source.cancellationDate || undefined;
+    appointment.extension = source.extension?.length ? source.extension : undefined;
 
     appointment.cancellationReason = source.cancellationReason ? {
       coding: [{

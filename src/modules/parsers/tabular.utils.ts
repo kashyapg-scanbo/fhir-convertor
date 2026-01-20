@@ -116,7 +116,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
 
   const encounterId = readValue(firstRow, 'encounter_id');
   if (encounterId) {
-    const participantIdsRaw = readValue(firstRow, 'encounter_practitioner_id');
+    const participantIdsRaw = readValue(firstRow, 'encounter_practitioner_id') ?? readValue(firstRow, 'practitioner_id');
     const participantIds = participantIdsRaw
       ? participantIdsRaw.split(',').map(v => v.trim()).filter(Boolean)
       : undefined;
@@ -1581,17 +1581,77 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
 
     const minutes = readNumber(row, 'appointment_minutes_duration');
     const participantId = readValue(row, 'appointment_participant_id');
+    const cancellationDisplay = readValue(row, 'appointment_cancellation_reason_display');
+    const cancellationCode = readValue(row, 'appointment_cancellation_reason_code');
+    const cancellationSystem = readValue(row, 'appointment_cancellation_reason_system');
+    const extensions: Array<{ url: string; valueString?: string; valueBoolean?: boolean; valueDateTime?: string; valueUri?: string; valueCode?: string; valueId?: string; }> = [];
+
+    const locationPhone = readValue(row, 'appointment_location_phone_number');
+    if (locationPhone) {
+      extensions.push({ url: 'urn:scanbo:appointment:location-phone-number', valueString: locationPhone });
+    }
+
+    const locationExtension = readValue(row, 'appointment_location_phone_extension');
+    if (locationExtension) {
+      extensions.push({ url: 'urn:scanbo:appointment:location-phone-extension', valueString: locationExtension });
+    }
+
+    const waitingRoomPath = readValue(row, 'appointment_waiting_room_path');
+    if (waitingRoomPath) {
+      extensions.push({ url: 'urn:scanbo:appointment:waiting-room-path', valueUri: waitingRoomPath });
+    }
+
+    const confirmationType = readValue(row, 'appointment_confirmation_type');
+    if (confirmationType) {
+      extensions.push({ url: 'urn:scanbo:appointment:confirmation-type', valueCode: confirmationType });
+    }
+
+    const lastModified = readValue(row, 'appointment_last_modified');
+    if (lastModified) {
+      extensions.push({ url: 'urn:scanbo:appointment:last-modified', valueDateTime: lastModified });
+    }
+
+    const providerLocationId = readValue(row, 'appointment_provider_location_id');
+    if (providerLocationId) {
+      extensions.push({ url: 'urn:scanbo:appointment:provider-location-id', valueId: providerLocationId });
+    }
+
+    const practiceId = readValue(row, 'appointment_practice_id');
+    if (practiceId) {
+      extensions.push({ url: 'urn:scanbo:appointment:practice-id', valueId: practiceId });
+    }
+
+    const visitReasonId = readValue(row, 'appointment_visit_reason_id');
+    if (visitReasonId) {
+      extensions.push({ url: 'urn:scanbo:appointment:visit-reason-id', valueId: visitReasonId });
+    }
+
+    const patientType = readValue(row, 'appointment_patient_type');
+    if (patientType) {
+      extensions.push({ url: 'urn:scanbo:appointment:patient-type', valueCode: patientType });
+    }
+
+    const isProviderResource = readBoolean(row, 'appointment_is_provider_resource');
+    if (isProviderResource !== undefined) {
+      extensions.push({ url: 'urn:scanbo:appointment:is-provider-resource', valueBoolean: isProviderResource });
+    }
 
     return {
       id: apptId || undefined,
       identifier: apptId || undefined,
       status: status || 'proposed',
+      extension: extensions.length > 0 ? extensions : undefined,
       description: readValue(row, 'appointment_description'),
       start: start,
       end: end,
       minutesDuration: minutes,
       created: readValue(row, 'appointment_created'),
       cancellationDate: readValue(row, 'appointment_cancellation_date'),
+      cancellationReason: (cancellationDisplay || cancellationCode || cancellationSystem) ? {
+        system: cancellationSystem,
+        code: cancellationCode,
+        display: cancellationDisplay
+      } : undefined,
       subject: readValue(row, 'appointment_subject_id'),
       participant: participantId ? [{
         actor: participantId,
