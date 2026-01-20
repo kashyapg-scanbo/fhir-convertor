@@ -10,8 +10,7 @@ import { parseBinary } from '../parsers/binary.parser.js';
 import { isLegacyTypeSupported } from '../../shared/types/documentTypes.mapping.js';
 import { parseCsv } from '../parsers/csv.parser.js';
 import { parseExcel } from '../parsers/excel.parser.js';
-import { parseWhoop } from '../parsers/whoop.parser.js';
-import { parseDexcom } from '../parsers/dexcom.parser.js';
+import { parseWhoop, parseDexcom } from '../../device/parsers/index.js';
 
 export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | 'csv' | 'xlsx' | 'xls' | 'whoop' | 'dexcom' | string;
 
@@ -40,8 +39,8 @@ export function detectInputFormat(input: string): InputFormat {
     try {
       const jsonData = JSON.parse(trimmed);
       
-      // Detect Whoop format
-      if (jsonData.sleep || jsonData.recovery || jsonData.workout || jsonData.respiratory_rate) {
+      // Detect Whoop format (actual API structure)
+      if (jsonData.profile?.user_id || jsonData.recovery?.score || jsonData.cycle?.score || jsonData.sleep?.score) {
         return 'whoop';
       }
       

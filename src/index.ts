@@ -205,8 +205,8 @@ app.post('/convert/deviceData', async (req, res) => {
 
     // Auto-detect device type if not specified
     if (!deviceType) {
-      // Check for Whoop-specific fields
-      if (deviceData.sleep || deviceData.recovery || deviceData.workout || deviceData.respiratory_rate) {
+      // Check for Whoop-specific fields (actual API structure)
+      if (deviceData.profile?.user_id || deviceData.recovery?.score || deviceData.cycle?.score || deviceData.sleep?.score) {
         deviceType = 'whoop';
       }
       // Check for Dexcom-specific fields
@@ -216,7 +216,7 @@ app.post('/convert/deviceData', async (req, res) => {
       else {
         return res.status(400).json({
           error: 'Unable to detect device type. Please specify deviceType parameter (whoop or dexcom) or provide data in recognized format.',
-          hint: 'Whoop data should contain: sleep, recovery, workout, or respiratory_rate fields. Dexcom data should contain: egvs, calibrations, or device.transmitter_id'
+          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score fields. Dexcom data should contain: egvs, calibrations, or device.transmitter_id'
         });
       }
     }
