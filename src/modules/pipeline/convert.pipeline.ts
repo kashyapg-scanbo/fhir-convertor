@@ -10,8 +10,10 @@ import { parseBinary } from '../parsers/binary.parser.js';
 import { isLegacyTypeSupported } from '../../shared/types/documentTypes.mapping.js';
 import { parseCsv } from '../parsers/csv.parser.js';
 import { parseExcel } from '../parsers/excel.parser.js';
+import { parseWhoop } from '../parsers/whoop.parser.js';
+import { parseDexcom } from '../parsers/dexcom.parser.js';
 
-export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | 'csv' | 'xlsx' | 'xls' | string;
+export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | 'csv' | 'xlsx' | 'xls' | 'whoop' | 'dexcom' | string;
 
 export type FhirOutputVersion = FhirVersion;
 
@@ -34,7 +36,26 @@ export function detectInputFormat(input: string): InputFormat {
 
   // JSON typically starts with { or [
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-    return 'json';
+    // Try to detect device-specific JSON formats
+    try {
+      const jsonData = JSON.parse(trimmed);
+      
+      // Detect Whoop format
+      if (jsonData.sleep || jsonData.recovery || jsonData.workout || jsonData.respiratory_rate) {
+        return 'whoop';
+      }
+      
+      // Detect Dexcom format
+      if (jsonData.egvs || jsonData.calibrations || (jsonData.device && jsonData.device.transmitter_id)) {
+        return 'dexcom';
+      }
+      
+      // Default to generic JSON parser
+      return 'json';
+    } catch {
+      // Not valid JSON, continue with other detection
+      return 'json';
+    }
   }
 
   // CSV typically has commas and newlines with no XML/HL7 markers
@@ -110,6 +131,14 @@ export async function convertLegacyData(
     case 'xlsx':
     case 'xls':
       canonical = parseExcel(input);
+      break;
+
+    case 'whoop':
+      canonical = parseWhoop(input);
+      break;
+
+    case 'dexcom':
+      canonical = parseDexcom(input);
       break;
 
     default:

@@ -158,4 +158,93 @@ app.post('/convert/hl7', async (req, res) => {
   }
 });
 
+/**
+ * POST /convert/deviceData
+ * 
+ * Dedicated endpoint for wearable device data (Whoop, Dexcom, etc.)
+ * Accepts device-specific JSON and converts to FHIR R5 Bundle
+ * 
+ * Request body:
+ * - JSON object with device data (Whoop or Dexcom format)
+ * - OR { data: object, deviceType?: 'whoop' | 'dexcom' }
+ * 
+ * Query params:
+ * - deviceType: 'whoop' | 'dexcom' (optional, auto-detected if not provided)
+ * - fhirVersion: 'r4' | 'r5' (default: 'r5')
+ * 
+ * Example:
+ * POST /convert/deviceData?deviceType=whoop
+ * Body: { "user": {...}, "sleep": [...], "recovery": [...] }
+ */
+app.post('/convert/deviceData', async (req, res) => {
+  try {
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({
+        error: 'Request body must be a JSON object containing device data'
+      });
+    }
+
+    let deviceData: any;
+    let deviceType: InputFormat | undefined;
+    let fhirVersion: FhirOutputVersion | undefined;
+
+    // Check if data is wrapped in a 'data' field
+    if ('data' in req.body && typeof req.body.data === 'object') {
+      deviceData = req.body.data;
+      deviceType = req.body.deviceType as InputFormat;
+      fhirVersion = req.body.fhirVersion as FhirOutputVersion;
+    } else {
+      // Direct device data object
+      deviceData = req.body;
+      deviceType = req.query.deviceType as InputFormat;
+      fhirVersion = (req.query.fhirVersion as FhirOutputVersion) || 'r5';
+    }
+
+    // Default to r5 if not specified
+    fhirVersion = fhirVersion || 'r5';
+
+    // Auto-detect device type if not specified
+    if (!deviceType) {
+      // Check for Whoop-specific fields
+      if (deviceData.sleep || deviceData.recovery || deviceData.workout || deviceData.respiratory_rate) {
+        deviceType = 'whoop';
+      }
+      // Check for Dexcom-specific fields
+      else if (deviceData.egvs || deviceData.calibrations || (deviceData.device && deviceData.device.transmitter_id)) {
+        deviceType = 'dexcom';
+      }
+      else {
+        return res.status(400).json({
+          error: 'Unable to detect device type. Please specify deviceType parameter (whoop or dexcom) or provide data in recognized format.',
+          hint: 'Whoop data should contain: sleep, recovery, workout, or respiratory_rate fields. Dexcom data should contain: egvs, calibrations, or device.transmitter_id'
+        });
+      }
+    }
+
+    // Validate device type
+    if (deviceType !== 'whoop' && deviceType !== 'dexcom') {
+      return res.status(400).json({
+        error: `Unsupported device type: ${deviceType}. Supported types: whoop, dexcom`
+      });
+    }
+
+    // Convert device data to JSON string for the parser
+    const input = JSON.stringify(deviceData);
+
+    console.log(`Converting ${deviceType} device data to FHIR ${fhirVersion}`);
+    const result = await convertLegacyData(input, deviceType, fhirVersion);
+    
+    // Return FHIR Bundle with metadata in response headers
+    res.set('X-Device-Type', deviceType);
+    res.set('X-FHIR-Version', fhirVersion);
+    res.json(result);
+  } catch (e: any) {
+    console.error('Device data conversion error:', e);
+    res.status(400).json({ 
+      error: e.message,
+      details: e.stack
+    });
+  }
+});
+
 app.listen(4000, () => console.log('FHIR Converter running on :4000'));

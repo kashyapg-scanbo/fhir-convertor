@@ -1,0 +1,113 @@
+{
+  "user": {
+    "id": "dexcom-user-67890",
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "date_of_birth": "1985-08-20",
+    "gender": "female"
+  },
+  "device": {
+    "transmitter_id": "TX-ABC123",
+    "model": "G7",
+    "serial_number": "SN-123456789",
+    "firmware_version": "1.2.3"
+  },
+  "egvs": [
+    {
+      "value": 120,
+      "timestamp": "2024-01-16T08:00:00Z",
+      "trend": "flat",
+      "status": "ok",
+      "display_time": "2024-01-16T08:00:00Z",
+      "realtime_value": 120,
+      "smoothed_value": 118
+    },
+    {
+      "value": 135,
+      "timestamp": "2024-01-16T08:05:00Z",
+      "trend": "rising",
+      "status": "ok",
+      "display_time": "2024-01-16T08:05:00Z",
+      "realtime_value": 135,
+      "smoothed_value": 132
+    },
+    {
+      "value": 145,
+      "timestamp": "2024-01-16T08:10:00Z",
+      "trend": "risingQuickly",
+      "status": "ok",
+      "display_time": "2024-01-16T08:10:00Z",
+      "realtime_value": 145,
+      "smoothed_value": 142
+    },
+    {
+      "value": 95,
+      "timestamp": "2024-01-16T08:15:00Z",
+      "trend": "falling",
+      "status": "low",
+      "display_time": "2024-01-16T08:15:00Z",
+      "realtime_value": 95,
+      "smoothed_value": 97
+    },
+    {
+      "value": 85,
+      "timestamp": "2024-01-16T08:20:00Z",
+      "trend": "fallingQuickly",
+      "status": "urgentLow",
+      "display_time": "2024-01-16T08:20:00Z",
+      "realtime_value": 85,
+      "smoothed_value": 87
+    },
+    {
+      "value": 180,
+      "timestamp": "2024-01-16T08:25:00Z",
+      "trend": "risingQuickly",
+      "status": "high",
+      "display_time": "2024-01-16T08:25:00Z",
+      "realtime_value": 180,
+      "smoothed_value": 175
+    },
+    {
+      "value": 220,
+      "timestamp": "2024-01-16T08:30:00Z",
+      "trend": "risingQuickly",
+      "status": "urgentHigh",
+      "display_time": "2024-01-16T08:30:00Z",
+      "realtime_value": 220,
+      "smoothed_value": 215
+    }
+  ],
+  "calibrations": [
+    {
+      "value": 110,
+      "timestamp": "2024-01-16T07:00:00Z",
+      "unit": "mg/dL"
+    },
+    {
+      "value": 105,
+      "timestamp": "2024-01-16T19:00:00Z",
+      "unit": "mg/dL"
+    }
+  ],
+  "events": [
+    {
+      "event_type": "alarm",
+      "timestamp": "2024-01-16T08:20:00Z",
+      "message": "Low glucose alert - Value below 70 mg/dL",
+      "severity": "critical"
+    },
+    {
+      "event_type": "alert",
+      "timestamp": "2024-01-16T08:25:00Z",
+      "message": "High glucose alert - Value above 180 mg/dL",
+      "severity": "warning"
+    },
+    {
+      "event_type": "calibration",
+      "timestamp": "2024-01-16T07:00:00Z",
+      "message": "Device calibrated successfully",
+      "severity": "info"
+    }
+  ]
+}
+
