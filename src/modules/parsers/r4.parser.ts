@@ -1102,7 +1102,7 @@ function mapR4Claim(claim: any): CanonicalClaim {
     const stripRef = (value?: string, pattern?: RegExp) => {
         if (!value) return undefined;
         if (pattern) return value.replace(pattern, '');
-        return value.replace(/^[A-Za-z]+\\//, '');
+        return value.replace(/^[A-Za-z]+\//, '');
     };
 
     const mapItem = (item: any) => ({
@@ -1123,19 +1123,19 @@ function mapR4Claim(claim: any): CanonicalClaim {
         servicedPeriod: mapPeriod(item.servicedPeriod),
         locationCodeableConcept: mapCodeable(item.locationCodeableConcept),
         locationAddress: mapAddress(item.locationAddress),
-        locationReference: item.locationReference?.reference?.replace(/^Location\\//, ''),
+        locationReference: item.locationReference?.reference?.replace(/^Location\//, ''),
         patientPaid: mapMoney(item.patientPaid),
         quantity: mapQuantity(item.quantity),
         unitPrice: mapMoney(item.unitPrice),
         factor: item.factor,
         tax: mapMoney(item.tax),
         net: mapMoney(item.net),
-        udi: item.udi?.map((ref: any) => ref.reference?.replace(/^Device\\//, '')).filter(Boolean),
+        udi: item.udi?.map((ref: any) => ref.reference?.replace(/^Device\//, '')).filter(Boolean),
         bodySite: item.bodySite?.map((site: any) => ({
             site: site.site?.map((entry: any) => mapCodeable(entry.concept)),
             subSite: site.subSite?.map(mapCodeable)
         })),
-        encounter: item.encounter?.map((ref: any) => ref.reference?.replace(/^Encounter\\//, '')).filter(Boolean),
+        encounter: item.encounter?.map((ref: any) => ref.reference?.replace(/^Encounter\//, '')).filter(Boolean),
         detail: item.detail?.map(mapDetail)
     });
 
@@ -1154,7 +1154,7 @@ function mapR4Claim(claim: any): CanonicalClaim {
         factor: detail.factor,
         tax: mapMoney(detail.tax),
         net: mapMoney(detail.net),
-        udi: detail.udi?.map((ref: any) => ref.reference?.replace(/^Device\\//, '')).filter(Boolean),
+        udi: detail.udi?.map((ref: any) => ref.reference?.replace(/^Device\//, '')).filter(Boolean),
         subDetail: detail.subDetail?.map(mapSubDetail)
     });
 
@@ -1173,7 +1173,7 @@ function mapR4Claim(claim: any): CanonicalClaim {
         factor: sub.factor,
         tax: mapMoney(sub.tax),
         net: mapMoney(sub.net),
-        udi: sub.udi?.map((ref: any) => ref.reference?.replace(/^Device\\//, '')).filter(Boolean)
+        udi: sub.udi?.map((ref: any) => ref.reference?.replace(/^Device\//, '')).filter(Boolean)
     });
 
     return {
@@ -1184,28 +1184,28 @@ function mapR4Claim(claim: any): CanonicalClaim {
         type: mapCodeable(claim.type),
         subType: mapCodeable(claim.subType),
         use: claim.use,
-        patient: stripRef(claim.patient?.reference, /^Patient\\//),
+        patient: stripRef(claim.patient?.reference, /^Patient\//),
         billablePeriod: mapPeriod(claim.billablePeriod),
         created: claim.created,
-        enterer: stripRef(claim.enterer?.reference, /^(Patient|Practitioner|PractitionerRole|RelatedPerson)\\//),
-        insurer: stripRef(claim.insurer?.reference, /^Organization\\//),
-        provider: stripRef(claim.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\\//),
+        enterer: stripRef(claim.enterer?.reference, /^(Patient|Practitioner|PractitionerRole|RelatedPerson)\//),
+        insurer: stripRef(claim.insurer?.reference, /^Organization\//),
+        provider: stripRef(claim.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\//),
         priority: mapCodeable(claim.priority),
         fundsReserve: mapCodeable(claim.fundsReserve),
         related: claim.related?.map((rel: any) => ({
-            claim: stripRef(rel.claim?.reference, /^Claim\\//),
+            claim: stripRef(rel.claim?.reference, /^Claim\//),
             relationship: mapCodeable(rel.relationship),
             reference: rel.reference ? { system: rel.reference.system, value: rel.reference.value } : undefined
         })),
-        prescription: stripRef(claim.prescription?.reference, /^(DeviceRequest|MedicationRequest|VisionPrescription)\\//),
-        originalPrescription: stripRef(claim.originalPrescription?.reference, /^(DeviceRequest|MedicationRequest|VisionPrescription)\\//),
+        prescription: stripRef(claim.prescription?.reference, /^(DeviceRequest|MedicationRequest|VisionPrescription)\//),
+        originalPrescription: stripRef(claim.originalPrescription?.reference, /^(DeviceRequest|MedicationRequest|VisionPrescription)\//),
         payee: claim.payee ? {
             type: mapCodeable(claim.payee.type),
-            party: stripRef(claim.payee.party?.reference, /^(Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\\//)
+            party: stripRef(claim.payee.party?.reference, /^(Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//)
         } : undefined,
-        referral: stripRef(claim.referral?.reference, /^ServiceRequest\\//),
-        encounter: claim.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\\//)).filter(Boolean),
-        facility: stripRef(claim.facility?.reference, /^(Location|Organization)\\//),
+        referral: stripRef(claim.referral?.reference, /^ServiceRequest\//),
+        encounter: claim.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\//)).filter(Boolean),
+        facility: stripRef(claim.facility?.reference, /^(Location|Organization)\//),
         diagnosisRelatedGroup: mapCodeable(claim.diagnosisRelatedGroup),
         event: claim.event?.map((evt: any) => ({
             type: mapCodeable(evt.type),
@@ -1214,7 +1214,7 @@ function mapR4Claim(claim: any): CanonicalClaim {
         })),
         careTeam: claim.careTeam?.map((team: any) => ({
             sequence: team.sequence,
-            provider: stripRef(team.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\\//),
+            provider: stripRef(team.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\//),
             responsible: team.responsible,
             role: mapCodeable(team.role),
             specialty: mapCodeable(team.specialty)
@@ -1241,7 +1241,7 @@ function mapR4Claim(claim: any): CanonicalClaim {
         diagnosis: claim.diagnosis?.map((diag: any) => ({
             sequence: diag.sequence,
             diagnosisCodeableConcept: mapCodeable(diag.diagnosisCodeableConcept),
-            diagnosisReference: stripRef(diag.diagnosisReference?.reference, /^Condition\\//),
+            diagnosisReference: stripRef(diag.diagnosisReference?.reference, /^Condition\//),
             type: diag.type?.map(mapCodeable),
             onAdmission: mapCodeable(diag.onAdmission)
         })),
@@ -1250,23 +1250,23 @@ function mapR4Claim(claim: any): CanonicalClaim {
             type: proc.type?.map(mapCodeable),
             date: proc.date,
             procedureCodeableConcept: mapCodeable(proc.procedureCodeableConcept),
-            procedureReference: stripRef(proc.procedureReference?.reference, /^Procedure\\//),
-            udi: proc.udi?.map((ref: any) => stripRef(ref.reference, /^Device\\//)).filter(Boolean)
+            procedureReference: stripRef(proc.procedureReference?.reference, /^Procedure\//),
+            udi: proc.udi?.map((ref: any) => stripRef(ref.reference, /^Device\//)).filter(Boolean)
         })),
         insurance: claim.insurance?.map((ins: any) => ({
             sequence: ins.sequence,
             focal: ins.focal,
             identifier: ins.identifier ? { system: ins.identifier.system, value: ins.identifier.value } : undefined,
-            coverage: stripRef(ins.coverage?.reference, /^Coverage\\//),
+            coverage: stripRef(ins.coverage?.reference, /^Coverage\//),
             businessArrangement: ins.businessArrangement,
             preAuthRef: ins.preAuthRef,
-            claimResponse: stripRef(ins.claimResponse?.reference, /^ClaimResponse\\//)
+            claimResponse: stripRef(ins.claimResponse?.reference, /^ClaimResponse\//)
         })),
         accident: claim.accident ? {
             date: claim.accident.date,
             type: mapCodeable(claim.accident.type),
             locationAddress: mapAddress(claim.accident.locationAddress),
-            locationReference: stripRef(claim.accident.locationReference?.reference, /^Location\\//)
+            locationReference: stripRef(claim.accident.locationReference?.reference, /^Location\//)
         } : undefined,
         patientPaid: mapMoney(claim.patientPaid),
         item: claim.item?.map(mapItem),
@@ -1322,7 +1322,7 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
     const stripRef = (value?: string, pattern?: RegExp) => {
         if (!value) return undefined;
         if (pattern) return value.replace(pattern, '');
-        return value.replace(/^[A-Za-z]+\\//, '');
+        return value.replace(/^[A-Za-z]+\//, '');
     };
 
     const mapAdjudication = (entry: any) => ({
@@ -1406,11 +1406,11 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
         type: mapCodeable(response.type),
         subType: mapCodeable(response.subType),
         use: response.use,
-        patient: stripRef(response.patient?.reference, /^Patient\\//),
+        patient: stripRef(response.patient?.reference, /^Patient\//),
         created: response.created,
-        insurer: stripRef(response.insurer?.reference, /^Organization\\//),
-        requestor: stripRef(response.requestor?.reference, /^(Organization|Practitioner|PractitionerRole)\\//),
-        request: stripRef(response.request?.reference, /^Claim\\//),
+        insurer: stripRef(response.insurer?.reference, /^Organization\//),
+        requestor: stripRef(response.requestor?.reference, /^(Organization|Practitioner|PractitionerRole)\//),
+        request: stripRef(response.request?.reference, /^Claim\//),
         outcome: response.outcome,
         decision: mapCodeable(response.decision),
         disposition: response.disposition,
@@ -1422,7 +1422,7 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
             whenPeriod: mapPeriod(evt.whenPeriod)
         })),
         payeeType: mapCodeable(response.payeeType),
-        encounter: response.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\\//)).filter(Boolean),
+        encounter: response.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\//)).filter(Boolean),
         diagnosisRelatedGroup: mapCodeable(response.diagnosisRelatedGroup),
         item: response.item?.map(mapItem),
         addItem: response.addItem?.map((item: any) => ({
@@ -1430,7 +1430,7 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
             detailSequence: item.detailSequence,
             subdetailSequence: item.subdetailSequence,
             traceNumber: item.traceNumber?.map(mapIdentifier).filter(Boolean),
-            provider: item.provider?.map((ref: any) => stripRef(ref.reference, /^(Organization|Practitioner|PractitionerRole)\\//)).filter(Boolean),
+            provider: item.provider?.map((ref: any) => stripRef(ref.reference, /^(Organization|Practitioner|PractitionerRole)\//)).filter(Boolean),
             revenue: mapCodeable(item.revenue),
             productOrService: mapCodeable(item.productOrService),
             productOrServiceEnd: mapCodeable(item.productOrServiceEnd),
@@ -1441,7 +1441,7 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
             servicedPeriod: mapPeriod(item.servicedPeriod),
             locationCodeableConcept: mapCodeable(item.locationCodeableConcept),
             locationAddress: mapAddress(item.locationAddress),
-            locationReference: item.locationReference?.reference?.replace(/^Location\\//, ''),
+            locationReference: item.locationReference?.reference?.replace(/^Location\//, ''),
             quantity: mapQuantity(item.quantity),
             unitPrice: mapMoney(item.unitPrice),
             factor: item.factor,
@@ -1483,13 +1483,13 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
             text: note.text,
             language: mapCodeable(note.language)
         })),
-        communicationRequest: response.communicationRequest?.map((ref: any) => stripRef(ref.reference, /^CommunicationRequest\\//)).filter(Boolean),
+        communicationRequest: response.communicationRequest?.map((ref: any) => stripRef(ref.reference, /^CommunicationRequest\//)).filter(Boolean),
         insurance: response.insurance?.map((ins: any) => ({
             sequence: ins.sequence,
             focal: ins.focal,
-            coverage: stripRef(ins.coverage?.reference, /^Coverage\\//),
+            coverage: stripRef(ins.coverage?.reference, /^Coverage\//),
             businessArrangement: ins.businessArrangement,
-            claimResponse: stripRef(ins.claimResponse?.reference, /^ClaimResponse\\//)
+            claimResponse: stripRef(ins.claimResponse?.reference, /^ClaimResponse\//)
         })),
         error: response.error?.map((err: any) => ({
             itemSequence: err.itemSequence,
@@ -1927,7 +1927,7 @@ function mapR4QuestionnaireResponse(resp: any): CanonicalQuestionnaireResponse {
     text: item.text,
     answer: (item.answer || []).map((ans: any) => (
       ans.valueString ?? ans.valueBoolean ?? ans.valueInteger ?? ans.valueDecimal ?? ans.valueDate ?? ans.valueDateTime ?? ans.valueTime
-    )).filter(value => value !== undefined).map(value => String(value))
+    )).filter((value: any) => value !== undefined).map((value: any) => String(value))
   }));
 
   return {
@@ -1961,7 +1961,7 @@ function mapR4CodeSystem(resource: any): CanonicalCodeSystem {
     publisher: resource.publisher,
     description: resource.description,
     content: resource.content,
-    case_sensitive: resource.caseSensitive,
+    caseSensitive: resource.caseSensitive,
     concept: concepts.map((concept: any) => ({
       code: concept.code,
       display: concept.display,
