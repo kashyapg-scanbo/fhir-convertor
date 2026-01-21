@@ -835,6 +835,419 @@ const GlobalAppointmentSchema = z.object({
   note: z.string().optional()
 });
 
+const GlobalAppointmentResponseSchema = z.object({
+  appointment_response_id: GlobalIdSchema.optional(),
+  appointment_id: GlobalIdSchema.optional(),
+  proposed_new_time: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  start: z.string().optional(),
+  end: z.string().optional(),
+  participant_type: z.union([z.string(), z.array(z.string())]).optional(),
+  actor_id: GlobalIdSchema.optional(),
+  participant_status: z.string().optional(),
+  comment: z.string().optional(),
+  recurring: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  occurrence_date: z.string().optional(),
+  recurrence_id: GlobalNumberSchema.optional()
+});
+
+const GlobalCodeableConceptSchema = z.object({
+  code: z.string().optional(),
+  code_system: z.string().optional(),
+  display: z.string().optional()
+});
+
+const GlobalIdentifierObjectSchema = z.object({
+  system: z.string().optional(),
+  value: GlobalStringSchema.optional(),
+  type: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalMoneySchema = z.object({
+  value: z.union([z.number(), GlobalStringSchema]).optional(),
+  currency: z.string().optional()
+});
+
+const GlobalQuantitySchema = z.object({
+  value: z.union([z.number(), GlobalStringSchema]).optional(),
+  unit: z.string().optional(),
+  system: z.string().optional(),
+  code: z.string().optional()
+});
+
+const GlobalPeriodSchema = z.object({
+  start: z.string().optional(),
+  end: z.string().optional()
+});
+
+const GlobalAttachmentSchema = z.object({
+  content_type: z.string().optional(),
+  url: z.string().optional(),
+  title: z.string().optional(),
+  data: z.string().optional()
+});
+
+const GlobalClaimRelatedSchema = z.object({
+  claim_id: GlobalIdSchema.optional(),
+  relationship: GlobalCodeableConceptSchema.optional(),
+  reference: GlobalIdentifierObjectSchema.optional()
+});
+
+const GlobalClaimEventSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  when_date_time: z.string().optional(),
+  when_start: z.string().optional(),
+  when_end: z.string().optional()
+});
+
+const GlobalClaimCareTeamSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  provider_id: GlobalIdSchema.optional(),
+  responsible: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  role: GlobalCodeableConceptSchema.optional(),
+  specialty: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalClaimSupportingInfoSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  timing_date: z.string().optional(),
+  timing_start: z.string().optional(),
+  timing_end: z.string().optional(),
+  value_boolean: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  value_string: z.string().optional(),
+  value_quantity: GlobalQuantitySchema.optional(),
+  value_attachment: GlobalAttachmentSchema.optional(),
+  value_reference_id: GlobalIdSchema.optional(),
+  value_identifier: GlobalIdentifierObjectSchema.optional(),
+  reason: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalClaimDiagnosisSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  diagnosis_code: GlobalCodeableConceptSchema.optional(),
+  diagnosis_reference_id: GlobalIdSchema.optional(),
+  type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  on_admission: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalClaimProcedureSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  date: z.string().optional(),
+  procedure_code: GlobalCodeableConceptSchema.optional(),
+  procedure_reference_id: GlobalIdSchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalClaimInsuranceSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  focal: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  identifier: GlobalIdentifierObjectSchema.optional(),
+  coverage_id: GlobalIdSchema.optional(),
+  business_arrangement: z.string().optional(),
+  pre_auth_ref: z.union([z.string(), z.array(z.string())]).optional(),
+  claim_response_id: GlobalIdSchema.optional()
+});
+
+const GlobalClaimAccidentSchema = z.object({
+  date: z.string().optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  location_address: GlobalAddressSchema.optional(),
+  location_reference_id: GlobalIdSchema.optional()
+});
+
+const GlobalClaimItemSubDetailSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: z.union([z.number(), GlobalStringSchema]).optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalClaimItemDetailSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: z.union([z.number(), GlobalStringSchema]).optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  sub_detail: z.union([GlobalClaimItemSubDetailSchema, z.array(GlobalClaimItemSubDetailSchema)]).optional()
+});
+
+const GlobalClaimItemSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  care_team_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  diagnosis_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  procedure_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  information_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  serviced_date: z.string().optional(),
+  serviced_start: z.string().optional(),
+  serviced_end: z.string().optional(),
+  location_codeable: GlobalCodeableConceptSchema.optional(),
+  location_address: GlobalAddressSchema.optional(),
+  location_reference_id: GlobalIdSchema.optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: z.union([z.number(), GlobalStringSchema]).optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  encounter_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  detail: z.union([GlobalClaimItemDetailSchema, z.array(GlobalClaimItemDetailSchema)]).optional()
+});
+
+const GlobalClaimPayeeSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  party_id: GlobalIdSchema.optional()
+});
+
+const GlobalClaimSchema = z.object({
+  claim_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  sub_type: GlobalCodeableConceptSchema.optional(),
+  use: z.string().optional(),
+  patient_id: GlobalIdSchema.optional(),
+  billable_start: z.string().optional(),
+  billable_end: z.string().optional(),
+  created: z.string().optional(),
+  enterer_id: GlobalIdSchema.optional(),
+  insurer_id: GlobalIdSchema.optional(),
+  provider_id: GlobalIdSchema.optional(),
+  priority: GlobalCodeableConceptSchema.optional(),
+  funds_reserve: GlobalCodeableConceptSchema.optional(),
+  related: z.union([GlobalClaimRelatedSchema, z.array(GlobalClaimRelatedSchema)]).optional(),
+  prescription_id: GlobalIdSchema.optional(),
+  original_prescription_id: GlobalIdSchema.optional(),
+  payee: GlobalClaimPayeeSchema.optional(),
+  referral_id: GlobalIdSchema.optional(),
+  encounter_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  facility_id: GlobalIdSchema.optional(),
+  diagnosis_related_group: GlobalCodeableConceptSchema.optional(),
+  event: z.union([GlobalClaimEventSchema, z.array(GlobalClaimEventSchema)]).optional(),
+  care_team: z.union([GlobalClaimCareTeamSchema, z.array(GlobalClaimCareTeamSchema)]).optional(),
+  supporting_info: z.union([GlobalClaimSupportingInfoSchema, z.array(GlobalClaimSupportingInfoSchema)]).optional(),
+  diagnosis: z.union([GlobalClaimDiagnosisSchema, z.array(GlobalClaimDiagnosisSchema)]).optional(),
+  procedure: z.union([GlobalClaimProcedureSchema, z.array(GlobalClaimProcedureSchema)]).optional(),
+  insurance: z.union([GlobalClaimInsuranceSchema, z.array(GlobalClaimInsuranceSchema)]).optional(),
+  accident: GlobalClaimAccidentSchema.optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  item: z.union([GlobalClaimItemSchema, z.array(GlobalClaimItemSchema)]).optional(),
+  total: GlobalMoneySchema.optional()
+});
+
+const GlobalClaimResponseAdjudicationSchema = z.object({
+  category: GlobalCodeableConceptSchema.optional(),
+  reason: GlobalCodeableConceptSchema.optional(),
+  amount: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional()
+});
+
+const GlobalClaimResponseReviewOutcomeSchema = z.object({
+  decision: GlobalCodeableConceptSchema.optional(),
+  reason: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  pre_auth_ref: z.string().optional(),
+  pre_auth_start: z.string().optional(),
+  pre_auth_end: z.string().optional()
+});
+
+const GlobalClaimResponseItemSubDetailSchema = z.object({
+  sub_detail_sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  note_number: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional()
+});
+
+const GlobalClaimResponseItemDetailSchema = z.object({
+  detail_sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  note_number: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  sub_detail: z.union([GlobalClaimResponseItemSubDetailSchema, z.array(GlobalClaimResponseItemSubDetailSchema)]).optional()
+});
+
+const GlobalClaimResponseItemSchema = z.object({
+  item_sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  note_number: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  detail: z.union([GlobalClaimResponseItemDetailSchema, z.array(GlobalClaimResponseItemDetailSchema)]).optional()
+});
+
+const GlobalClaimResponseAddItemSubDetailSchema = z.object({
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: z.union([z.number(), GlobalStringSchema]).optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  note_number: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional()
+});
+
+const GlobalClaimResponseAddItemDetailSchema = z.object({
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: z.union([z.number(), GlobalStringSchema]).optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  note_number: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  sub_detail: z.union([GlobalClaimResponseAddItemSubDetailSchema, z.array(GlobalClaimResponseAddItemSubDetailSchema)]).optional()
+});
+
+const GlobalClaimResponseAddItemSchema = z.object({
+  item_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  detail_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  subdetail_sequence: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  provider_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  serviced_date: z.string().optional(),
+  serviced_start: z.string().optional(),
+  serviced_end: z.string().optional(),
+  location_codeable: GlobalCodeableConceptSchema.optional(),
+  location_address: GlobalAddressSchema.optional(),
+  location_reference_id: GlobalIdSchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: z.union([z.number(), GlobalStringSchema]).optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  note_number: z.union([GlobalStringSchema, z.array(GlobalStringSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  detail: z.union([GlobalClaimResponseAddItemDetailSchema, z.array(GlobalClaimResponseAddItemDetailSchema)]).optional()
+});
+
+const GlobalClaimResponseTotalSchema = z.object({
+  category: GlobalCodeableConceptSchema.optional(),
+  amount: GlobalMoneySchema.optional()
+});
+
+const GlobalClaimResponsePaymentSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  adjustment: GlobalMoneySchema.optional(),
+  adjustment_reason: GlobalCodeableConceptSchema.optional(),
+  date: z.string().optional(),
+  amount: GlobalMoneySchema.optional(),
+  identifier: GlobalIdentifierObjectSchema.optional()
+});
+
+const GlobalClaimResponseProcessNoteSchema = z.object({
+  number: GlobalNumberSchema.optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  text: z.string().optional(),
+  language: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalClaimResponseInsuranceSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  focal: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  coverage_id: GlobalIdSchema.optional(),
+  business_arrangement: z.string().optional(),
+  claim_response_id: GlobalIdSchema.optional()
+});
+
+const GlobalClaimResponseErrorSchema = z.object({
+  item_sequence: GlobalNumberSchema.optional(),
+  detail_sequence: GlobalNumberSchema.optional(),
+  sub_detail_sequence: GlobalNumberSchema.optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  expression: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalClaimResponseEventSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  when_date_time: z.string().optional(),
+  when_start: z.string().optional(),
+  when_end: z.string().optional()
+});
+
+const GlobalClaimResponseSchema = z.object({
+  claim_response_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  sub_type: GlobalCodeableConceptSchema.optional(),
+  use: z.string().optional(),
+  patient_id: GlobalIdSchema.optional(),
+  created: z.string().optional(),
+  insurer_id: GlobalIdSchema.optional(),
+  requestor_id: GlobalIdSchema.optional(),
+  request_id: GlobalIdSchema.optional(),
+  outcome: z.string().optional(),
+  decision: GlobalCodeableConceptSchema.optional(),
+  disposition: z.string().optional(),
+  pre_auth_ref: z.string().optional(),
+  pre_auth_start: z.string().optional(),
+  pre_auth_end: z.string().optional(),
+  event: z.union([GlobalClaimResponseEventSchema, z.array(GlobalClaimResponseEventSchema)]).optional(),
+  payee_type: GlobalCodeableConceptSchema.optional(),
+  encounter_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  diagnosis_related_group: GlobalCodeableConceptSchema.optional(),
+  item: z.union([GlobalClaimResponseItemSchema, z.array(GlobalClaimResponseItemSchema)]).optional(),
+  add_item: z.union([GlobalClaimResponseAddItemSchema, z.array(GlobalClaimResponseAddItemSchema)]).optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  total: z.union([GlobalClaimResponseTotalSchema, z.array(GlobalClaimResponseTotalSchema)]).optional(),
+  payment: GlobalClaimResponsePaymentSchema.optional(),
+  funds_reserve: GlobalCodeableConceptSchema.optional(),
+  form_code: GlobalCodeableConceptSchema.optional(),
+  form: GlobalAttachmentSchema.optional(),
+  process_note: z.union([GlobalClaimResponseProcessNoteSchema, z.array(GlobalClaimResponseProcessNoteSchema)]).optional(),
+  communication_request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  insurance: z.union([GlobalClaimResponseInsuranceSchema, z.array(GlobalClaimResponseInsuranceSchema)]).optional(),
+  error: z.union([GlobalClaimResponseErrorSchema, z.array(GlobalClaimResponseErrorSchema)]).optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional()
+});
+
 const GlobalScheduleSchema = z.object({
   schedule_id: GlobalIdSchema.optional(),
   active: z.union([z.boolean(), z.string(), z.number()]).optional(),
@@ -1209,6 +1622,9 @@ const GlobalCustomJSONSchema = z.object({
   procedure: z.union([GlobalProcedureSchema, z.array(GlobalProcedureSchema)]).optional(),
   condition: z.union([GlobalConditionSchema, z.array(GlobalConditionSchema)]).optional(),
   appointment: z.union([GlobalAppointmentSchema, z.array(GlobalAppointmentSchema)]).optional(),
+  appointment_response: z.union([GlobalAppointmentResponseSchema, z.array(GlobalAppointmentResponseSchema)]).optional(),
+  claim: z.union([GlobalClaimSchema, z.array(GlobalClaimSchema)]).optional(),
+  claim_response: z.union([GlobalClaimResponseSchema, z.array(GlobalClaimResponseSchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
   diagnostic_report: z.union([GlobalDiagnosticReportSchema, z.array(GlobalDiagnosticReportSchema)]).optional(),
@@ -1254,6 +1670,9 @@ const GlobalCustomJSONSchema = z.object({
     value.procedure ||
     value.condition ||
     value.appointment ||
+    value.appointment_response ||
+    value.claim ||
+    value.claim_response ||
     value.schedule ||
     value.slot ||
     value.diagnostic_report ||
@@ -1269,7 +1688,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1320,6 +1739,9 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   procedures: 'procedure',
   conditions: 'condition',
   appointments: 'appointment',
+  appointmentResponses: 'appointmentResponse',
+  claims: 'claim',
+  claimResponses: 'claimResponse',
   schedules: 'schedule',
   slots: 'slot',
   diagnosticReports: 'diagnosticReport',
@@ -1393,6 +1815,16 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   conditions: 'condition',
   appointment: 'appointment',
   appointments: 'appointment',
+  appointment_response: 'appointmentResponse',
+  appointment_responses: 'appointmentResponse',
+  appointmentresponse: 'appointmentResponse',
+  appointmentresponses: 'appointmentResponse',
+  claim: 'claim',
+  claims: 'claim',
+  claim_response: 'claimResponse',
+  claim_responses: 'claimResponse',
+  claimresponse: 'claimResponse',
+  claimresponses: 'claimResponse',
   schedule: 'schedule',
   schedules: 'schedule',
   slot: 'slot',
@@ -1533,6 +1965,16 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   conditions: 'condition',
   appointment: 'appointment',
   appointments: 'appointment',
+  appointment_response: 'appointment_response',
+  appointment_responses: 'appointment_response',
+  appointmentresponse: 'appointment_response',
+  appointmentresponses: 'appointment_response',
+  claim: 'claim',
+  claims: 'claim',
+  claim_response: 'claim_response',
+  claim_responses: 'claim_response',
+  claimresponse: 'claim_response',
+  claimresponses: 'claim_response',
   schedule: 'schedule',
   schedules: 'schedule',
   slot: 'slot',
@@ -2516,6 +2958,253 @@ function normalizeGlobalAppointmentAliases(value: Record<string, unknown>) {
 
   const note = normalizeAliasValue(readSectionAliasValue(value, 'appointment', 'appointment_note'));
   if (note && normalized.note === undefined) normalized.note = note;
+
+  return normalized;
+}
+
+function normalizeGlobalAppointmentResponseAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const responseId = readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_id');
+  if (normalized.appointment_response_id === undefined && responseId !== undefined) {
+    normalized.appointment_response_id = responseId;
+  }
+
+  const appointmentId = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_appointment_id'));
+  if (appointmentId && normalized.appointment_id === undefined) normalized.appointment_id = appointmentId;
+
+  const proposedNewTime = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_proposed_new_time'));
+  if (proposedNewTime && normalized.proposed_new_time === undefined) normalized.proposed_new_time = proposedNewTime;
+
+  const start = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_start'));
+  if (start && normalized.start === undefined) normalized.start = start;
+
+  const end = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_end'));
+  if (end && normalized.end === undefined) normalized.end = end;
+
+  const participantType = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_participant_type'));
+  if (participantType && normalized.participant_type === undefined) normalized.participant_type = participantType;
+
+  const actorId = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_actor_id'));
+  if (actorId && normalized.actor_id === undefined) normalized.actor_id = actorId;
+
+  const participantStatus = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_participant_status'));
+  if (participantStatus && normalized.participant_status === undefined) normalized.participant_status = participantStatus;
+
+  const comment = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_comment'));
+  if (comment && normalized.comment === undefined) normalized.comment = comment;
+
+  const recurring = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_recurring'));
+  if (recurring && normalized.recurring === undefined) normalized.recurring = recurring;
+
+  const occurrenceDate = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_occurrence_date'));
+  if (occurrenceDate && normalized.occurrence_date === undefined) normalized.occurrence_date = occurrenceDate;
+
+  const recurrenceId = normalizeAliasValue(readSectionAliasValue(value, 'appointmentResponse', 'appointment_response_recurrence_id'));
+  if (recurrenceId && normalized.recurrence_id === undefined) normalized.recurrence_id = recurrenceId;
+
+  return normalized;
+}
+
+function normalizeGlobalClaimAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const claimId = readSectionAliasValue(value, 'claim', 'claim_id');
+  if (normalized.claim_id === undefined && claimId !== undefined) {
+    normalized.claim_id = claimId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_type'));
+  if (type && normalized.type === undefined) {
+    normalized.type = { code: type, display: type };
+  }
+
+  const subType = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_sub_type'));
+  if (subType && normalized.sub_type === undefined) {
+    normalized.sub_type = { code: subType, display: subType };
+  }
+
+  const use = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_use'));
+  if (use && normalized.use === undefined) normalized.use = use;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const billableStart = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_billable_start'));
+  if (billableStart && normalized.billable_start === undefined) normalized.billable_start = billableStart;
+
+  const billableEnd = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_billable_end'));
+  if (billableEnd && normalized.billable_end === undefined) normalized.billable_end = billableEnd;
+
+  const created = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_created'));
+  if (created && normalized.created === undefined) normalized.created = created;
+
+  const entererId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_enterer_id'));
+  if (entererId && normalized.enterer_id === undefined) normalized.enterer_id = entererId;
+
+  const insurerId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_insurer_id'));
+  if (insurerId && normalized.insurer_id === undefined) normalized.insurer_id = insurerId;
+
+  const providerId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_provider_id'));
+  if (providerId && normalized.provider_id === undefined) normalized.provider_id = providerId;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_priority'));
+  if (priority && normalized.priority === undefined) {
+    normalized.priority = { code: priority, display: priority };
+  }
+
+  const fundsReserve = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_funds_reserve'));
+  if (fundsReserve && normalized.funds_reserve === undefined) {
+    normalized.funds_reserve = { code: fundsReserve, display: fundsReserve };
+  }
+
+  const referralId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_referral_id'));
+  if (referralId && normalized.referral_id === undefined) normalized.referral_id = referralId;
+
+  const facilityId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_facility_id'));
+  if (facilityId && normalized.facility_id === undefined) normalized.facility_id = facilityId;
+
+  const prescriptionId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_prescription_id'));
+  if (prescriptionId && normalized.prescription_id === undefined) normalized.prescription_id = prescriptionId;
+
+  const originalPrescriptionId = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_original_prescription_id'));
+  if (originalPrescriptionId && normalized.original_prescription_id === undefined) normalized.original_prescription_id = originalPrescriptionId;
+
+  const drg = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_drg'));
+  if (drg && normalized.diagnosis_related_group === undefined) {
+    normalized.diagnosis_related_group = { code: drg, display: drg };
+  }
+
+  const accidentDate = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_accident_date'));
+  const accidentType = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_accident_type'));
+  if ((accidentDate || accidentType) && normalized.accident === undefined) {
+    normalized.accident = {
+      date: accidentDate,
+      type: accidentType ? { code: accidentType, display: accidentType } : undefined
+    };
+  }
+
+  const patientPaidValue = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_patient_paid_value'));
+  const patientPaidCurrency = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_patient_paid_currency'));
+  if ((patientPaidValue || patientPaidCurrency) && normalized.patient_paid === undefined) {
+    normalized.patient_paid = {
+      value: patientPaidValue,
+      currency: patientPaidCurrency
+    };
+  }
+
+  const totalValue = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_total_value'));
+  const totalCurrency = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_total_currency'));
+  if ((totalValue || totalCurrency) && normalized.total === undefined) {
+    normalized.total = {
+      value: totalValue,
+      currency: totalCurrency
+    };
+  }
+
+  const itemSequence = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_sequence'));
+  const itemProduct = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_product_or_service'));
+  const itemQuantity = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_quantity'));
+  const itemUnitPrice = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_unit_price'));
+  const itemNet = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_net'));
+  const itemPatientPaid = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_patient_paid'));
+  const itemLocation = normalizeAliasValue(readSectionAliasValue(value, 'claim', 'claim_item_location_id'));
+  if ((itemSequence || itemProduct || itemQuantity || itemUnitPrice || itemNet || itemPatientPaid || itemLocation)
+    && normalized.item === undefined
+  ) {
+    normalized.item = [{
+      sequence: itemSequence,
+      product_or_service: itemProduct ? { code: itemProduct, display: itemProduct } : undefined,
+      quantity: itemQuantity ? { value: itemQuantity } : undefined,
+      unit_price: itemUnitPrice ? { value: itemUnitPrice } : undefined,
+      net: itemNet ? { value: itemNet } : undefined,
+      patient_paid: itemPatientPaid ? { value: itemPatientPaid } : undefined,
+      location_reference_id: itemLocation
+    }];
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalClaimResponseAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const responseId = readSectionAliasValue(value, 'claimResponse', 'claim_response_id');
+  if (normalized.claim_response_id === undefined && responseId !== undefined) {
+    normalized.claim_response_id = responseId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const subType = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_sub_type'));
+  if (subType && normalized.sub_type === undefined) normalized.sub_type = { code: subType, display: subType };
+
+  const use = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_use'));
+  if (use && normalized.use === undefined) normalized.use = use;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const created = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_created'));
+  if (created && normalized.created === undefined) normalized.created = created;
+
+  const insurerId = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_insurer_id'));
+  if (insurerId && normalized.insurer_id === undefined) normalized.insurer_id = insurerId;
+
+  const requestorId = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_requestor_id'));
+  if (requestorId && normalized.requestor_id === undefined) normalized.requestor_id = requestorId;
+
+  const requestId = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_request_id'));
+  if (requestId && normalized.request_id === undefined) normalized.request_id = requestId;
+
+  const outcome = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_outcome'));
+  if (outcome && normalized.outcome === undefined) normalized.outcome = outcome;
+
+  const disposition = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_disposition'));
+  if (disposition && normalized.disposition === undefined) normalized.disposition = disposition;
+
+  const preAuthRef = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_pre_auth_ref'));
+  if (preAuthRef && normalized.pre_auth_ref === undefined) normalized.pre_auth_ref = preAuthRef;
+
+  const preAuthStart = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_pre_auth_start'));
+  if (preAuthStart && normalized.pre_auth_start === undefined) normalized.pre_auth_start = preAuthStart;
+
+  const preAuthEnd = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_pre_auth_end'));
+  if (preAuthEnd && normalized.pre_auth_end === undefined) normalized.pre_auth_end = preAuthEnd;
+
+  const payeeType = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_payee_type'));
+  if (payeeType && normalized.payee_type === undefined) normalized.payee_type = { code: payeeType, display: payeeType };
+
+  const totalValue = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_total_value'));
+  const totalCurrency = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_total_currency'));
+  if ((totalValue || totalCurrency) && normalized.total === undefined) {
+    normalized.total = [{
+      amount: {
+        value: totalValue,
+        currency: totalCurrency
+      }
+    }];
+  }
+
+  const itemSequence = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_item_sequence'));
+  const itemCategory = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_item_category'));
+  const itemAmount = normalizeAliasValue(readSectionAliasValue(value, 'claimResponse', 'claim_response_item_amount'));
+  if ((itemSequence || itemCategory || itemAmount) && normalized.item === undefined) {
+    normalized.item = [{
+      item_sequence: itemSequence,
+      adjudication: (itemCategory || itemAmount) ? [{
+        category: itemCategory ? { code: itemCategory, display: itemCategory } : undefined,
+        amount: itemAmount ? { value: itemAmount } : undefined
+      }] : undefined
+    }];
+  }
 
   return normalized;
 }
@@ -4197,6 +4886,12 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalConditionAliases(value);
     case 'appointment':
       return normalizeGlobalAppointmentAliases(value);
+    case 'appointmentResponse':
+      return normalizeGlobalAppointmentResponseAliases(value);
+    case 'claim':
+      return normalizeGlobalClaimAliases(value);
+    case 'claimResponse':
+      return normalizeGlobalClaimResponseAliases(value);
     case 'schedule':
       return normalizeGlobalScheduleAliases(value);
     case 'slot':
@@ -4253,6 +4948,9 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
+    ['appointmentResponse', 'appointment_response'],
+    ['claim', 'claim'],
+    ['claimResponse', 'claim_response'],
     ['schedule', 'schedule'],
     ['slot', 'slot'],
     ['diagnosticReport', 'diagnostic_report'],
@@ -4372,6 +5070,9 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'procedure',
     'condition',
     'appointment',
+    'appointmentResponse',
+    'claim',
+    'claimResponse',
     'schedule',
     'slot',
     'diagnosticReport',
@@ -4535,6 +5236,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const procedures = normalizeArray(validated.procedure);
   const conditions = normalizeArray(validated.condition);
   const appointments = normalizeArray(validated.appointment);
+  const appointmentResponses = normalizeArray(validated.appointment_response);
+  const claims = normalizeArray(validated.claim);
+  const claimResponses = normalizeArray(validated.claim_response);
   const schedules = normalizeArray(validated.schedule);
   const slots = normalizeArray(validated.slot);
   const diagnosticReports = normalizeArray(validated.diagnostic_report);
@@ -4640,6 +5344,15 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (appointments.length) {
     canonical.appointments = appointments.map(buildCanonicalAppointmentGlobal);
   }
+  if (appointmentResponses.length) {
+    canonical.appointmentResponses = appointmentResponses.map(buildCanonicalAppointmentResponseGlobal);
+  }
+  if (claims.length) {
+    canonical.claims = claims.map(buildCanonicalClaimGlobal);
+  }
+  if (claimResponses.length) {
+    canonical.claimResponses = claimResponses.map(buildCanonicalClaimResponseGlobal);
+  }
   if (schedules.length) {
     canonical.schedules = schedules.map(buildCanonicalScheduleGlobal);
   }
@@ -4723,6 +5436,9 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     procedure: ['procedure_id', 'id', 'identifier'],
     condition: ['condition_id', 'id', 'identifier'],
     appointment: ['appointment_id', 'id', 'identifier'],
+    appointment_response: ['appointment_response_id', 'id', 'identifier'],
+    claim: ['claim_id', 'id', 'identifier'],
+    claim_response: ['claim_response_id', 'id', 'identifier'],
     schedule: ['schedule_id', 'id', 'identifier'],
     slot: ['slot_id', 'id', 'identifier'],
     diagnostic_report: ['diagnostic_report_id', 'id', 'identifier'],
@@ -4791,7 +5507,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -4825,6 +5541,9 @@ function wrapGlobalPayload(value: any) {
       value.procedure,
       value.condition,
       value.appointment,
+      value.appointment_response,
+      value.claim,
+      value.claim_response,
       value.schedule,
       value.slot,
       value.diagnostic_report,
@@ -4930,6 +5649,15 @@ function wrapGlobalPayload(value: any) {
     }
     if ('appointment_id' in value || 'start' in value || 'end' in value) {
       return { appointment: value };
+    }
+    if ('appointment_response_id' in value || 'appointment_id' in value || 'participant_status' in value) {
+      return { appointment_response: value };
+    }
+    if ('claim_id' in value || 'claim_status' in value || 'claim_type' in value) {
+      return { claim: value };
+    }
+    if ('claim_response_id' in value || 'claim_response_status' in value || 'claim_response_type' in value) {
+      return { claim_response: value };
     }
     if ('schedule_id' in value || 'service_category' in value || 'actor_id' in value) {
       return { schedule: value };
@@ -5060,6 +5788,14 @@ function looksLikeGlobalResource(value: any) {
     'clinical_status' in value ||
     'verification_status' in value ||
     'appointment_id' in value ||
+    'appointment_response_id' in value ||
+    'participant_status' in value ||
+    'claim_id' in value ||
+    'claim_status' in value ||
+    'claim_type' in value ||
+    'claim_response_id' in value ||
+    'claim_response_status' in value ||
+    'claim_response_type' in value ||
     'start' in value ||
     'end' in value ||
     'schedule_id' in value ||
@@ -6292,6 +7028,508 @@ function buildCanonicalAppointmentGlobal(appt: z.infer<typeof GlobalAppointmentS
       status: appt.participant_status
     }] : undefined,
     note: appt.note ? [appt.note] : undefined
+  };
+}
+
+function buildCanonicalAppointmentResponseGlobal(response: z.infer<typeof GlobalAppointmentResponseSchema>) {
+  const proposedNewTime = normalizeBoolean(response.proposed_new_time);
+  const recurring = normalizeBoolean(response.recurring);
+  const participantTypes = normalizeStringArray(response.participant_type);
+  const recurrenceId = typeof response.recurrence_id === 'number'
+    ? response.recurrence_id
+    : response.recurrence_id ? Number(response.recurrence_id) : undefined;
+
+  return {
+    id: response.appointment_response_id,
+    identifier: response.appointment_response_id,
+    appointment: response.appointment_id,
+    proposedNewTime,
+    start: response.start,
+    end: response.end,
+    participantType: participantTypes.length ? participantTypes.map(value => ({
+      code: value,
+      display: value
+    })) : undefined,
+    actor: response.actor_id,
+    participantStatus: response.participant_status,
+    comment: response.comment,
+    recurring,
+    occurrenceDate: response.occurrence_date,
+    recurrenceId: Number.isFinite(recurrenceId as number) ? recurrenceId : undefined
+  };
+}
+
+function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === 'number') return value;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  };
+
+  const toNumberList = (value?: string | string[]) => {
+    const values = normalizeStringArray(value);
+    const numbers = values.map(item => Number(item)).filter(num => Number.isFinite(num));
+    return numbers.length ? numbers : undefined;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapMoney = (source?: z.infer<typeof GlobalMoneySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      currency: source.currency
+    };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  const mapAddress = (source?: z.infer<typeof GlobalAddressSchema>) => {
+    if (!source) return undefined;
+    return {
+      line: source.street ? [source.street] : undefined,
+      city: source.city,
+      state: source.state,
+      postalCode: source.postal_code,
+      country: source.country
+    };
+  };
+
+  const related = normalizeArray(claim.related).map(entry => ({
+    claim: entry.claim_id,
+    relationship: mapCodeable(entry.relationship),
+    reference: entry.reference ? { system: entry.reference.system, value: entry.reference.value } : undefined
+  }));
+
+  const events = normalizeArray(claim.event).map(entry => ({
+    type: mapCodeable(entry.type),
+    whenDateTime: entry.when_date_time,
+    whenPeriod: entry.when_start || entry.when_end ? { start: entry.when_start, end: entry.when_end } : undefined
+  }));
+
+  const careTeams = normalizeArray(claim.care_team).map(entry => ({
+    sequence: toNumber(entry.sequence as any),
+    provider: entry.provider_id,
+    responsible: normalizeBoolean(entry.responsible),
+    role: mapCodeable(entry.role),
+    specialty: mapCodeable(entry.specialty)
+  }));
+
+  const supportingInfo = normalizeArray(claim.supporting_info).map(entry => ({
+    sequence: toNumber(entry.sequence as any),
+    category: mapCodeable(entry.category),
+    code: mapCodeable(entry.code),
+    timingDate: entry.timing_date,
+    timingPeriod: entry.timing_start || entry.timing_end ? { start: entry.timing_start, end: entry.timing_end } : undefined,
+    valueBoolean: normalizeBoolean(entry.value_boolean),
+    valueString: entry.value_string,
+    valueQuantity: mapQuantity(entry.value_quantity),
+    valueAttachment: entry.value_attachment ? {
+      contentType: entry.value_attachment.content_type,
+      url: entry.value_attachment.url,
+      title: entry.value_attachment.title,
+      data: entry.value_attachment.data
+    } : undefined,
+    valueReference: entry.value_reference_id,
+    valueIdentifier: mapIdentifier(entry.value_identifier),
+    reason: mapCodeable(entry.reason)
+  }));
+
+  const diagnoses = normalizeArray(claim.diagnosis).map(entry => ({
+    sequence: toNumber(entry.sequence as any),
+    diagnosisCodeableConcept: mapCodeable(entry.diagnosis_code),
+    diagnosisReference: entry.diagnosis_reference_id,
+    type: normalizeArray(entry.type).map(typeEntry => mapCodeable(typeEntry as any)).filter(Boolean),
+    onAdmission: mapCodeable(entry.on_admission)
+  }));
+
+  const procedures = normalizeArray(claim.procedure).map(entry => ({
+    sequence: toNumber(entry.sequence as any),
+    type: normalizeArray(entry.type).map(typeEntry => mapCodeable(typeEntry as any)).filter(Boolean),
+    date: entry.date,
+    procedureCodeableConcept: mapCodeable(entry.procedure_code),
+    procedureReference: entry.procedure_reference_id,
+    udi: normalizeStringArray(entry.udi_ids)
+  }));
+
+  const insurance = normalizeArray(claim.insurance).map(entry => ({
+    sequence: toNumber(entry.sequence as any),
+    focal: normalizeBoolean(entry.focal),
+    identifier: mapIdentifier(entry.identifier),
+    coverage: entry.coverage_id,
+    businessArrangement: entry.business_arrangement,
+    preAuthRef: normalizeStringArray(entry.pre_auth_ref),
+    claimResponse: entry.claim_response_id
+  }));
+
+  const items = normalizeArray(claim.item).map(entry => ({
+    sequence: toNumber(entry.sequence as any),
+    traceNumber: normalizeArray(entry.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    careTeamSequence: toNumberList(entry.care_team_sequence),
+    diagnosisSequence: toNumberList(entry.diagnosis_sequence),
+    procedureSequence: toNumberList(entry.procedure_sequence),
+    informationSequence: toNumberList(entry.information_sequence),
+    revenue: mapCodeable(entry.revenue),
+    category: mapCodeable(entry.category),
+    productOrService: mapCodeable(entry.product_or_service),
+    productOrServiceEnd: mapCodeable(entry.product_or_service_end),
+    request: normalizeStringArray(entry.request_ids),
+    modifier: normalizeArray(entry.modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+    programCode: normalizeArray(entry.program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+    servicedDate: entry.serviced_date,
+    servicedPeriod: entry.serviced_start || entry.serviced_end ? { start: entry.serviced_start, end: entry.serviced_end } : undefined,
+    locationCodeableConcept: mapCodeable(entry.location_codeable),
+    locationAddress: mapAddress(entry.location_address),
+    locationReference: entry.location_reference_id,
+    patientPaid: mapMoney(entry.patient_paid),
+    quantity: mapQuantity(entry.quantity),
+    unitPrice: mapMoney(entry.unit_price),
+    factor: toNumber(entry.factor as any),
+    tax: mapMoney(entry.tax),
+    net: mapMoney(entry.net),
+    udi: normalizeStringArray(entry.udi_ids),
+    encounter: normalizeStringArray(entry.encounter_ids),
+    detail: normalizeArray(entry.detail).map(detail => ({
+      sequence: toNumber((detail as any).sequence),
+      traceNumber: normalizeArray((detail as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+      revenue: mapCodeable((detail as any).revenue),
+      category: mapCodeable((detail as any).category),
+      productOrService: mapCodeable((detail as any).product_or_service),
+      productOrServiceEnd: mapCodeable((detail as any).product_or_service_end),
+      modifier: normalizeArray((detail as any).modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+      programCode: normalizeArray((detail as any).program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+      patientPaid: mapMoney((detail as any).patient_paid),
+      quantity: mapQuantity((detail as any).quantity),
+      unitPrice: mapMoney((detail as any).unit_price),
+      factor: toNumber((detail as any).factor),
+      tax: mapMoney((detail as any).tax),
+      net: mapMoney((detail as any).net),
+      udi: normalizeStringArray((detail as any).udi_ids),
+      subDetail: normalizeArray((detail as any).sub_detail).map(sub => ({
+        sequence: toNumber((sub as any).sequence),
+        traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+        revenue: mapCodeable((sub as any).revenue),
+        category: mapCodeable((sub as any).category),
+        productOrService: mapCodeable((sub as any).product_or_service),
+        productOrServiceEnd: mapCodeable((sub as any).product_or_service_end),
+        modifier: normalizeArray((sub as any).modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+        programCode: normalizeArray((sub as any).program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+        patientPaid: mapMoney((sub as any).patient_paid),
+        quantity: mapQuantity((sub as any).quantity),
+        unitPrice: mapMoney((sub as any).unit_price),
+        factor: toNumber((sub as any).factor),
+        tax: mapMoney((sub as any).tax),
+        net: mapMoney((sub as any).net),
+        udi: normalizeStringArray((sub as any).udi_ids)
+      }))
+    }))
+  }));
+
+  return {
+    id: claim.claim_id,
+    identifier: claim.claim_id ? [{ value: claim.claim_id }] : undefined,
+    status: claim.status,
+    type: mapCodeable(claim.type),
+    subType: mapCodeable(claim.sub_type),
+    use: claim.use,
+    patient: claim.patient_id,
+    billablePeriod: claim.billable_start || claim.billable_end ? { start: claim.billable_start, end: claim.billable_end } : undefined,
+    created: claim.created,
+    enterer: claim.enterer_id,
+    insurer: claim.insurer_id,
+    provider: claim.provider_id,
+    priority: mapCodeable(claim.priority),
+    fundsReserve: mapCodeable(claim.funds_reserve),
+    related: related.length ? related : undefined,
+    prescription: claim.prescription_id,
+    originalPrescription: claim.original_prescription_id,
+    payee: claim.payee ? {
+      type: mapCodeable(claim.payee.type),
+      party: claim.payee.party_id
+    } : undefined,
+    referral: claim.referral_id,
+    encounter: normalizeStringArray(claim.encounter_ids),
+    facility: claim.facility_id,
+    diagnosisRelatedGroup: mapCodeable(claim.diagnosis_related_group),
+    event: events.length ? events : undefined,
+    careTeam: careTeams.length ? careTeams : undefined,
+    supportingInfo: supportingInfo.length ? supportingInfo : undefined,
+    diagnosis: diagnoses.length ? diagnoses : undefined,
+    procedure: procedures.length ? procedures : undefined,
+    insurance: insurance.length ? insurance : undefined,
+    accident: claim.accident ? {
+      date: claim.accident.date,
+      type: mapCodeable(claim.accident.type),
+      locationAddress: mapAddress(claim.accident.location_address),
+      locationReference: claim.accident.location_reference_id
+    } : undefined,
+    patientPaid: mapMoney(claim.patient_paid),
+    item: items.length ? items : undefined,
+    total: mapMoney(claim.total)
+  };
+}
+
+function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimResponseSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === 'number') return value;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  };
+
+  const toNumberList = (value?: string | string[]) => {
+    const values = normalizeStringArray(value);
+    const numbers = values.map(item => Number(item)).filter(num => Number.isFinite(num));
+    return numbers.length ? numbers : undefined;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapMoney = (source?: z.infer<typeof GlobalMoneySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      currency: source.currency
+    };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapReviewOutcome = (entry?: z.infer<typeof GlobalClaimResponseReviewOutcomeSchema>) => {
+    if (!entry) return undefined;
+    return {
+      decision: mapCodeable(entry.decision),
+      reason: normalizeArray(entry.reason).map(reason => mapCodeable(reason as any)).filter(Boolean),
+      preAuthRef: entry.pre_auth_ref,
+      preAuthPeriod: mapPeriod(entry.pre_auth_start, entry.pre_auth_end)
+    };
+  };
+
+  const mapAdjudication = (entry?: z.infer<typeof GlobalClaimResponseAdjudicationSchema>) => {
+    if (!entry) return undefined;
+    return {
+      category: mapCodeable(entry.category),
+      reason: mapCodeable(entry.reason),
+      amount: mapMoney(entry.amount),
+      quantity: mapQuantity(entry.quantity)
+    };
+  };
+
+  const mapItemDetail = (detail: z.infer<typeof GlobalClaimResponseItemDetailSchema>) => ({
+    detailSequence: toNumber(detail.detail_sequence as any),
+    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    noteNumber: toNumberList(detail.note_number),
+    reviewOutcome: mapReviewOutcome(detail.review_outcome),
+    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    subDetail: normalizeArray(detail.sub_detail).map(sub => ({
+      subDetailSequence: toNumber((sub as any).sub_detail_sequence),
+      traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+      noteNumber: toNumberList((sub as any).note_number),
+      reviewOutcome: mapReviewOutcome((sub as any).review_outcome),
+      adjudication: normalizeArray((sub as any).adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean)
+    }))
+  });
+
+  const mapItem = (item: z.infer<typeof GlobalClaimResponseItemSchema>) => ({
+    itemSequence: toNumber(item.item_sequence as any),
+    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    noteNumber: toNumberList(item.note_number),
+    reviewOutcome: mapReviewOutcome(item.review_outcome),
+    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    detail: normalizeArray(item.detail).map(detail => mapItemDetail(detail as any))
+  });
+
+  const mapAddItemDetail = (detail: z.infer<typeof GlobalClaimResponseAddItemDetailSchema>) => ({
+    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    revenue: mapCodeable(detail.revenue),
+    productOrService: mapCodeable(detail.product_or_service),
+    productOrServiceEnd: mapCodeable(detail.product_or_service_end),
+    modifier: normalizeArray(detail.modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+    quantity: mapQuantity(detail.quantity),
+    unitPrice: mapMoney(detail.unit_price),
+    factor: toNumber(detail.factor as any),
+    tax: mapMoney(detail.tax),
+    net: mapMoney(detail.net),
+    noteNumber: toNumberList(detail.note_number),
+    reviewOutcome: mapReviewOutcome(detail.review_outcome),
+    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    subDetail: normalizeArray(detail.sub_detail).map(sub => ({
+      traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+      revenue: mapCodeable((sub as any).revenue),
+      productOrService: mapCodeable((sub as any).product_or_service),
+      productOrServiceEnd: mapCodeable((sub as any).product_or_service_end),
+      modifier: normalizeArray((sub as any).modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+      quantity: mapQuantity((sub as any).quantity),
+      unitPrice: mapMoney((sub as any).unit_price),
+      factor: toNumber((sub as any).factor),
+      tax: mapMoney((sub as any).tax),
+      net: mapMoney((sub as any).net),
+      noteNumber: toNumberList((sub as any).note_number),
+      reviewOutcome: mapReviewOutcome((sub as any).review_outcome),
+      adjudication: normalizeArray((sub as any).adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean)
+    }))
+  });
+
+  const mapAddItem = (item: z.infer<typeof GlobalClaimResponseAddItemSchema>) => ({
+    itemSequence: toNumberList(item.item_sequence),
+    detailSequence: toNumberList(item.detail_sequence),
+    subdetailSequence: toNumberList(item.subdetail_sequence),
+    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    provider: normalizeStringArray(item.provider_ids),
+    revenue: mapCodeable(item.revenue),
+    productOrService: mapCodeable(item.product_or_service),
+    productOrServiceEnd: mapCodeable(item.product_or_service_end),
+    request: normalizeStringArray(item.request_ids),
+    modifier: normalizeArray(item.modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+    programCode: normalizeArray(item.program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+    servicedDate: item.serviced_date,
+    servicedPeriod: mapPeriod(item.serviced_start, item.serviced_end),
+    locationCodeableConcept: mapCodeable(item.location_codeable),
+    locationAddress: item.location_address ? {
+      line: item.location_address.street ? [item.location_address.street] : undefined,
+      city: item.location_address.city,
+      state: item.location_address.state,
+      postalCode: item.location_address.postal_code,
+      country: item.location_address.country
+    } : undefined,
+    locationReference: item.location_reference_id,
+    quantity: mapQuantity(item.quantity),
+    unitPrice: mapMoney(item.unit_price),
+    factor: toNumber(item.factor as any),
+    tax: mapMoney(item.tax),
+    net: mapMoney(item.net),
+    noteNumber: toNumberList(item.note_number),
+    reviewOutcome: mapReviewOutcome(item.review_outcome),
+    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    detail: normalizeArray(item.detail).map(detail => mapAddItemDetail(detail as any))
+  });
+
+  const events = normalizeArray(response.event).map(entry => ({
+    type: mapCodeable((entry as any).type),
+    whenDateTime: (entry as any).when_date_time,
+    whenPeriod: mapPeriod((entry as any).when_start, (entry as any).when_end)
+  }));
+
+  return {
+    id: response.claim_response_id,
+    identifier: response.claim_response_id ? [{ value: response.claim_response_id }] : undefined,
+    traceNumber: normalizeArray(response.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    status: response.status,
+    type: mapCodeable(response.type),
+    subType: mapCodeable(response.sub_type),
+    use: response.use,
+    patient: response.patient_id,
+    created: response.created,
+    insurer: response.insurer_id,
+    requestor: response.requestor_id,
+    request: response.request_id,
+    outcome: response.outcome,
+    decision: mapCodeable(response.decision),
+    disposition: response.disposition,
+    preAuthRef: response.pre_auth_ref,
+    preAuthPeriod: mapPeriod(response.pre_auth_start, response.pre_auth_end),
+    event: events.length ? events : undefined,
+    payeeType: mapCodeable(response.payee_type),
+    encounter: normalizeStringArray(response.encounter_ids),
+    diagnosisRelatedGroup: mapCodeable(response.diagnosis_related_group),
+    item: normalizeArray(response.item).map(item => mapItem(item as any)),
+    addItem: normalizeArray(response.add_item).map(item => mapAddItem(item as any)),
+    adjudication: normalizeArray(response.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    total: normalizeArray(response.total).map(total => ({
+      category: mapCodeable((total as any).category),
+      amount: mapMoney((total as any).amount)
+    })),
+    payment: response.payment ? {
+      type: mapCodeable(response.payment.type),
+      adjustment: mapMoney(response.payment.adjustment),
+      adjustmentReason: mapCodeable(response.payment.adjustment_reason),
+      date: response.payment.date,
+      amount: mapMoney(response.payment.amount),
+      identifier: mapIdentifier(response.payment.identifier)
+    } : undefined,
+    fundsReserve: mapCodeable(response.funds_reserve),
+    formCode: mapCodeable(response.form_code),
+    form: response.form ? {
+      contentType: response.form.content_type,
+      url: response.form.url,
+      title: response.form.title,
+      data: response.form.data
+    } : undefined,
+    processNote: normalizeArray(response.process_note).map(note => ({
+      number: toNumber((note as any).number),
+      type: mapCodeable((note as any).type),
+      text: (note as any).text,
+      language: mapCodeable((note as any).language)
+    })),
+    communicationRequest: normalizeStringArray(response.communication_request_ids),
+    insurance: normalizeArray(response.insurance).map(entry => ({
+      sequence: toNumber((entry as any).sequence),
+      focal: normalizeBoolean((entry as any).focal),
+      coverage: (entry as any).coverage_id,
+      businessArrangement: (entry as any).business_arrangement,
+      claimResponse: (entry as any).claim_response_id
+    })),
+    error: normalizeArray(response.error).map(err => ({
+      itemSequence: toNumber((err as any).item_sequence),
+      detailSequence: toNumber((err as any).detail_sequence),
+      subDetailSequence: toNumber((err as any).sub_detail_sequence),
+      code: mapCodeable((err as any).code),
+      expression: normalizeStringArray((err as any).expression)
+    }))
   };
 }
 

@@ -1,0 +1,2 @@
+appointment_response_id,appointment_response_appointment_id,appointment_response_participant_status,appointment_response_actor_id,appointment_response_comment,appointment_response_recurring,appointment_response_start,appointment_response_end
+APR-1,APT-1,accepted,PRAC-1,Confirmed by provider,false,2024-01-01T13:00:00Z,2024-01-01T13:30:00Z

@@ -1662,6 +1662,185 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (appointments.length > 0) canonical.appointments = appointments as any[];
 
+  const appointmentResponses = rows.map(row => {
+    const responseId = readValue(row, 'appointment_response_id');
+    const appointmentId = readValue(row, 'appointment_response_appointment_id');
+    const start = readValue(row, 'appointment_response_start');
+    const end = readValue(row, 'appointment_response_end');
+    if (!responseId && !appointmentId && !start && !end) return null;
+
+    const participantType = readValue(row, 'appointment_response_participant_type');
+    const proposedNewTime = readBoolean(row, 'appointment_response_proposed_new_time');
+    const recurring = readBoolean(row, 'appointment_response_recurring');
+    const recurrenceId = readNumber(row, 'appointment_response_recurrence_id');
+
+    return {
+      id: responseId || undefined,
+      identifier: responseId || undefined,
+      appointment: appointmentId || undefined,
+      proposedNewTime,
+      start: start,
+      end: end,
+      participantType: participantType ? [{
+        code: participantType,
+        display: participantType
+      }] : undefined,
+      actor: readValue(row, 'appointment_response_actor_id'),
+      participantStatus: readValue(row, 'appointment_response_participant_status'),
+      comment: readValue(row, 'appointment_response_comment'),
+      recurring,
+      occurrenceDate: readValue(row, 'appointment_response_occurrence_date'),
+      recurrenceId
+    };
+  }).filter(Boolean);
+  if (appointmentResponses.length > 0) canonical.appointmentResponses = appointmentResponses as any[];
+
+  const claims = rows.map(row => {
+    const claimId = readValue(row, 'claim_id');
+    const status = readValue(row, 'claim_status');
+    const type = readValue(row, 'claim_type');
+    const use = readValue(row, 'claim_use');
+    const patientId = readValue(row, 'claim_patient_id');
+    if (!claimId && !status && !type && !use && !patientId) return null;
+
+    const billableStart = readValue(row, 'claim_billable_start');
+    const billableEnd = readValue(row, 'claim_billable_end');
+    const created = readValue(row, 'claim_created');
+    const entererId = readValue(row, 'claim_enterer_id');
+    const insurerId = readValue(row, 'claim_insurer_id');
+    const providerId = readValue(row, 'claim_provider_id');
+    const priority = readValue(row, 'claim_priority');
+    const fundsReserve = readValue(row, 'claim_funds_reserve');
+    const referralId = readValue(row, 'claim_referral_id');
+    const facilityId = readValue(row, 'claim_facility_id');
+    const prescriptionId = readValue(row, 'claim_prescription_id');
+    const originalPrescriptionId = readValue(row, 'claim_original_prescription_id');
+    const drg = readValue(row, 'claim_drg');
+    const accidentDate = readValue(row, 'claim_accident_date');
+    const accidentType = readValue(row, 'claim_accident_type');
+
+    const patientPaidValue = readNumber(row, 'claim_patient_paid_value');
+    const patientPaidCurrency = readValue(row, 'claim_patient_paid_currency');
+    const totalValue = readNumber(row, 'claim_total_value');
+    const totalCurrency = readValue(row, 'claim_total_currency');
+
+    const itemSequence = readNumber(row, 'claim_item_sequence');
+    const itemProduct = readValue(row, 'claim_item_product_or_service');
+    const itemQuantity = readNumber(row, 'claim_item_quantity');
+    const itemUnitPrice = readNumber(row, 'claim_item_unit_price');
+    const itemNet = readNumber(row, 'claim_item_net');
+    const itemPatientPaid = readNumber(row, 'claim_item_patient_paid');
+    const itemLocation = readValue(row, 'claim_item_location_id');
+
+    return {
+      id: claimId || undefined,
+      identifier: claimId ? [{ value: claimId }] : undefined,
+      status: status || undefined,
+      type: type ? { code: type, display: type } : undefined,
+      subType: readValue(row, 'claim_sub_type') ? {
+        code: readValue(row, 'claim_sub_type'),
+        display: readValue(row, 'claim_sub_type')
+      } : undefined,
+      use: use || undefined,
+      patient: patientId || undefined,
+      billablePeriod: (billableStart || billableEnd) ? { start: billableStart, end: billableEnd } : undefined,
+      created: created || undefined,
+      enterer: entererId || undefined,
+      insurer: insurerId || undefined,
+      provider: providerId || undefined,
+      priority: priority ? { code: priority, display: priority } : undefined,
+      fundsReserve: fundsReserve ? { code: fundsReserve, display: fundsReserve } : undefined,
+      referral: referralId || undefined,
+      facility: facilityId || undefined,
+      prescription: prescriptionId || undefined,
+      originalPrescription: originalPrescriptionId || undefined,
+      diagnosisRelatedGroup: drg ? { code: drg, display: drg } : undefined,
+      accident: (accidentDate || accidentType) ? {
+        date: accidentDate,
+        type: accidentType ? { code: accidentType, display: accidentType } : undefined
+      } : undefined,
+      patientPaid: (patientPaidValue !== undefined || patientPaidCurrency) ? {
+        value: patientPaidValue,
+        currency: patientPaidCurrency
+      } : undefined,
+      item: (itemSequence !== undefined || itemProduct || itemQuantity !== undefined || itemUnitPrice !== undefined || itemNet !== undefined || itemPatientPaid !== undefined || itemLocation) ? [{
+        sequence: itemSequence,
+        productOrService: itemProduct ? { code: itemProduct, display: itemProduct } : undefined,
+        quantity: itemQuantity !== undefined ? { value: itemQuantity } : undefined,
+        unitPrice: itemUnitPrice !== undefined ? { value: itemUnitPrice } : undefined,
+        net: itemNet !== undefined ? { value: itemNet } : undefined,
+        patientPaid: itemPatientPaid !== undefined ? { value: itemPatientPaid } : undefined,
+        locationReference: itemLocation || undefined
+      }] : undefined,
+      total: (totalValue !== undefined || totalCurrency) ? {
+        value: totalValue,
+        currency: totalCurrency
+      } : undefined
+    };
+  }).filter(Boolean);
+  if (claims.length > 0) canonical.claims = claims as any[];
+
+  const claimResponses = rows.map(row => {
+    const responseId = readValue(row, 'claim_response_id');
+    const status = readValue(row, 'claim_response_status');
+    const type = readValue(row, 'claim_response_type');
+    const outcome = readValue(row, 'claim_response_outcome');
+    if (!responseId && !status && !type && !outcome) return null;
+
+    const patientId = readValue(row, 'claim_response_patient_id');
+    const created = readValue(row, 'claim_response_created');
+    const insurerId = readValue(row, 'claim_response_insurer_id');
+    const requestorId = readValue(row, 'claim_response_requestor_id');
+    const requestId = readValue(row, 'claim_response_request_id');
+    const disposition = readValue(row, 'claim_response_disposition');
+    const preAuthRef = readValue(row, 'claim_response_pre_auth_ref');
+    const preAuthStart = readValue(row, 'claim_response_pre_auth_start');
+    const preAuthEnd = readValue(row, 'claim_response_pre_auth_end');
+    const payeeType = readValue(row, 'claim_response_payee_type');
+    const totalValue = readNumber(row, 'claim_response_total_value');
+    const totalCurrency = readValue(row, 'claim_response_total_currency');
+
+    const itemSequence = readNumber(row, 'claim_response_item_sequence');
+    const itemCategory = readValue(row, 'claim_response_item_category');
+    const itemAmount = readNumber(row, 'claim_response_item_amount');
+
+    return {
+      id: responseId || undefined,
+      identifier: responseId ? [{ value: responseId }] : undefined,
+      status: status || undefined,
+      type: type ? { code: type, display: type } : undefined,
+      subType: readValue(row, 'claim_response_sub_type') ? {
+        code: readValue(row, 'claim_response_sub_type'),
+        display: readValue(row, 'claim_response_sub_type')
+      } : undefined,
+      use: readValue(row, 'claim_response_use') || undefined,
+      patient: patientId || undefined,
+      created: created || undefined,
+      insurer: insurerId || undefined,
+      requestor: requestorId || undefined,
+      request: requestId || undefined,
+      outcome: outcome || undefined,
+      disposition: disposition || undefined,
+      preAuthRef: preAuthRef || undefined,
+      preAuthPeriod: (preAuthStart || preAuthEnd) ? { start: preAuthStart, end: preAuthEnd } : undefined,
+      payeeType: payeeType ? { code: payeeType, display: payeeType } : undefined,
+      item: (itemSequence !== undefined || itemCategory || itemAmount !== undefined) ? [{
+        itemSequence: itemSequence,
+        adjudication: (itemCategory || itemAmount !== undefined) ? [{
+          category: itemCategory ? { code: itemCategory, display: itemCategory } : undefined,
+          amount: itemAmount !== undefined ? { value: itemAmount } : undefined
+        }] : undefined
+      }] : undefined,
+      total: (totalValue !== undefined || totalCurrency) ? [{
+        amount: {
+          value: totalValue,
+          currency: totalCurrency
+        }
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (claimResponses.length > 0) canonical.claimResponses = claimResponses as any[];
+
   const schedules = rows.map(row => {
     const scheduleId = readValue(row, 'schedule_id');
     const name = readValue(row, 'schedule_name');
