@@ -1,0 +1,49 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Stone"
+    }
+  },
+  "claim_response": {
+    "claim_response_id": "CR-1",
+    "status": "active",
+    "type": {
+      "code": "professional",
+      "display": "Professional"
+    },
+    "use": "claim",
+    "patient_id": "PAT-1",
+    "created": "2024-01-20T09:00:00Z",
+    "insurer_id": "ORG-2",
+    "requestor_id": "ORG-1",
+    "request_id": "CLM-1",
+    "outcome": "complete",
+    "disposition": "Paid in full",
+    "pre_auth_ref": "AUTH-123",
+    "total": [{
+      "category": {
+        "code": "benefit",
+        "display": "Benefit"
+      },
+      "amount": {
+        "value": 150.25,
+        "currency": "USD"
+      }
+    }],
+    "item": [{
+      "item_sequence": 1,
+      "adjudication": [{
+        "category": {
+          "code": "eligible",
+          "display": "Eligible"
+        },
+        "amount": {
+          "value": 150.25,
+          "currency": "USD"
+        }
+      }]
+    }]
+  }
+}

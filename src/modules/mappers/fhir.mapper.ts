@@ -35,6 +35,9 @@ import { mapConsents } from './consent.mapper.js';
 import { mapProcedures } from './procedure.mapper.js';
 import { mapConditions } from './condition.mapper.js';
 import { mapAppointments } from './appointment.mapper.js';
+import { mapAppointmentResponses } from './appointmentResponse.mapper.js';
+import { mapClaims } from './claim.mapper.js';
+import { mapClaimResponses } from './claimResponse.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -431,6 +434,36 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (appointmentEntries.length > 0) {
     bundle.entry.push(...appointmentEntries);
+  }
+
+  const appointmentResponseEntries = mapAppointmentResponses({
+    appointmentResponses: canonical.appointmentResponses,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (appointmentResponseEntries.length > 0) {
+    bundle.entry.push(...appointmentResponseEntries);
+  }
+
+  const claimEntries = mapClaims({
+    claims: canonical.claims,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (claimEntries.length > 0) {
+    bundle.entry.push(...claimEntries);
+  }
+
+  const claimResponseEntries = mapClaimResponses({
+    claimResponses: canonical.claimResponses,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (claimResponseEntries.length > 0) {
+    bundle.entry.push(...claimResponseEntries);
   }
 
   const scheduleEntries = mapSchedules({

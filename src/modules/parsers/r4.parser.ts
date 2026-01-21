@@ -16,6 +16,9 @@ import {
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
+    CanonicalAppointmentResponse,
+    CanonicalClaim,
+    CanonicalClaimResponse,
     CanonicalSchedule,
     CanonicalSlot,
     CanonicalDiagnosticReport,
@@ -72,6 +75,9 @@ export function parseR4(input: string): CanonicalModel {
         procedures: [],
         conditions: [],
         appointments: [],
+        appointmentResponses: [],
+        claims: [],
+        claimResponses: [],
         carePlans: [],
         careTeams: [],
         goals: [],
@@ -164,6 +170,18 @@ export function parseR4(input: string): CanonicalModel {
             case 'Appointment':
                 const appointment = mapR4Appointment(res);
                 if (appointment) model.appointments?.push(appointment);
+                break;
+            case 'AppointmentResponse':
+                const appointmentResponse = mapR4AppointmentResponse(res);
+                if (appointmentResponse) model.appointmentResponses?.push(appointmentResponse);
+                break;
+            case 'Claim':
+                const claim = mapR4Claim(res);
+                if (claim) model.claims?.push(claim);
+                break;
+            case 'ClaimResponse':
+                const claimResponse = mapR4ClaimResponse(res);
+                if (claimResponse) model.claimResponses?.push(claimResponse);
                 break;
             case 'CarePlan':
                 const carePlan = mapR4CarePlan(res);
@@ -1010,6 +1028,475 @@ function mapR4Appointment(appt: any): CanonicalAppointment {
                 start: participant.period.start,
                 end: participant.period.end
             } : undefined
+        }))
+    };
+}
+
+function mapR4AppointmentResponse(response: any): CanonicalAppointmentResponse {
+    return {
+        id: response.id,
+        identifier: response.identifier?.[0]?.value,
+        appointment: response.appointment?.reference?.replace(/^Appointment\//, ''),
+        proposedNewTime: response.proposedNewTime,
+        start: response.start,
+        end: response.end,
+        participantType: response.participantType?.map((type: any) => ({
+            system: type.coding?.[0]?.system,
+            code: type.coding?.[0]?.code,
+            display: type.coding?.[0]?.display || type.text
+        })),
+        actor: response.actor?.reference?.replace(/^(Device|Group|HealthcareService|Location|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+        participantStatus: response.participantStatus,
+        comment: response.comment,
+        recurring: response.recurring,
+        occurrenceDate: response.occurrenceDate,
+        recurrenceId: response.recurrenceId
+    };
+}
+
+function mapR4Claim(claim: any): CanonicalClaim {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const mapAddress = (source: any) => source ? {
+        line: source.line,
+        city: source.city,
+        state: source.state,
+        postalCode: source.postalCode,
+        country: source.country
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\\//, '');
+    };
+
+    const mapItem = (item: any) => ({
+        sequence: item.sequence,
+        traceNumber: item.traceNumber?.map(mapIdentifier).filter(Boolean),
+        careTeamSequence: item.careTeamSequence,
+        diagnosisSequence: item.diagnosisSequence,
+        procedureSequence: item.procedureSequence,
+        informationSequence: item.informationSequence,
+        revenue: mapCodeable(item.revenue),
+        category: mapCodeable(item.category),
+        productOrService: mapCodeable(item.productOrService),
+        productOrServiceEnd: mapCodeable(item.productOrServiceEnd),
+        request: item.request?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        modifier: item.modifier?.map(mapCodeable),
+        programCode: item.programCode?.map(mapCodeable),
+        servicedDate: item.servicedDate,
+        servicedPeriod: mapPeriod(item.servicedPeriod),
+        locationCodeableConcept: mapCodeable(item.locationCodeableConcept),
+        locationAddress: mapAddress(item.locationAddress),
+        locationReference: item.locationReference?.reference?.replace(/^Location\\//, ''),
+        patientPaid: mapMoney(item.patientPaid),
+        quantity: mapQuantity(item.quantity),
+        unitPrice: mapMoney(item.unitPrice),
+        factor: item.factor,
+        tax: mapMoney(item.tax),
+        net: mapMoney(item.net),
+        udi: item.udi?.map((ref: any) => ref.reference?.replace(/^Device\\//, '')).filter(Boolean),
+        bodySite: item.bodySite?.map((site: any) => ({
+            site: site.site?.map((entry: any) => mapCodeable(entry.concept)),
+            subSite: site.subSite?.map(mapCodeable)
+        })),
+        encounter: item.encounter?.map((ref: any) => ref.reference?.replace(/^Encounter\\//, '')).filter(Boolean),
+        detail: item.detail?.map(mapDetail)
+    });
+
+    const mapDetail = (detail: any) => ({
+        sequence: detail.sequence,
+        traceNumber: detail.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(detail.revenue),
+        category: mapCodeable(detail.category),
+        productOrService: mapCodeable(detail.productOrService),
+        productOrServiceEnd: mapCodeable(detail.productOrServiceEnd),
+        modifier: detail.modifier?.map(mapCodeable),
+        programCode: detail.programCode?.map(mapCodeable),
+        patientPaid: mapMoney(detail.patientPaid),
+        quantity: mapQuantity(detail.quantity),
+        unitPrice: mapMoney(detail.unitPrice),
+        factor: detail.factor,
+        tax: mapMoney(detail.tax),
+        net: mapMoney(detail.net),
+        udi: detail.udi?.map((ref: any) => ref.reference?.replace(/^Device\\//, '')).filter(Boolean),
+        subDetail: detail.subDetail?.map(mapSubDetail)
+    });
+
+    const mapSubDetail = (sub: any) => ({
+        sequence: sub.sequence,
+        traceNumber: sub.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(sub.revenue),
+        category: mapCodeable(sub.category),
+        productOrService: mapCodeable(sub.productOrService),
+        productOrServiceEnd: mapCodeable(sub.productOrServiceEnd),
+        modifier: sub.modifier?.map(mapCodeable),
+        programCode: sub.programCode?.map(mapCodeable),
+        patientPaid: mapMoney(sub.patientPaid),
+        quantity: mapQuantity(sub.quantity),
+        unitPrice: mapMoney(sub.unitPrice),
+        factor: sub.factor,
+        tax: mapMoney(sub.tax),
+        net: mapMoney(sub.net),
+        udi: sub.udi?.map((ref: any) => ref.reference?.replace(/^Device\\//, '')).filter(Boolean)
+    });
+
+    return {
+        id: claim.id,
+        identifier: claim.identifier?.map(mapIdentifier).filter(Boolean),
+        traceNumber: claim.traceNumber?.map(mapIdentifier).filter(Boolean),
+        status: claim.status,
+        type: mapCodeable(claim.type),
+        subType: mapCodeable(claim.subType),
+        use: claim.use,
+        patient: stripRef(claim.patient?.reference, /^Patient\\//),
+        billablePeriod: mapPeriod(claim.billablePeriod),
+        created: claim.created,
+        enterer: stripRef(claim.enterer?.reference, /^(Patient|Practitioner|PractitionerRole|RelatedPerson)\\//),
+        insurer: stripRef(claim.insurer?.reference, /^Organization\\//),
+        provider: stripRef(claim.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\\//),
+        priority: mapCodeable(claim.priority),
+        fundsReserve: mapCodeable(claim.fundsReserve),
+        related: claim.related?.map((rel: any) => ({
+            claim: stripRef(rel.claim?.reference, /^Claim\\//),
+            relationship: mapCodeable(rel.relationship),
+            reference: rel.reference ? { system: rel.reference.system, value: rel.reference.value } : undefined
+        })),
+        prescription: stripRef(claim.prescription?.reference, /^(DeviceRequest|MedicationRequest|VisionPrescription)\\//),
+        originalPrescription: stripRef(claim.originalPrescription?.reference, /^(DeviceRequest|MedicationRequest|VisionPrescription)\\//),
+        payee: claim.payee ? {
+            type: mapCodeable(claim.payee.type),
+            party: stripRef(claim.payee.party?.reference, /^(Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\\//)
+        } : undefined,
+        referral: stripRef(claim.referral?.reference, /^ServiceRequest\\//),
+        encounter: claim.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\\//)).filter(Boolean),
+        facility: stripRef(claim.facility?.reference, /^(Location|Organization)\\//),
+        diagnosisRelatedGroup: mapCodeable(claim.diagnosisRelatedGroup),
+        event: claim.event?.map((evt: any) => ({
+            type: mapCodeable(evt.type),
+            whenDateTime: evt.whenDateTime,
+            whenPeriod: mapPeriod(evt.whenPeriod)
+        })),
+        careTeam: claim.careTeam?.map((team: any) => ({
+            sequence: team.sequence,
+            provider: stripRef(team.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\\//),
+            responsible: team.responsible,
+            role: mapCodeable(team.role),
+            specialty: mapCodeable(team.specialty)
+        })),
+        supportingInfo: claim.supportingInfo?.map((info: any) => ({
+            sequence: info.sequence,
+            category: mapCodeable(info.category),
+            code: mapCodeable(info.code),
+            timingDate: info.timingDate,
+            timingPeriod: mapPeriod(info.timingPeriod),
+            valueBoolean: info.valueBoolean,
+            valueString: info.valueString,
+            valueQuantity: mapQuantity(info.valueQuantity),
+            valueAttachment: info.valueAttachment ? {
+                contentType: info.valueAttachment.contentType,
+                url: info.valueAttachment.url,
+                title: info.valueAttachment.title,
+                data: info.valueAttachment.data
+            } : undefined,
+            valueReference: stripRef(info.valueReference?.reference),
+            valueIdentifier: info.valueIdentifier ? { system: info.valueIdentifier.system, value: info.valueIdentifier.value } : undefined,
+            reason: mapCodeable(info.reason)
+        })),
+        diagnosis: claim.diagnosis?.map((diag: any) => ({
+            sequence: diag.sequence,
+            diagnosisCodeableConcept: mapCodeable(diag.diagnosisCodeableConcept),
+            diagnosisReference: stripRef(diag.diagnosisReference?.reference, /^Condition\\//),
+            type: diag.type?.map(mapCodeable),
+            onAdmission: mapCodeable(diag.onAdmission)
+        })),
+        procedure: claim.procedure?.map((proc: any) => ({
+            sequence: proc.sequence,
+            type: proc.type?.map(mapCodeable),
+            date: proc.date,
+            procedureCodeableConcept: mapCodeable(proc.procedureCodeableConcept),
+            procedureReference: stripRef(proc.procedureReference?.reference, /^Procedure\\//),
+            udi: proc.udi?.map((ref: any) => stripRef(ref.reference, /^Device\\//)).filter(Boolean)
+        })),
+        insurance: claim.insurance?.map((ins: any) => ({
+            sequence: ins.sequence,
+            focal: ins.focal,
+            identifier: ins.identifier ? { system: ins.identifier.system, value: ins.identifier.value } : undefined,
+            coverage: stripRef(ins.coverage?.reference, /^Coverage\\//),
+            businessArrangement: ins.businessArrangement,
+            preAuthRef: ins.preAuthRef,
+            claimResponse: stripRef(ins.claimResponse?.reference, /^ClaimResponse\\//)
+        })),
+        accident: claim.accident ? {
+            date: claim.accident.date,
+            type: mapCodeable(claim.accident.type),
+            locationAddress: mapAddress(claim.accident.locationAddress),
+            locationReference: stripRef(claim.accident.locationReference?.reference, /^Location\\//)
+        } : undefined,
+        patientPaid: mapMoney(claim.patientPaid),
+        item: claim.item?.map(mapItem),
+        total: mapMoney(claim.total)
+    };
+}
+
+function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const mapAddress = (source: any) => source ? {
+        line: source.line,
+        city: source.city,
+        state: source.state,
+        postalCode: source.postalCode,
+        country: source.country
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\\//, '');
+    };
+
+    const mapAdjudication = (entry: any) => ({
+        category: mapCodeable(entry.category),
+        reason: mapCodeable(entry.reason),
+        amount: mapMoney(entry.amount),
+        quantity: mapQuantity(entry.quantity)
+    });
+
+    const mapReviewOutcome = (entry: any) => entry ? {
+        decision: mapCodeable(entry.decision),
+        reason: entry.reason?.map(mapCodeable),
+        preAuthRef: entry.preAuthRef,
+        preAuthPeriod: mapPeriod(entry.preAuthPeriod)
+    } : undefined;
+
+    const mapItem = (item: any) => ({
+        itemSequence: item.itemSequence,
+        traceNumber: item.traceNumber?.map(mapIdentifier).filter(Boolean),
+        noteNumber: item.noteNumber,
+        reviewOutcome: mapReviewOutcome(item.reviewOutcome),
+        adjudication: item.adjudication?.map(mapAdjudication),
+        detail: item.detail?.map(mapDetail)
+    });
+
+    const mapDetail = (detail: any) => ({
+        detailSequence: detail.detailSequence,
+        traceNumber: detail.traceNumber?.map(mapIdentifier).filter(Boolean),
+        noteNumber: detail.noteNumber,
+        reviewOutcome: mapReviewOutcome(detail.reviewOutcome),
+        adjudication: detail.adjudication?.map(mapAdjudication),
+        subDetail: detail.subDetail?.map(mapSubDetail)
+    });
+
+    const mapSubDetail = (sub: any) => ({
+        subDetailSequence: sub.subDetailSequence,
+        traceNumber: sub.traceNumber?.map(mapIdentifier).filter(Boolean),
+        noteNumber: sub.noteNumber,
+        reviewOutcome: mapReviewOutcome(sub.reviewOutcome),
+        adjudication: sub.adjudication?.map(mapAdjudication)
+    });
+
+    const mapAddItemDetail = (detail: any) => ({
+        traceNumber: detail.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(detail.revenue),
+        productOrService: mapCodeable(detail.productOrService),
+        productOrServiceEnd: mapCodeable(detail.productOrServiceEnd),
+        modifier: detail.modifier?.map(mapCodeable),
+        quantity: mapQuantity(detail.quantity),
+        unitPrice: mapMoney(detail.unitPrice),
+        factor: detail.factor,
+        tax: mapMoney(detail.tax),
+        net: mapMoney(detail.net),
+        noteNumber: detail.noteNumber,
+        reviewOutcome: mapReviewOutcome(detail.reviewOutcome),
+        adjudication: detail.adjudication?.map(mapAdjudication),
+        subDetail: detail.subDetail?.map(mapAddItemSubDetail)
+    });
+
+    const mapAddItemSubDetail = (sub: any) => ({
+        traceNumber: sub.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(sub.revenue),
+        productOrService: mapCodeable(sub.productOrService),
+        productOrServiceEnd: mapCodeable(sub.productOrServiceEnd),
+        modifier: sub.modifier?.map(mapCodeable),
+        quantity: mapQuantity(sub.quantity),
+        unitPrice: mapMoney(sub.unitPrice),
+        factor: sub.factor,
+        tax: mapMoney(sub.tax),
+        net: mapMoney(sub.net),
+        noteNumber: sub.noteNumber,
+        reviewOutcome: mapReviewOutcome(sub.reviewOutcome),
+        adjudication: sub.adjudication?.map(mapAdjudication)
+    });
+
+    return {
+        id: response.id,
+        identifier: response.identifier?.map(mapIdentifier).filter(Boolean),
+        traceNumber: response.traceNumber?.map(mapIdentifier).filter(Boolean),
+        status: response.status,
+        type: mapCodeable(response.type),
+        subType: mapCodeable(response.subType),
+        use: response.use,
+        patient: stripRef(response.patient?.reference, /^Patient\\//),
+        created: response.created,
+        insurer: stripRef(response.insurer?.reference, /^Organization\\//),
+        requestor: stripRef(response.requestor?.reference, /^(Organization|Practitioner|PractitionerRole)\\//),
+        request: stripRef(response.request?.reference, /^Claim\\//),
+        outcome: response.outcome,
+        decision: mapCodeable(response.decision),
+        disposition: response.disposition,
+        preAuthRef: response.preAuthRef,
+        preAuthPeriod: mapPeriod(response.preAuthPeriod),
+        event: response.event?.map((evt: any) => ({
+            type: mapCodeable(evt.type),
+            whenDateTime: evt.whenDateTime,
+            whenPeriod: mapPeriod(evt.whenPeriod)
+        })),
+        payeeType: mapCodeable(response.payeeType),
+        encounter: response.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\\//)).filter(Boolean),
+        diagnosisRelatedGroup: mapCodeable(response.diagnosisRelatedGroup),
+        item: response.item?.map(mapItem),
+        addItem: response.addItem?.map((item: any) => ({
+            itemSequence: item.itemSequence,
+            detailSequence: item.detailSequence,
+            subdetailSequence: item.subdetailSequence,
+            traceNumber: item.traceNumber?.map(mapIdentifier).filter(Boolean),
+            provider: item.provider?.map((ref: any) => stripRef(ref.reference, /^(Organization|Practitioner|PractitionerRole)\\//)).filter(Boolean),
+            revenue: mapCodeable(item.revenue),
+            productOrService: mapCodeable(item.productOrService),
+            productOrServiceEnd: mapCodeable(item.productOrServiceEnd),
+            request: item.request?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+            modifier: item.modifier?.map(mapCodeable),
+            programCode: item.programCode?.map(mapCodeable),
+            servicedDate: item.servicedDate,
+            servicedPeriod: mapPeriod(item.servicedPeriod),
+            locationCodeableConcept: mapCodeable(item.locationCodeableConcept),
+            locationAddress: mapAddress(item.locationAddress),
+            locationReference: item.locationReference?.reference?.replace(/^Location\\//, ''),
+            quantity: mapQuantity(item.quantity),
+            unitPrice: mapMoney(item.unitPrice),
+            factor: item.factor,
+            tax: mapMoney(item.tax),
+            net: mapMoney(item.net),
+            bodySite: item.bodySite?.map((site: any) => ({
+                site: site.site?.map((entry: any) => mapCodeable(entry.concept)),
+                subSite: site.subSite?.map(mapCodeable)
+            })),
+            noteNumber: item.noteNumber,
+            reviewOutcome: mapReviewOutcome(item.reviewOutcome),
+            adjudication: item.adjudication?.map(mapAdjudication),
+            detail: item.detail?.map(mapAddItemDetail)
+        })),
+        adjudication: response.adjudication?.map(mapAdjudication),
+        total: response.total?.map((total: any) => ({
+            category: mapCodeable(total.category),
+            amount: mapMoney(total.amount)
+        })),
+        payment: response.payment ? {
+            type: mapCodeable(response.payment.type),
+            adjustment: mapMoney(response.payment.adjustment),
+            adjustmentReason: mapCodeable(response.payment.adjustmentReason),
+            date: response.payment.date,
+            amount: mapMoney(response.payment.amount),
+            identifier: response.payment.identifier ? { system: response.payment.identifier.system, value: response.payment.identifier.value } : undefined
+        } : undefined,
+        fundsReserve: mapCodeable(response.fundsReserve),
+        formCode: mapCodeable(response.formCode),
+        form: response.form ? {
+            contentType: response.form.contentType,
+            url: response.form.url,
+            title: response.form.title,
+            data: response.form.data
+        } : undefined,
+        processNote: response.processNote?.map((note: any) => ({
+            number: note.number,
+            type: mapCodeable(note.type),
+            text: note.text,
+            language: mapCodeable(note.language)
+        })),
+        communicationRequest: response.communicationRequest?.map((ref: any) => stripRef(ref.reference, /^CommunicationRequest\\//)).filter(Boolean),
+        insurance: response.insurance?.map((ins: any) => ({
+            sequence: ins.sequence,
+            focal: ins.focal,
+            coverage: stripRef(ins.coverage?.reference, /^Coverage\\//),
+            businessArrangement: ins.businessArrangement,
+            claimResponse: stripRef(ins.claimResponse?.reference, /^ClaimResponse\\//)
+        })),
+        error: response.error?.map((err: any) => ({
+            itemSequence: err.itemSequence,
+            detailSequence: err.detailSequence,
+            subDetailSequence: err.subDetailSequence,
+            code: mapCodeable(err.code),
+            expression: err.expression
         }))
     };
 }

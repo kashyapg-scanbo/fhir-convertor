@@ -1,0 +1,2 @@
+claim_response_id,claim_response_status,claim_response_type,claim_response_use,claim_response_patient_id,claim_response_created,claim_response_insurer_id,claim_response_requestor_id,claim_response_request_id,claim_response_outcome,claim_response_total_value,claim_response_total_currency,claim_response_item_sequence,claim_response_item_category,claim_response_item_amount
+CR-1,active,professional,claim,PAT-1,2024-01-20T09:00:00Z,ORG-2,ORG-1,CLM-1,complete,150.25,USD,1,eligible,150.25

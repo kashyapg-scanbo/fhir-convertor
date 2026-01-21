@@ -789,7 +789,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -934,7 +934,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -1121,6 +1121,24 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomAppointment'
+        appointment_response:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAppointmentResponse'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAppointmentResponse'
+        claim:
+          oneOf:
+            - $ref: '#/components/schemas/CustomClaim'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomClaim'
+        claim_response:
+          oneOf:
+            - $ref: '#/components/schemas/CustomClaimResponse'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomClaimResponse'
         schedule:
           oneOf:
             - $ref: '#/components/schemas/CustomSchedule'
@@ -3086,6 +3104,165 @@ components:
           type: string
         note:
           type: string
+    CustomAppointmentResponse:
+      type: object
+      properties:
+        appointment_response_id:
+          type: string
+        appointment_id:
+          type: string
+        proposed_new_time:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        participant_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        actor_id:
+          type: string
+        participant_status:
+          type: string
+        comment:
+          type: string
+        recurring:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        occurrence_date:
+          type: string
+          format: date
+        recurrence_id:
+          type: number
+    CustomClaim:
+      type: object
+      properties:
+        claim_id:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        sub_type:
+          type: string
+        use:
+          type: string
+        patient_id:
+          type: string
+        billable_start:
+          type: string
+          format: date-time
+        billable_end:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        enterer_id:
+          type: string
+        insurer_id:
+          type: string
+        provider_id:
+          type: string
+        priority:
+          type: string
+        funds_reserve:
+          type: string
+        referral_id:
+          type: string
+        facility_id:
+          type: string
+        prescription_id:
+          type: string
+        original_prescription_id:
+          type: string
+        diagnosis_related_group:
+          type: string
+        accident_date:
+          type: string
+          format: date
+        accident_type:
+          type: string
+        patient_paid_value:
+          type: number
+        patient_paid_currency:
+          type: string
+        total_value:
+          type: number
+        total_currency:
+          type: string
+        claim_item_sequence:
+          type: number
+        claim_item_product_or_service:
+          type: string
+        claim_item_quantity:
+          type: number
+        claim_item_unit_price:
+          type: number
+        claim_item_net:
+          type: number
+        claim_item_patient_paid:
+          type: number
+        claim_item_location_id:
+          type: string
+    CustomClaimResponse:
+      type: object
+      properties:
+        claim_response_id:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        sub_type:
+          type: string
+        use:
+          type: string
+        patient_id:
+          type: string
+        created:
+          type: string
+          format: date-time
+        insurer_id:
+          type: string
+        requestor_id:
+          type: string
+        request_id:
+          type: string
+        outcome:
+          type: string
+        disposition:
+          type: string
+        pre_auth_ref:
+          type: string
+        pre_auth_start:
+          type: string
+          format: date-time
+        pre_auth_end:
+          type: string
+          format: date-time
+        payee_type:
+          type: string
+        claim_response_total_value:
+          type: number
+        claim_response_total_currency:
+          type: string
+        claim_response_item_sequence:
+          type: number
+        claim_response_item_category:
+          type: string
+        claim_response_item_amount:
+          type: number
     CustomSchedule:
       type: object
       properties:
@@ -4133,6 +4310,24 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [appointment]
+    CustomJsonAppointmentResponseOnly:
+      title: AppointmentResponse
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [appointment_response]
+    CustomJsonClaimOnly:
+      title: Claim
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [claim]
+    CustomJsonClaimResponseOnly:
+      title: ClaimResponse
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [claim_response]
     CustomJsonScheduleOnly:
       title: Schedule
       allOf:

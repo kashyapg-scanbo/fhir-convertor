@@ -1465,6 +1465,1085 @@ export type CanonicalAppointment = {
   active?: boolean;
 };
 
+export type CanonicalAppointmentResponse = {
+  id?: string;
+  identifier?: string;
+  appointment?: string;
+  proposedNewTime?: boolean;
+  start?: string;
+  end?: string;
+  participantType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  actor?: string;
+  participantStatus?: string;
+  comment?: string;
+  recurring?: boolean;
+  occurrenceDate?: string;
+  recurrenceId?: number;
+};
+
+export type CanonicalClaim = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  traceNumber?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subType?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  use?: string;
+  patient?: string;
+  billablePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  created?: string;
+  enterer?: string;
+  insurer?: string;
+  provider?: string;
+  priority?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  fundsReserve?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  related?: Array<{
+    claim?: string;
+    relationship?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: {
+      system?: string;
+      value?: string;
+    };
+  }>;
+  prescription?: string;
+  originalPrescription?: string;
+  payee?: {
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    party?: string;
+  };
+  referral?: string;
+  encounter?: string[];
+  facility?: string;
+  diagnosisRelatedGroup?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  event?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    whenDateTime?: string;
+    whenPeriod?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  careTeam?: Array<{
+    sequence?: number;
+    provider?: string;
+    responsible?: boolean;
+    role?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    specialty?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  supportingInfo?: Array<{
+    sequence?: number;
+    category?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    timingDate?: string;
+    timingPeriod?: {
+      start?: string;
+      end?: string;
+    };
+    valueBoolean?: boolean;
+    valueString?: string;
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    valueAttachment?: {
+      contentType?: string;
+      url?: string;
+      title?: string;
+      data?: string;
+    };
+    valueReference?: string;
+    valueIdentifier?: {
+      system?: string;
+      value?: string;
+    };
+    reason?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  diagnosis?: Array<{
+    sequence?: number;
+    diagnosisCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    diagnosisReference?: string;
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    onAdmission?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  procedure?: Array<{
+    sequence?: number;
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    date?: string;
+    procedureCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    procedureReference?: string;
+    udi?: string[];
+  }>;
+  insurance?: Array<{
+    sequence?: number;
+    focal?: boolean;
+    identifier?: {
+      system?: string;
+      value?: string;
+    };
+    coverage?: string;
+    businessArrangement?: string;
+    preAuthRef?: string[];
+    claimResponse?: string;
+  }>;
+  accident?: {
+    date?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    locationAddress?: {
+      line?: string[];
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    locationReference?: string;
+  };
+  patientPaid?: {
+    value?: number;
+    currency?: string;
+  };
+  item?: Array<{
+    sequence?: number;
+    traceNumber?: Array<{
+      system?: string;
+      value?: string;
+    }>;
+    careTeamSequence?: number[];
+    diagnosisSequence?: number[];
+    procedureSequence?: number[];
+    informationSequence?: number[];
+    revenue?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    category?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    productOrService?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    productOrServiceEnd?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    request?: string[];
+    modifier?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    programCode?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    servicedDate?: string;
+    servicedPeriod?: {
+      start?: string;
+      end?: string;
+    };
+    locationCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    locationAddress?: {
+      line?: string[];
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    locationReference?: string;
+    patientPaid?: {
+      value?: number;
+      currency?: string;
+    };
+    quantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    unitPrice?: {
+      value?: number;
+      currency?: string;
+    };
+    factor?: number;
+    tax?: {
+      value?: number;
+      currency?: string;
+    };
+    net?: {
+      value?: number;
+      currency?: string;
+    };
+    udi?: string[];
+    bodySite?: Array<{
+      site?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      subSite?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+    }>;
+    encounter?: string[];
+    detail?: Array<{
+      sequence?: number;
+      traceNumber?: Array<{
+        system?: string;
+        value?: string;
+      }>;
+      revenue?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      category?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      productOrService?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      productOrServiceEnd?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      modifier?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      programCode?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      patientPaid?: {
+        value?: number;
+        currency?: string;
+      };
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      unitPrice?: {
+        value?: number;
+        currency?: string;
+      };
+      factor?: number;
+      tax?: {
+        value?: number;
+        currency?: string;
+      };
+      net?: {
+        value?: number;
+        currency?: string;
+      };
+      udi?: string[];
+      subDetail?: Array<{
+        sequence?: number;
+        traceNumber?: Array<{
+          system?: string;
+          value?: string;
+        }>;
+        revenue?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        category?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        productOrService?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        productOrServiceEnd?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        modifier?: Array<{
+          system?: string;
+          code?: string;
+          display?: string;
+        }>;
+        programCode?: Array<{
+          system?: string;
+          code?: string;
+          display?: string;
+        }>;
+        patientPaid?: {
+          value?: number;
+          currency?: string;
+        };
+        quantity?: {
+          value?: number;
+          unit?: string;
+          system?: string;
+          code?: string;
+        };
+        unitPrice?: {
+          value?: number;
+          currency?: string;
+        };
+        factor?: number;
+        tax?: {
+          value?: number;
+          currency?: string;
+        };
+        net?: {
+          value?: number;
+          currency?: string;
+        };
+        udi?: string[];
+      }>;
+    }>;
+  }>;
+  total?: {
+    value?: number;
+    currency?: string;
+  };
+};
+
+export type CanonicalClaimResponse = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  traceNumber?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subType?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  use?: string;
+  patient?: string;
+  created?: string;
+  insurer?: string;
+  requestor?: string;
+  request?: string;
+  outcome?: string;
+  decision?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  disposition?: string;
+  preAuthRef?: string;
+  preAuthPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  event?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    whenDateTime?: string;
+    whenPeriod?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  payeeType?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  encounter?: string[];
+  diagnosisRelatedGroup?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  item?: Array<{
+    itemSequence?: number;
+    traceNumber?: Array<{
+      system?: string;
+      value?: string;
+    }>;
+    noteNumber?: number[];
+    reviewOutcome?: {
+      decision?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      reason?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      preAuthRef?: string;
+      preAuthPeriod?: {
+        start?: string;
+        end?: string;
+      };
+    };
+    adjudication?: Array<{
+      category?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      reason?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      amount?: {
+        value?: number;
+        currency?: string;
+      };
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+    detail?: Array<{
+      detailSequence?: number;
+      traceNumber?: Array<{
+        system?: string;
+        value?: string;
+      }>;
+      noteNumber?: number[];
+      reviewOutcome?: {
+        decision?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        reason?: Array<{
+          system?: string;
+          code?: string;
+          display?: string;
+        }>;
+        preAuthRef?: string;
+        preAuthPeriod?: {
+          start?: string;
+          end?: string;
+        };
+      };
+      adjudication?: Array<{
+        category?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        reason?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        amount?: {
+          value?: number;
+          currency?: string;
+        };
+        quantity?: {
+          value?: number;
+          unit?: string;
+          system?: string;
+          code?: string;
+        };
+      }>;
+      subDetail?: Array<{
+        subDetailSequence?: number;
+        traceNumber?: Array<{
+          system?: string;
+          value?: string;
+        }>;
+        noteNumber?: number[];
+        reviewOutcome?: {
+          decision?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          reason?: Array<{
+            system?: string;
+            code?: string;
+            display?: string;
+          }>;
+          preAuthRef?: string;
+          preAuthPeriod?: {
+            start?: string;
+            end?: string;
+          };
+        };
+        adjudication?: Array<{
+          category?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          reason?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          amount?: {
+            value?: number;
+            currency?: string;
+          };
+          quantity?: {
+            value?: number;
+            unit?: string;
+            system?: string;
+            code?: string;
+          };
+        }>;
+      }>;
+    }>;
+  }>;
+  addItem?: Array<{
+    itemSequence?: number[];
+    detailSequence?: number[];
+    subdetailSequence?: number[];
+    traceNumber?: Array<{
+      system?: string;
+      value?: string;
+    }>;
+    provider?: string[];
+    revenue?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    productOrService?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    productOrServiceEnd?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    request?: string[];
+    modifier?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    programCode?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    servicedDate?: string;
+    servicedPeriod?: {
+      start?: string;
+      end?: string;
+    };
+    locationCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    locationAddress?: {
+      line?: string[];
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    locationReference?: string;
+    quantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    unitPrice?: {
+      value?: number;
+      currency?: string;
+    };
+    factor?: number;
+    tax?: {
+      value?: number;
+      currency?: string;
+    };
+    net?: {
+      value?: number;
+      currency?: string;
+    };
+    bodySite?: Array<{
+      site?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      subSite?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+    }>;
+    noteNumber?: number[];
+    reviewOutcome?: {
+      decision?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      reason?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      preAuthRef?: string;
+      preAuthPeriod?: {
+        start?: string;
+        end?: string;
+      };
+    };
+    adjudication?: Array<{
+      category?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      reason?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      amount?: {
+        value?: number;
+        currency?: string;
+      };
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+    detail?: Array<{
+      traceNumber?: Array<{
+        system?: string;
+        value?: string;
+      }>;
+      revenue?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      productOrService?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      productOrServiceEnd?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      modifier?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      unitPrice?: {
+        value?: number;
+        currency?: string;
+      };
+      factor?: number;
+      tax?: {
+        value?: number;
+        currency?: string;
+      };
+      net?: {
+        value?: number;
+        currency?: string;
+      };
+      noteNumber?: number[];
+      reviewOutcome?: {
+        decision?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        reason?: Array<{
+          system?: string;
+          code?: string;
+          display?: string;
+        }>;
+        preAuthRef?: string;
+        preAuthPeriod?: {
+          start?: string;
+          end?: string;
+        };
+      };
+      adjudication?: Array<{
+        category?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        reason?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        amount?: {
+          value?: number;
+          currency?: string;
+        };
+        quantity?: {
+          value?: number;
+          unit?: string;
+          system?: string;
+          code?: string;
+        };
+      }>;
+      subDetail?: Array<{
+        traceNumber?: Array<{
+          system?: string;
+          value?: string;
+        }>;
+        revenue?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        productOrService?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        productOrServiceEnd?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        modifier?: Array<{
+          system?: string;
+          code?: string;
+          display?: string;
+        }>;
+        quantity?: {
+          value?: number;
+          unit?: string;
+          system?: string;
+          code?: string;
+        };
+        unitPrice?: {
+          value?: number;
+          currency?: string;
+        };
+        factor?: number;
+        tax?: {
+          value?: number;
+          currency?: string;
+        };
+        net?: {
+          value?: number;
+          currency?: string;
+        };
+        noteNumber?: number[];
+        reviewOutcome?: {
+          decision?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          reason?: Array<{
+            system?: string;
+            code?: string;
+            display?: string;
+          }>;
+          preAuthRef?: string;
+          preAuthPeriod?: {
+            start?: string;
+            end?: string;
+          };
+        };
+        adjudication?: Array<{
+          category?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          reason?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          amount?: {
+            value?: number;
+            currency?: string;
+          };
+          quantity?: {
+            value?: number;
+            unit?: string;
+            system?: string;
+            code?: string;
+          };
+        }>;
+      }>;
+    }>;
+  }>;
+  adjudication?: Array<{
+    category?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reason?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    amount?: {
+      value?: number;
+      currency?: string;
+    };
+    quantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+  }>;
+  total?: Array<{
+    category?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    amount?: {
+      value?: number;
+      currency?: string;
+    };
+  }>;
+  payment?: {
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    adjustment?: {
+      value?: number;
+      currency?: string;
+    };
+    adjustmentReason?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    date?: string;
+    amount?: {
+      value?: number;
+      currency?: string;
+    };
+    identifier?: {
+      system?: string;
+      value?: string;
+    };
+  };
+  fundsReserve?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  formCode?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  form?: {
+    contentType?: string;
+    url?: string;
+    title?: string;
+    data?: string;
+  };
+  processNote?: Array<{
+    number?: number;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    text?: string;
+    language?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  communicationRequest?: string[];
+  insurance?: Array<{
+    sequence?: number;
+    focal?: boolean;
+    coverage?: string;
+    businessArrangement?: string;
+    claimResponse?: string;
+  }>;
+  error?: Array<{
+    itemSequence?: number;
+    detailSequence?: number;
+    subDetailSequence?: number;
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    expression?: string[];
+  }>;
+};
+
 export type CanonicalSchedule = {
   id?: string;
   identifier?: string;
@@ -2027,6 +3106,9 @@ export type CanonicalModel = {
   procedures?: CanonicalProcedure[]; // Procedure
   conditions?: CanonicalCondition[]; // Condition
   appointments?: CanonicalAppointment[]; // Appointment
+  appointmentResponses?: CanonicalAppointmentResponse[]; // AppointmentResponse
+  claims?: CanonicalClaim[]; // Claim
+  claimResponses?: CanonicalClaimResponse[]; // ClaimResponse
   schedules?: CanonicalSchedule[]; // Schedule
   slots?: CanonicalSlot[]; // Slot
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport
