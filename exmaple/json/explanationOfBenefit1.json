@@ -1,0 +1,49 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Stone"
+    }
+  },
+  "explanation_of_benefit": {
+    "explanation_of_benefit_id": "EOB-1",
+    "status": "active",
+    "type": {
+      "code": "professional",
+      "display": "Professional"
+    },
+    "use": "claim",
+    "patient_id": "PAT-1",
+    "created": "2024-02-01T12:00:00Z",
+    "insurer_id": "ORG-1",
+    "provider_id": "ORG-2",
+    "billable_start": "2024-01-01",
+    "billable_end": "2024-01-31",
+    "outcome": "complete",
+    "total": [{
+      "amount": {
+        "value": 120.5,
+        "currency": "USD"
+      }
+    }],
+    "item": [{
+      "sequence": 1,
+      "product_or_service": {
+        "code": "99213",
+        "display": "Office visit"
+      },
+      "quantity": {
+        "value": 1
+      },
+      "unit_price": {
+        "value": 120.5,
+        "currency": "USD"
+      },
+      "net": {
+        "value": 120.5,
+        "currency": "USD"
+      }
+    }]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "binary": {
+    "binary_id": "BIN-1",
+    "content_type": "application/pdf",
+    "security_context": "DocumentReference:DOC-1",
+    "data": "JVBERi0xLjQK..."
+  }
+}

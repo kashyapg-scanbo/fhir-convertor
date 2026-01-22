@@ -1,0 +1,2 @@
+coverage_id,coverage_status,coverage_kind,coverage_type,coverage_policy_holder_id,coverage_subscriber_id,coverage_beneficiary_id,coverage_insurer_id,coverage_period_start,coverage_period_end,coverage_network,coverage_order,coverage_cost_value_money,coverage_cost_currency
+COV-1,active,insurance,medical,PAT-1,PAT-1,PAT-1,ORG-1,2024-01-01,2024-12-31,HMO-1,1,25,USD

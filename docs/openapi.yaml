@@ -789,7 +789,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -934,7 +934,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -983,6 +983,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomMedicationDispense'
+        device_dispense:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceDispense'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceDispense'
         capability_statement:
           oneOf:
             - $ref: '#/components/schemas/CustomCapabilityStatement'
@@ -1139,6 +1145,30 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomClaimResponse'
+        composition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomComposition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomComposition'
+        explanation_of_benefit:
+          oneOf:
+            - $ref: '#/components/schemas/CustomExplanationOfBenefit'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomExplanationOfBenefit'
+        coverage:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCoverage'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCoverage'
+        binary:
+          oneOf:
+            - $ref: '#/components/schemas/CustomBinary'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomBinary'
         schedule:
           oneOf:
             - $ref: '#/components/schemas/CustomSchedule'
@@ -1806,6 +1836,81 @@ components:
               items:
                 type: string
         event_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomDeviceDispense:
+      type: object
+      properties:
+        device_dispense_id:
+          type: string
+        device_dispense_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_status:
+          type: string
+        device_dispense_status_reason_code:
+          type: string
+        device_dispense_status_reason_reference_id:
+          type: string
+        device_dispense_category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_device_id:
+          type: string
+        device_dispense_device_code:
+          type: string
+        device_dispense_subject_id:
+          type: string
+        device_dispense_receiver_id:
+          type: string
+        device_dispense_encounter_id:
+          type: string
+        device_dispense_supporting_information_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_performer_function:
+          type: string
+        device_dispense_performer_actor_id:
+          type: string
+        device_dispense_location_id:
+          type: string
+        device_dispense_type:
+          type: string
+        device_dispense_quantity_value:
+          type: number
+        device_dispense_quantity_unit:
+          type: string
+        device_dispense_prepared_date:
+          type: string
+          format: date-time
+        device_dispense_when_handed_over:
+          type: string
+          format: date-time
+        device_dispense_destination_id:
+          type: string
+        device_dispense_note:
+          type: string
+        device_dispense_usage_instruction:
+          type: string
+        device_dispense_event_history_ids:
           oneOf:
             - type: string
             - type: array
@@ -3263,6 +3368,175 @@ components:
           type: string
         claim_response_item_amount:
           type: number
+    CustomComposition:
+      type: object
+      properties:
+        composition_id:
+          type: string
+        composition_status:
+          type: string
+        composition_type:
+          type: string
+        composition_title:
+          type: string
+        composition_subject_id:
+          type: string
+        composition_encounter_id:
+          type: string
+        composition_author_id:
+          type: string
+        composition_date:
+          type: string
+          format: date-time
+        composition_url:
+          type: string
+        composition_version:
+          type: string
+    CustomExplanationOfBenefit:
+      type: object
+      properties:
+        explanation_of_benefit_id:
+          type: string
+        explanation_of_benefit_status:
+          type: string
+        explanation_of_benefit_type:
+          type: string
+        explanation_of_benefit_sub_type:
+          type: string
+        explanation_of_benefit_use:
+          type: string
+        explanation_of_benefit_patient_id:
+          type: string
+        explanation_of_benefit_billable_start:
+          type: string
+          format: date-time
+        explanation_of_benefit_billable_end:
+          type: string
+          format: date-time
+        explanation_of_benefit_created:
+          type: string
+          format: date-time
+        explanation_of_benefit_enterer_id:
+          type: string
+        explanation_of_benefit_insurer_id:
+          type: string
+        explanation_of_benefit_provider_id:
+          type: string
+        explanation_of_benefit_priority:
+          type: string
+        explanation_of_benefit_claim_id:
+          type: string
+        explanation_of_benefit_claim_response_id:
+          type: string
+        explanation_of_benefit_outcome:
+          type: string
+        explanation_of_benefit_disposition:
+          type: string
+        explanation_of_benefit_pre_auth_ref:
+          type: string
+        explanation_of_benefit_total_value:
+          type: number
+        explanation_of_benefit_total_currency:
+          type: string
+        explanation_of_benefit_item_sequence:
+          type: number
+        explanation_of_benefit_item_product_or_service:
+          type: string
+        explanation_of_benefit_item_quantity:
+          type: number
+        explanation_of_benefit_item_unit_price:
+          type: number
+        explanation_of_benefit_item_net:
+          type: number
+    CustomCoverage:
+      type: object
+      properties:
+        coverage_id:
+          type: string
+        coverage_status:
+          type: string
+        coverage_kind:
+          type: string
+        coverage_type:
+          type: string
+        coverage_policy_holder_id:
+          type: string
+        coverage_subscriber_id:
+          type: string
+        coverage_beneficiary_id:
+          type: string
+        coverage_dependent:
+          type: string
+        coverage_relationship:
+          type: string
+        coverage_period_start:
+          type: string
+          format: date-time
+        coverage_period_end:
+          type: string
+          format: date-time
+        coverage_insurer_id:
+          type: string
+        coverage_class_type:
+          type: string
+        coverage_class_value:
+          type: string
+        coverage_class_name:
+          type: string
+        coverage_order:
+          type: number
+        coverage_network:
+          type: string
+        coverage_payment_party_id:
+          type: string
+        coverage_payment_responsibility:
+          type: string
+        coverage_cost_type:
+          type: string
+        coverage_cost_category:
+          type: string
+        coverage_cost_network:
+          type: string
+        coverage_cost_unit:
+          type: string
+        coverage_cost_term:
+          type: string
+        coverage_cost_value_quantity:
+          type: number
+        coverage_cost_value_unit:
+          type: string
+        coverage_cost_value_money:
+          type: number
+        coverage_cost_currency:
+          type: string
+        coverage_cost_exception_type:
+          type: string
+        coverage_cost_exception_start:
+          type: string
+          format: date-time
+        coverage_cost_exception_end:
+          type: string
+          format: date-time
+        coverage_subrogation:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        coverage_contract_id:
+          type: string
+        coverage_insurance_plan_id:
+          type: string
+    CustomBinary:
+      type: object
+      properties:
+        binary_id:
+          type: string
+        binary_content_type:
+          type: string
+        binary_security_context:
+          type: string
+        binary_data:
+          type: string
     CustomSchedule:
       type: object
       properties:
@@ -4172,6 +4446,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [medication_dispense]
+    CustomJsonDeviceDispenseOnly:
+      title: DeviceDispense
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_dispense]
     CustomJsonCapabilityStatementOnly:
       title: CapabilityStatement
       allOf:
@@ -4328,6 +4608,30 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [claim_response]
+    CustomJsonCompositionOnly:
+      title: Composition
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [composition]
+    CustomJsonExplanationOfBenefitOnly:
+      title: ExplanationOfBenefit
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [explanation_of_benefit]
+    CustomJsonCoverageOnly:
+      title: Coverage
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [coverage]
+    CustomJsonBinaryOnly:
+      title: Binary
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [binary]
     CustomJsonScheduleOnly:
       title: Schedule
       allOf:

@@ -12,6 +12,7 @@ import { mapMedications } from './medication.mapper.js';
 import { mapMedicationStatements } from './medicationStatement.mapper.js';
 import { mapMedicationAdministrations } from './medicationAdministration.mapper.js';
 import { mapMedicationDispenses } from './medicationDispense.mapper.js';
+import { mapDeviceDispenses } from './deviceDispense.mapper.js';
 import { mapCapabilityStatements } from './capabilityStatement.mapper.js';
 import { mapOperationOutcomes } from './operationOutcome.mapper.js';
 import { mapParameters } from './parameters.mapper.js';
@@ -38,6 +39,9 @@ import { mapAppointments } from './appointment.mapper.js';
 import { mapAppointmentResponses } from './appointmentResponse.mapper.js';
 import { mapClaims } from './claim.mapper.js';
 import { mapClaimResponses } from './claimResponse.mapper.js';
+import { mapExplanationOfBenefits } from './explanationOfBenefit.mapper.js';
+import { mapCompositions } from './composition.mapper.js';
+import { mapCoverages } from './coverage.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -49,6 +53,7 @@ import { mapImagingStudies } from './imagingStudy.mapper.js';
 import { mapAllergyIntolerances } from './allergyIntolerance.mapper.js';
 import { mapImmunizations } from './immunization.mapper.js';
 import { mapDocumentReferences } from './documentReference.mapper.js';
+import { mapBinaries } from './binary.mapper.js';
 
 export type FhirVersion = 'r5' | 'r6';
 
@@ -193,6 +198,18 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (medicationDispenseEntries.length > 0) {
     bundle.entry.push(...medicationDispenseEntries);
+  }
+
+  const deviceDispenseEntries = mapDeviceDispenses({
+    deviceDispenses: canonical.deviceDispenses,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (deviceDispenseEntries.length > 0) {
+    bundle.entry.push(...deviceDispenseEntries);
   }
 
   const capabilityEntries = mapCapabilityStatements({
@@ -466,6 +483,36 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
     bundle.entry.push(...claimResponseEntries);
   }
 
+  const explanationOfBenefitEntries = mapExplanationOfBenefits({
+    explanationOfBenefits: canonical.explanationOfBenefits,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (explanationOfBenefitEntries.length > 0) {
+    bundle.entry.push(...explanationOfBenefitEntries);
+  }
+
+  const compositionEntries = mapCompositions({
+    compositions: canonical.compositions,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (compositionEntries.length > 0) {
+    bundle.entry.push(...compositionEntries);
+  }
+
+  const coverageEntries = mapCoverages({
+    coverages: canonical.coverages,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (coverageEntries.length > 0) {
+    bundle.entry.push(...coverageEntries);
+  }
+
   const scheduleEntries = mapSchedules({
     schedules: canonical.schedules,
     operation,
@@ -585,6 +632,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (documentReferenceEntries.length > 0) {
     bundle.entry.push(...documentReferenceEntries);
+  }
+
+  const binaryEntries = mapBinaries({
+    binaries: canonical.binaries,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (binaryEntries.length > 0) {
+    bundle.entry.push(...binaryEntries);
   }
 
   const sourcePayloads = canonical.sourcePayloads;

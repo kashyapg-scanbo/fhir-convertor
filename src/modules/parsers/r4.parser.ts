@@ -13,12 +13,17 @@ import {
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
     CanonicalMedicationDispense,
+    CanonicalDeviceDispense,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
     CanonicalAppointmentResponse,
     CanonicalClaim,
     CanonicalClaimResponse,
+    CanonicalExplanationOfBenefit,
+    CanonicalComposition,
+    CanonicalCoverage,
+    CanonicalBinary,
     CanonicalSchedule,
     CanonicalSlot,
     CanonicalDiagnosticReport,
@@ -72,12 +77,16 @@ export function parseR4(input: string): CanonicalModel {
         medicationStatements: [],
         medicationAdministrations: [],
         medicationDispenses: [],
+        deviceDispenses: [],
         procedures: [],
         conditions: [],
         appointments: [],
         appointmentResponses: [],
         claims: [],
         claimResponses: [],
+        explanationOfBenefits: [],
+        compositions: [],
+        coverages: [],
         carePlans: [],
         careTeams: [],
         goals: [],
@@ -112,6 +121,7 @@ export function parseR4(input: string): CanonicalModel {
         practitionerRoles: [],
         organizations: [],
         documentReferences: [],
+        binaries: [],
         allergies: [],
         diagnoses: []
     };
@@ -182,6 +192,18 @@ export function parseR4(input: string): CanonicalModel {
             case 'ClaimResponse':
                 const claimResponse = mapR4ClaimResponse(res);
                 if (claimResponse) model.claimResponses?.push(claimResponse);
+                break;
+            case 'ExplanationOfBenefit':
+                const explanationOfBenefit = mapR4ExplanationOfBenefit(res);
+                if (explanationOfBenefit) model.explanationOfBenefits?.push(explanationOfBenefit);
+                break;
+            case 'Composition':
+                const composition = mapR4Composition(res);
+                if (composition) model.compositions?.push(composition);
+                break;
+            case 'Coverage':
+                const coverage = mapR4Coverage(res);
+                if (coverage) model.coverages?.push(coverage);
                 break;
             case 'CarePlan':
                 const carePlan = mapR4CarePlan(res);
@@ -295,6 +317,10 @@ export function parseR4(input: string): CanonicalModel {
                 const medicationDispense = mapR4MedicationDispense(res);
                 if (medicationDispense) model.medicationDispenses?.push(medicationDispense);
                 break;
+            case 'DeviceDispense':
+                const deviceDispense = mapR4DeviceDispense(res);
+                if (deviceDispense) model.deviceDispenses?.push(deviceDispense);
+                break;
             case 'Immunization':
                 const immunization = mapR4Immunization(res);
                 if (immunization) model.immunizations?.push(immunization);
@@ -314,6 +340,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'DocumentReference':
                 const docRef = mapR4DocumentReference(res);
                 if (docRef) model.documentReferences?.push(docRef);
+                break;
+            case 'Binary':
+                const binary = mapR4Binary(res);
+                if (binary) model.binaries?.push(binary);
                 break;
         }
     }
@@ -759,6 +789,73 @@ function mapR4MedicationDispense(dispense: any): CanonicalMedicationDispense {
             })),
             responsibleParty: dispense.substitution.responsibleParty?.reference
         } : undefined,
+        eventHistory: dispense.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
+    };
+}
+
+function mapR4DeviceDispense(dispense: any): CanonicalDeviceDispense {
+    return {
+        id: dispense.id,
+        identifier: dispense.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        basedOn: dispense.basedOn?.map((ref: any) => ref.reference).filter(Boolean),
+        partOf: dispense.partOf?.map((ref: any) => ref.reference).filter(Boolean),
+        status: dispense.status,
+        statusReason: dispense.statusReason ? {
+            concept: dispense.statusReason.concept?.coding?.[0] ? {
+                system: dispense.statusReason.concept.coding[0].system,
+                code: dispense.statusReason.concept.coding[0].code,
+                display: dispense.statusReason.concept.coding[0].display
+            } : undefined,
+            reference: dispense.statusReason.reference?.reference?.split('/').pop()
+        } : undefined,
+        category: dispense.category?.map((cat: any) => cat.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        deviceCodeableConcept: dispense.device?.concept?.coding?.[0] ? {
+            system: dispense.device.concept.coding[0].system,
+            code: dispense.device.concept.coding[0].code,
+            display: dispense.device.concept.coding[0].display
+        } : undefined,
+        deviceReference: dispense.device?.reference?.reference?.split('/').pop(),
+        subject: dispense.subject?.reference?.split('/').pop(),
+        receiver: dispense.receiver?.reference?.split('/').pop(),
+        encounter: dispense.encounter?.reference?.replace('Encounter/', ''),
+        supportingInformation: dispense.supportingInformation?.map((ref: any) => ref.reference).filter(Boolean),
+        performer: dispense.performer?.map((perf: any) => ({
+            function: perf.function?.coding?.[0] ? {
+                system: perf.function.coding[0].system,
+                code: perf.function.coding[0].code,
+                display: perf.function.coding[0].display
+            } : undefined,
+            actor: perf.actor?.reference?.split('/').pop()
+        })),
+        location: dispense.location?.reference?.replace('Location/', ''),
+        type: dispense.type?.coding?.[0] ? {
+            system: dispense.type.coding[0].system,
+            code: dispense.type.coding[0].code,
+            display: dispense.type.coding[0].display
+        } : undefined,
+        quantity: dispense.quantity ? {
+            value: dispense.quantity.value,
+            unit: dispense.quantity.unit,
+            system: dispense.quantity.system,
+            code: dispense.quantity.code
+        } : undefined,
+        preparedDate: dispense.preparedDate,
+        whenHandedOver: dispense.whenHandedOver,
+        destination: dispense.destination?.reference?.replace('Location/', ''),
+        note: dispense.note?.map((note: any) => note.text).filter(Boolean),
+        usageInstruction: dispense.usageInstruction,
         eventHistory: dispense.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
     };
 }
@@ -1498,6 +1595,537 @@ function mapR4ClaimResponse(response: any): CanonicalClaimResponse {
             code: mapCodeable(err.code),
             expression: err.expression
         }))
+    };
+}
+
+function mapR4ExplanationOfBenefit(eob: any): CanonicalExplanationOfBenefit {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const mapAddress = (source: any) => source ? {
+        line: source.line,
+        city: source.city,
+        state: source.state,
+        postalCode: source.postalCode,
+        country: source.country
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    const mapAdjudication = (entry: any) => ({
+        category: mapCodeable(entry.category),
+        reason: mapCodeable(entry.reason),
+        amount: mapMoney(entry.amount),
+        quantity: mapQuantity(entry.quantity)
+    });
+
+    const mapReviewOutcome = (entry: any) => entry ? {
+        decision: mapCodeable(entry.decision),
+        reason: entry.reason?.map(mapCodeable),
+        preAuthRef: entry.preAuthRef,
+        preAuthPeriod: mapPeriod(entry.preAuthPeriod)
+    } : undefined;
+
+    const mapItemDetail = (detail: any) => ({
+        sequence: detail.sequence,
+        traceNumber: detail.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(detail.revenue),
+        category: mapCodeable(detail.category),
+        productOrService: mapCodeable(detail.productOrService),
+        productOrServiceEnd: mapCodeable(detail.productOrServiceEnd),
+        modifier: detail.modifier?.map(mapCodeable),
+        programCode: detail.programCode?.map(mapCodeable),
+        patientPaid: mapMoney(detail.patientPaid),
+        quantity: mapQuantity(detail.quantity),
+        unitPrice: mapMoney(detail.unitPrice),
+        factor: detail.factor,
+        tax: mapMoney(detail.tax),
+        net: mapMoney(detail.net),
+        udi: detail.udi?.map((ref: any) => stripRef(ref.reference, /^Device\//)).filter(Boolean),
+        noteNumber: detail.noteNumber,
+        reviewOutcome: mapReviewOutcome(detail.reviewOutcome),
+        adjudication: detail.adjudication?.map(mapAdjudication),
+        subDetail: detail.subDetail?.map(mapItemSubDetail)
+    });
+
+    const mapItemSubDetail = (sub: any) => ({
+        sequence: sub.sequence,
+        traceNumber: sub.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(sub.revenue),
+        category: mapCodeable(sub.category),
+        productOrService: mapCodeable(sub.productOrService),
+        productOrServiceEnd: mapCodeable(sub.productOrServiceEnd),
+        modifier: sub.modifier?.map(mapCodeable),
+        programCode: sub.programCode?.map(mapCodeable),
+        patientPaid: mapMoney(sub.patientPaid),
+        quantity: mapQuantity(sub.quantity),
+        unitPrice: mapMoney(sub.unitPrice),
+        factor: sub.factor,
+        tax: mapMoney(sub.tax),
+        net: mapMoney(sub.net),
+        udi: sub.udi?.map((ref: any) => stripRef(ref.reference, /^Device\//)).filter(Boolean),
+        noteNumber: sub.noteNumber,
+        reviewOutcome: mapReviewOutcome(sub.reviewOutcome),
+        adjudication: sub.adjudication?.map(mapAdjudication)
+    });
+
+    const mapItem = (item: any) => ({
+        sequence: item.sequence,
+        careTeamSequence: item.careTeamSequence,
+        diagnosisSequence: item.diagnosisSequence,
+        procedureSequence: item.procedureSequence,
+        informationSequence: item.informationSequence,
+        traceNumber: item.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(item.revenue),
+        category: mapCodeable(item.category),
+        productOrService: mapCodeable(item.productOrService),
+        productOrServiceEnd: mapCodeable(item.productOrServiceEnd),
+        request: item.request?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        modifier: item.modifier?.map(mapCodeable),
+        programCode: item.programCode?.map(mapCodeable),
+        servicedDate: item.servicedDate,
+        servicedPeriod: mapPeriod(item.servicedPeriod),
+        locationCodeableConcept: mapCodeable(item.locationCodeableConcept),
+        locationAddress: mapAddress(item.locationAddress),
+        locationReference: stripRef(item.locationReference?.reference, /^Location\//),
+        patientPaid: mapMoney(item.patientPaid),
+        quantity: mapQuantity(item.quantity),
+        unitPrice: mapMoney(item.unitPrice),
+        factor: item.factor,
+        tax: mapMoney(item.tax),
+        net: mapMoney(item.net),
+        udi: item.udi?.map((ref: any) => stripRef(ref.reference, /^Device\//)).filter(Boolean),
+        bodySite: item.bodySite?.map((site: any) => ({
+            site: site.site?.map((entry: any) => mapCodeable(entry.concept)),
+            subSite: site.subSite?.map(mapCodeable)
+        })),
+        encounter: item.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\//)).filter(Boolean),
+        noteNumber: item.noteNumber,
+        reviewOutcome: mapReviewOutcome(item.reviewOutcome),
+        adjudication: item.adjudication?.map(mapAdjudication),
+        detail: item.detail?.map(mapItemDetail)
+    });
+
+    const mapAddItemDetail = (detail: any) => ({
+        traceNumber: detail.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(detail.revenue),
+        productOrService: mapCodeable(detail.productOrService),
+        productOrServiceEnd: mapCodeable(detail.productOrServiceEnd),
+        modifier: detail.modifier?.map(mapCodeable),
+        patientPaid: mapMoney(detail.patientPaid),
+        quantity: mapQuantity(detail.quantity),
+        unitPrice: mapMoney(detail.unitPrice),
+        factor: detail.factor,
+        tax: mapMoney(detail.tax),
+        net: mapMoney(detail.net),
+        noteNumber: detail.noteNumber,
+        reviewOutcome: mapReviewOutcome(detail.reviewOutcome),
+        adjudication: detail.adjudication?.map(mapAdjudication),
+        subDetail: detail.subDetail?.map(mapAddItemSubDetail)
+    });
+
+    const mapAddItemSubDetail = (sub: any) => ({
+        traceNumber: sub.traceNumber?.map(mapIdentifier).filter(Boolean),
+        revenue: mapCodeable(sub.revenue),
+        productOrService: mapCodeable(sub.productOrService),
+        productOrServiceEnd: mapCodeable(sub.productOrServiceEnd),
+        modifier: sub.modifier?.map(mapCodeable),
+        patientPaid: mapMoney(sub.patientPaid),
+        quantity: mapQuantity(sub.quantity),
+        unitPrice: mapMoney(sub.unitPrice),
+        factor: sub.factor,
+        tax: mapMoney(sub.tax),
+        net: mapMoney(sub.net),
+        noteNumber: sub.noteNumber,
+        reviewOutcome: mapReviewOutcome(sub.reviewOutcome),
+        adjudication: sub.adjudication?.map(mapAdjudication)
+    });
+
+    const mapAddItem = (item: any) => ({
+        itemSequence: item.itemSequence,
+        detailSequence: item.detailSequence,
+        subdetailSequence: item.subdetailSequence,
+        traceNumber: item.traceNumber?.map(mapIdentifier).filter(Boolean),
+        provider: item.provider?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        revenue: mapCodeable(item.revenue),
+        productOrService: mapCodeable(item.productOrService),
+        productOrServiceEnd: mapCodeable(item.productOrServiceEnd),
+        request: item.request?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        modifier: item.modifier?.map(mapCodeable),
+        programCode: item.programCode?.map(mapCodeable),
+        servicedDate: item.servicedDate,
+        servicedPeriod: mapPeriod(item.servicedPeriod),
+        locationCodeableConcept: mapCodeable(item.locationCodeableConcept),
+        locationAddress: mapAddress(item.locationAddress),
+        locationReference: stripRef(item.locationReference?.reference, /^Location\//),
+        patientPaid: mapMoney(item.patientPaid),
+        quantity: mapQuantity(item.quantity),
+        unitPrice: mapMoney(item.unitPrice),
+        factor: item.factor,
+        tax: mapMoney(item.tax),
+        net: mapMoney(item.net),
+        bodySite: item.bodySite?.map((site: any) => ({
+            site: site.site?.map((entry: any) => mapCodeable(entry.concept)),
+            subSite: site.subSite?.map(mapCodeable)
+        })),
+        noteNumber: item.noteNumber,
+        reviewOutcome: mapReviewOutcome(item.reviewOutcome),
+        adjudication: item.adjudication?.map(mapAdjudication),
+        detail: item.detail?.map(mapAddItemDetail)
+    });
+
+    return {
+        id: eob.id,
+        identifier: eob.identifier?.map(mapIdentifier).filter(Boolean),
+        traceNumber: eob.traceNumber?.map(mapIdentifier).filter(Boolean),
+        status: eob.status,
+        type: mapCodeable(eob.type),
+        subType: mapCodeable(eob.subType),
+        use: eob.use,
+        patient: stripRef(eob.patient?.reference, /^Patient\//),
+        billablePeriod: mapPeriod(eob.billablePeriod),
+        created: eob.created,
+        enterer: stripRef(eob.enterer?.reference, /^(Patient|Practitioner|PractitionerRole|RelatedPerson)\//),
+        insurer: stripRef(eob.insurer?.reference, /^Organization\//),
+        provider: stripRef(eob.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\//),
+        priority: mapCodeable(eob.priority),
+        fundsReserveRequested: mapCodeable(eob.fundsReserveRequested),
+        fundsReserve: mapCodeable(eob.fundsReserve),
+        related: eob.related?.map((rel: any) => ({
+            claim: stripRef(rel.claim?.reference, /^Claim\//),
+            relationship: mapCodeable(rel.relationship),
+            reference: rel.reference ? { system: rel.reference.system, value: rel.reference.value } : undefined
+        })),
+        prescription: stripRef(eob.prescription?.reference, /^(MedicationRequest|VisionPrescription)\//),
+        originalPrescription: stripRef(eob.originalPrescription?.reference, /^MedicationRequest\//),
+        event: eob.event?.map((evt: any) => ({
+            type: mapCodeable(evt.type),
+            whenDateTime: evt.whenDateTime,
+            whenPeriod: mapPeriod(evt.whenPeriod)
+        })),
+        payee: eob.payee ? {
+            type: mapCodeable(eob.payee.type),
+            party: stripRef(eob.payee.party?.reference, /^(Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//)
+        } : undefined,
+        referral: stripRef(eob.referral?.reference, /^ServiceRequest\//),
+        encounter: eob.encounter?.map((ref: any) => stripRef(ref.reference, /^Encounter\//)).filter(Boolean),
+        facility: stripRef(eob.facility?.reference, /^(Location|Organization)\//),
+        claim: stripRef(eob.claim?.reference, /^Claim\//),
+        claimResponse: stripRef(eob.claimResponse?.reference, /^ClaimResponse\//),
+        outcome: eob.outcome,
+        decision: mapCodeable(eob.decision),
+        disposition: eob.disposition,
+        preAuthRef: eob.preAuthRef,
+        preAuthRefPeriod: eob.preAuthRefPeriod?.map(mapPeriod),
+        diagnosisRelatedGroup: mapCodeable(eob.diagnosisRelatedGroup),
+        careTeam: eob.careTeam?.map((team: any) => ({
+            sequence: team.sequence,
+            provider: stripRef(team.provider?.reference, /^(Organization|Practitioner|PractitionerRole)\//),
+            responsible: team.responsible,
+            role: mapCodeable(team.role),
+            specialty: mapCodeable(team.specialty)
+        })),
+        supportingInfo: eob.supportingInfo?.map((info: any) => ({
+            sequence: info.sequence,
+            category: mapCodeable(info.category),
+            code: mapCodeable(info.code),
+            timingDate: info.timingDate,
+            timingPeriod: mapPeriod(info.timingPeriod),
+            valueBoolean: info.valueBoolean,
+            valueString: info.valueString,
+            valueQuantity: mapQuantity(info.valueQuantity),
+            valueAttachment: info.valueAttachment ? {
+                contentType: info.valueAttachment.contentType,
+                url: info.valueAttachment.url,
+                title: info.valueAttachment.title,
+                data: info.valueAttachment.data
+            } : undefined,
+            valueReference: stripRef(info.valueReference?.reference),
+            valueIdentifier: info.valueIdentifier ? { system: info.valueIdentifier.system, value: info.valueIdentifier.value } : undefined,
+            reason: mapCodeable(info.reason)
+        })),
+        diagnosis: eob.diagnosis?.map((diag: any) => ({
+            sequence: diag.sequence,
+            diagnosisCodeableConcept: mapCodeable(diag.diagnosisCodeableConcept),
+            diagnosisReference: stripRef(diag.diagnosisReference?.reference, /^Condition\//),
+            type: diag.type?.map(mapCodeable),
+            onAdmission: mapCodeable(diag.onAdmission)
+        })),
+        procedure: eob.procedure?.map((proc: any) => ({
+            sequence: proc.sequence,
+            type: proc.type?.map(mapCodeable),
+            date: proc.date,
+            procedureCodeableConcept: mapCodeable(proc.procedureCodeableConcept),
+            procedureReference: stripRef(proc.procedureReference?.reference, /^Procedure\//),
+            udi: proc.udi?.map((ref: any) => stripRef(ref.reference, /^Device\//)).filter(Boolean)
+        })),
+        precedence: eob.precedence,
+        insurance: eob.insurance?.map((ins: any) => ({
+            focal: ins.focal,
+            coverage: stripRef(ins.coverage?.reference, /^Coverage\//),
+            preAuthRef: ins.preAuthRef
+        })),
+        accident: eob.accident ? {
+            date: eob.accident.date,
+            type: mapCodeable(eob.accident.type),
+            locationAddress: mapAddress(eob.accident.locationAddress),
+            locationReference: stripRef(eob.accident.locationReference?.reference, /^Location\//)
+        } : undefined,
+        patientPaid: mapMoney(eob.patientPaid),
+        item: eob.item?.map(mapItem),
+        addItem: eob.addItem?.map(mapAddItem),
+        adjudication: eob.adjudication?.map(mapAdjudication),
+        total: eob.total?.map((total: any) => ({
+            category: mapCodeable(total.category),
+            amount: mapMoney(total.amount)
+        })),
+        payment: eob.payment ? {
+            type: mapCodeable(eob.payment.type),
+            adjustment: mapMoney(eob.payment.adjustment),
+            adjustmentReason: mapCodeable(eob.payment.adjustmentReason),
+            date: eob.payment.date,
+            amount: mapMoney(eob.payment.amount),
+            identifier: eob.payment.identifier ? { system: eob.payment.identifier.system, value: eob.payment.identifier.value } : undefined
+        } : undefined,
+        formCode: mapCodeable(eob.formCode),
+        form: eob.form ? {
+            contentType: eob.form.contentType,
+            url: eob.form.url,
+            title: eob.form.title,
+            data: eob.form.data
+        } : undefined,
+        processNote: eob.processNote?.map((note: any) => ({
+            number: note.number,
+            type: mapCodeable(note.type),
+            text: note.text,
+            language: mapCodeable(note.language)
+        })),
+        benefitPeriod: mapPeriod(eob.benefitPeriod),
+        benefitBalance: eob.benefitBalance?.map((balance: any) => ({
+            category: mapCodeable(balance.category),
+            excluded: balance.excluded,
+            name: balance.name,
+            description: balance.description,
+            network: mapCodeable(balance.network),
+            unit: mapCodeable(balance.unit),
+            term: mapCodeable(balance.term),
+            financial: balance.financial?.map((fin: any) => ({
+                type: mapCodeable(fin.type),
+                allowedUnsignedInt: fin.allowedUnsignedInt,
+                allowedString: fin.allowedString,
+                allowedMoney: mapMoney(fin.allowedMoney),
+                usedUnsignedInt: fin.usedUnsignedInt,
+                usedMoney: mapMoney(fin.usedMoney)
+            }))
+        }))
+    };
+}
+
+function mapR4Composition(composition: any): CanonicalComposition {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const stripRef = (value?: string) => value ? value.replace(/^[A-Za-z]+\//, '') : undefined;
+
+    const mapSection = (section: any) => ({
+        title: section.title,
+        code: mapCodeable(section.code),
+        author: section.author?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        focus: stripRef(section.focus?.reference),
+        text: section.text?.div,
+        orderedBy: mapCodeable(section.orderedBy),
+        entry: section.entry?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        emptyReason: mapCodeable(section.emptyReason),
+        section: section.section?.map(mapSection)
+    });
+
+    return {
+        id: composition.id,
+        identifier: composition.identifier?.map(mapIdentifier).filter(Boolean),
+        url: composition.url,
+        version: composition.version,
+        status: composition.status,
+        type: mapCodeable(composition.type),
+        category: composition.category?.map(mapCodeable),
+        subject: composition.subject?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        encounter: stripRef(composition.encounter?.reference),
+        date: composition.date,
+        useContext: composition.useContext?.map((ctx: any) => ({
+            code: mapCodeable(ctx.code),
+            valueCodeableConcept: mapCodeable(ctx.valueCodeableConcept),
+            valueReference: stripRef(ctx.valueReference?.reference)
+        })),
+        author: composition.author?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        name: composition.name,
+        title: composition.title,
+        note: composition.note?.map((note: any) => ({
+            text: note.text,
+            author: note.authorString,
+            time: note.time
+        })),
+        attester: composition.attester?.map((att: any) => ({
+            mode: mapCodeable(att.mode),
+            time: att.time,
+            party: stripRef(att.party?.reference)
+        })),
+        custodian: stripRef(composition.custodian?.reference),
+        relatesTo: composition.relatesTo?.map((rel: any) => ({
+            type: rel.type,
+            resource: stripRef(rel.resourceReference?.reference),
+            identifier: rel.resourceIdentifier
+                ? { system: rel.resourceIdentifier.system, value: rel.resourceIdentifier.value }
+                : undefined
+        })),
+        event: composition.event?.map((evt: any) => ({
+            period: mapPeriod(evt.period),
+            detail: evt.detail?.map((ref: any) => stripRef(ref.reference)).filter(Boolean)
+        })),
+        section: composition.section?.map(mapSection)
+    };
+}
+
+function mapR4Coverage(coverage: any): CanonicalCoverage {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    return {
+        id: coverage.id,
+        identifier: coverage.identifier?.map(mapIdentifier).filter(Boolean),
+        status: coverage.status,
+        kind: coverage.kind,
+        paymentBy: coverage.paymentBy?.map((pay: any) => ({
+            party: stripRef(pay.party?.reference, /^(Organization|Patient|RelatedPerson)\//),
+            responsibility: pay.responsibility
+        })),
+        type: mapCodeable(coverage.type),
+        policyHolder: stripRef(coverage.policyHolder?.reference, /^(Organization|Patient|RelatedPerson)\//),
+        subscriber: stripRef(coverage.subscriber?.reference, /^(Patient|RelatedPerson)\//),
+        subscriberId: coverage.subscriberId?.map(mapIdentifier).filter(Boolean),
+        beneficiary: stripRef(coverage.beneficiary?.reference, /^Patient\//),
+        dependent: coverage.dependent,
+        relationship: mapCodeable(coverage.relationship),
+        period: mapPeriod(coverage.period),
+        insurer: stripRef(coverage.insurer?.reference, /^Organization\//),
+        class: coverage.class?.map((entry: any) => ({
+            type: mapCodeable(entry.type),
+            value: entry.value ? { system: entry.value.system, value: entry.value.value } : undefined,
+            name: entry.name
+        })),
+        order: coverage.order,
+        network: coverage.network,
+        costToBeneficiary: coverage.costToBeneficiary?.map((cost: any) => ({
+            type: mapCodeable(cost.type),
+            category: mapCodeable(cost.category),
+            network: mapCodeable(cost.network),
+            unit: mapCodeable(cost.unit),
+            term: mapCodeable(cost.term),
+            valueQuantity: mapQuantity(cost.valueQuantity),
+            valueMoney: mapMoney(cost.valueMoney),
+            exception: cost.exception?.map((ex: any) => ({
+                type: mapCodeable(ex.type),
+                period: mapPeriod(ex.period)
+            }))
+        })),
+        subrogation: coverage.subrogation,
+        contract: coverage.contract?.map((ref: any) => stripRef(ref.reference, /^Contract\//)).filter(Boolean),
+        insurancePlan: stripRef(coverage.insurancePlan?.reference, /^InsurancePlan\//)
     };
 }
 
@@ -2729,5 +3357,14 @@ function mapR4DocumentReference(docRef: any): CanonicalDocumentReference {
             period: docRef.context.period
         } : undefined,
         active: docRef.status === 'current'
+    };
+}
+
+function mapR4Binary(binary: any): CanonicalBinary {
+    return {
+        id: binary.id,
+        contentType: binary.contentType,
+        securityContext: binary.securityContext?.reference?.replace(/^[A-Za-z]+\//, ''),
+        data: binary.data
     };
 }

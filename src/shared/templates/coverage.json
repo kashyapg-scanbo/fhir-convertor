@@ -1,0 +1,23 @@
+{
+  "resourceType": "Coverage",
+  "identifier": [],
+  "status": "",
+  "kind": "",
+  "paymentBy": [],
+  "type": {},
+  "policyHolder": {},
+  "subscriber": {},
+  "subscriberId": [],
+  "beneficiary": {},
+  "dependent": "",
+  "relationship": {},
+  "period": {},
+  "insurer": {},
+  "class": [],
+  "order": 0,
+  "network": "",
+  "costToBeneficiary": [],
+  "subrogation": false,
+  "contract": [],
+  "insurancePlan": {}
+}

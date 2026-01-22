@@ -1,4 +1,4 @@
-import { CanonicalModel } from '../../shared/types/canonical.types.js';
+import type { CanonicalComposition, CanonicalModel } from '../../shared/types/canonical.types.js';
 import { HEADER_ALIAS_SECTIONS } from '../../shared/header-aliases.js';
 import { mapTabularRowsToCanonical, normalizeHeader, TabularRow } from './tabular.utils.js';
 import { z } from 'zod';
@@ -874,6 +874,35 @@ const GlobalQuantitySchema = z.object({
   code: z.string().optional()
 });
 
+const GlobalDeviceDispenseSchema = z.object({
+  device_dispense_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  part_of_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z.string().optional(),
+  status_reason_code: z.string().optional(),
+  status_reason_reference_id: GlobalIdSchema.optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  device_code: z.string().optional(),
+  device_reference_id: GlobalIdSchema.optional(),
+  subject_id: GlobalIdSchema.optional(),
+  receiver_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  supporting_information_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  performer_function: z.string().optional(),
+  performer_actor_id: GlobalIdSchema.optional(),
+  location_id: GlobalIdSchema.optional(),
+  type: z.string().optional(),
+  quantity_value: GlobalNumberSchema.optional(),
+  quantity_unit: z.string().optional(),
+  prepared_date: z.string().optional(),
+  when_handed_over: z.string().optional(),
+  destination_id: GlobalIdSchema.optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  usage_instruction: z.string().optional(),
+  event_history_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalPeriodSchema = z.object({
   start: z.string().optional(),
   end: z.string().optional()
@@ -1248,6 +1277,336 @@ const GlobalClaimResponseSchema = z.object({
   trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional()
 });
 
+const GlobalUsageContextSchema = z.object({
+  code: GlobalCodeableConceptSchema.optional(),
+  value_codeable: GlobalCodeableConceptSchema.optional(),
+  value_reference_id: GlobalIdSchema.optional()
+});
+
+const GlobalAnnotationSchema = z.object({
+  text: z.string().optional(),
+  author: z.string().optional(),
+  time: z.string().optional()
+});
+
+const GlobalCompositionAttesterSchema = z.object({
+  mode: GlobalCodeableConceptSchema.optional(),
+  time: z.string().optional(),
+  party_id: GlobalIdSchema.optional()
+});
+
+const GlobalCompositionRelatesToSchema = z.object({
+  type: z.string().optional(),
+  resource_id: GlobalIdSchema.optional(),
+  identifier: GlobalIdentifierObjectSchema.optional()
+});
+
+const GlobalCompositionEventSchema = z.object({
+  period_start: z.string().optional(),
+  period_end: z.string().optional(),
+  detail_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalCompositionSectionSchema: z.ZodType<any> = z.object({
+  title: z.string().optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  author_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  focus_id: GlobalIdSchema.optional(),
+  text: z.string().optional(),
+  ordered_by: GlobalCodeableConceptSchema.optional(),
+  entry_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  empty_reason: GlobalCodeableConceptSchema.optional(),
+  section: z.lazy(() => z.union([GlobalCompositionSectionSchema, z.array(GlobalCompositionSectionSchema)])).optional()
+});
+
+const GlobalCompositionSchema = z.object({
+  composition_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  version: z.string().optional(),
+  status: z.string().optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  category: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  subject_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  date: z.string().optional(),
+  use_context: z.union([GlobalUsageContextSchema, z.array(GlobalUsageContextSchema)]).optional(),
+  author_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  note: z.union([GlobalAnnotationSchema, z.array(GlobalAnnotationSchema)]).optional(),
+  attester: z.union([GlobalCompositionAttesterSchema, z.array(GlobalCompositionAttesterSchema)]).optional(),
+  custodian_id: GlobalIdSchema.optional(),
+  relates_to: z.union([GlobalCompositionRelatesToSchema, z.array(GlobalCompositionRelatesToSchema)]).optional(),
+  event: z.union([GlobalCompositionEventSchema, z.array(GlobalCompositionEventSchema)]).optional(),
+  section: z.union([GlobalCompositionSectionSchema, z.array(GlobalCompositionSectionSchema)]).optional()
+});
+
+const GlobalCoveragePaymentBySchema = z.object({
+  party_id: GlobalIdSchema.optional(),
+  responsibility: z.string().optional()
+});
+
+const GlobalCoverageClassSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  value: GlobalIdentifierObjectSchema.optional(),
+  name: z.string().optional()
+});
+
+const GlobalCoverageCostExceptionSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  start: z.string().optional(),
+  end: z.string().optional()
+});
+
+const GlobalCoverageCostToBeneficiarySchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  network: GlobalCodeableConceptSchema.optional(),
+  unit: GlobalCodeableConceptSchema.optional(),
+  term: GlobalCodeableConceptSchema.optional(),
+  value_quantity: GlobalQuantitySchema.optional(),
+  value_money: GlobalMoneySchema.optional(),
+  exception: z.union([GlobalCoverageCostExceptionSchema, z.array(GlobalCoverageCostExceptionSchema)]).optional()
+});
+
+const GlobalCoverageSchema = z.object({
+  coverage_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  kind: z.string().optional(),
+  payment_by: z.union([GlobalCoveragePaymentBySchema, z.array(GlobalCoveragePaymentBySchema)]).optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  policy_holder_id: GlobalIdSchema.optional(),
+  subscriber_id: GlobalIdSchema.optional(),
+  subscriber_identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  beneficiary_id: GlobalIdSchema.optional(),
+  dependent: z.string().optional(),
+  relationship: GlobalCodeableConceptSchema.optional(),
+  period_start: z.string().optional(),
+  period_end: z.string().optional(),
+  insurer_id: GlobalIdSchema.optional(),
+  class: z.union([GlobalCoverageClassSchema, z.array(GlobalCoverageClassSchema)]).optional(),
+  order: GlobalNumberSchema.optional(),
+  network: z.string().optional(),
+  cost_to_beneficiary: z.union([GlobalCoverageCostToBeneficiarySchema, z.array(GlobalCoverageCostToBeneficiarySchema)]).optional(),
+  subrogation: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  contract_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  insurance_plan_id: GlobalIdSchema.optional()
+});
+
+const GlobalBinarySchema = z.object({
+  binary_id: GlobalIdSchema.optional(),
+  content_type: z.string().optional(),
+  security_context: z.string().optional(),
+  data: z.string().optional()
+});
+
+const GlobalExplanationOfBenefitInsuranceSchema = z.object({
+  focal: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  coverage_id: GlobalIdSchema.optional(),
+  pre_auth_ref: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalExplanationOfBenefitItemSubDetailSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: GlobalNumberSchema.optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note_number: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional()
+});
+
+const GlobalExplanationOfBenefitItemDetailSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: GlobalNumberSchema.optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note_number: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  sub_detail: z.union([GlobalExplanationOfBenefitItemSubDetailSchema, z.array(GlobalExplanationOfBenefitItemSubDetailSchema)]).optional()
+});
+
+const GlobalExplanationOfBenefitItemSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  care_team_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  diagnosis_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  procedure_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  information_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  category: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  serviced_date: z.string().optional(),
+  serviced_start: z.string().optional(),
+  serviced_end: z.string().optional(),
+  location_codeable: GlobalCodeableConceptSchema.optional(),
+  location_address: GlobalAddressSchema.optional(),
+  location_reference_id: GlobalIdSchema.optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: GlobalNumberSchema.optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  udi_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note_number: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  detail: z.union([GlobalExplanationOfBenefitItemDetailSchema, z.array(GlobalExplanationOfBenefitItemDetailSchema)]).optional()
+});
+
+const GlobalExplanationOfBenefitAddItemDetailSchema = z.object({
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: GlobalNumberSchema.optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  note_number: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  sub_detail: z.union([GlobalExplanationOfBenefitItemSubDetailSchema, z.array(GlobalExplanationOfBenefitItemSubDetailSchema)]).optional()
+});
+
+const GlobalExplanationOfBenefitAddItemSchema = z.object({
+  item_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  detail_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  subdetail_sequence: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  provider_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  revenue: GlobalCodeableConceptSchema.optional(),
+  product_or_service: GlobalCodeableConceptSchema.optional(),
+  product_or_service_end: GlobalCodeableConceptSchema.optional(),
+  request_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  modifier: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  program_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  serviced_date: z.string().optional(),
+  serviced_start: z.string().optional(),
+  serviced_end: z.string().optional(),
+  location_codeable: GlobalCodeableConceptSchema.optional(),
+  location_address: GlobalAddressSchema.optional(),
+  location_reference_id: GlobalIdSchema.optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  unit_price: GlobalMoneySchema.optional(),
+  factor: GlobalNumberSchema.optional(),
+  tax: GlobalMoneySchema.optional(),
+  net: GlobalMoneySchema.optional(),
+  body_site: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  note_number: z.union([GlobalNumberSchema, z.array(GlobalNumberSchema)]).optional(),
+  review_outcome: GlobalClaimResponseReviewOutcomeSchema.optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  detail: z.union([GlobalExplanationOfBenefitAddItemDetailSchema, z.array(GlobalExplanationOfBenefitAddItemDetailSchema)]).optional()
+});
+
+const GlobalExplanationOfBenefitBenefitBalanceFinancialSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  allowed_unsigned_int: GlobalNumberSchema.optional(),
+  allowed_string: z.string().optional(),
+  allowed_money: GlobalMoneySchema.optional(),
+  used_unsigned_int: GlobalNumberSchema.optional(),
+  used_money: GlobalMoneySchema.optional()
+});
+
+const GlobalExplanationOfBenefitBenefitBalanceSchema = z.object({
+  category: GlobalCodeableConceptSchema.optional(),
+  excluded: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  network: GlobalCodeableConceptSchema.optional(),
+  unit: GlobalCodeableConceptSchema.optional(),
+  term: GlobalCodeableConceptSchema.optional(),
+  financial: z.union([GlobalExplanationOfBenefitBenefitBalanceFinancialSchema, z.array(GlobalExplanationOfBenefitBenefitBalanceFinancialSchema)]).optional()
+});
+
+const GlobalExplanationOfBenefitSchema = z.object({
+  explanation_of_benefit_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  trace_number: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  sub_type: GlobalCodeableConceptSchema.optional(),
+  use: z.string().optional(),
+  patient_id: GlobalIdSchema.optional(),
+  billable_start: z.string().optional(),
+  billable_end: z.string().optional(),
+  created: z.string().optional(),
+  enterer_id: GlobalIdSchema.optional(),
+  insurer_id: GlobalIdSchema.optional(),
+  provider_id: GlobalIdSchema.optional(),
+  priority: GlobalCodeableConceptSchema.optional(),
+  funds_reserve_requested: GlobalCodeableConceptSchema.optional(),
+  funds_reserve: GlobalCodeableConceptSchema.optional(),
+  related: z.union([GlobalClaimRelatedSchema, z.array(GlobalClaimRelatedSchema)]).optional(),
+  prescription_id: GlobalIdSchema.optional(),
+  original_prescription_id: GlobalIdSchema.optional(),
+  event: z.union([GlobalClaimEventSchema, z.array(GlobalClaimEventSchema)]).optional(),
+  payee: GlobalClaimPayeeSchema.optional(),
+  referral_id: GlobalIdSchema.optional(),
+  encounter_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  facility_id: GlobalIdSchema.optional(),
+  claim_id: GlobalIdSchema.optional(),
+  claim_response_id: GlobalIdSchema.optional(),
+  outcome: z.string().optional(),
+  decision: GlobalCodeableConceptSchema.optional(),
+  disposition: z.string().optional(),
+  pre_auth_ref: z.union([z.string(), z.array(z.string())]).optional(),
+  pre_auth_ref_period: z.union([GlobalPeriodSchema, z.array(GlobalPeriodSchema)]).optional(),
+  diagnosis_related_group: GlobalCodeableConceptSchema.optional(),
+  care_team: z.union([GlobalClaimCareTeamSchema, z.array(GlobalClaimCareTeamSchema)]).optional(),
+  supporting_info: z.union([GlobalClaimSupportingInfoSchema, z.array(GlobalClaimSupportingInfoSchema)]).optional(),
+  diagnosis: z.union([GlobalClaimDiagnosisSchema, z.array(GlobalClaimDiagnosisSchema)]).optional(),
+  procedure: z.union([GlobalClaimProcedureSchema, z.array(GlobalClaimProcedureSchema)]).optional(),
+  precedence: GlobalNumberSchema.optional(),
+  insurance: z.union([GlobalExplanationOfBenefitInsuranceSchema, z.array(GlobalExplanationOfBenefitInsuranceSchema)]).optional(),
+  accident: GlobalClaimAccidentSchema.optional(),
+  patient_paid: GlobalMoneySchema.optional(),
+  item: z.union([GlobalExplanationOfBenefitItemSchema, z.array(GlobalExplanationOfBenefitItemSchema)]).optional(),
+  add_item: z.union([GlobalExplanationOfBenefitAddItemSchema, z.array(GlobalExplanationOfBenefitAddItemSchema)]).optional(),
+  adjudication: z.union([GlobalClaimResponseAdjudicationSchema, z.array(GlobalClaimResponseAdjudicationSchema)]).optional(),
+  total: z.union([GlobalClaimResponseTotalSchema, z.array(GlobalClaimResponseTotalSchema)]).optional(),
+  payment: GlobalClaimResponsePaymentSchema.optional(),
+  form_code: GlobalCodeableConceptSchema.optional(),
+  form: GlobalAttachmentSchema.optional(),
+  process_note: z.union([GlobalClaimResponseProcessNoteSchema, z.array(GlobalClaimResponseProcessNoteSchema)]).optional(),
+  benefit_period: GlobalPeriodSchema.optional(),
+  benefit_balance: z.union([GlobalExplanationOfBenefitBenefitBalanceSchema, z.array(GlobalExplanationOfBenefitBenefitBalanceSchema)]).optional()
+});
+
 const GlobalScheduleSchema = z.object({
   schedule_id: GlobalIdSchema.optional(),
   active: z.union([z.boolean(), z.string(), z.number()]).optional(),
@@ -1589,7 +1948,7 @@ const GlobalOrganizationSchema = z.object({
   }).optional()
 });
 
-const GlobalCustomJSONSchema = z.object({
+const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   operation: z.enum(['create', 'update', 'delete']).optional(),
   messageType: z.string().optional(),
   patient: z.union([GlobalPatientSchema, z.array(GlobalPatientSchema)]).optional(),
@@ -1599,6 +1958,7 @@ const GlobalCustomJSONSchema = z.object({
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
   medication_dispense: z.union([GlobalMedicationDispenseSchema, z.array(GlobalMedicationDispenseSchema)]).optional(),
+  device_dispense: z.union([GlobalDeviceDispenseSchema, z.array(GlobalDeviceDispenseSchema)]).optional(),
   capability_statement: z.union([GlobalCapabilityStatementSchema, z.array(GlobalCapabilityStatementSchema)]).optional(),
   operation_outcome: z.union([GlobalOperationOutcomeSchema, z.array(GlobalOperationOutcomeSchema)]).optional(),
   parameters: z.union([GlobalParametersSchema, z.array(GlobalParametersSchema)]).optional(),
@@ -1625,6 +1985,10 @@ const GlobalCustomJSONSchema = z.object({
   appointment_response: z.union([GlobalAppointmentResponseSchema, z.array(GlobalAppointmentResponseSchema)]).optional(),
   claim: z.union([GlobalClaimSchema, z.array(GlobalClaimSchema)]).optional(),
   claim_response: z.union([GlobalClaimResponseSchema, z.array(GlobalClaimResponseSchema)]).optional(),
+  composition: z.union([GlobalCompositionSchema, z.array(GlobalCompositionSchema)]).optional(),
+  explanation_of_benefit: z.union([GlobalExplanationOfBenefitSchema, z.array(GlobalExplanationOfBenefitSchema)]).optional(),
+  coverage: z.union([GlobalCoverageSchema, z.array(GlobalCoverageSchema)]).optional(),
+  binary: z.union([GlobalBinarySchema, z.array(GlobalBinarySchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
   diagnostic_report: z.union([GlobalDiagnosticReportSchema, z.array(GlobalDiagnosticReportSchema)]).optional(),
@@ -1647,6 +2011,7 @@ const GlobalCustomJSONSchema = z.object({
     value.medication_statement ||
     value.medication_administration ||
     value.medication_dispense ||
+    value.device_dispense ||
     value.capability_statement ||
     value.operation_outcome ||
     value.parameters ||
@@ -1673,6 +2038,10 @@ const GlobalCustomJSONSchema = z.object({
     value.appointment_response ||
     value.claim ||
     value.claim_response ||
+    value.composition ||
+    value.explanation_of_benefit ||
+    value.coverage ||
+    value.binary ||
     value.schedule ||
     value.slot ||
     value.diagnostic_report ||
@@ -1688,7 +2057,7 @@ const GlobalCustomJSONSchema = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -1716,6 +2085,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationStatements: 'medicationStatement',
   medicationAdministrations: 'medicationAdministration',
   medicationDispenses: 'medicationDispense',
+  deviceDispenses: 'deviceDispense',
   capabilityStatements: 'capabilityStatement',
   operationOutcomes: 'operationOutcome',
   parameters: 'parameters',
@@ -1742,6 +2112,10 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   appointmentResponses: 'appointmentResponse',
   claims: 'claim',
   claimResponses: 'claimResponse',
+  compositions: 'composition',
+  explanationOfBenefits: 'explanationOfBenefit',
+  coverages: 'coverage',
+  binaries: 'binary',
   schedules: 'schedule',
   slots: 'slot',
   diagnosticReports: 'diagnosticReport',
@@ -1770,6 +2144,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   medication_dispenses: 'medicationDispense',
   medicationdispense: 'medicationDispense',
   medicationdispenses: 'medicationDispense',
+  device_dispense: 'deviceDispense',
+  device_dispenses: 'deviceDispense',
+  devicedispense: 'deviceDispense',
+  devicedispenses: 'deviceDispense',
   capability_statement: 'capabilityStatement',
   capability_statements: 'capabilityStatement',
   operation_outcome: 'operationOutcome',
@@ -1825,6 +2203,16 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   claim_responses: 'claimResponse',
   claimresponse: 'claimResponse',
   claimresponses: 'claimResponse',
+  composition: 'composition',
+  compositions: 'composition',
+  explanation_of_benefit: 'explanationOfBenefit',
+  explanation_of_benefits: 'explanationOfBenefit',
+  explanationofbenefit: 'explanationOfBenefit',
+  explanationofbenefits: 'explanationOfBenefit',
+  coverage: 'coverage',
+  coverages: 'coverage',
+  binary: 'binary',
+  binaries: 'binary',
   schedule: 'schedule',
   schedules: 'schedule',
   slot: 'slot',
@@ -1894,6 +2282,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   medication_dispenses: 'medication_dispense',
   medicationdispense: 'medication_dispense',
   medicationdispenses: 'medication_dispense',
+  device_dispense: 'device_dispense',
+  device_dispenses: 'device_dispense',
+  devicedispense: 'device_dispense',
+  devicedispenses: 'device_dispense',
   capability_statement: 'capability_statement',
   capability_statements: 'capability_statement',
   capabilitystatement: 'capability_statement',
@@ -1975,6 +2367,16 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   claim_responses: 'claim_response',
   claimresponse: 'claim_response',
   claimresponses: 'claim_response',
+  composition: 'composition',
+  compositions: 'composition',
+  explanation_of_benefit: 'explanation_of_benefit',
+  explanation_of_benefits: 'explanation_of_benefit',
+  explanationofbenefit: 'explanation_of_benefit',
+  explanationofbenefits: 'explanation_of_benefit',
+  coverage: 'coverage',
+  coverages: 'coverage',
+  binary: 'binary',
+  binaries: 'binary',
   schedule: 'schedule',
   schedules: 'schedule',
   slot: 'slot',
@@ -2640,6 +3042,93 @@ function normalizeGlobalMedicationDispenseAliases(value: Record<string, unknown>
   return normalized;
 }
 
+function normalizeGlobalDeviceDispenseAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const dispenseId = readSectionAliasValue(value, 'deviceDispense', 'device_dispense_id');
+  if (normalized.device_dispense_id === undefined && dispenseId !== undefined) {
+    normalized.device_dispense_id = dispenseId;
+  }
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const partOfIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_part_of_ids'));
+  if (partOfIds && normalized.part_of_ids === undefined) normalized.part_of_ids = partOfIds;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const statusReasonCode = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_status_reason_code'));
+  if (statusReasonCode && normalized.status_reason_code === undefined) normalized.status_reason_code = statusReasonCode;
+
+  const statusReasonReference = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_status_reason_reference_id'));
+  if (statusReasonReference && normalized.status_reason_reference_id === undefined) {
+    normalized.status_reason_reference_id = statusReasonReference;
+  }
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const deviceId = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_device_id'));
+  if (deviceId && normalized.device_reference_id === undefined) normalized.device_reference_id = deviceId;
+
+  const deviceCode = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_device_code'));
+  if (deviceCode && normalized.device_code === undefined) normalized.device_code = deviceCode;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const receiverId = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_receiver_id'));
+  if (receiverId && normalized.receiver_id === undefined) normalized.receiver_id = receiverId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const supportingInfoIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_supporting_information_ids'));
+  if (supportingInfoIds && normalized.supporting_information_ids === undefined) {
+    normalized.supporting_information_ids = supportingInfoIds;
+  }
+
+  const performerFunction = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_performer_function'));
+  if (performerFunction && normalized.performer_function === undefined) normalized.performer_function = performerFunction;
+
+  const performerActor = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_performer_actor_id'));
+  if (performerActor && normalized.performer_actor_id === undefined) normalized.performer_actor_id = performerActor;
+
+  const locationId = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_location_id'));
+  if (locationId && normalized.location_id === undefined) normalized.location_id = locationId;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const quantityValue = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_quantity_value'));
+  if (quantityValue && normalized.quantity_value === undefined) normalized.quantity_value = quantityValue;
+
+  const quantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_quantity_unit'));
+  if (quantityUnit && normalized.quantity_unit === undefined) normalized.quantity_unit = quantityUnit;
+
+  const preparedDate = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_prepared_date'));
+  if (preparedDate && normalized.prepared_date === undefined) normalized.prepared_date = preparedDate;
+
+  const whenHandedOver = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_when_handed_over'));
+  if (whenHandedOver && normalized.when_handed_over === undefined) normalized.when_handed_over = whenHandedOver;
+
+  const destinationId = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_destination_id'));
+  if (destinationId && normalized.destination_id === undefined) normalized.destination_id = destinationId;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const usageInstruction = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_usage_instruction'));
+  if (usageInstruction && normalized.usage_instruction === undefined) normalized.usage_instruction = usageInstruction;
+
+  const eventHistoryIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_event_history_ids'));
+  if (eventHistoryIds && normalized.event_history_ids === undefined) normalized.event_history_ids = eventHistoryIds;
+
+  return normalized;
+}
+
 function normalizeGlobalCapabilityStatementAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -3205,6 +3694,270 @@ function normalizeGlobalClaimResponseAliases(value: Record<string, unknown>) {
       }] : undefined
     }];
   }
+
+  return normalized;
+}
+
+function normalizeGlobalCompositionAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const compositionId = readSectionAliasValue(value, 'composition', 'composition_id');
+  if (normalized.composition_id === undefined && compositionId !== undefined) {
+    normalized.composition_id = compositionId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const title = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_title'));
+  if (title && normalized.title === undefined) normalized.title = title;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_subject_id'));
+  if (subjectId && normalized.subject_ids === undefined) normalized.subject_ids = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const authorId = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_author_id'));
+  if (authorId && normalized.author_ids === undefined) normalized.author_ids = authorId;
+
+  const date = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_date'));
+  if (date && normalized.date === undefined) normalized.date = date;
+
+  const url = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_url'));
+  if (url && normalized.url === undefined) normalized.url = url;
+
+  const version = normalizeAliasValue(readSectionAliasValue(value, 'composition', 'composition_version'));
+  if (version && normalized.version === undefined) normalized.version = version;
+
+  return normalized;
+}
+
+function normalizeGlobalCoverageAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const coverageId = readSectionAliasValue(value, 'coverage', 'coverage_id');
+  if (normalized.coverage_id === undefined && coverageId !== undefined) {
+    normalized.coverage_id = coverageId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const kind = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_kind'));
+  if (kind && normalized.kind === undefined) normalized.kind = kind;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const policyHolderId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_policy_holder_id'));
+  if (policyHolderId && normalized.policy_holder_id === undefined) normalized.policy_holder_id = policyHolderId;
+
+  const subscriberId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_subscriber_id'));
+  if (subscriberId && normalized.subscriber_id === undefined) normalized.subscriber_id = subscriberId;
+
+  const beneficiaryId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_beneficiary_id'));
+  if (beneficiaryId && normalized.beneficiary_id === undefined) normalized.beneficiary_id = beneficiaryId;
+
+  const dependent = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_dependent'));
+  if (dependent && normalized.dependent === undefined) normalized.dependent = dependent;
+
+  const relationship = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_relationship'));
+  if (relationship && normalized.relationship === undefined) {
+    normalized.relationship = { code: relationship, display: relationship };
+  }
+
+  const periodStart = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_period_start'));
+  if (periodStart && normalized.period_start === undefined) normalized.period_start = periodStart;
+
+  const periodEnd = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_period_end'));
+  if (periodEnd && normalized.period_end === undefined) normalized.period_end = periodEnd;
+
+  const insurerId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_insurer_id'));
+  if (insurerId && normalized.insurer_id === undefined) normalized.insurer_id = insurerId;
+
+  const classType = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_class_type'));
+  const classValue = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_class_value'));
+  const className = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_class_name'));
+  if ((classType || classValue || className) && normalized.class === undefined) {
+    normalized.class = [{
+      type: classType ? { code: classType, display: classType } : undefined,
+      value: classValue ? { value: classValue } : undefined,
+      name: className
+    }];
+  }
+
+  const order = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_order'));
+  if (order && normalized.order === undefined) normalized.order = order;
+
+  const network = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_network'));
+  if (network && normalized.network === undefined) normalized.network = network;
+
+  const paymentPartyId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_payment_party_id'));
+  const paymentResponsibility = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_payment_responsibility'));
+  if ((paymentPartyId || paymentResponsibility) && normalized.payment_by === undefined) {
+    normalized.payment_by = [{
+      party_id: paymentPartyId,
+      responsibility: paymentResponsibility
+    }];
+  }
+
+  const costType = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_type'));
+  const costCategory = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_category'));
+  const costNetwork = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_network'));
+  const costUnit = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_unit'));
+  const costTerm = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_term'));
+  const costValueQuantity = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_value_quantity'));
+  const costValueUnit = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_value_unit'));
+  const costValueMoney = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_value_money'));
+  const costCurrency = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_currency'));
+  const costExceptionType = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_exception_type'));
+  const costExceptionStart = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_exception_start'));
+  const costExceptionEnd = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_cost_exception_end'));
+  if ((costType || costCategory || costNetwork || costUnit || costTerm || costValueQuantity || costValueMoney || costCurrency || costExceptionType || costExceptionStart || costExceptionEnd)
+    && normalized.cost_to_beneficiary === undefined
+  ) {
+    normalized.cost_to_beneficiary = [{
+      type: costType ? { code: costType, display: costType } : undefined,
+      category: costCategory ? { code: costCategory, display: costCategory } : undefined,
+      network: costNetwork ? { code: costNetwork, display: costNetwork } : undefined,
+      unit: costUnit ? { code: costUnit, display: costUnit } : undefined,
+      term: costTerm ? { code: costTerm, display: costTerm } : undefined,
+      value_quantity: costValueQuantity || costValueUnit ? {
+        value: costValueQuantity,
+        unit: costValueUnit
+      } : undefined,
+      value_money: costValueMoney || costCurrency ? {
+        value: costValueMoney,
+        currency: costCurrency
+      } : undefined,
+      exception: (costExceptionType || costExceptionStart || costExceptionEnd) ? [{
+        type: costExceptionType ? { code: costExceptionType, display: costExceptionType } : undefined,
+        start: costExceptionStart,
+        end: costExceptionEnd
+      }] : undefined
+    }];
+  }
+
+  const subrogation = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_subrogation'));
+  if (subrogation && normalized.subrogation === undefined) normalized.subrogation = subrogation;
+
+  const contractId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_contract_id'));
+  if (contractId && normalized.contract_ids === undefined) normalized.contract_ids = contractId;
+
+  const insurancePlanId = normalizeAliasValue(readSectionAliasValue(value, 'coverage', 'coverage_insurance_plan_id'));
+  if (insurancePlanId && normalized.insurance_plan_id === undefined) normalized.insurance_plan_id = insurancePlanId;
+
+  return normalized;
+}
+
+function normalizeGlobalExplanationOfBenefitAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const eobId = readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_id');
+  if (normalized.explanation_of_benefit_id === undefined && eobId !== undefined) {
+    normalized.explanation_of_benefit_id = eobId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const subType = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_sub_type'));
+  if (subType && normalized.sub_type === undefined) normalized.sub_type = { code: subType, display: subType };
+
+  const use = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_use'));
+  if (use && normalized.use === undefined) normalized.use = use;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const billableStart = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_billable_start'));
+  if (billableStart && normalized.billable_start === undefined) normalized.billable_start = billableStart;
+
+  const billableEnd = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_billable_end'));
+  if (billableEnd && normalized.billable_end === undefined) normalized.billable_end = billableEnd;
+
+  const created = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_created'));
+  if (created && normalized.created === undefined) normalized.created = created;
+
+  const entererId = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_enterer_id'));
+  if (entererId && normalized.enterer_id === undefined) normalized.enterer_id = entererId;
+
+  const insurerId = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_insurer_id'));
+  if (insurerId && normalized.insurer_id === undefined) normalized.insurer_id = insurerId;
+
+  const providerId = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_provider_id'));
+  if (providerId && normalized.provider_id === undefined) normalized.provider_id = providerId;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_priority'));
+  if (priority && normalized.priority === undefined) normalized.priority = { code: priority, display: priority };
+
+  const claimId = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_claim_id'));
+  if (claimId && normalized.claim_id === undefined) normalized.claim_id = claimId;
+
+  const claimResponseId = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_claim_response_id'));
+  if (claimResponseId && normalized.claim_response_id === undefined) normalized.claim_response_id = claimResponseId;
+
+  const outcome = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_outcome'));
+  if (outcome && normalized.outcome === undefined) normalized.outcome = outcome;
+
+  const disposition = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_disposition'));
+  if (disposition && normalized.disposition === undefined) normalized.disposition = disposition;
+
+  const preAuthRef = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_pre_auth_ref'));
+  if (preAuthRef && normalized.pre_auth_ref === undefined) normalized.pre_auth_ref = preAuthRef;
+
+  const totalValue = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_total_value'));
+  const totalCurrency = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_total_currency'));
+  if ((totalValue || totalCurrency) && normalized.total === undefined) {
+    normalized.total = [{
+      amount: {
+        value: totalValue,
+        currency: totalCurrency
+      }
+    }];
+  }
+
+  const itemSequence = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_item_sequence'));
+  const itemProduct = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_item_product_or_service'));
+  const itemQuantity = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_item_quantity'));
+  const itemUnitPrice = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_item_unit_price'));
+  const itemNet = normalizeAliasValue(readSectionAliasValue(value, 'explanationOfBenefit', 'explanation_of_benefit_item_net'));
+  if ((itemSequence || itemProduct || itemQuantity || itemUnitPrice || itemNet) && normalized.item === undefined) {
+    normalized.item = [{
+      sequence: itemSequence,
+      product_or_service: itemProduct ? { code: itemProduct, display: itemProduct } : undefined,
+      quantity: itemQuantity ? { value: itemQuantity } : undefined,
+      unit_price: itemUnitPrice ? { value: itemUnitPrice } : undefined,
+      net: itemNet ? { value: itemNet } : undefined
+    }];
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalBinaryAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const binaryId = readSectionAliasValue(value, 'binary', 'binary_id');
+  if (normalized.binary_id === undefined && binaryId !== undefined) {
+    normalized.binary_id = binaryId;
+  }
+
+  const contentType = normalizeAliasValue(readSectionAliasValue(value, 'binary', 'binary_content_type'));
+  if (contentType && normalized.content_type === undefined) normalized.content_type = contentType;
+
+  const securityContext = normalizeAliasValue(readSectionAliasValue(value, 'binary', 'binary_security_context'));
+  if (securityContext && normalized.security_context === undefined) normalized.security_context = securityContext;
+
+  const data = normalizeAliasValue(readSectionAliasValue(value, 'binary', 'binary_data'));
+  if (data && normalized.data === undefined) normalized.data = data;
 
   return normalized;
 }
@@ -4856,6 +5609,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationAdministrationAliases(value);
     case 'medicationDispense':
       return normalizeGlobalMedicationDispenseAliases(value);
+    case 'deviceDispense':
+      return normalizeGlobalDeviceDispenseAliases(value);
     case 'capabilityStatement':
       return normalizeGlobalCapabilityStatementAliases(value);
     case 'operationOutcome':
@@ -4892,6 +5647,14 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalClaimAliases(value);
     case 'claimResponse':
       return normalizeGlobalClaimResponseAliases(value);
+    case 'composition':
+      return normalizeGlobalCompositionAliases(value);
+    case 'explanationOfBenefit':
+      return normalizeGlobalExplanationOfBenefitAliases(value);
+    case 'coverage':
+      return normalizeGlobalCoverageAliases(value);
+    case 'binary':
+      return normalizeGlobalBinaryAliases(value);
     case 'schedule':
       return normalizeGlobalScheduleAliases(value);
     case 'slot':
@@ -4933,6 +5696,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationStatement', 'medication_statement'],
     ['medicationAdministration', 'medication_administration'],
     ['medicationDispense', 'medication_dispense'],
+    ['deviceDispense', 'device_dispense'],
     ['capabilityStatement', 'capability_statement'],
     ['operationOutcome', 'operation_outcome'],
     ['parameters', 'parameters'],
@@ -4951,6 +5715,10 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['appointmentResponse', 'appointment_response'],
     ['claim', 'claim'],
     ['claimResponse', 'claim_response'],
+    ['composition', 'composition'],
+    ['explanationOfBenefit', 'explanation_of_benefit'],
+    ['coverage', 'coverage'],
+    ['binary', 'binary'],
     ['schedule', 'schedule'],
     ['slot', 'slot'],
     ['diagnosticReport', 'diagnostic_report'],
@@ -5060,6 +5828,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationStatement',
     'medicationAdministration',
     'medicationDispense',
+    'deviceDispense',
     'capabilityStatement',
     'operationOutcome',
     'parameters',
@@ -5073,6 +5842,10 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'appointmentResponse',
     'claim',
     'claimResponse',
+    'composition',
+    'explanationOfBenefit',
+    'coverage',
+    'binary',
     'schedule',
     'slot',
     'diagnosticReport',
@@ -5213,6 +5986,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationStatements = normalizeArray(validated.medication_statement);
   const medicationAdministrations = normalizeArray(validated.medication_administration);
   const medicationDispenses = normalizeArray(validated.medication_dispense);
+  const deviceDispenses = normalizeArray(validated.device_dispense);
   const capabilityStatements = normalizeArray(validated.capability_statement);
   const operationOutcomes = normalizeArray(validated.operation_outcome);
   const parametersList = normalizeArray(validated.parameters);
@@ -5239,6 +6013,10 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const appointmentResponses = normalizeArray(validated.appointment_response);
   const claims = normalizeArray(validated.claim);
   const claimResponses = normalizeArray(validated.claim_response);
+  const compositions = normalizeArray(validated.composition);
+  const explanationOfBenefits = normalizeArray(validated.explanation_of_benefit);
+  const coverages = normalizeArray(validated.coverage);
+  const binaries = normalizeArray(validated.binary);
   const schedules = normalizeArray(validated.schedule);
   const slots = normalizeArray(validated.slot);
   const diagnosticReports = normalizeArray(validated.diagnostic_report);
@@ -5274,6 +6052,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (medicationDispenses.length) {
     canonical.medicationDispenses = medicationDispenses.map(buildCanonicalMedicationDispenseGlobal);
+  }
+  if (deviceDispenses.length) {
+    canonical.deviceDispenses = deviceDispenses.map(buildCanonicalDeviceDispenseGlobal);
   }
   if (capabilityStatements.length) {
     canonical.capabilityStatements = capabilityStatements.map(buildCanonicalCapabilityStatementGlobal);
@@ -5353,6 +6134,18 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (claimResponses.length) {
     canonical.claimResponses = claimResponses.map(buildCanonicalClaimResponseGlobal);
   }
+  if (compositions.length) {
+    canonical.compositions = compositions.map(buildCanonicalCompositionGlobal);
+  }
+  if (explanationOfBenefits.length) {
+    canonical.explanationOfBenefits = explanationOfBenefits.map(buildCanonicalExplanationOfBenefitGlobal);
+  }
+  if (coverages.length) {
+    canonical.coverages = coverages.map(buildCanonicalCoverageGlobal);
+  }
+  if (binaries.length) {
+    canonical.binaries = binaries.map(buildCanonicalBinaryGlobal);
+  }
   if (schedules.length) {
     canonical.schedules = schedules.map(buildCanonicalScheduleGlobal);
   }
@@ -5403,6 +6196,10 @@ function normalizeArray<T>(value?: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
+function isDefined<T>(value: T | null | undefined): value is T {
+  return value !== undefined && value !== null;
+}
+
 function collectSourcePayloads(resources: Record<string, unknown[] | undefined>) {
   const payloads: Record<string, unknown> = {};
   const idKeys: Record<string, string[]> = {
@@ -5413,6 +6210,7 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     medication_statement: ['medication_statement_id', 'id', 'identifier'],
     medication_administration: ['medication_administration_id', 'id', 'identifier'],
     medication_dispense: ['medication_dispense_id', 'id', 'identifier'],
+    device_dispense: ['device_dispense_id', 'id', 'identifier'],
     capability_statement: ['capability_statement_id', 'id', 'identifier'],
     operation_outcome: ['operation_outcome_id', 'id', 'identifier'],
     parameters: ['id', 'identifier'],
@@ -5439,6 +6237,10 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     appointment_response: ['appointment_response_id', 'id', 'identifier'],
     claim: ['claim_id', 'id', 'identifier'],
     claim_response: ['claim_response_id', 'id', 'identifier'],
+    composition: ['composition_id', 'id', 'identifier'],
+    explanation_of_benefit: ['explanation_of_benefit_id', 'id', 'identifier'],
+    coverage: ['coverage_id', 'id', 'identifier'],
+    binary: ['binary_id', 'id', 'identifier'],
     schedule: ['schedule_id', 'id', 'identifier'],
     slot: ['slot_id', 'id', 'identifier'],
     diagnostic_report: ['diagnostic_report_id', 'id', 'identifier'],
@@ -5507,7 +6309,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -5518,6 +6320,7 @@ function wrapGlobalPayload(value: any) {
       value.medication_statement,
       value.medication_administration,
       value.medication_dispense,
+      value.device_dispense,
       value.capability_statement,
       value.operation_outcome,
       value.parameters,
@@ -5544,6 +6347,10 @@ function wrapGlobalPayload(value: any) {
       value.appointment_response,
       value.claim,
       value.claim_response,
+      value.composition,
+      value.explanation_of_benefit,
+      value.coverage,
+      value.binary,
       value.schedule,
       value.slot,
       value.diagnostic_report,
@@ -5580,6 +6387,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('medication_dispense_id' in value || 'when_handed_over' in value || 'quantity_value' in value) {
       return { medication_dispense: value };
+    }
+    if ('device_dispense_id' in value || 'device_dispense_status' in value || 'device_dispense_device_id' in value) {
+      return { device_dispense: value };
     }
     if ('capability_statement_id' in value || 'capability_statement_url' in value || 'fhir_version' in value) {
       return { capability_statement: value };
@@ -5659,6 +6469,18 @@ function wrapGlobalPayload(value: any) {
     if ('claim_response_id' in value || 'claim_response_status' in value || 'claim_response_type' in value) {
       return { claim_response: value };
     }
+    if ('composition_id' in value || 'composition_title' in value || 'composition_status' in value) {
+      return { composition: value };
+    }
+    if ('explanation_of_benefit_id' in value || 'explanation_of_benefit_status' in value || 'explanation_of_benefit_type' in value) {
+      return { explanation_of_benefit: value };
+    }
+    if ('coverage_id' in value || 'coverage_status' in value || 'coverage_kind' in value || 'beneficiary_id' in value) {
+      return { coverage: value };
+    }
+    if ('binary_id' in value || 'content_type' in value || 'security_context' in value || 'data' in value) {
+      return { binary: value };
+    }
     if ('schedule_id' in value || 'service_category' in value || 'actor_id' in value) {
       return { schedule: value };
     }
@@ -5729,6 +6551,9 @@ function looksLikeGlobalResource(value: any) {
     'medication_dispense_id' in value ||
     'quantity_value' in value ||
     'when_handed_over' in value ||
+    'device_dispense_id' in value ||
+    'device_dispense_status' in value ||
+    'device_dispense_device_id' in value ||
     'capability_statement_id' in value ||
     'capability_statement_url' in value ||
     'fhir_version' in value ||
@@ -5796,6 +6621,20 @@ function looksLikeGlobalResource(value: any) {
     'claim_response_id' in value ||
     'claim_response_status' in value ||
     'claim_response_type' in value ||
+    'composition_id' in value ||
+    'composition_title' in value ||
+    'composition_status' in value ||
+    'explanation_of_benefit_id' in value ||
+    'explanation_of_benefit_status' in value ||
+    'explanation_of_benefit_type' in value ||
+    'coverage_id' in value ||
+    'coverage_status' in value ||
+    'coverage_kind' in value ||
+    'binary_id' in value ||
+    'content_type' in value ||
+    'security_context' in value ||
+    'data' in value ||
+    'beneficiary_id' in value ||
     'start' in value ||
     'end' in value ||
     'schedule_id' in value ||
@@ -6336,7 +7175,7 @@ function buildCanonicalCareTeamGlobal(team: z.infer<typeof GlobalCareTeamSchema>
   const managingOrgs = normalizeStringArray(team.managing_org_ids);
   const notes = normalizeStringArray(team.note);
 
-  const telecom = [];
+  const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; use?: string }> = [];
   if (team.phone) telecom.push({ system: 'phone', value: team.phone });
   if (team.email) telecom.push({ system: 'email', value: team.email });
 
@@ -7164,13 +8003,13 @@ function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
     sequence: toNumber(entry.sequence as any),
     diagnosisCodeableConcept: mapCodeable(entry.diagnosis_code),
     diagnosisReference: entry.diagnosis_reference_id,
-    type: normalizeArray(entry.type).map(typeEntry => mapCodeable(typeEntry as any)).filter(Boolean),
+    type: normalizeArray(entry.type).map(typeEntry => mapCodeable(typeEntry as any)).filter(isDefined),
     onAdmission: mapCodeable(entry.on_admission)
   }));
 
   const procedures = normalizeArray(claim.procedure).map(entry => ({
     sequence: toNumber(entry.sequence as any),
-    type: normalizeArray(entry.type).map(typeEntry => mapCodeable(typeEntry as any)).filter(Boolean),
+    type: normalizeArray(entry.type).map(typeEntry => mapCodeable(typeEntry as any)).filter(isDefined),
     date: entry.date,
     procedureCodeableConcept: mapCodeable(entry.procedure_code),
     procedureReference: entry.procedure_reference_id,
@@ -7189,7 +8028,7 @@ function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
 
   const items = normalizeArray(claim.item).map(entry => ({
     sequence: toNumber(entry.sequence as any),
-    traceNumber: normalizeArray(entry.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    traceNumber: normalizeArray(entry.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
     careTeamSequence: toNumberList(entry.care_team_sequence),
     diagnosisSequence: toNumberList(entry.diagnosis_sequence),
     procedureSequence: toNumberList(entry.procedure_sequence),
@@ -7199,8 +8038,8 @@ function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
     productOrService: mapCodeable(entry.product_or_service),
     productOrServiceEnd: mapCodeable(entry.product_or_service_end),
     request: normalizeStringArray(entry.request_ids),
-    modifier: normalizeArray(entry.modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
-    programCode: normalizeArray(entry.program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+    modifier: normalizeArray(entry.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    programCode: normalizeArray(entry.program_code).map(code => mapCodeable(code as any)).filter(isDefined),
     servicedDate: entry.serviced_date,
     servicedPeriod: entry.serviced_start || entry.serviced_end ? { start: entry.serviced_start, end: entry.serviced_end } : undefined,
     locationCodeableConcept: mapCodeable(entry.location_codeable),
@@ -7216,13 +8055,13 @@ function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
     encounter: normalizeStringArray(entry.encounter_ids),
     detail: normalizeArray(entry.detail).map(detail => ({
       sequence: toNumber((detail as any).sequence),
-      traceNumber: normalizeArray((detail as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+      traceNumber: normalizeArray((detail as any).trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
       revenue: mapCodeable((detail as any).revenue),
       category: mapCodeable((detail as any).category),
       productOrService: mapCodeable((detail as any).product_or_service),
       productOrServiceEnd: mapCodeable((detail as any).product_or_service_end),
-      modifier: normalizeArray((detail as any).modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
-      programCode: normalizeArray((detail as any).program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+      modifier: normalizeArray((detail as any).modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+      programCode: normalizeArray((detail as any).program_code).map(code => mapCodeable(code as any)).filter(isDefined),
       patientPaid: mapMoney((detail as any).patient_paid),
       quantity: mapQuantity((detail as any).quantity),
       unitPrice: mapMoney((detail as any).unit_price),
@@ -7232,13 +8071,13 @@ function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
       udi: normalizeStringArray((detail as any).udi_ids),
       subDetail: normalizeArray((detail as any).sub_detail).map(sub => ({
         sequence: toNumber((sub as any).sequence),
-        traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+        traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
         revenue: mapCodeable((sub as any).revenue),
         category: mapCodeable((sub as any).category),
         productOrService: mapCodeable((sub as any).product_or_service),
         productOrServiceEnd: mapCodeable((sub as any).product_or_service_end),
-        modifier: normalizeArray((sub as any).modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
-        programCode: normalizeArray((sub as any).program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+        modifier: normalizeArray((sub as any).modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+        programCode: normalizeArray((sub as any).program_code).map(code => mapCodeable(code as any)).filter(isDefined),
         patientPaid: mapMoney((sub as any).patient_paid),
         quantity: mapQuantity((sub as any).quantity),
         unitPrice: mapMoney((sub as any).unit_price),
@@ -7353,7 +8192,7 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
     if (!entry) return undefined;
     return {
       decision: mapCodeable(entry.decision),
-      reason: normalizeArray(entry.reason).map(reason => mapCodeable(reason as any)).filter(Boolean),
+    reason: normalizeArray(entry.reason).map(reason => mapCodeable(reason as any)).filter(isDefined),
       preAuthRef: entry.pre_auth_ref,
       preAuthPeriod: mapPeriod(entry.pre_auth_start, entry.pre_auth_end)
     };
@@ -7371,34 +8210,34 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
 
   const mapItemDetail = (detail: z.infer<typeof GlobalClaimResponseItemDetailSchema>) => ({
     detailSequence: toNumber(detail.detail_sequence as any),
-    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
     noteNumber: toNumberList(detail.note_number),
     reviewOutcome: mapReviewOutcome(detail.review_outcome),
-    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
     subDetail: normalizeArray(detail.sub_detail).map(sub => ({
       subDetailSequence: toNumber((sub as any).sub_detail_sequence),
-      traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+      traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
       noteNumber: toNumberList((sub as any).note_number),
       reviewOutcome: mapReviewOutcome((sub as any).review_outcome),
-      adjudication: normalizeArray((sub as any).adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean)
+      adjudication: normalizeArray((sub as any).adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined)
     }))
   });
 
   const mapItem = (item: z.infer<typeof GlobalClaimResponseItemSchema>) => ({
     itemSequence: toNumber(item.item_sequence as any),
-    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
     noteNumber: toNumberList(item.note_number),
     reviewOutcome: mapReviewOutcome(item.review_outcome),
-    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
     detail: normalizeArray(item.detail).map(detail => mapItemDetail(detail as any))
   });
 
   const mapAddItemDetail = (detail: z.infer<typeof GlobalClaimResponseAddItemDetailSchema>) => ({
-    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
     revenue: mapCodeable(detail.revenue),
     productOrService: mapCodeable(detail.product_or_service),
     productOrServiceEnd: mapCodeable(detail.product_or_service_end),
-    modifier: normalizeArray(detail.modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+    modifier: normalizeArray(detail.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
     quantity: mapQuantity(detail.quantity),
     unitPrice: mapMoney(detail.unit_price),
     factor: toNumber(detail.factor as any),
@@ -7406,13 +8245,13 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
     net: mapMoney(detail.net),
     noteNumber: toNumberList(detail.note_number),
     reviewOutcome: mapReviewOutcome(detail.review_outcome),
-    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
     subDetail: normalizeArray(detail.sub_detail).map(sub => ({
-      traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+      traceNumber: normalizeArray((sub as any).trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
       revenue: mapCodeable((sub as any).revenue),
       productOrService: mapCodeable((sub as any).product_or_service),
       productOrServiceEnd: mapCodeable((sub as any).product_or_service_end),
-      modifier: normalizeArray((sub as any).modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
+      modifier: normalizeArray((sub as any).modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
       quantity: mapQuantity((sub as any).quantity),
       unitPrice: mapMoney((sub as any).unit_price),
       factor: toNumber((sub as any).factor),
@@ -7420,7 +8259,7 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
       net: mapMoney((sub as any).net),
       noteNumber: toNumberList((sub as any).note_number),
       reviewOutcome: mapReviewOutcome((sub as any).review_outcome),
-      adjudication: normalizeArray((sub as any).adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean)
+      adjudication: normalizeArray((sub as any).adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined)
     }))
   });
 
@@ -7428,14 +8267,14 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
     itemSequence: toNumberList(item.item_sequence),
     detailSequence: toNumberList(item.detail_sequence),
     subdetailSequence: toNumberList(item.subdetail_sequence),
-    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
     provider: normalizeStringArray(item.provider_ids),
     revenue: mapCodeable(item.revenue),
     productOrService: mapCodeable(item.product_or_service),
     productOrServiceEnd: mapCodeable(item.product_or_service_end),
     request: normalizeStringArray(item.request_ids),
-    modifier: normalizeArray(item.modifier).map(mod => mapCodeable(mod as any)).filter(Boolean),
-    programCode: normalizeArray(item.program_code).map(code => mapCodeable(code as any)).filter(Boolean),
+    modifier: normalizeArray(item.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    programCode: normalizeArray(item.program_code).map(code => mapCodeable(code as any)).filter(isDefined),
     servicedDate: item.serviced_date,
     servicedPeriod: mapPeriod(item.serviced_start, item.serviced_end),
     locationCodeableConcept: mapCodeable(item.location_codeable),
@@ -7454,7 +8293,7 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
     net: mapMoney(item.net),
     noteNumber: toNumberList(item.note_number),
     reviewOutcome: mapReviewOutcome(item.review_outcome),
-    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
     detail: normalizeArray(item.detail).map(detail => mapAddItemDetail(detail as any))
   });
 
@@ -7467,7 +8306,7 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
   return {
     id: response.claim_response_id,
     identifier: response.claim_response_id ? [{ value: response.claim_response_id }] : undefined,
-    traceNumber: normalizeArray(response.trace_number).map(id => mapIdentifier(id as any)).filter(Boolean),
+    traceNumber: normalizeArray(response.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
     status: response.status,
     type: mapCodeable(response.type),
     subType: mapCodeable(response.sub_type),
@@ -7488,7 +8327,7 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
     diagnosisRelatedGroup: mapCodeable(response.diagnosis_related_group),
     item: normalizeArray(response.item).map(item => mapItem(item as any)),
     addItem: normalizeArray(response.add_item).map(item => mapAddItem(item as any)),
-    adjudication: normalizeArray(response.adjudication).map(entry => mapAdjudication(entry as any)).filter(Boolean),
+    adjudication: normalizeArray(response.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
     total: normalizeArray(response.total).map(total => ({
       category: mapCodeable((total as any).category),
       amount: mapMoney((total as any).amount)
@@ -7530,6 +8369,638 @@ function buildCanonicalClaimResponseGlobal(response: z.infer<typeof GlobalClaimR
       code: mapCodeable((err as any).code),
       expression: normalizeStringArray((err as any).expression)
     }))
+  };
+}
+
+function buildCanonicalCompositionGlobal(composition: z.infer<typeof GlobalCompositionSchema>) {
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapSection = (
+    section: z.infer<typeof GlobalCompositionSectionSchema>
+  ): NonNullable<CanonicalComposition['section']>[number] => ({
+    title: section.title,
+    code: mapCodeable(section.code),
+    author: normalizeStringArray(section.author_ids),
+    focus: section.focus_id,
+    text: section.text,
+    orderedBy: mapCodeable(section.ordered_by),
+    entry: normalizeStringArray(section.entry_ids),
+    emptyReason: mapCodeable(section.empty_reason),
+    section: normalizeArray(section.section).map(child => mapSection(child as any))
+  });
+
+  const relatesTo = normalizeArray(composition.relates_to).map(rel => ({
+    type: (rel as any).type,
+    resource: (rel as any).resource_id,
+    identifier: (rel as any).identifier ? mapIdentifier((rel as any).identifier) : undefined
+  }));
+
+  const events = normalizeArray(composition.event).map(evt => ({
+    period: mapPeriod((evt as any).period_start, (evt as any).period_end),
+    detail: normalizeStringArray((evt as any).detail_ids)
+  }));
+
+  return {
+    id: composition.composition_id,
+    identifier: normalizeArray(composition.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    url: composition.url,
+    version: composition.version,
+    status: composition.status,
+    type: mapCodeable(composition.type),
+    category: normalizeArray(composition.category).map(cat => mapCodeable(cat as any)).filter(isDefined),
+    subject: normalizeStringArray(composition.subject_ids),
+    encounter: composition.encounter_id,
+    date: composition.date,
+    useContext: normalizeArray(composition.use_context).map(ctx => ({
+      code: mapCodeable((ctx as any).code),
+      valueCodeableConcept: mapCodeable((ctx as any).value_codeable),
+      valueReference: (ctx as any).value_reference_id
+    })),
+    author: normalizeStringArray(composition.author_ids),
+    name: composition.name,
+    title: composition.title,
+    note: normalizeArray(composition.note).map(note => ({
+      text: (note as any).text,
+      author: (note as any).author,
+      time: (note as any).time
+    })),
+    attester: normalizeArray(composition.attester).map(att => ({
+      mode: mapCodeable((att as any).mode),
+      time: (att as any).time,
+      party: (att as any).party_id
+    })),
+    custodian: composition.custodian_id,
+    relatesTo: relatesTo.length ? relatesTo : undefined,
+    event: events.length ? events : undefined,
+    section: normalizeArray(composition.section).map(section => mapSection(section as any))
+  };
+}
+
+function buildCanonicalDeviceDispenseGlobal(dispense: z.infer<typeof GlobalDeviceDispenseSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: string) => {
+    if (!value) return undefined;
+    return { code: value, display: value };
+  };
+
+  return {
+    id: dispense.device_dispense_id,
+    identifier: normalizeArray(dispense.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    basedOn: normalizeStringArray(dispense.based_on_ids),
+    partOf: normalizeStringArray(dispense.part_of_ids),
+    status: dispense.status,
+    statusReason: (dispense.status_reason_code || dispense.status_reason_reference_id) ? {
+      concept: mapCodeable(dispense.status_reason_code),
+      reference: dispense.status_reason_reference_id
+    } : undefined,
+    category: normalizeStringArray(dispense.category).map(code => mapCodeable(code)).filter(isDefined),
+    deviceCodeableConcept: mapCodeable(dispense.device_code),
+    deviceReference: dispense.device_reference_id,
+    subject: dispense.subject_id,
+    receiver: dispense.receiver_id,
+    encounter: dispense.encounter_id,
+    supportingInformation: normalizeStringArray(dispense.supporting_information_ids),
+    performer: (dispense.performer_function || dispense.performer_actor_id) ? [{
+      function: mapCodeable(dispense.performer_function),
+      actor: dispense.performer_actor_id
+    }] : undefined,
+    location: dispense.location_id,
+    type: mapCodeable(dispense.type),
+    quantity: (dispense.quantity_value !== undefined || dispense.quantity_unit) ? {
+      value: toNumber(dispense.quantity_value as any),
+      unit: dispense.quantity_unit
+    } : undefined,
+    preparedDate: dispense.prepared_date,
+    whenHandedOver: dispense.when_handed_over,
+    destination: dispense.destination_id,
+    note: normalizeStringArray(dispense.note),
+    usageInstruction: dispense.usage_instruction,
+    eventHistory: normalizeStringArray(dispense.event_history_ids)
+  };
+}
+
+function buildCanonicalExplanationOfBenefitGlobal(eob: z.infer<typeof GlobalExplanationOfBenefitSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const toNumberList = (value?: string | string[] | number | number[]) => {
+    if (value === undefined || value === null) return undefined;
+    const list = Array.isArray(value) ? value : [value];
+    const parsed = list
+      .map(entry => (typeof entry === 'number' ? entry : Number(entry)))
+      .filter(entry => !Number.isNaN(entry));
+    return parsed.length ? parsed : undefined;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapMoney = (source?: z.infer<typeof GlobalMoneySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      currency: source.currency
+    };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapAddress = (source?: z.infer<typeof GlobalAddressSchema>) => {
+    if (!source) return undefined;
+    return {
+      street: source.street,
+      city: source.city,
+      state: source.state,
+      postalCode: source.postal_code,
+      country: source.country
+    };
+  };
+
+  const mapReviewOutcome = (entry?: z.infer<typeof GlobalClaimResponseReviewOutcomeSchema>) => {
+    if (!entry) return undefined;
+    return {
+      decision: mapCodeable(entry.decision),
+      reason: normalizeArray(entry.reason).map(reason => mapCodeable(reason as any)).filter(isDefined),
+      preAuthRef: entry.pre_auth_ref,
+      preAuthPeriod: mapPeriod(entry.pre_auth_start, entry.pre_auth_end)
+    };
+  };
+
+  const mapAdjudication = (entry?: z.infer<typeof GlobalClaimResponseAdjudicationSchema>) => {
+    if (!entry) return undefined;
+    return {
+      category: mapCodeable(entry.category),
+      reason: mapCodeable(entry.reason),
+      amount: mapMoney(entry.amount),
+      quantity: mapQuantity(entry.quantity)
+    };
+  };
+
+  const mapItemSubDetail = (sub: z.infer<typeof GlobalExplanationOfBenefitItemSubDetailSchema>) => ({
+    sequence: toNumber(sub.sequence as any),
+    traceNumber: normalizeArray(sub.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    revenue: mapCodeable(sub.revenue),
+    category: mapCodeable(sub.category),
+    productOrService: mapCodeable(sub.product_or_service),
+    productOrServiceEnd: mapCodeable(sub.product_or_service_end),
+    modifier: normalizeArray(sub.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    programCode: normalizeArray(sub.program_code).map(code => mapCodeable(code as any)).filter(isDefined),
+    patientPaid: mapMoney(sub.patient_paid),
+    quantity: mapQuantity(sub.quantity),
+    unitPrice: mapMoney(sub.unit_price),
+    factor: toNumber(sub.factor as any),
+    tax: mapMoney(sub.tax),
+    net: mapMoney(sub.net),
+    udi: normalizeStringArray(sub.udi_ids),
+    noteNumber: toNumberList(sub.note_number),
+    reviewOutcome: mapReviewOutcome(sub.review_outcome),
+    adjudication: normalizeArray(sub.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined)
+  });
+
+  const mapItemDetail = (detail: z.infer<typeof GlobalExplanationOfBenefitItemDetailSchema>) => ({
+    sequence: toNumber(detail.sequence as any),
+    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    revenue: mapCodeable(detail.revenue),
+    category: mapCodeable(detail.category),
+    productOrService: mapCodeable(detail.product_or_service),
+    productOrServiceEnd: mapCodeable(detail.product_or_service_end),
+    modifier: normalizeArray(detail.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    programCode: normalizeArray(detail.program_code).map(code => mapCodeable(code as any)).filter(isDefined),
+    patientPaid: mapMoney(detail.patient_paid),
+    quantity: mapQuantity(detail.quantity),
+    unitPrice: mapMoney(detail.unit_price),
+    factor: toNumber(detail.factor as any),
+    tax: mapMoney(detail.tax),
+    net: mapMoney(detail.net),
+    udi: normalizeStringArray(detail.udi_ids),
+    noteNumber: toNumberList(detail.note_number),
+    reviewOutcome: mapReviewOutcome(detail.review_outcome),
+    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
+    subDetail: normalizeArray(detail.sub_detail).map(sub => mapItemSubDetail(sub as any))
+  });
+
+  const mapItem = (item: z.infer<typeof GlobalExplanationOfBenefitItemSchema>) => ({
+    sequence: toNumber(item.sequence as any),
+    careTeamSequence: toNumberList(item.care_team_sequence),
+    diagnosisSequence: toNumberList(item.diagnosis_sequence),
+    procedureSequence: toNumberList(item.procedure_sequence),
+    informationSequence: toNumberList(item.information_sequence),
+    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    revenue: mapCodeable(item.revenue),
+    category: mapCodeable(item.category),
+    productOrService: mapCodeable(item.product_or_service),
+    productOrServiceEnd: mapCodeable(item.product_or_service_end),
+    request: normalizeStringArray(item.request_ids),
+    modifier: normalizeArray(item.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    programCode: normalizeArray(item.program_code).map(code => mapCodeable(code as any)).filter(isDefined),
+    servicedDate: item.serviced_date,
+    servicedPeriod: mapPeriod(item.serviced_start, item.serviced_end),
+    locationCodeableConcept: mapCodeable(item.location_codeable),
+    locationAddress: mapAddress(item.location_address as any),
+    locationReference: item.location_reference_id,
+    patientPaid: mapMoney(item.patient_paid),
+    quantity: mapQuantity(item.quantity),
+    unitPrice: mapMoney(item.unit_price),
+    factor: toNumber(item.factor as any),
+    tax: mapMoney(item.tax),
+    net: mapMoney(item.net),
+    udi: normalizeStringArray(item.udi_ids),
+    noteNumber: toNumberList(item.note_number),
+    reviewOutcome: mapReviewOutcome(item.review_outcome),
+    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
+    detail: normalizeArray(item.detail).map(detail => mapItemDetail(detail as any))
+  });
+
+  const mapAddItemSubDetail = (sub: z.infer<typeof GlobalExplanationOfBenefitItemSubDetailSchema>) => ({
+    traceNumber: normalizeArray(sub.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    revenue: mapCodeable(sub.revenue),
+    productOrService: mapCodeable(sub.product_or_service),
+    productOrServiceEnd: mapCodeable(sub.product_or_service_end),
+    modifier: normalizeArray(sub.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    patientPaid: mapMoney(sub.patient_paid),
+    quantity: mapQuantity(sub.quantity),
+    unitPrice: mapMoney(sub.unit_price),
+    factor: toNumber(sub.factor as any),
+    tax: mapMoney(sub.tax),
+    net: mapMoney(sub.net),
+    noteNumber: toNumberList(sub.note_number),
+    reviewOutcome: mapReviewOutcome(sub.review_outcome),
+    adjudication: normalizeArray(sub.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined)
+  });
+
+  const mapAddItemDetail = (detail: z.infer<typeof GlobalExplanationOfBenefitAddItemDetailSchema>) => ({
+    traceNumber: normalizeArray(detail.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    revenue: mapCodeable(detail.revenue),
+    productOrService: mapCodeable(detail.product_or_service),
+    productOrServiceEnd: mapCodeable(detail.product_or_service_end),
+    modifier: normalizeArray(detail.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    patientPaid: mapMoney(detail.patient_paid),
+    quantity: mapQuantity(detail.quantity),
+    unitPrice: mapMoney(detail.unit_price),
+    factor: toNumber(detail.factor as any),
+    tax: mapMoney(detail.tax),
+    net: mapMoney(detail.net),
+    noteNumber: toNumberList(detail.note_number),
+    reviewOutcome: mapReviewOutcome(detail.review_outcome),
+    adjudication: normalizeArray(detail.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
+    subDetail: normalizeArray(detail.sub_detail).map(sub => mapAddItemSubDetail(sub as any))
+  });
+
+  const mapAddItem = (item: z.infer<typeof GlobalExplanationOfBenefitAddItemSchema>) => ({
+    itemSequence: toNumberList(item.item_sequence),
+    detailSequence: toNumberList(item.detail_sequence),
+    subdetailSequence: toNumberList(item.subdetail_sequence),
+    traceNumber: normalizeArray(item.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    provider: normalizeStringArray(item.provider_ids),
+    revenue: mapCodeable(item.revenue),
+    productOrService: mapCodeable(item.product_or_service),
+    productOrServiceEnd: mapCodeable(item.product_or_service_end),
+    request: normalizeStringArray(item.request_ids),
+    modifier: normalizeArray(item.modifier).map(mod => mapCodeable(mod as any)).filter(isDefined),
+    programCode: normalizeArray(item.program_code).map(code => mapCodeable(code as any)).filter(isDefined),
+    servicedDate: item.serviced_date,
+    servicedPeriod: mapPeriod(item.serviced_start, item.serviced_end),
+    locationCodeableConcept: mapCodeable(item.location_codeable),
+    locationAddress: mapAddress(item.location_address as any),
+    locationReference: item.location_reference_id,
+    patientPaid: mapMoney(item.patient_paid),
+    quantity: mapQuantity(item.quantity),
+    unitPrice: mapMoney(item.unit_price),
+    factor: toNumber(item.factor as any),
+    tax: mapMoney(item.tax),
+    net: mapMoney(item.net),
+    noteNumber: toNumberList(item.note_number),
+    reviewOutcome: mapReviewOutcome(item.review_outcome),
+    adjudication: normalizeArray(item.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
+    detail: normalizeArray(item.detail).map(detail => mapAddItemDetail(detail as any))
+  });
+
+  return {
+    id: eob.explanation_of_benefit_id,
+    identifier: normalizeArray(eob.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    traceNumber: normalizeArray(eob.trace_number).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: eob.status,
+    type: mapCodeable(eob.type),
+    subType: mapCodeable(eob.sub_type),
+    use: eob.use,
+    patient: eob.patient_id,
+    billablePeriod: mapPeriod(eob.billable_start, eob.billable_end),
+    created: eob.created,
+    enterer: eob.enterer_id,
+    insurer: eob.insurer_id,
+    provider: eob.provider_id,
+    priority: mapCodeable(eob.priority),
+    fundsReserveRequested: mapCodeable(eob.funds_reserve_requested),
+    fundsReserve: mapCodeable(eob.funds_reserve),
+    related: normalizeArray(eob.related).map(rel => ({
+      claim: (rel as any).claim_id,
+      relationship: mapCodeable((rel as any).relationship),
+      reference: (rel as any).reference ? mapIdentifier((rel as any).reference) : undefined
+    })),
+    prescription: eob.prescription_id,
+    originalPrescription: eob.original_prescription_id,
+    event: normalizeArray(eob.event).map(evt => ({
+      type: mapCodeable((evt as any).type),
+      whenDateTime: (evt as any).when_date_time,
+      whenPeriod: mapPeriod((evt as any).when_start, (evt as any).when_end)
+    })),
+    payee: eob.payee ? {
+      type: mapCodeable((eob.payee as any).type),
+      party: (eob.payee as any).party_id
+    } : undefined,
+    referral: eob.referral_id,
+    encounter: normalizeStringArray(eob.encounter_ids),
+    facility: eob.facility_id,
+    claim: eob.claim_id,
+    claimResponse: eob.claim_response_id,
+    outcome: eob.outcome,
+    decision: mapCodeable(eob.decision),
+    disposition: eob.disposition,
+    preAuthRef: normalizeStringArray(eob.pre_auth_ref),
+    preAuthRefPeriod: normalizeArray(eob.pre_auth_ref_period).map(period => mapPeriod((period as any).start, (period as any).end)).filter(isDefined),
+    diagnosisRelatedGroup: mapCodeable(eob.diagnosis_related_group),
+    careTeam: normalizeArray(eob.care_team).map(entry => ({
+      sequence: toNumber((entry as any).sequence),
+      provider: (entry as any).provider_id,
+      responsible: normalizeBoolean((entry as any).responsible as any),
+      role: mapCodeable((entry as any).role),
+      specialty: mapCodeable((entry as any).specialty)
+    })),
+    supportingInfo: normalizeArray(eob.supporting_info).map(info => ({
+      sequence: toNumber((info as any).sequence),
+      category: mapCodeable((info as any).category),
+      code: mapCodeable((info as any).code),
+      timingDate: (info as any).timing_date,
+      timingPeriod: mapPeriod((info as any).timing_start, (info as any).timing_end),
+      valueBoolean: normalizeBoolean((info as any).value_boolean),
+      valueString: (info as any).value_string,
+      valueQuantity: mapQuantity((info as any).value_quantity),
+      valueAttachment: (info as any).value_attachment ? {
+        contentType: (info as any).value_attachment.content_type,
+        url: (info as any).value_attachment.url,
+        title: (info as any).value_attachment.title,
+        data: (info as any).value_attachment.data
+      } : undefined,
+      valueReference: (info as any).value_reference_id,
+      valueIdentifier: (info as any).value_identifier ? mapIdentifier((info as any).value_identifier) : undefined,
+      reason: mapCodeable((info as any).reason)
+    })),
+    diagnosis: normalizeArray(eob.diagnosis).map(diag => ({
+      sequence: toNumber((diag as any).sequence),
+      diagnosisCodeableConcept: mapCodeable((diag as any).diagnosis_code),
+      diagnosisReference: (diag as any).diagnosis_reference_id,
+      type: normalizeArray((diag as any).type).map(t => mapCodeable(t as any)).filter(isDefined),
+      onAdmission: mapCodeable((diag as any).on_admission)
+    })),
+    procedure: normalizeArray(eob.procedure).map(proc => ({
+      sequence: toNumber((proc as any).sequence),
+      type: normalizeArray((proc as any).type).map(t => mapCodeable(t as any)).filter(isDefined),
+      date: (proc as any).date,
+      procedureCodeableConcept: mapCodeable((proc as any).procedure_code),
+      procedureReference: (proc as any).procedure_reference_id,
+      udi: normalizeStringArray((proc as any).udi_ids)
+    })),
+    precedence: toNumber(eob.precedence as any),
+    insurance: normalizeArray(eob.insurance).map(ins => ({
+      focal: normalizeBoolean((ins as any).focal),
+      coverage: (ins as any).coverage_id,
+      preAuthRef: normalizeStringArray((ins as any).pre_auth_ref)
+    })),
+    accident: eob.accident ? {
+      date: (eob.accident as any).date,
+      type: mapCodeable((eob.accident as any).type),
+      locationAddress: mapAddress((eob.accident as any).location_address),
+      locationReference: (eob.accident as any).location_reference_id
+    } : undefined,
+    patientPaid: mapMoney(eob.patient_paid),
+    item: normalizeArray(eob.item).map(item => mapItem(item as any)),
+    addItem: normalizeArray(eob.add_item).map(item => mapAddItem(item as any)),
+    adjudication: normalizeArray(eob.adjudication).map(entry => mapAdjudication(entry as any)).filter(isDefined),
+    total: normalizeArray(eob.total).map(total => ({
+      category: mapCodeable((total as any).category),
+      amount: mapMoney((total as any).amount)
+    })),
+    payment: eob.payment ? {
+      type: mapCodeable((eob.payment as any).type),
+      adjustment: mapMoney((eob.payment as any).adjustment),
+      adjustmentReason: mapCodeable((eob.payment as any).adjustment_reason),
+      date: (eob.payment as any).date,
+      amount: mapMoney((eob.payment as any).amount),
+      identifier: (eob.payment as any).identifier ? mapIdentifier((eob.payment as any).identifier) : undefined
+    } : undefined,
+    formCode: mapCodeable(eob.form_code),
+    form: eob.form ? {
+      contentType: (eob.form as any).content_type,
+      url: (eob.form as any).url,
+      title: (eob.form as any).title,
+      data: (eob.form as any).data
+    } : undefined,
+    processNote: normalizeArray(eob.process_note).map(note => ({
+      number: toNumber((note as any).number),
+      type: mapCodeable((note as any).type),
+      text: (note as any).text,
+      language: mapCodeable((note as any).language)
+    })),
+    benefitPeriod: eob.benefit_period ? mapPeriod((eob.benefit_period as any).start, (eob.benefit_period as any).end) : undefined,
+    benefitBalance: normalizeArray(eob.benefit_balance).map(balance => ({
+      category: mapCodeable((balance as any).category),
+      excluded: normalizeBoolean((balance as any).excluded),
+      name: (balance as any).name,
+      description: (balance as any).description,
+      network: mapCodeable((balance as any).network),
+      unit: mapCodeable((balance as any).unit),
+      term: mapCodeable((balance as any).term),
+      financial: normalizeArray((balance as any).financial).map(fin => ({
+        type: mapCodeable((fin as any).type),
+        allowedUnsignedInt: toNumber((fin as any).allowed_unsigned_int),
+        allowedString: (fin as any).allowed_string,
+        allowedMoney: mapMoney((fin as any).allowed_money),
+        usedUnsignedInt: toNumber((fin as any).used_unsigned_int),
+        usedMoney: mapMoney((fin as any).used_money)
+      }))
+    }))
+  };
+}
+
+function buildCanonicalBinaryGlobal(binary: z.infer<typeof GlobalBinarySchema>) {
+  return {
+    id: binary.binary_id,
+    contentType: binary.content_type,
+    securityContext: binary.security_context,
+    data: binary.data
+  };
+}
+
+function buildCanonicalCoverageGlobal(coverage: z.infer<typeof GlobalCoverageSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapMoney = (source?: z.infer<typeof GlobalMoneySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      currency: source.currency
+    };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  return {
+    id: coverage.coverage_id,
+    identifier: normalizeArray(coverage.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: coverage.status,
+    kind: coverage.kind,
+    paymentBy: normalizeArray(coverage.payment_by)
+      .map(entry => ({
+        party: (entry as any).party_id,
+        responsibility: (entry as any).responsibility
+      }))
+      .filter(entry => entry.party || entry.responsibility),
+    type: mapCodeable(coverage.type),
+    policyHolder: coverage.policy_holder_id,
+    subscriber: coverage.subscriber_id,
+    subscriberId: normalizeArray(coverage.subscriber_identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    beneficiary: coverage.beneficiary_id,
+    dependent: coverage.dependent,
+    relationship: mapCodeable(coverage.relationship),
+    period: mapPeriod(coverage.period_start, coverage.period_end),
+    insurer: coverage.insurer_id,
+    class: normalizeArray(coverage.class)
+      .map(entry => ({
+        type: mapCodeable((entry as any).type),
+        value: (entry as any).value
+          ? {
+            system: ((entry as any).value as any).system,
+            value: ((entry as any).value as any).value
+          }
+          : undefined,
+        name: (entry as any).name
+      }))
+      .filter(entry => entry.type || entry.value || entry.name),
+    order: toNumber(coverage.order as any),
+    network: coverage.network,
+    costToBeneficiary: normalizeArray(coverage.cost_to_beneficiary)
+      .map(cost => ({
+        type: mapCodeable((cost as any).type),
+        category: mapCodeable((cost as any).category),
+        network: mapCodeable((cost as any).network),
+        unit: mapCodeable((cost as any).unit),
+        term: mapCodeable((cost as any).term),
+        valueQuantity: mapQuantity((cost as any).value_quantity),
+        valueMoney: mapMoney((cost as any).value_money),
+        exception: normalizeArray((cost as any).exception).map(ex => ({
+          type: mapCodeable((ex as any).type),
+          period: mapPeriod((ex as any).start, (ex as any).end)
+        }))
+      }))
+      .filter(entry => entry.type || entry.category || entry.network || entry.unit || entry.term || entry.valueQuantity || entry.valueMoney || (entry.exception && entry.exception.length > 0)),
+    subrogation: normalizeBoolean(coverage.subrogation as any),
+    contract: normalizeStringArray(coverage.contract_ids),
+    insurancePlan: coverage.insurance_plan_id
   };
 }
 
@@ -7632,7 +9103,7 @@ function buildCanonicalDiagnosticReportGlobal(report: z.infer<typeof GlobalDiagn
 function buildCanonicalRelatedPersonGlobal(rp: z.infer<typeof GlobalRelatedPersonSchema>) {
   const active = normalizeBoolean(rp.active);
 
-  const telecom = [];
+  const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; use?: string }> = [];
   if (rp.phone) telecom.push({ system: 'phone', value: rp.phone });
   if (rp.email) telecom.push({ system: 'email', value: rp.email });
 

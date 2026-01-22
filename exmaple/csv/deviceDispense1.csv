@@ -1,0 +1,2 @@
+device_dispense_id,device_dispense_status,device_dispense_device_code,device_dispense_subject_id,device_dispense_quantity_value,device_dispense_quantity_unit,device_dispense_prepared_date,device_dispense_when_handed_over,device_dispense_usage_instruction,device_dispense_destination_id
+DD-1,completed,DVC-100,PAT-1,1,ea,2024-02-10T09:00:00Z,2024-02-10T10:00:00Z,Use as directed,LOC-1

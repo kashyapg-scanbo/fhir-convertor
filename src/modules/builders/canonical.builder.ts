@@ -470,7 +470,7 @@ export function buildCanonical(parsed: any) {
   /* ───── Parameters (from OBX) ───── */
   const parameters: CanonicalParameters[] = [];
   if (obxSegments.length > 0) {
-    const paramList = obxSegments.map(obx => {
+    const paramList = obxSegments.map((obx: any) => {
       const codeParts = obx?.[2]?.[0] ?? [];
       const name = codeParts[1] || codeParts[0] || 'parameter';
       const value = obx?.[4]?.[0]?.[0];

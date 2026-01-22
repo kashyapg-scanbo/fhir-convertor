@@ -234,6 +234,13 @@ function resolveAnyRef(
   return resourceTypes.length > 0 ? `${resourceTypes[0]}/${value}` : value;
 }
 
+type ClaimResponseItem = NonNullable<CanonicalClaimResponse['item']>[number];
+type ClaimResponseItemDetail = NonNullable<ClaimResponseItem['detail']>[number];
+type ClaimResponseItemSubDetail = NonNullable<ClaimResponseItemDetail['subDetail']>[number];
+type ClaimResponseAddItem = NonNullable<CanonicalClaimResponse['addItem']>[number];
+type ClaimResponseAddItemDetail = NonNullable<ClaimResponseAddItem['detail']>[number];
+type ClaimResponseAddItemSubDetail = NonNullable<ClaimResponseAddItemDetail['subDetail']>[number];
+
 function mapAdjudication(entry: NonNullable<CanonicalClaimResponse['adjudication']>[number]) {
   return {
     category: mapCodeableConcept(entry.category),
@@ -258,7 +265,7 @@ function mapReviewOutcome(entry?: {
   };
 }
 
-function mapItem(item: NonNullable<CanonicalClaimResponse['item']>[number], resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined) {
+function mapItem(item: ClaimResponseItem, resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined) {
   return {
     itemSequence: item.itemSequence,
     traceNumber: item.traceNumber?.length ? item.traceNumber.map(mapIdentifier).filter(Boolean) : undefined,
@@ -270,7 +277,7 @@ function mapItem(item: NonNullable<CanonicalClaimResponse['item']>[number], reso
 }
 
 function mapDetail(
-  detail: NonNullable<CanonicalClaimResponse['item']>[number]['detail'][number],
+  detail: ClaimResponseItemDetail,
   resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined
 ) {
   return {
@@ -284,7 +291,7 @@ function mapDetail(
 }
 
 function mapSubDetail(
-  subDetail: NonNullable<NonNullable<CanonicalClaimResponse['item']>[number]['detail'][number]['subDetail']>[number],
+  subDetail: ClaimResponseItemSubDetail,
   _resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined
 ) {
   return {
@@ -297,7 +304,7 @@ function mapSubDetail(
 }
 
 function mapAddItem(
-  item: NonNullable<CanonicalClaimResponse['addItem']>[number],
+  item: ClaimResponseAddItem,
   resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined
 ) {
   return {
@@ -342,7 +349,7 @@ function mapAddItem(
 }
 
 function mapAddItemDetail(
-  detail: NonNullable<CanonicalClaimResponse['addItem']>[number]['detail'][number],
+  detail: ClaimResponseAddItemDetail,
   _resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined
 ) {
   return {
@@ -364,7 +371,7 @@ function mapAddItemDetail(
 }
 
 function mapAddItemSubDetail(
-  subDetail: NonNullable<NonNullable<CanonicalClaimResponse['addItem']>[number]['detail'][number]['subDetail']>[number]
+  subDetail: ClaimResponseAddItemSubDetail
 ) {
   return {
     traceNumber: subDetail.traceNumber?.length ? subDetail.traceNumber.map(mapIdentifier).filter(Boolean) : undefined,

@@ -429,6 +429,66 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationDispenses.length > 0) canonical.medicationDispenses = medicationDispenses as any[];
 
+  const deviceDispenses = rows.map(row => {
+    const dispenseId = readValue(row, 'device_dispense_id');
+    const status = readValue(row, 'device_dispense_status');
+    const deviceCode = readValue(row, 'device_dispense_device_code');
+    const deviceId = readValue(row, 'device_dispense_device_id');
+    if (!dispenseId && !status && !deviceCode && !deviceId) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const basedOnRaw = readValue(row, 'device_dispense_based_on_ids');
+    const partOfRaw = readValue(row, 'device_dispense_part_of_ids');
+    const categoryRaw = readValue(row, 'device_dispense_category');
+    const supportingInfoRaw = readValue(row, 'device_dispense_supporting_information_ids');
+    const eventHistoryRaw = readValue(row, 'device_dispense_event_history_ids');
+    const note = readValue(row, 'device_dispense_note');
+
+    const quantityValue = readNumber(row, 'device_dispense_quantity_value');
+    const quantityUnit = readValue(row, 'device_dispense_quantity_unit');
+
+    return {
+      id: dispenseId || undefined,
+      identifier: dispenseId ? [{ value: dispenseId }] : undefined,
+      basedOn: toList(basedOnRaw),
+      partOf: toList(partOfRaw),
+      status: status || undefined,
+      statusReason: (readValue(row, 'device_dispense_status_reason_code') || readValue(row, 'device_dispense_status_reason_reference_id')) ? {
+        concept: readValue(row, 'device_dispense_status_reason_code')
+          ? { code: readValue(row, 'device_dispense_status_reason_code'), display: readValue(row, 'device_dispense_status_reason_code') }
+          : undefined,
+        reference: readValue(row, 'device_dispense_status_reason_reference_id') || undefined
+      } : undefined,
+      category: toList(categoryRaw)?.map(value => ({ code: value, display: value })),
+      deviceCodeableConcept: deviceCode ? { code: deviceCode, display: deviceCode } : undefined,
+      deviceReference: deviceId || undefined,
+      subject: readValue(row, 'device_dispense_subject_id') || undefined,
+      receiver: readValue(row, 'device_dispense_receiver_id') || undefined,
+      encounter: readValue(row, 'device_dispense_encounter_id') || undefined,
+      supportingInformation: toList(supportingInfoRaw),
+      performer: (readValue(row, 'device_dispense_performer_actor_id') || readValue(row, 'device_dispense_performer_function')) ? [{
+        function: readValue(row, 'device_dispense_performer_function')
+          ? { code: readValue(row, 'device_dispense_performer_function'), display: readValue(row, 'device_dispense_performer_function') }
+          : undefined,
+        actor: readValue(row, 'device_dispense_performer_actor_id') || undefined
+      }] : undefined,
+      location: readValue(row, 'device_dispense_location_id') || undefined,
+      type: readValue(row, 'device_dispense_type') ? {
+        code: readValue(row, 'device_dispense_type'),
+        display: readValue(row, 'device_dispense_type')
+      } : undefined,
+      quantity: (quantityValue !== undefined || quantityUnit) ? { value: quantityValue, unit: quantityUnit || undefined } : undefined,
+      preparedDate: readValue(row, 'device_dispense_prepared_date') || undefined,
+      whenHandedOver: readValue(row, 'device_dispense_when_handed_over') || undefined,
+      destination: readValue(row, 'device_dispense_destination_id') || undefined,
+      note: note ? [note] : undefined,
+      usageInstruction: readValue(row, 'device_dispense_usage_instruction') || undefined,
+      eventHistory: toList(eventHistoryRaw)
+    };
+  }).filter(Boolean);
+  if (deviceDispenses.length > 0) canonical.deviceDispenses = deviceDispenses as any[];
+
   const capabilityStatements = rows.map(row => {
     const capabilityId = readValue(row, 'capability_statement_id');
     const url = readValue(row, 'capability_statement_url');
@@ -1841,6 +1901,186 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (claimResponses.length > 0) canonical.claimResponses = claimResponses as any[];
 
+  const explanationOfBenefits = rows.map(row => {
+    const eobId = readValue(row, 'explanation_of_benefit_id');
+    const status = readValue(row, 'explanation_of_benefit_status');
+    const type = readValue(row, 'explanation_of_benefit_type');
+    const use = readValue(row, 'explanation_of_benefit_use');
+    const patientId = readValue(row, 'explanation_of_benefit_patient_id');
+    if (!eobId && !status && !type && !use && !patientId) return null;
+
+    const billableStart = readValue(row, 'explanation_of_benefit_billable_start');
+    const billableEnd = readValue(row, 'explanation_of_benefit_billable_end');
+    const created = readValue(row, 'explanation_of_benefit_created');
+    const entererId = readValue(row, 'explanation_of_benefit_enterer_id');
+    const insurerId = readValue(row, 'explanation_of_benefit_insurer_id');
+    const providerId = readValue(row, 'explanation_of_benefit_provider_id');
+    const priority = readValue(row, 'explanation_of_benefit_priority');
+    const claimId = readValue(row, 'explanation_of_benefit_claim_id');
+    const claimResponseId = readValue(row, 'explanation_of_benefit_claim_response_id');
+    const outcome = readValue(row, 'explanation_of_benefit_outcome');
+    const disposition = readValue(row, 'explanation_of_benefit_disposition');
+    const preAuthRef = readValue(row, 'explanation_of_benefit_pre_auth_ref');
+    const totalValue = readNumber(row, 'explanation_of_benefit_total_value');
+    const totalCurrency = readValue(row, 'explanation_of_benefit_total_currency');
+
+    const itemSequence = readNumber(row, 'explanation_of_benefit_item_sequence');
+    const itemProduct = readValue(row, 'explanation_of_benefit_item_product_or_service');
+    const itemQuantity = readNumber(row, 'explanation_of_benefit_item_quantity');
+    const itemUnitPrice = readNumber(row, 'explanation_of_benefit_item_unit_price');
+    const itemNet = readNumber(row, 'explanation_of_benefit_item_net');
+
+    return {
+      id: eobId || undefined,
+      identifier: eobId ? [{ value: eobId }] : undefined,
+      status: status || undefined,
+      type: type ? { code: type, display: type } : undefined,
+      subType: readValue(row, 'explanation_of_benefit_sub_type') ? {
+        code: readValue(row, 'explanation_of_benefit_sub_type'),
+        display: readValue(row, 'explanation_of_benefit_sub_type')
+      } : undefined,
+      use: use || undefined,
+      patient: patientId || undefined,
+      billablePeriod: (billableStart || billableEnd) ? { start: billableStart, end: billableEnd } : undefined,
+      created: created || undefined,
+      enterer: entererId || undefined,
+      insurer: insurerId || undefined,
+      provider: providerId || undefined,
+      priority: priority ? { code: priority, display: priority } : undefined,
+      claim: claimId || undefined,
+      claimResponse: claimResponseId || undefined,
+      outcome: outcome || undefined,
+      disposition: disposition || undefined,
+      preAuthRef: preAuthRef ? [preAuthRef] : undefined,
+      item: (itemSequence !== undefined || itemProduct || itemQuantity !== undefined || itemUnitPrice !== undefined || itemNet !== undefined) ? [{
+        sequence: itemSequence,
+        productOrService: itemProduct ? { code: itemProduct, display: itemProduct } : undefined,
+        quantity: itemQuantity !== undefined ? { value: itemQuantity } : undefined,
+        unitPrice: itemUnitPrice !== undefined ? { value: itemUnitPrice } : undefined,
+        net: itemNet !== undefined ? { value: itemNet } : undefined
+      }] : undefined,
+      total: (totalValue !== undefined || totalCurrency) ? [{
+        amount: {
+          value: totalValue,
+          currency: totalCurrency
+        }
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (explanationOfBenefits.length > 0) canonical.explanationOfBenefits = explanationOfBenefits as any[];
+
+  const compositions = rows.map(row => {
+    const compositionId = readValue(row, 'composition_id');
+    const status = readValue(row, 'composition_status');
+    const type = readValue(row, 'composition_type');
+    const title = readValue(row, 'composition_title');
+    if (!compositionId && !status && !type && !title) return null;
+
+    const subjectId = readValue(row, 'composition_subject_id');
+    const encounterId = readValue(row, 'composition_encounter_id');
+    const authorId = readValue(row, 'composition_author_id');
+    const date = readValue(row, 'composition_date');
+    const url = readValue(row, 'composition_url');
+    const version = readValue(row, 'composition_version');
+
+    return {
+      id: compositionId || undefined,
+      identifier: compositionId ? [{ value: compositionId }] : undefined,
+      status: status || undefined,
+      type: type ? { code: type, display: type } : undefined,
+      title: title || undefined,
+      subject: subjectId ? [subjectId] : undefined,
+      encounter: encounterId || undefined,
+      author: authorId ? [authorId] : undefined,
+      date: date || undefined,
+      url: url || undefined,
+      version: version || undefined
+    };
+  }).filter(Boolean);
+  if (compositions.length > 0) canonical.compositions = compositions as any[];
+
+  const coverages = rows.map(row => {
+    const coverageId = readValue(row, 'coverage_id');
+    const status = readValue(row, 'coverage_status');
+    const kind = readValue(row, 'coverage_kind');
+    const type = readValue(row, 'coverage_type');
+    const beneficiaryId = readValue(row, 'coverage_beneficiary_id');
+    if (!coverageId && !status && !kind && !type && !beneficiaryId) return null;
+
+    const policyHolderId = readValue(row, 'coverage_policy_holder_id');
+    const subscriberId = readValue(row, 'coverage_subscriber_id');
+    const dependent = readValue(row, 'coverage_dependent');
+    const relationship = readValue(row, 'coverage_relationship');
+    const periodStart = readValue(row, 'coverage_period_start');
+    const periodEnd = readValue(row, 'coverage_period_end');
+    const insurerId = readValue(row, 'coverage_insurer_id');
+    const classType = readValue(row, 'coverage_class_type');
+    const classValue = readValue(row, 'coverage_class_value');
+    const className = readValue(row, 'coverage_class_name');
+    const order = readNumber(row, 'coverage_order');
+    const network = readValue(row, 'coverage_network');
+    const paymentPartyId = readValue(row, 'coverage_payment_party_id');
+    const paymentResponsibility = readValue(row, 'coverage_payment_responsibility');
+    const costType = readValue(row, 'coverage_cost_type');
+    const costCategory = readValue(row, 'coverage_cost_category');
+    const costNetwork = readValue(row, 'coverage_cost_network');
+    const costUnit = readValue(row, 'coverage_cost_unit');
+    const costTerm = readValue(row, 'coverage_cost_term');
+    const costValueQuantity = readNumber(row, 'coverage_cost_value_quantity');
+    const costValueUnit = readValue(row, 'coverage_cost_value_unit');
+    const costValueMoney = readNumber(row, 'coverage_cost_value_money');
+    const costCurrency = readValue(row, 'coverage_cost_currency');
+    const costExceptionType = readValue(row, 'coverage_cost_exception_type');
+    const costExceptionStart = readValue(row, 'coverage_cost_exception_start');
+    const costExceptionEnd = readValue(row, 'coverage_cost_exception_end');
+    const subrogation = readBoolean(row, 'coverage_subrogation');
+    const contractId = readValue(row, 'coverage_contract_id');
+    const insurancePlanId = readValue(row, 'coverage_insurance_plan_id');
+
+    return {
+      id: coverageId || undefined,
+      identifier: coverageId ? [{ value: coverageId }] : undefined,
+      status: status || undefined,
+      kind: kind || undefined,
+      type: type ? { code: type, display: type } : undefined,
+      policyHolder: policyHolderId || undefined,
+      subscriber: subscriberId || undefined,
+      beneficiary: beneficiaryId || undefined,
+      dependent: dependent || undefined,
+      relationship: relationship ? { code: relationship, display: relationship } : undefined,
+      period: (periodStart || periodEnd) ? { start: periodStart, end: periodEnd } : undefined,
+      insurer: insurerId || undefined,
+      class: (classType || classValue || className) ? [{
+        type: classType ? { code: classType, display: classType } : undefined,
+        value: classValue ? { value: classValue } : undefined,
+        name: className || undefined
+      }] : undefined,
+      order: order ?? undefined,
+      network: network || undefined,
+      paymentBy: (paymentPartyId || paymentResponsibility) ? [{
+        party: paymentPartyId || undefined,
+        responsibility: paymentResponsibility || undefined
+      }] : undefined,
+      costToBeneficiary: (costType || costCategory || costNetwork || costUnit || costTerm || costValueQuantity !== undefined || costValueMoney !== undefined || costCurrency || costExceptionType || costExceptionStart || costExceptionEnd) ? [{
+        type: costType ? { code: costType, display: costType } : undefined,
+        category: costCategory ? { code: costCategory, display: costCategory } : undefined,
+        network: costNetwork ? { code: costNetwork, display: costNetwork } : undefined,
+        unit: costUnit ? { code: costUnit, display: costUnit } : undefined,
+        term: costTerm ? { code: costTerm, display: costTerm } : undefined,
+        valueQuantity: (costValueQuantity !== undefined || costValueUnit) ? { value: costValueQuantity, unit: costValueUnit || undefined } : undefined,
+        valueMoney: (costValueMoney !== undefined || costCurrency) ? { value: costValueMoney, currency: costCurrency || undefined } : undefined,
+        exception: (costExceptionType || costExceptionStart || costExceptionEnd) ? [{
+          type: costExceptionType ? { code: costExceptionType, display: costExceptionType } : undefined,
+          period: (costExceptionStart || costExceptionEnd) ? { start: costExceptionStart, end: costExceptionEnd } : undefined
+        }] : undefined
+      }] : undefined,
+      subrogation,
+      contract: contractId ? [contractId] : undefined,
+      insurancePlan: insurancePlanId || undefined
+    };
+  }).filter(Boolean);
+  if (coverages.length > 0) canonical.coverages = coverages as any[];
+
   const schedules = rows.map(row => {
     const scheduleId = readValue(row, 'schedule_id');
     const name = readValue(row, 'schedule_name');
@@ -2475,6 +2715,20 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     };
   }).filter(Boolean);
   if (documentReferences.length > 0) canonical.documentReferences = documentReferences as any[];
+
+  const binaries = rows.map(row => {
+    const contentType = readValue(row, 'binary_content_type');
+    const data = readValue(row, 'binary_data');
+    const securityContext = readValue(row, 'binary_security_context');
+    if (!contentType && !data && !securityContext && !readValue(row, 'binary_id')) return null;
+    return {
+      id: readValue(row, 'binary_id'),
+      contentType: contentType || undefined,
+      securityContext: securityContext || undefined,
+      data: data || undefined
+    };
+  }).filter(Boolean);
+  if (binaries.length > 0) canonical.binaries = binaries as any[];
 
   const practitioners = rows.map(row => {
     const practitionerId = readValue(row, 'practitioner_id');
