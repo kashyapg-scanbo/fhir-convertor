@@ -97,11 +97,39 @@ export interface WhoopBody {
   max_heart_rate: number;
 }
 
+export interface WhoopWorkoutScore {
+  strain: number;
+  average_heart_rate: number;
+  max_heart_rate: number;
+  kilojoule: number;
+  percent_recorded: number;
+  distance_meter?: number;
+  altitude_gain_meter?: number;
+  altitude_change_meter?: number;
+  zone_durations?: Record<string, number>;
+}
+
+export interface WhoopWorkout {
+  id: string;
+  v1_id?: number;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  start: string;
+  end: string;
+  timezone_offset: string;
+  sport_name: string;
+  sport_id: number;
+  score_state: string;
+  score: WhoopWorkoutScore;
+}
+
 export interface WhoopData {
   profile: WhoopProfile;
   recovery?: WhoopRecovery;
   cycle?: WhoopCycle;
   sleep?: WhoopSleep;
   body?: WhoopBody;
+  workout?: WhoopWorkout | WhoopWorkout[];
 }
 
