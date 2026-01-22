@@ -1,0 +1,23 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Stone"
+    }
+  },
+  "device_request": {
+    "device_request_id": "DR-1",
+    "status": "active",
+    "intent": "order",
+    "device_code": "DVC-200",
+    "subject_id": "PAT-1",
+    "quantity_value": 1,
+    "occurrence_date_time": "2024-03-12T09:00:00Z",
+    "authored_on": "2024-03-01T10:00:00Z",
+    "requester_id": "PRAC-1",
+    "reason_ids": ["OBS-1"],
+    "supporting_info_ids": ["DOC-1"],
+    "as_needed": false
+  }
+}

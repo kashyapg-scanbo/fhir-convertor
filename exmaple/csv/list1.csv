@@ -1,0 +1,2 @@
+list_id,list_status,list_mode,list_title,list_code,list_subject_ids,list_encounter_id,list_date,list_source_id,list_ordered_by,list_note,list_entry_flag,list_entry_deleted,list_entry_date,list_entry_item_id,list_empty_reason
+LIST-1,current,working,Allergies,problem-list,PAT-5,ENC-3,2024-05-01T09:00:00Z,PRAC-3,priority,Initial list,active,false,2024-05-01T09:00:00Z,Condition/COND-1,none

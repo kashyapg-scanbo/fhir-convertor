@@ -38,6 +38,512 @@ export type CanonicalEncounter = {
   serviceProviderOrganizationId?: string;
 };
 
+export type CanonicalEncounterHistory = {
+  id?: string;
+  encounter?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  class?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  type?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  serviceType?: Array<{
+    concept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  subject?: string;
+  subjectStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  actualPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  plannedStartDate?: string;
+  plannedEndDate?: string;
+  length?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
+  location?: Array<{
+    location?: string;
+    form?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+};
+
+export type CanonicalFlag = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subject?: string;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  encounter?: string;
+  author?: string;
+};
+
+export type CanonicalList = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  mode?: string;
+  title?: string;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subject?: string[];
+  encounter?: string;
+  date?: string;
+  source?: string;
+  orderedBy?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  note?: string[];
+  entry?: Array<{
+    flag?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    deleted?: boolean;
+    date?: string;
+    item?: string;
+  }>;
+  emptyReason?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+};
+
+export type CanonicalNutritionIntake = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  instantiatesCanonical?: string[];
+  instantiatesUri?: string[];
+  basedOn?: string[];
+  partOf?: string[];
+  status?: string;
+  statusReason?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subject?: string;
+  encounter?: string;
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  recorded?: string;
+  reportedBoolean?: boolean;
+  reportedReference?: string;
+  consumedItem?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    nutritionProductCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    nutritionProductReference?: string;
+    schedule?: string;
+    amount?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    rate?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    notConsumed?: boolean;
+    notConsumedReason?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  ingredientLabel?: Array<{
+    nutrientCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    nutrientReference?: string;
+    amount?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+  }>;
+  performer?: Array<{
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    actor?: string;
+  }>;
+  location?: string;
+  derivedFrom?: string[];
+  reason?: string[];
+  note?: string[];
+};
+
+export type CanonicalNutritionOrder = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  instantiatesCanonical?: string[];
+  instantiatesUri?: string[];
+  instantiates?: string[];
+  basedOn?: string[];
+  groupIdentifier?: {
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  };
+  status?: string;
+  intent?: string;
+  priority?: string;
+  subject?: string;
+  encounter?: string;
+  supportingInformation?: string[];
+  dateTime?: string;
+  orderer?: string;
+  performer?: Array<{
+    concept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string;
+  }>;
+  allergyIntolerance?: string[];
+  foodPreferenceModifier?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  excludeFoodModifier?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  outsideFoodAllowed?: boolean;
+  oralDiet?: {
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    scheduleTiming?: string;
+    asNeeded?: boolean;
+    asNeededFor?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    nutrient?: Array<{
+      modifier?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      amount?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+    texture?: Array<{
+      modifier?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      foodType?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    }>;
+    fluidConsistencyType?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    instruction?: string;
+  };
+  supplement?: Array<{
+    typeCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    typeReference?: string;
+    productName?: string;
+    scheduleTiming?: string;
+    asNeeded?: boolean;
+    asNeededFor?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    quantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    instruction?: string;
+  }>;
+  enteralFormula?: {
+    baseFormulaTypeCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    baseFormulaTypeReference?: string;
+    baseFormulaProductName?: string;
+    deliveryDevice?: string[];
+    additive?: Array<{
+      typeCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      typeReference?: string;
+      productName?: string;
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+    caloricDensity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    routeOfAdministration?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    administration?: Array<{
+      scheduleTiming?: string;
+      asNeeded?: boolean;
+      asNeededFor?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      rateQuantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      rateRatio?: string;
+    }>;
+    maxVolumeToDeliver?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    administrationInstruction?: string;
+  };
+  note?: string[];
+};
+
+export type CanonicalRiskAssessment = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  basedOn?: string;
+  parent?: string;
+  status?: string;
+  method?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subject?: string;
+  encounter?: string;
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  condition?: string;
+  performer?: string;
+  reason?: string[];
+  basis?: string[];
+  prediction?: Array<{
+    outcome?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    probabilityDecimal?: number;
+    probabilityRange?: {
+      low?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      high?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    };
+    qualitativeRisk?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    relativeRisk?: number;
+    whenPeriod?: {
+      start?: string;
+      end?: string;
+    };
+    whenRange?: {
+      low?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      high?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    };
+    rationale?: string;
+  }>;
+  mitigation?: string;
+  note?: string[];
+};
+
 export type CanonicalObservation = {
   setId?: string;
   valueType?: string;
@@ -660,6 +1166,146 @@ export type CanonicalDeviceDispense = {
   note?: string[];
   usageInstruction?: string;
   eventHistory?: string[];
+};
+
+export type CanonicalDeviceRequest = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  instantiatesCanonical?: string[];
+  instantiatesUri?: string[];
+  basedOn?: string[];
+  replaces?: string[];
+  groupIdentifier?: {
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  };
+  status?: string;
+  intent?: string;
+  priority?: string;
+  doNotPerform?: boolean;
+  codeCodeableConcept?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  codeReference?: string;
+  quantity?: number;
+  parameter?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    valueCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    valueBoolean?: boolean;
+  }>;
+  subject?: string;
+  encounter?: string;
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  occurrenceTiming?: string;
+  authoredOn?: string;
+  requester?: string;
+  performer?: string;
+  reason?: string[];
+  asNeeded?: boolean;
+  asNeededFor?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  insurance?: string[];
+  supportingInfo?: string[];
+  note?: string[];
+  relevantHistory?: string[];
+};
+
+export type CanonicalDeviceUsage = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  basedOn?: string[];
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  patient?: string;
+  derivedFrom?: string[];
+  context?: string;
+  timingTiming?: string;
+  timingPeriod?: {
+    start?: string;
+    end?: string;
+  };
+  timingDateTime?: string;
+  dateAsserted?: string;
+  usageStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  usageReason?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  adherence?: {
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reason?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+  };
+  informationSource?: string;
+  deviceCodeableConcept?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  deviceReference?: string;
+  reason?: string[];
+  bodySite?: string;
+  note?: string[];
 };
 
 export type CanonicalCapabilityStatement = {
@@ -4374,6 +5020,14 @@ export type CanonicalModel = {
   medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
   medicationDispenses?: CanonicalMedicationDispense[]; // MedicationDispense
   deviceDispenses?: CanonicalDeviceDispense[]; // DeviceDispense
+  deviceRequests?: CanonicalDeviceRequest[]; // DeviceRequest
+  deviceUsages?: CanonicalDeviceUsage[]; // DeviceUsage
+  encounterHistories?: CanonicalEncounterHistory[]; // EncounterHistory
+  flags?: CanonicalFlag[]; // Flag
+  lists?: CanonicalList[]; // List
+  nutritionIntakes?: CanonicalNutritionIntake[]; // NutritionIntake
+  nutritionOrders?: CanonicalNutritionOrder[]; // NutritionOrder
+  riskAssessments?: CanonicalRiskAssessment[]; // RiskAssessment
   capabilityStatements?: CanonicalCapabilityStatement[]; // CapabilityStatement
   operationOutcomes?: CanonicalOperationOutcome[]; // OperationOutcome
   parameters?: CanonicalParameters[]; // Parameters

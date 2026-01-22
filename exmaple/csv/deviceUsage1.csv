@@ -1,0 +1,2 @@
+device_usage_id,device_usage_status,device_usage_device_code,device_usage_patient_id,device_usage_timing_date_time,device_usage_date_asserted,device_usage_usage_status,device_usage_adherence_code,device_usage_reason_ids,device_usage_note
+DU-1,active,DVC-300,PAT-2,2024-04-05T08:30:00Z,2024-04-06T10:00:00Z,sometimes,sometimes,OBS-2,Used intermittently

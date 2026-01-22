@@ -903,6 +903,271 @@ const GlobalDeviceDispenseSchema = z.object({
   event_history_ids: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalDeviceRequestParameterSchema = z.object({
+  code: GlobalCodeableConceptSchema.optional(),
+  value_codeable_concept: GlobalCodeableConceptSchema.optional(),
+  value_quantity: GlobalQuantitySchema.optional(),
+  value_boolean: z.union([z.boolean(), z.string(), z.number()]).optional()
+});
+
+const GlobalDeviceRequestSchema = z.object({
+  device_request_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  instantiates_canonical: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates_uri: z.union([z.string(), z.array(z.string())]).optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  replaces_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  group_identifier: GlobalIdentifierObjectSchema.optional(),
+  status: z.string().optional(),
+  intent: z.string().optional(),
+  priority: z.string().optional(),
+  do_not_perform: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  device_code: z.string().optional(),
+  device_reference_id: GlobalIdSchema.optional(),
+  quantity_value: GlobalNumberSchema.optional(),
+  parameter: z.union([GlobalDeviceRequestParameterSchema, z.array(GlobalDeviceRequestParameterSchema)]).optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  occurrence_date_time: z.string().optional(),
+  occurrence_start: z.string().optional(),
+  occurrence_end: z.string().optional(),
+  occurrence_timing: z.string().optional(),
+  authored_on: z.string().optional(),
+  requester_id: GlobalIdSchema.optional(),
+  performer_id: GlobalIdSchema.optional(),
+  reason_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  as_needed: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  as_needed_for: z.string().optional(),
+  insurance_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  supporting_info_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  relevant_history_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalDeviceUsageSchema = z.object({
+  device_usage_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  patient_id: GlobalIdSchema.optional(),
+  derived_from_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  context_id: GlobalIdSchema.optional(),
+  timing_timing: z.string().optional(),
+  timing_start: z.string().optional(),
+  timing_end: z.string().optional(),
+  timing_date_time: z.string().optional(),
+  date_asserted: z.string().optional(),
+  usage_status: z.string().optional(),
+  usage_reason: z.union([z.string(), z.array(z.string())]).optional(),
+  adherence_code: z.string().optional(),
+  adherence_reason: z.union([z.string(), z.array(z.string())]).optional(),
+  information_source_id: GlobalIdSchema.optional(),
+  device_code: z.string().optional(),
+  device_reference_id: GlobalIdSchema.optional(),
+  reason_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  body_site_id: GlobalIdSchema.optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalEncounterHistorySchema = z.object({
+  encounter_history_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  class: z.string().optional(),
+  type: z.union([z.string(), z.array(z.string())]).optional(),
+  service_type: z.union([z.string(), z.array(z.string())]).optional(),
+  service_type_reference_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  subject_id: GlobalIdSchema.optional(),
+  subject_status: z.string().optional(),
+  actual_start: z.string().optional(),
+  actual_end: z.string().optional(),
+  planned_start_date: z.string().optional(),
+  planned_end_date: z.string().optional(),
+  length_value: GlobalNumberSchema.optional(),
+  length_unit: z.string().optional(),
+  length_system: z.string().optional(),
+  length_code: z.string().optional(),
+  location_id: GlobalIdSchema.optional(),
+  location_form: z.string().optional()
+});
+
+const GlobalFlagSchema = z.object({
+  flag_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  code: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  period_start: z.string().optional(),
+  period_end: z.string().optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  author_id: GlobalIdSchema.optional()
+});
+
+const GlobalListEntrySchema = z.object({
+  flag: GlobalCodeableConceptSchema.optional(),
+  deleted: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  date: z.string().optional(),
+  item_id: GlobalIdSchema.optional()
+});
+
+const GlobalListSchema = z.object({
+  list_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  mode: z.string().optional(),
+  title: z.string().optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  subject_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  date: z.string().optional(),
+  source_id: GlobalIdSchema.optional(),
+  ordered_by: GlobalCodeableConceptSchema.optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional(),
+  entry: z.union([GlobalListEntrySchema, z.array(GlobalListEntrySchema)]).optional(),
+  empty_reason: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalNutritionIntakeConsumedItemSchema = z.object({
+  type: GlobalCodeableConceptSchema.optional(),
+  nutrition_product_codeable: GlobalCodeableConceptSchema.optional(),
+  nutrition_product_reference_id: GlobalIdSchema.optional(),
+  schedule: z.string().optional(),
+  amount: GlobalQuantitySchema.optional(),
+  rate: GlobalQuantitySchema.optional(),
+  not_consumed: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  not_consumed_reason: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalNutritionIntakeIngredientSchema = z.object({
+  nutrient_codeable: GlobalCodeableConceptSchema.optional(),
+  nutrient_reference_id: GlobalIdSchema.optional(),
+  amount: GlobalQuantitySchema.optional()
+});
+
+const GlobalNutritionIntakePerformerSchema = z.object({
+  function: GlobalCodeableConceptSchema.optional(),
+  actor_id: GlobalIdSchema.optional()
+});
+
+const GlobalNutritionIntakeSchema = z.object({
+  nutrition_intake_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  instantiates_canonical: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates_uri: z.union([z.string(), z.array(z.string())]).optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  part_of_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z.string().optional(),
+  status_reason: z.union([z.string(), z.array(z.string())]).optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  occurrence_date_time: z.string().optional(),
+  occurrence_start: z.string().optional(),
+  occurrence_end: z.string().optional(),
+  recorded: z.string().optional(),
+  reported_boolean: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  reported_reference_id: GlobalIdSchema.optional(),
+  consumed_item: z.union([GlobalNutritionIntakeConsumedItemSchema, z.array(GlobalNutritionIntakeConsumedItemSchema)]).optional(),
+  ingredient_label: z.union([GlobalNutritionIntakeIngredientSchema, z.array(GlobalNutritionIntakeIngredientSchema)]).optional(),
+  performer: z.union([GlobalNutritionIntakePerformerSchema, z.array(GlobalNutritionIntakePerformerSchema)]).optional(),
+  location_id: GlobalIdSchema.optional(),
+  derived_from_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  reason_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalNutritionOrderSchema = z.object({
+  nutrition_order_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  instantiates_canonical: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates_uri: z.union([z.string(), z.array(z.string())]).optional(),
+  instantiates: z.union([z.string(), z.array(z.string())]).optional(),
+  based_on_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  group_identifier: GlobalIdentifierObjectSchema.optional(),
+  status: z.string().optional(),
+  intent: z.string().optional(),
+  priority: z.string().optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  supporting_information_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  date_time: z.string().optional(),
+  orderer_id: GlobalIdSchema.optional(),
+  performer_concept: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  performer_reference_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  allergy_intolerance_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  food_preference_modifier: z.union([z.string(), z.array(z.string())]).optional(),
+  exclude_food_modifier: z.union([z.string(), z.array(z.string())]).optional(),
+  outside_food_allowed: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  oral_diet_type: z.union([z.string(), z.array(z.string())]).optional(),
+  oral_diet_schedule_timing: z.string().optional(),
+  oral_diet_as_needed: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  oral_diet_as_needed_for: z.string().optional(),
+  oral_diet_instruction: z.string().optional(),
+  supplement_type_code: z.string().optional(),
+  supplement_type_reference_id: GlobalIdSchema.optional(),
+  supplement_product_name: z.string().optional(),
+  supplement_schedule_timing: z.string().optional(),
+  supplement_as_needed: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  supplement_as_needed_for: z.string().optional(),
+  supplement_quantity_value: GlobalNumberSchema.optional(),
+  supplement_quantity_unit: z.string().optional(),
+  supplement_instruction: z.string().optional(),
+  enteral_base_formula_code: z.string().optional(),
+  enteral_base_formula_reference_id: GlobalIdSchema.optional(),
+  enteral_base_formula_product_name: z.string().optional(),
+  enteral_route_of_administration: z.string().optional(),
+  enteral_caloric_density_value: GlobalNumberSchema.optional(),
+  enteral_caloric_density_unit: z.string().optional(),
+  enteral_administration_instruction: z.string().optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalRangeSchema = z.object({
+  low_value: GlobalNumberSchema.optional(),
+  low_unit: z.string().optional(),
+  high_value: GlobalNumberSchema.optional(),
+  high_unit: z.string().optional()
+});
+
+const GlobalRiskAssessmentPredictionSchema = z.object({
+  outcome: GlobalCodeableConceptSchema.optional(),
+  probability_decimal: GlobalNumberSchema.optional(),
+  probability_range: GlobalRangeSchema.optional(),
+  qualitative_risk: GlobalCodeableConceptSchema.optional(),
+  relative_risk: GlobalNumberSchema.optional(),
+  when_period: z.object({
+    start: z.string().optional(),
+    end: z.string().optional()
+  }).optional(),
+  when_range: GlobalRangeSchema.optional(),
+  rationale: z.string().optional()
+});
+
+const GlobalRiskAssessmentSchema = z.object({
+  risk_assessment_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  based_on_id: GlobalIdSchema.optional(),
+  parent_id: GlobalIdSchema.optional(),
+  status: z.string().optional(),
+  method: GlobalCodeableConceptSchema.optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  occurrence_date_time: z.string().optional(),
+  occurrence_start: z.string().optional(),
+  occurrence_end: z.string().optional(),
+  condition_id: GlobalIdSchema.optional(),
+  performer_id: GlobalIdSchema.optional(),
+  reason_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  basis_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  prediction: z.union([GlobalRiskAssessmentPredictionSchema, z.array(GlobalRiskAssessmentPredictionSchema)]).optional(),
+  mitigation: z.string().optional(),
+  note: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalPeriodSchema = z.object({
   start: z.string().optional(),
   end: z.string().optional()
@@ -1959,6 +2224,14 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
   medication_dispense: z.union([GlobalMedicationDispenseSchema, z.array(GlobalMedicationDispenseSchema)]).optional(),
   device_dispense: z.union([GlobalDeviceDispenseSchema, z.array(GlobalDeviceDispenseSchema)]).optional(),
+  device_request: z.union([GlobalDeviceRequestSchema, z.array(GlobalDeviceRequestSchema)]).optional(),
+  device_usage: z.union([GlobalDeviceUsageSchema, z.array(GlobalDeviceUsageSchema)]).optional(),
+  encounter_history: z.union([GlobalEncounterHistorySchema, z.array(GlobalEncounterHistorySchema)]).optional(),
+  flag: z.union([GlobalFlagSchema, z.array(GlobalFlagSchema)]).optional(),
+  list: z.union([GlobalListSchema, z.array(GlobalListSchema)]).optional(),
+  nutrition_intake: z.union([GlobalNutritionIntakeSchema, z.array(GlobalNutritionIntakeSchema)]).optional(),
+  nutrition_order: z.union([GlobalNutritionOrderSchema, z.array(GlobalNutritionOrderSchema)]).optional(),
+  risk_assessment: z.union([GlobalRiskAssessmentSchema, z.array(GlobalRiskAssessmentSchema)]).optional(),
   capability_statement: z.union([GlobalCapabilityStatementSchema, z.array(GlobalCapabilityStatementSchema)]).optional(),
   operation_outcome: z.union([GlobalOperationOutcomeSchema, z.array(GlobalOperationOutcomeSchema)]).optional(),
   parameters: z.union([GlobalParametersSchema, z.array(GlobalParametersSchema)]).optional(),
@@ -2012,6 +2285,14 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.medication_administration ||
     value.medication_dispense ||
     value.device_dispense ||
+    value.device_request ||
+    value.device_usage ||
+    value.encounter_history ||
+    value.flag ||
+    value.list ||
+    value.nutrition_intake ||
+    value.nutrition_order ||
+    value.risk_assessment ||
     value.capability_statement ||
     value.operation_outcome ||
     value.parameters ||
@@ -2057,7 +2338,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2086,6 +2367,14 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationAdministrations: 'medicationAdministration',
   medicationDispenses: 'medicationDispense',
   deviceDispenses: 'deviceDispense',
+  deviceRequests: 'deviceRequest',
+  deviceUsages: 'deviceUsage',
+  encounterHistories: 'encounterHistory',
+  flags: 'flag',
+  lists: 'list',
+  nutritionIntakes: 'nutritionIntake',
+  nutritionOrders: 'nutritionOrder',
+  riskAssessments: 'riskAssessment',
   capabilityStatements: 'capabilityStatement',
   operationOutcomes: 'operationOutcome',
   parameters: 'parameters',
@@ -2148,6 +2437,34 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   device_dispenses: 'deviceDispense',
   devicedispense: 'deviceDispense',
   devicedispenses: 'deviceDispense',
+  device_request: 'deviceRequest',
+  device_requests: 'deviceRequest',
+  devicerequest: 'deviceRequest',
+  devicerequests: 'deviceRequest',
+  device_usage: 'deviceUsage',
+  device_usages: 'deviceUsage',
+  deviceusage: 'deviceUsage',
+  deviceusages: 'deviceUsage',
+  encounter_history: 'encounterHistory',
+  encounter_histories: 'encounterHistory',
+  encounterhistory: 'encounterHistory',
+  encounterhistories: 'encounterHistory',
+  flag: 'flag',
+  flags: 'flag',
+  list: 'list',
+  lists: 'list',
+  nutrition_intake: 'nutritionIntake',
+  nutrition_intakes: 'nutritionIntake',
+  nutritionintake: 'nutritionIntake',
+  nutritionintakes: 'nutritionIntake',
+  nutrition_order: 'nutritionOrder',
+  nutrition_orders: 'nutritionOrder',
+  nutritionorder: 'nutritionOrder',
+  nutritionorders: 'nutritionOrder',
+  risk_assessment: 'riskAssessment',
+  risk_assessments: 'riskAssessment',
+  riskassessment: 'riskAssessment',
+  riskassessments: 'riskAssessment',
   capability_statement: 'capabilityStatement',
   capability_statements: 'capabilityStatement',
   operation_outcome: 'operationOutcome',
@@ -2286,6 +2603,14 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   device_dispenses: 'device_dispense',
   devicedispense: 'device_dispense',
   devicedispenses: 'device_dispense',
+  nutrition_order: 'nutrition_order',
+  nutrition_orders: 'nutrition_order',
+  nutritionorder: 'nutrition_order',
+  nutritionorders: 'nutrition_order',
+  risk_assessment: 'risk_assessment',
+  risk_assessments: 'risk_assessment',
+  riskassessment: 'risk_assessment',
+  riskassessments: 'risk_assessment',
   capability_statement: 'capability_statement',
   capability_statements: 'capability_statement',
   capabilitystatement: 'capability_statement',
@@ -3125,6 +3450,706 @@ function normalizeGlobalDeviceDispenseAliases(value: Record<string, unknown>) {
 
   const eventHistoryIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceDispense', 'device_dispense_event_history_ids'));
   if (eventHistoryIds && normalized.event_history_ids === undefined) normalized.event_history_ids = eventHistoryIds;
+
+  return normalized;
+}
+
+function normalizeGlobalDeviceRequestAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const requestId = readSectionAliasValue(value, 'deviceRequest', 'device_request_id');
+  if (normalized.device_request_id === undefined && requestId !== undefined) {
+    normalized.device_request_id = requestId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const intent = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_intent'));
+  if (intent && normalized.intent === undefined) normalized.intent = intent;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_priority'));
+  if (priority && normalized.priority === undefined) normalized.priority = priority;
+
+  const doNotPerform = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_do_not_perform'));
+  if (doNotPerform !== undefined && normalized.do_not_perform === undefined) normalized.do_not_perform = doNotPerform;
+
+  const deviceCode = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_device_code'));
+  if (deviceCode && normalized.device_code === undefined) normalized.device_code = deviceCode;
+
+  const deviceReferenceId = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_device_reference_id'));
+  if (deviceReferenceId && normalized.device_reference_id === undefined) normalized.device_reference_id = deviceReferenceId;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const occurrenceDateTime = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_occurrence_date_time'));
+  if (occurrenceDateTime && normalized.occurrence_date_time === undefined) normalized.occurrence_date_time = occurrenceDateTime;
+
+  const occurrenceStart = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_occurrence_start'));
+  if (occurrenceStart && normalized.occurrence_start === undefined) normalized.occurrence_start = occurrenceStart;
+
+  const occurrenceEnd = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_occurrence_end'));
+  if (occurrenceEnd && normalized.occurrence_end === undefined) normalized.occurrence_end = occurrenceEnd;
+
+  const occurrenceTiming = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_occurrence_timing'));
+  if (occurrenceTiming && normalized.occurrence_timing === undefined) normalized.occurrence_timing = occurrenceTiming;
+
+  const authoredOn = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_authored_on'));
+  if (authoredOn && normalized.authored_on === undefined) normalized.authored_on = authoredOn;
+
+  const requesterId = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_requester_id'));
+  if (requesterId && normalized.requester_id === undefined) normalized.requester_id = requesterId;
+
+  const performerId = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_performer_id'));
+  if (performerId && normalized.performer_id === undefined) normalized.performer_id = performerId;
+
+  const reasonIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_reason_ids'));
+  if (reasonIds && normalized.reason_ids === undefined) normalized.reason_ids = reasonIds;
+
+  const asNeeded = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_as_needed'));
+  if (asNeeded !== undefined && normalized.as_needed === undefined) normalized.as_needed = asNeeded;
+
+  const asNeededFor = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_as_needed_for'));
+  if (asNeededFor && normalized.as_needed_for === undefined) normalized.as_needed_for = asNeededFor;
+
+  const insuranceIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_insurance_ids'));
+  if (insuranceIds && normalized.insurance_ids === undefined) normalized.insurance_ids = insuranceIds;
+
+  const supportingInfoIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_supporting_info_ids'));
+  if (supportingInfoIds && normalized.supporting_info_ids === undefined) normalized.supporting_info_ids = supportingInfoIds;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const relevantHistoryIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_relevant_history_ids'));
+  if (relevantHistoryIds && normalized.relevant_history_ids === undefined) normalized.relevant_history_ids = relevantHistoryIds;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const replacesIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_replaces_ids'));
+  if (replacesIds && normalized.replaces_ids === undefined) normalized.replaces_ids = replacesIds;
+
+  const instantiatesCanonical = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_instantiates_canonical'));
+  if (instantiatesCanonical && normalized.instantiates_canonical === undefined) {
+    normalized.instantiates_canonical = instantiatesCanonical;
+  }
+
+  const instantiatesUri = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_instantiates_uri'));
+  if (instantiatesUri && normalized.instantiates_uri === undefined) normalized.instantiates_uri = instantiatesUri;
+
+  const groupIdentifier = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_group_identifier'));
+  if (groupIdentifier && normalized.group_identifier === undefined) {
+    normalized.group_identifier = { value: groupIdentifier };
+  }
+
+  const quantityValue = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_quantity_value'));
+  if (quantityValue !== undefined && normalized.quantity_value === undefined) normalized.quantity_value = quantityValue;
+
+  const parameterCode = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_parameter_code'));
+  const parameterValueCodeable = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_parameter_value_code'));
+  const parameterQuantityValue = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_parameter_value_quantity_value'));
+  const parameterQuantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_parameter_value_quantity_unit'));
+  const parameterBoolean = normalizeAliasValue(readSectionAliasValue(value, 'deviceRequest', 'device_request_parameter_value_boolean'));
+  if ((parameterCode || parameterValueCodeable || parameterQuantityValue || parameterQuantityUnit || parameterBoolean !== undefined) && normalized.parameter === undefined) {
+    normalized.parameter = [{
+      code: parameterCode ? { code: parameterCode, display: parameterCode } : undefined,
+      value_codeable_concept: parameterValueCodeable ? { code: parameterValueCodeable, display: parameterValueCodeable } : undefined,
+      value_quantity: (parameterQuantityValue || parameterQuantityUnit) ? {
+        value: parameterQuantityValue,
+        unit: parameterQuantityUnit
+      } : undefined,
+      value_boolean: parameterBoolean
+    }];
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalDeviceUsageAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const usageId = readSectionAliasValue(value, 'deviceUsage', 'device_usage_id');
+  if (normalized.device_usage_id === undefined && usageId !== undefined) {
+    normalized.device_usage_id = usageId;
+  }
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const patientId = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_patient_id'));
+  if (patientId && normalized.patient_id === undefined) normalized.patient_id = patientId;
+
+  const derivedFromIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_derived_from_ids'));
+  if (derivedFromIds && normalized.derived_from_ids === undefined) normalized.derived_from_ids = derivedFromIds;
+
+  const contextId = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_context_id'));
+  if (contextId && normalized.context_id === undefined) normalized.context_id = contextId;
+
+  const timingTiming = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_timing_timing'));
+  if (timingTiming && normalized.timing_timing === undefined) normalized.timing_timing = timingTiming;
+
+  const timingStart = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_timing_start'));
+  if (timingStart && normalized.timing_start === undefined) normalized.timing_start = timingStart;
+
+  const timingEnd = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_timing_end'));
+  if (timingEnd && normalized.timing_end === undefined) normalized.timing_end = timingEnd;
+
+  const timingDateTime = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_timing_date_time'));
+  if (timingDateTime && normalized.timing_date_time === undefined) normalized.timing_date_time = timingDateTime;
+
+  const dateAsserted = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_date_asserted'));
+  if (dateAsserted && normalized.date_asserted === undefined) normalized.date_asserted = dateAsserted;
+
+  const usageStatus = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_usage_status'));
+  if (usageStatus && normalized.usage_status === undefined) normalized.usage_status = usageStatus;
+
+  const usageReason = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_usage_reason'));
+  if (usageReason && normalized.usage_reason === undefined) normalized.usage_reason = usageReason;
+
+  const adherenceCode = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_adherence_code'));
+  if (adherenceCode && normalized.adherence_code === undefined) normalized.adherence_code = adherenceCode;
+
+  const adherenceReason = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_adherence_reason'));
+  if (adherenceReason && normalized.adherence_reason === undefined) normalized.adherence_reason = adherenceReason;
+
+  const informationSourceId = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_information_source_id'));
+  if (informationSourceId && normalized.information_source_id === undefined) normalized.information_source_id = informationSourceId;
+
+  const deviceCode = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_device_code'));
+  if (deviceCode && normalized.device_code === undefined) normalized.device_code = deviceCode;
+
+  const deviceReferenceId = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_device_reference_id'));
+  if (deviceReferenceId && normalized.device_reference_id === undefined) normalized.device_reference_id = deviceReferenceId;
+
+  const reasonIds = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_reason_ids'));
+  if (reasonIds && normalized.reason_ids === undefined) normalized.reason_ids = reasonIds;
+
+  const bodySiteId = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_body_site_id'));
+  if (bodySiteId && normalized.body_site_id === undefined) normalized.body_site_id = bodySiteId;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'deviceUsage', 'device_usage_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  return normalized;
+}
+
+function normalizeGlobalEncounterHistoryAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const historyId = readSectionAliasValue(value, 'encounterHistory', 'encounter_history_id');
+  if (normalized.encounter_history_id === undefined && historyId !== undefined) {
+    normalized.encounter_history_id = historyId;
+  }
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const classValue = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_class'));
+  if (classValue && normalized.class === undefined) normalized.class = classValue;
+
+  const typeValue = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_type'));
+  if (typeValue && normalized.type === undefined) normalized.type = typeValue;
+
+  const serviceType = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_service_type'));
+  if (serviceType && normalized.service_type === undefined) normalized.service_type = serviceType;
+
+  const serviceTypeRef = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_service_type_reference_ids'));
+  if (serviceTypeRef && normalized.service_type_reference_ids === undefined) normalized.service_type_reference_ids = serviceTypeRef;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const subjectStatus = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_subject_status'));
+  if (subjectStatus && normalized.subject_status === undefined) normalized.subject_status = subjectStatus;
+
+  const actualStart = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_actual_start'));
+  if (actualStart && normalized.actual_start === undefined) normalized.actual_start = actualStart;
+
+  const actualEnd = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_actual_end'));
+  if (actualEnd && normalized.actual_end === undefined) normalized.actual_end = actualEnd;
+
+  const plannedStart = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_planned_start_date'));
+  if (plannedStart && normalized.planned_start_date === undefined) normalized.planned_start_date = plannedStart;
+
+  const plannedEnd = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_planned_end_date'));
+  if (plannedEnd && normalized.planned_end_date === undefined) normalized.planned_end_date = plannedEnd;
+
+  const lengthValue = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_length_value'));
+  if (lengthValue !== undefined && normalized.length_value === undefined) normalized.length_value = lengthValue;
+
+  const lengthUnit = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_length_unit'));
+  if (lengthUnit && normalized.length_unit === undefined) normalized.length_unit = lengthUnit;
+
+  const lengthSystem = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_length_system'));
+  if (lengthSystem && normalized.length_system === undefined) normalized.length_system = lengthSystem;
+
+  const lengthCode = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_length_code'));
+  if (lengthCode && normalized.length_code === undefined) normalized.length_code = lengthCode;
+
+  const locationId = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_location_id'));
+  if (locationId && normalized.location_id === undefined) normalized.location_id = locationId;
+
+  const locationForm = normalizeAliasValue(readSectionAliasValue(value, 'encounterHistory', 'encounter_history_location_form'));
+  if (locationForm && normalized.location_form === undefined) normalized.location_form = locationForm;
+
+  return normalized;
+}
+
+function normalizeGlobalFlagAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const flagId = readSectionAliasValue(value, 'flag', 'flag_id');
+  if (normalized.flag_id === undefined && flagId !== undefined) {
+    normalized.flag_id = flagId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_code'));
+  if (code && normalized.code === undefined) normalized.code = code;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const periodStart = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_period_start'));
+  if (periodStart && normalized.period_start === undefined) normalized.period_start = periodStart;
+
+  const periodEnd = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_period_end'));
+  if (periodEnd && normalized.period_end === undefined) normalized.period_end = periodEnd;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const authorId = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_author_id'));
+  if (authorId && normalized.author_id === undefined) normalized.author_id = authorId;
+
+  return normalized;
+}
+
+function normalizeGlobalListAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const listId = readSectionAliasValue(value, 'list', 'list_id');
+  if (normalized.list_id === undefined && listId !== undefined) {
+    normalized.list_id = listId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const mode = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_mode'));
+  if (mode && normalized.mode === undefined) normalized.mode = mode;
+
+  const title = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_title'));
+  if (title && normalized.title === undefined) normalized.title = title;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_code'));
+  if (code && normalized.code === undefined) normalized.code = { code, display: code };
+
+  const subjectIds = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_subject_ids'));
+  if (subjectIds && normalized.subject_ids === undefined) normalized.subject_ids = subjectIds;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const date = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_date'));
+  if (date && normalized.date === undefined) normalized.date = date;
+
+  const sourceId = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_source_id'));
+  if (sourceId && normalized.source_id === undefined) normalized.source_id = sourceId;
+
+  const orderedBy = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_ordered_by'));
+  if (orderedBy && normalized.ordered_by === undefined) normalized.ordered_by = { code: orderedBy, display: orderedBy };
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const emptyReason = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_empty_reason'));
+  if (emptyReason && normalized.empty_reason === undefined) normalized.empty_reason = { code: emptyReason, display: emptyReason };
+
+  const entryFlag = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_entry_flag'));
+  const entryDeleted = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_entry_deleted'));
+  const entryDate = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_entry_date'));
+  const entryItem = normalizeAliasValue(readSectionAliasValue(value, 'list', 'list_entry_item_id'));
+  if ((entryFlag || entryDeleted !== undefined || entryDate || entryItem) && normalized.entry === undefined) {
+    normalized.entry = [{
+      flag: entryFlag ? { code: entryFlag, display: entryFlag } : undefined,
+      deleted: entryDeleted,
+      date: entryDate,
+      item_id: entryItem
+    }];
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalNutritionIntakeAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const intakeId = readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_id');
+  if (normalized.nutrition_intake_id === undefined && intakeId !== undefined) {
+    normalized.nutrition_intake_id = intakeId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const statusReason = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_status_reason'));
+  if (statusReason && normalized.status_reason === undefined) normalized.status_reason = statusReason;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_code'));
+  if (code && normalized.code === undefined) normalized.code = { code, display: code };
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const occurrenceDateTime = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_occurrence_date_time'));
+  if (occurrenceDateTime && normalized.occurrence_date_time === undefined) normalized.occurrence_date_time = occurrenceDateTime;
+
+  const occurrenceStart = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_occurrence_start'));
+  if (occurrenceStart && normalized.occurrence_start === undefined) normalized.occurrence_start = occurrenceStart;
+
+  const occurrenceEnd = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_occurrence_end'));
+  if (occurrenceEnd && normalized.occurrence_end === undefined) normalized.occurrence_end = occurrenceEnd;
+
+  const recorded = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_recorded'));
+  if (recorded && normalized.recorded === undefined) normalized.recorded = recorded;
+
+  const reportedBoolean = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_reported_boolean'));
+  if (reportedBoolean !== undefined && normalized.reported_boolean === undefined) normalized.reported_boolean = reportedBoolean;
+
+  const reportedReference = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_reported_reference_id'));
+  if (reportedReference && normalized.reported_reference_id === undefined) normalized.reported_reference_id = reportedReference;
+
+  const instantiatesCanonical = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_instantiates_canonical'));
+  if (instantiatesCanonical && normalized.instantiates_canonical === undefined) normalized.instantiates_canonical = instantiatesCanonical;
+
+  const instantiatesUri = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_instantiates_uri'));
+  if (instantiatesUri && normalized.instantiates_uri === undefined) normalized.instantiates_uri = instantiatesUri;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const partOfIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_part_of_ids'));
+  if (partOfIds && normalized.part_of_ids === undefined) normalized.part_of_ids = partOfIds;
+
+  const consumedType = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_type'));
+  const consumedProductCode = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_product_code'));
+  const consumedProductRef = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_product_reference_id'));
+  const consumedAmountValue = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_amount_value'));
+  const consumedAmountUnit = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_amount_unit'));
+  const consumedNotConsumed = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_not_consumed'));
+  const consumedNotConsumedReason = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_consumed_not_consumed_reason'));
+  if ((consumedType || consumedProductCode || consumedProductRef || consumedAmountValue || consumedAmountUnit || consumedNotConsumed !== undefined || consumedNotConsumedReason) && normalized.consumed_item === undefined) {
+    normalized.consumed_item = [{
+      type: consumedType ? { code: consumedType, display: consumedType } : undefined,
+      nutrition_product_codeable: consumedProductCode ? { code: consumedProductCode, display: consumedProductCode } : undefined,
+      nutrition_product_reference_id: consumedProductRef,
+      amount: (consumedAmountValue || consumedAmountUnit) ? { value: consumedAmountValue, unit: consumedAmountUnit } : undefined,
+      not_consumed: consumedNotConsumed,
+      not_consumed_reason: consumedNotConsumedReason ? { code: consumedNotConsumedReason, display: consumedNotConsumedReason } : undefined
+    }];
+  }
+
+  const ingredientNutrientCode = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_ingredient_nutrient_code'));
+  const ingredientNutrientRef = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_ingredient_nutrient_reference_id'));
+  const ingredientAmountValue = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_ingredient_amount_value'));
+  const ingredientAmountUnit = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_ingredient_amount_unit'));
+  if ((ingredientNutrientCode || ingredientNutrientRef || ingredientAmountValue || ingredientAmountUnit) && normalized.ingredient_label === undefined) {
+    normalized.ingredient_label = [{
+      nutrient_codeable: ingredientNutrientCode ? { code: ingredientNutrientCode, display: ingredientNutrientCode } : undefined,
+      nutrient_reference_id: ingredientNutrientRef,
+      amount: (ingredientAmountValue || ingredientAmountUnit) ? { value: ingredientAmountValue, unit: ingredientAmountUnit } : undefined
+    }];
+  }
+
+  const performerFunction = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_performer_function'));
+  const performerActor = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_performer_actor_id'));
+  if ((performerFunction || performerActor) && normalized.performer === undefined) {
+    normalized.performer = [{
+      function: performerFunction ? { code: performerFunction, display: performerFunction } : undefined,
+      actor_id: performerActor
+    }];
+  }
+
+  const locationId = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_location_id'));
+  if (locationId && normalized.location_id === undefined) normalized.location_id = locationId;
+
+  const derivedFromIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_derived_from_ids'));
+  if (derivedFromIds && normalized.derived_from_ids === undefined) normalized.derived_from_ids = derivedFromIds;
+
+  const reasonIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_reason_ids'));
+  if (reasonIds && normalized.reason_ids === undefined) normalized.reason_ids = reasonIds;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'nutritionIntake', 'nutrition_intake_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  return normalized;
+}
+
+function normalizeGlobalNutritionOrderAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const orderId = readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_id');
+  if (normalized.nutrition_order_id === undefined && orderId !== undefined) {
+    normalized.nutrition_order_id = orderId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const intent = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_intent'));
+  if (intent && normalized.intent === undefined) normalized.intent = intent;
+
+  const priority = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_priority'));
+  if (priority && normalized.priority === undefined) normalized.priority = priority;
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const dateTime = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_date_time'));
+  if (dateTime && normalized.date_time === undefined) normalized.date_time = dateTime;
+
+  const ordererId = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_orderer_id'));
+  if (ordererId && normalized.orderer_id === undefined) normalized.orderer_id = ordererId;
+
+  const supportingInfoIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supporting_information_ids'));
+  if (supportingInfoIds && normalized.supporting_information_ids === undefined) normalized.supporting_information_ids = supportingInfoIds;
+
+  const basedOnIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_based_on_ids'));
+  if (basedOnIds && normalized.based_on_ids === undefined) normalized.based_on_ids = basedOnIds;
+
+  const instantiatesCanonical = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_instantiates_canonical'));
+  if (instantiatesCanonical && normalized.instantiates_canonical === undefined) normalized.instantiates_canonical = instantiatesCanonical;
+
+  const instantiatesUri = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_instantiates_uri'));
+  if (instantiatesUri && normalized.instantiates_uri === undefined) normalized.instantiates_uri = instantiatesUri;
+
+  const instantiates = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_instantiates'));
+  if (instantiates && normalized.instantiates === undefined) normalized.instantiates = instantiates;
+
+  const groupIdentifier = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_group_identifier'));
+  if (groupIdentifier && normalized.group_identifier === undefined) normalized.group_identifier = { value: groupIdentifier };
+
+  const performerConcept = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_performer_concept'));
+  if (performerConcept && normalized.performer_concept === undefined) normalized.performer_concept = { code: performerConcept, display: performerConcept };
+
+  const performerReferenceIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_performer_reference_ids'));
+  if (performerReferenceIds && normalized.performer_reference_ids === undefined) normalized.performer_reference_ids = performerReferenceIds;
+
+  const allergyIds = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_allergy_intolerance_ids'));
+  if (allergyIds && normalized.allergy_intolerance_ids === undefined) normalized.allergy_intolerance_ids = allergyIds;
+
+  const foodPref = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_food_preference_modifier'));
+  if (foodPref && normalized.food_preference_modifier === undefined) normalized.food_preference_modifier = foodPref;
+
+  const excludeFood = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_exclude_food_modifier'));
+  if (excludeFood && normalized.exclude_food_modifier === undefined) normalized.exclude_food_modifier = excludeFood;
+
+  const outsideFood = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_outside_food_allowed'));
+  if (outsideFood !== undefined && normalized.outside_food_allowed === undefined) normalized.outside_food_allowed = outsideFood;
+
+  const oralDietType = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_oral_diet_type'));
+  if (oralDietType && normalized.oral_diet_type === undefined) normalized.oral_diet_type = oralDietType;
+
+  const oralDietTiming = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_oral_diet_schedule_timing'));
+  if (oralDietTiming && normalized.oral_diet_schedule_timing === undefined) normalized.oral_diet_schedule_timing = oralDietTiming;
+
+  const oralDietAsNeeded = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_oral_diet_as_needed'));
+  if (oralDietAsNeeded !== undefined && normalized.oral_diet_as_needed === undefined) normalized.oral_diet_as_needed = oralDietAsNeeded;
+
+  const oralDietAsNeededFor = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_oral_diet_as_needed_for'));
+  if (oralDietAsNeededFor && normalized.oral_diet_as_needed_for === undefined) normalized.oral_diet_as_needed_for = oralDietAsNeededFor;
+
+  const oralDietInstruction = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_oral_diet_instruction'));
+  if (oralDietInstruction && normalized.oral_diet_instruction === undefined) normalized.oral_diet_instruction = oralDietInstruction;
+
+  const supplementTypeCode = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_type_code'));
+  if (supplementTypeCode && normalized.supplement_type_code === undefined) normalized.supplement_type_code = supplementTypeCode;
+
+  const supplementTypeRef = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_type_reference_id'));
+  if (supplementTypeRef && normalized.supplement_type_reference_id === undefined) normalized.supplement_type_reference_id = supplementTypeRef;
+
+  const supplementProductName = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_product_name'));
+  if (supplementProductName && normalized.supplement_product_name === undefined) normalized.supplement_product_name = supplementProductName;
+
+  const supplementScheduleTiming = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_schedule_timing'));
+  if (supplementScheduleTiming && normalized.supplement_schedule_timing === undefined) normalized.supplement_schedule_timing = supplementScheduleTiming;
+
+  const supplementAsNeeded = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_as_needed'));
+  if (supplementAsNeeded !== undefined && normalized.supplement_as_needed === undefined) normalized.supplement_as_needed = supplementAsNeeded;
+
+  const supplementAsNeededFor = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_as_needed_for'));
+  if (supplementAsNeededFor && normalized.supplement_as_needed_for === undefined) normalized.supplement_as_needed_for = supplementAsNeededFor;
+
+  const supplementQuantityValue = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_quantity_value'));
+  if (supplementQuantityValue !== undefined && normalized.supplement_quantity_value === undefined) normalized.supplement_quantity_value = supplementQuantityValue;
+
+  const supplementQuantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_quantity_unit'));
+  if (supplementQuantityUnit && normalized.supplement_quantity_unit === undefined) normalized.supplement_quantity_unit = supplementQuantityUnit;
+
+  const supplementInstruction = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_supplement_instruction'));
+  if (supplementInstruction && normalized.supplement_instruction === undefined) normalized.supplement_instruction = supplementInstruction;
+
+  const enteralBaseFormulaCode = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_base_formula_code'));
+  if (enteralBaseFormulaCode && normalized.enteral_base_formula_code === undefined) normalized.enteral_base_formula_code = enteralBaseFormulaCode;
+
+  const enteralBaseFormulaRef = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_base_formula_reference_id'));
+  if (enteralBaseFormulaRef && normalized.enteral_base_formula_reference_id === undefined) normalized.enteral_base_formula_reference_id = enteralBaseFormulaRef;
+
+  const enteralBaseFormulaProductName = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_base_formula_product_name'));
+  if (enteralBaseFormulaProductName && normalized.enteral_base_formula_product_name === undefined) {
+    normalized.enteral_base_formula_product_name = enteralBaseFormulaProductName;
+  }
+
+  const enteralRoute = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_route_of_administration'));
+  if (enteralRoute && normalized.enteral_route_of_administration === undefined) normalized.enteral_route_of_administration = enteralRoute;
+
+  const enteralCaloricValue = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_caloric_density_value'));
+  if (enteralCaloricValue !== undefined && normalized.enteral_caloric_density_value === undefined) {
+    normalized.enteral_caloric_density_value = enteralCaloricValue;
+  }
+
+  const enteralCaloricUnit = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_caloric_density_unit'));
+  if (enteralCaloricUnit && normalized.enteral_caloric_density_unit === undefined) normalized.enteral_caloric_density_unit = enteralCaloricUnit;
+
+  const enteralInstruction = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_enteral_administration_instruction'));
+  if (enteralInstruction && normalized.enteral_administration_instruction === undefined) normalized.enteral_administration_instruction = enteralInstruction;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'nutritionOrder', 'nutrition_order_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  return normalized;
+}
+
+function normalizeGlobalRiskAssessmentAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const assessmentId = readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_id');
+  if (normalized.risk_assessment_id === undefined && assessmentId !== undefined) {
+    normalized.risk_assessment_id = assessmentId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const method = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_method'));
+  if (method && normalized.method === undefined) normalized.method = { code: method, display: method };
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_code'));
+  if (code && normalized.code === undefined) normalized.code = { code, display: code };
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const occurrenceDateTime = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_occurrence_date_time'));
+  if (occurrenceDateTime && normalized.occurrence_date_time === undefined) {
+    normalized.occurrence_date_time = occurrenceDateTime;
+  }
+
+  const occurrenceStart = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_occurrence_start'));
+  if (occurrenceStart && normalized.occurrence_start === undefined) normalized.occurrence_start = occurrenceStart;
+
+  const occurrenceEnd = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_occurrence_end'));
+  if (occurrenceEnd && normalized.occurrence_end === undefined) normalized.occurrence_end = occurrenceEnd;
+
+  const basedOnId = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_based_on_id'));
+  if (basedOnId && normalized.based_on_id === undefined) normalized.based_on_id = basedOnId;
+
+  const parentId = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_parent_id'));
+  if (parentId && normalized.parent_id === undefined) normalized.parent_id = parentId;
+
+  const conditionId = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_condition_id'));
+  if (conditionId && normalized.condition_id === undefined) normalized.condition_id = conditionId;
+
+  const performerId = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_performer_id'));
+  if (performerId && normalized.performer_id === undefined) normalized.performer_id = performerId;
+
+  const reasonIds = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_reason_ids'));
+  if (reasonIds && normalized.reason_ids === undefined) normalized.reason_ids = reasonIds;
+
+  const basisIds = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_basis_ids'));
+  if (basisIds && normalized.basis_ids === undefined) normalized.basis_ids = basisIds;
+
+  const mitigation = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_mitigation'));
+  if (mitigation && normalized.mitigation === undefined) normalized.mitigation = mitigation;
+
+  const note = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_note'));
+  if (note && normalized.note === undefined) normalized.note = note;
+
+  const predOutcome = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_outcome'));
+  const predProbabilityDecimal = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_probability_decimal'));
+  const predProbRangeLowValue = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_probability_range_low_value'));
+  const predProbRangeLowUnit = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_probability_range_low_unit'));
+  const predProbRangeHighValue = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_probability_range_high_value'));
+  const predProbRangeHighUnit = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_probability_range_high_unit'));
+  const predQualitativeRisk = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_qualitative_risk'));
+  const predRelativeRisk = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_relative_risk'));
+  const predWhenStart = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_when_start'));
+  const predWhenEnd = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_when_end'));
+  const predWhenRangeLowValue = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_when_range_low_value'));
+  const predWhenRangeLowUnit = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_when_range_low_unit'));
+  const predWhenRangeHighValue = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_when_range_high_value'));
+  const predWhenRangeHighUnit = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_when_range_high_unit'));
+  const predRationale = normalizeAliasValue(readSectionAliasValue(value, 'riskAssessment', 'risk_assessment_prediction_rationale'));
+
+  const hasPrediction = predOutcome || predProbabilityDecimal || predProbRangeLowValue || predProbRangeLowUnit || predProbRangeHighValue || predProbRangeHighUnit || predQualitativeRisk || predRelativeRisk || predWhenStart || predWhenEnd || predWhenRangeLowValue || predWhenRangeLowUnit || predWhenRangeHighValue || predWhenRangeHighUnit || predRationale;
+  if (hasPrediction && normalized.prediction === undefined) {
+    const probabilityRange = (predProbRangeLowValue || predProbRangeLowUnit || predProbRangeHighValue || predProbRangeHighUnit)
+      ? {
+          low_value: predProbRangeLowValue,
+          low_unit: predProbRangeLowUnit,
+          high_value: predProbRangeHighValue,
+          high_unit: predProbRangeHighUnit
+        }
+      : undefined;
+    const whenRange = (predWhenRangeLowValue || predWhenRangeLowUnit || predWhenRangeHighValue || predWhenRangeHighUnit)
+      ? {
+          low_value: predWhenRangeLowValue,
+          low_unit: predWhenRangeLowUnit,
+          high_value: predWhenRangeHighValue,
+          high_unit: predWhenRangeHighUnit
+        }
+      : undefined;
+
+    normalized.prediction = {
+      outcome: predOutcome ? { code: predOutcome, display: predOutcome } : undefined,
+      probability_decimal: predProbabilityDecimal,
+      probability_range: probabilityRange,
+      qualitative_risk: predQualitativeRisk ? { code: predQualitativeRisk, display: predQualitativeRisk } : undefined,
+      relative_risk: predRelativeRisk,
+      when_period: (predWhenStart || predWhenEnd) ? { start: predWhenStart, end: predWhenEnd } : undefined,
+      when_range: whenRange,
+      rationale: predRationale
+    };
+  }
 
   return normalized;
 }
@@ -5611,6 +6636,22 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationDispenseAliases(value);
     case 'deviceDispense':
       return normalizeGlobalDeviceDispenseAliases(value);
+    case 'deviceRequest':
+      return normalizeGlobalDeviceRequestAliases(value);
+    case 'deviceUsage':
+      return normalizeGlobalDeviceUsageAliases(value);
+    case 'encounterHistory':
+      return normalizeGlobalEncounterHistoryAliases(value);
+    case 'flag':
+      return normalizeGlobalFlagAliases(value);
+    case 'list':
+      return normalizeGlobalListAliases(value);
+    case 'nutritionIntake':
+      return normalizeGlobalNutritionIntakeAliases(value);
+    case 'nutritionOrder':
+      return normalizeGlobalNutritionOrderAliases(value);
+    case 'riskAssessment':
+      return normalizeGlobalRiskAssessmentAliases(value);
     case 'capabilityStatement':
       return normalizeGlobalCapabilityStatementAliases(value);
     case 'operationOutcome':
@@ -5697,6 +6738,14 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationAdministration', 'medication_administration'],
     ['medicationDispense', 'medication_dispense'],
     ['deviceDispense', 'device_dispense'],
+    ['deviceRequest', 'device_request'],
+    ['deviceUsage', 'device_usage'],
+    ['encounterHistory', 'encounter_history'],
+    ['flag', 'flag'],
+    ['list', 'list'],
+    ['nutritionIntake', 'nutrition_intake'],
+    ['nutritionOrder', 'nutrition_order'],
+    ['riskAssessment', 'risk_assessment'],
     ['capabilityStatement', 'capability_statement'],
     ['operationOutcome', 'operation_outcome'],
     ['parameters', 'parameters'],
@@ -5829,6 +6878,14 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationAdministration',
     'medicationDispense',
     'deviceDispense',
+    'deviceRequest',
+    'deviceUsage',
+    'encounterHistory',
+    'flag',
+    'list',
+    'nutritionIntake',
+    'nutritionOrder',
+    'riskAssessment',
     'capabilityStatement',
     'operationOutcome',
     'parameters',
@@ -5987,6 +7044,14 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationAdministrations = normalizeArray(validated.medication_administration);
   const medicationDispenses = normalizeArray(validated.medication_dispense);
   const deviceDispenses = normalizeArray(validated.device_dispense);
+  const deviceRequests = normalizeArray(validated.device_request);
+  const deviceUsages = normalizeArray(validated.device_usage);
+  const encounterHistories = normalizeArray(validated.encounter_history);
+  const flags = normalizeArray(validated.flag);
+  const lists = normalizeArray(validated.list);
+  const nutritionIntakes = normalizeArray(validated.nutrition_intake);
+  const nutritionOrders = normalizeArray(validated.nutrition_order);
+  const riskAssessments = normalizeArray(validated.risk_assessment);
   const capabilityStatements = normalizeArray(validated.capability_statement);
   const operationOutcomes = normalizeArray(validated.operation_outcome);
   const parametersList = normalizeArray(validated.parameters);
@@ -6055,6 +7120,30 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (deviceDispenses.length) {
     canonical.deviceDispenses = deviceDispenses.map(buildCanonicalDeviceDispenseGlobal);
+  }
+  if (deviceRequests.length) {
+    canonical.deviceRequests = deviceRequests.map(buildCanonicalDeviceRequestGlobal);
+  }
+  if (deviceUsages.length) {
+    canonical.deviceUsages = deviceUsages.map(buildCanonicalDeviceUsageGlobal);
+  }
+  if (encounterHistories.length) {
+    canonical.encounterHistories = encounterHistories.map(buildCanonicalEncounterHistoryGlobal);
+  }
+  if (flags.length) {
+    canonical.flags = flags.map(buildCanonicalFlagGlobal);
+  }
+  if (lists.length) {
+    canonical.lists = lists.map(buildCanonicalListGlobal);
+  }
+  if (nutritionIntakes.length) {
+    canonical.nutritionIntakes = nutritionIntakes.map(buildCanonicalNutritionIntakeGlobal);
+  }
+  if (nutritionOrders.length) {
+    canonical.nutritionOrders = nutritionOrders.map(buildCanonicalNutritionOrderGlobal);
+  }
+  if (riskAssessments.length) {
+    canonical.riskAssessments = riskAssessments.map(buildCanonicalRiskAssessmentGlobal);
   }
   if (capabilityStatements.length) {
     canonical.capabilityStatements = capabilityStatements.map(buildCanonicalCapabilityStatementGlobal);
@@ -6211,6 +7300,14 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     medication_administration: ['medication_administration_id', 'id', 'identifier'],
     medication_dispense: ['medication_dispense_id', 'id', 'identifier'],
     device_dispense: ['device_dispense_id', 'id', 'identifier'],
+    device_request: ['device_request_id', 'id', 'identifier'],
+    device_usage: ['device_usage_id', 'id', 'identifier'],
+    encounter_history: ['encounter_history_id', 'id', 'identifier'],
+    flag: ['flag_id', 'id', 'identifier'],
+    list: ['list_id', 'id', 'identifier'],
+    nutrition_intake: ['nutrition_intake_id', 'id', 'identifier'],
+    nutrition_order: ['nutrition_order_id', 'id', 'identifier'],
+    risk_assessment: ['risk_assessment_id', 'id', 'identifier'],
     capability_statement: ['capability_statement_id', 'id', 'identifier'],
     operation_outcome: ['operation_outcome_id', 'id', 'identifier'],
     parameters: ['id', 'identifier'],
@@ -6309,7 +7406,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -6321,6 +7418,14 @@ function wrapGlobalPayload(value: any) {
       value.medication_administration,
       value.medication_dispense,
       value.device_dispense,
+      value.device_request,
+      value.device_usage,
+      value.encounter_history,
+      value.flag,
+      value.list,
+      value.nutrition_intake,
+      value.nutrition_order,
+      value.risk_assessment,
       value.capability_statement,
       value.operation_outcome,
       value.parameters,
@@ -6390,6 +7495,30 @@ function wrapGlobalPayload(value: any) {
     }
     if ('device_dispense_id' in value || 'device_dispense_status' in value || 'device_dispense_device_id' in value) {
       return { device_dispense: value };
+    }
+    if ('device_request_id' in value || 'device_request_status' in value || 'device_request_device_code' in value) {
+      return { device_request: value };
+    }
+    if ('device_usage_id' in value || 'device_usage_status' in value || 'device_usage_device_code' in value) {
+      return { device_usage: value };
+    }
+    if ('encounter_history_id' in value || 'encounter_history_status' in value || 'encounter_history_encounter_id' in value) {
+      return { encounter_history: value };
+    }
+    if ('flag_id' in value || 'flag_status' in value || 'flag_code' in value) {
+      return { flag: value };
+    }
+    if ('list_id' in value || 'list_status' in value || 'list_mode' in value) {
+      return { list: value };
+    }
+    if ('nutrition_intake_id' in value || 'nutrition_intake_status' in value || 'nutrition_intake_code' in value) {
+      return { nutrition_intake: value };
+    }
+    if ('nutrition_order_id' in value || 'nutrition_order_status' in value || 'nutrition_order_intent' in value) {
+      return { nutrition_order: value };
+    }
+    if ('risk_assessment_id' in value || 'risk_assessment_status' in value || 'risk_assessment_code' in value) {
+      return { risk_assessment: value };
     }
     if ('capability_statement_id' in value || 'capability_statement_url' in value || 'fhir_version' in value) {
       return { capability_statement: value };
@@ -6554,6 +7683,33 @@ function looksLikeGlobalResource(value: any) {
     'device_dispense_id' in value ||
     'device_dispense_status' in value ||
     'device_dispense_device_id' in value ||
+    'device_request_id' in value ||
+    'device_request_status' in value ||
+    'device_request_device_code' in value ||
+    'device_usage_id' in value ||
+    'device_usage_status' in value ||
+    'device_usage_device_code' in value ||
+    'encounter_history_id' in value ||
+    'encounter_history_status' in value ||
+    'encounter_history_encounter_id' in value ||
+    'flag_id' in value ||
+    'flag_status' in value ||
+    'flag_code' in value ||
+    'list_id' in value ||
+    'list_status' in value ||
+    'list_mode' in value ||
+    'nutrition_intake_id' in value ||
+    'nutrition_intake_status' in value ||
+    'nutrition_intake_code' in value ||
+    'nutrition_order_id' in value ||
+    'nutrition_order_status' in value ||
+    'nutrition_order_intent' in value ||
+    'risk_assessment_id' in value ||
+    'risk_assessment_status' in value ||
+    'risk_assessment_code' in value ||
+    'nutrition_intake_id' in value ||
+    'nutrition_intake_status' in value ||
+    'nutrition_intake_code' in value ||
     'capability_statement_id' in value ||
     'capability_statement_url' in value ||
     'fhir_version' in value ||
@@ -7948,6 +9104,11 @@ function buildCanonicalClaimGlobal(claim: z.infer<typeof GlobalClaimSchema>) {
     };
   };
 
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
   const mapAddress = (source?: z.infer<typeof GlobalAddressSchema>) => {
     if (!source) return undefined;
     return {
@@ -8515,6 +9676,597 @@ function buildCanonicalDeviceDispenseGlobal(dispense: z.infer<typeof GlobalDevic
     note: normalizeStringArray(dispense.note),
     usageInstruction: dispense.usage_instruction,
     eventHistory: normalizeStringArray(dispense.event_history_ids)
+  };
+}
+
+function buildCanonicalDeviceRequestGlobal(request: z.infer<typeof GlobalDeviceRequestSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: string) => {
+    if (!value) return undefined;
+    return { code: value, display: value };
+  };
+
+  const mapCodeableObject = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    if (!source.code && !source.display && !source.code_system) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    const value = toNumber(source.value as any);
+    if (value === undefined && !source.unit && !source.system && !source.code) return undefined;
+    return {
+      value,
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const parameters = normalizeArray(request.parameter).map(param => ({
+    code: mapCodeableObject((param as any).code),
+    valueCodeableConcept: mapCodeableObject((param as any).value_codeable_concept),
+    valueQuantity: mapQuantity((param as any).value_quantity),
+    valueBoolean: normalizeBoolean((param as any).value_boolean)
+  })).filter(param => param.code || param.valueCodeableConcept || param.valueQuantity || param.valueBoolean !== undefined);
+
+  return {
+    id: request.device_request_id,
+    identifier: normalizeArray(request.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    instantiatesCanonical: normalizeStringArray(request.instantiates_canonical),
+    instantiatesUri: normalizeStringArray(request.instantiates_uri),
+    basedOn: normalizeStringArray(request.based_on_ids),
+    replaces: normalizeStringArray(request.replaces_ids),
+    groupIdentifier: request.group_identifier ? mapIdentifier(request.group_identifier) : undefined,
+    status: request.status,
+    intent: request.intent,
+    priority: request.priority,
+    doNotPerform: normalizeBoolean(request.do_not_perform),
+    codeCodeableConcept: mapCodeable(request.device_code),
+    codeReference: request.device_reference_id,
+    quantity: request.quantity_value !== undefined ? toNumber(request.quantity_value as any) : undefined,
+    parameter: parameters.length ? parameters : undefined,
+    subject: request.subject_id,
+    encounter: request.encounter_id,
+    occurrenceDateTime: request.occurrence_date_time,
+    occurrencePeriod: mapPeriod(request.occurrence_start, request.occurrence_end),
+    occurrenceTiming: request.occurrence_timing,
+    authoredOn: request.authored_on,
+    requester: request.requester_id,
+    performer: request.performer_id,
+    reason: normalizeStringArray(request.reason_ids),
+    asNeeded: normalizeBoolean(request.as_needed),
+    asNeededFor: mapCodeable(request.as_needed_for),
+    insurance: normalizeStringArray(request.insurance_ids),
+    supportingInfo: normalizeStringArray(request.supporting_info_ids),
+    note: normalizeStringArray(request.note),
+    relevantHistory: normalizeStringArray(request.relevant_history_ids)
+  };
+}
+
+function buildCanonicalDeviceUsageGlobal(usage: z.infer<typeof GlobalDeviceUsageSchema>) {
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: string) => {
+    if (!value) return undefined;
+    return { code: value, display: value };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  return {
+    id: usage.device_usage_id,
+    identifier: normalizeArray(usage.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    basedOn: normalizeStringArray(usage.based_on_ids),
+    status: usage.status,
+    category: normalizeStringArray(usage.category).map(code => mapCodeable(code)).filter(isDefined),
+    patient: usage.patient_id,
+    derivedFrom: normalizeStringArray(usage.derived_from_ids),
+    context: usage.context_id,
+    timingTiming: usage.timing_timing,
+    timingPeriod: mapPeriod(usage.timing_start, usage.timing_end),
+    timingDateTime: usage.timing_date_time,
+    dateAsserted: usage.date_asserted,
+    usageStatus: mapCodeable(usage.usage_status),
+    usageReason: normalizeStringArray(usage.usage_reason).map(code => mapCodeable(code)).filter(isDefined),
+    adherence: (usage.adherence_code || normalizeStringArray(usage.adherence_reason).length)
+      ? {
+          code: mapCodeable(usage.adherence_code),
+          reason: normalizeStringArray(usage.adherence_reason).map(code => mapCodeable(code)).filter(isDefined)
+        }
+      : undefined,
+    informationSource: usage.information_source_id,
+    deviceCodeableConcept: mapCodeable(usage.device_code),
+    deviceReference: usage.device_reference_id,
+    reason: normalizeStringArray(usage.reason_ids),
+    bodySite: usage.body_site_id,
+    note: normalizeStringArray(usage.note)
+  };
+}
+
+function buildCanonicalEncounterHistoryGlobal(history: z.infer<typeof GlobalEncounterHistorySchema>) {
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: string) => {
+    if (!value) return undefined;
+    return { code: value, display: value };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const lengthValue = history.length_value !== undefined && history.length_value !== null
+    ? Number(history.length_value)
+    : undefined;
+
+  const serviceTypeConcepts = normalizeStringArray(history.service_type).map(code => ({
+    concept: mapCodeable(code)
+  })).filter(item => item.concept);
+
+  const serviceTypeReferences = normalizeStringArray(history.service_type_reference_ids).map(reference => ({
+    reference
+  })).filter(item => item.reference);
+
+  const serviceType = [...serviceTypeConcepts, ...serviceTypeReferences];
+
+  return {
+    id: history.encounter_history_id,
+    encounter: history.encounter_id,
+    identifier: normalizeArray(history.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: history.status,
+    class: mapCodeable(history.class),
+    type: normalizeStringArray(history.type).map(code => mapCodeable(code)).filter(isDefined),
+    serviceType: serviceType.length ? serviceType : undefined,
+    subject: history.subject_id,
+    subjectStatus: mapCodeable(history.subject_status),
+    actualPeriod: mapPeriod(history.actual_start, history.actual_end),
+    plannedStartDate: history.planned_start_date,
+    plannedEndDate: history.planned_end_date,
+    length: (lengthValue !== undefined || history.length_unit || history.length_system || history.length_code)
+      ? {
+          value: Number.isNaN(lengthValue as number) ? undefined : lengthValue,
+          unit: history.length_unit,
+          system: history.length_system,
+          code: history.length_code
+        }
+      : undefined,
+    location: (history.location_id || history.location_form)
+      ? [{
+          location: history.location_id,
+          form: mapCodeable(history.location_form)
+        }]
+      : undefined
+  };
+}
+
+function buildCanonicalFlagGlobal(flag: z.infer<typeof GlobalFlagSchema>) {
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: string) => {
+    if (!value) return undefined;
+    return { code: value, display: value };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  return {
+    id: flag.flag_id,
+    identifier: normalizeArray(flag.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: flag.status,
+    category: normalizeStringArray(flag.category).map(code => mapCodeable(code)).filter(isDefined),
+    code: mapCodeable(flag.code),
+    subject: flag.subject_id,
+    period: mapPeriod(flag.period_start, flag.period_end),
+    encounter: flag.encounter_id,
+    author: flag.author_id
+  };
+}
+
+function buildCanonicalListGlobal(list: z.infer<typeof GlobalListSchema>) {
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    if (!source.code && !source.display && !source.code_system) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const entries = normalizeArray(list.entry).map(entry => ({
+    flag: mapCodeable((entry as any).flag),
+    deleted: normalizeBoolean((entry as any).deleted),
+    date: (entry as any).date,
+    item: (entry as any).item_id
+  })).filter(entry => entry.flag || entry.deleted !== undefined || entry.date || entry.item);
+
+  return {
+    id: list.list_id,
+    identifier: normalizeArray(list.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: list.status,
+    mode: list.mode,
+    title: list.title,
+    code: mapCodeable(list.code),
+    subject: normalizeStringArray(list.subject_ids),
+    encounter: list.encounter_id,
+    date: list.date,
+    source: list.source_id,
+    orderedBy: mapCodeable(list.ordered_by),
+    note: normalizeStringArray(list.note),
+    entry: entries.length ? entries : undefined,
+    emptyReason: mapCodeable(list.empty_reason)
+  };
+}
+
+function buildCanonicalNutritionIntakeGlobal(intake: z.infer<typeof GlobalNutritionIntakeSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    if (!source.code && !source.display && !source.code_system) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    const value = toNumber(source.value as any);
+    if (value === undefined && !source.unit && !source.system && !source.code) return undefined;
+    return {
+      value,
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  const consumedItems = normalizeArray(intake.consumed_item).map(item => ({
+    type: mapCodeable((item as any).type),
+    nutritionProductCodeableConcept: mapCodeable((item as any).nutrition_product_codeable),
+    nutritionProductReference: (item as any).nutrition_product_reference_id,
+    schedule: (item as any).schedule,
+    amount: mapQuantity((item as any).amount),
+    rate: mapQuantity((item as any).rate),
+    notConsumed: normalizeBoolean((item as any).not_consumed),
+    notConsumedReason: mapCodeable((item as any).not_consumed_reason)
+  })).filter(item => item.type || item.nutritionProductCodeableConcept || item.nutritionProductReference || item.schedule || item.amount || item.rate || item.notConsumed !== undefined || item.notConsumedReason);
+
+  const ingredientLabels = normalizeArray(intake.ingredient_label).map(item => ({
+    nutrientCodeableConcept: mapCodeable((item as any).nutrient_codeable),
+    nutrientReference: (item as any).nutrient_reference_id,
+    amount: mapQuantity((item as any).amount)
+  })).filter(item => item.nutrientCodeableConcept || item.nutrientReference || item.amount);
+
+  const performers = normalizeArray(intake.performer).map(item => ({
+    function: mapCodeable((item as any).function),
+    actor: (item as any).actor_id
+  })).filter(item => item.function || item.actor);
+
+  return {
+    id: intake.nutrition_intake_id,
+    identifier: normalizeArray(intake.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    instantiatesCanonical: normalizeStringArray(intake.instantiates_canonical),
+    instantiatesUri: normalizeStringArray(intake.instantiates_uri),
+    basedOn: normalizeStringArray(intake.based_on_ids),
+    partOf: normalizeStringArray(intake.part_of_ids),
+    status: intake.status,
+    statusReason: normalizeStringArray(intake.status_reason).map(code => ({ code, display: code })),
+    code: mapCodeable(intake.code),
+    subject: intake.subject_id,
+    encounter: intake.encounter_id,
+    occurrenceDateTime: intake.occurrence_date_time,
+    occurrencePeriod: mapPeriod(intake.occurrence_start, intake.occurrence_end),
+    recorded: intake.recorded,
+    reportedBoolean: normalizeBoolean(intake.reported_boolean),
+    reportedReference: intake.reported_reference_id,
+    consumedItem: consumedItems.length ? consumedItems : undefined,
+    ingredientLabel: ingredientLabels.length ? ingredientLabels : undefined,
+    performer: performers.length ? performers : undefined,
+    location: intake.location_id,
+    derivedFrom: normalizeStringArray(intake.derived_from_ids),
+    reason: normalizeStringArray(intake.reason_ids),
+    note: normalizeStringArray(intake.note)
+  };
+}
+
+function buildCanonicalNutritionOrderGlobal(order: z.infer<typeof GlobalNutritionOrderSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    if (!source.code && !source.display && !source.code_system) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapCodeableText = (value?: string) => {
+    if (!value) return undefined;
+    return { code: value, display: value };
+  };
+
+  const mapQuantity = (value?: string | number, unit?: string) => {
+    const parsed = toNumber(value as any);
+    if (parsed === undefined && !unit) return undefined;
+    return { value: parsed, unit };
+  };
+
+  const performers: Array<{ concept?: { system?: string; code?: string; display?: string }; reference?: string }> = [];
+  normalizeArray(order.performer_concept).forEach(entry => {
+    const concept = mapCodeable(entry as any);
+    if (concept) performers.push({ concept });
+  });
+  normalizeStringArray(order.performer_reference_ids).forEach(ref => performers.push({ reference: ref }));
+
+  const oralDietTypes = normalizeStringArray(order.oral_diet_type).map(value => mapCodeableText(value)).filter(isDefined);
+  const oralDietAsNeeded = normalizeBoolean(order.oral_diet_as_needed as any);
+  const oralDiet = (oralDietTypes.length || order.oral_diet_schedule_timing || oralDietAsNeeded !== undefined || order.oral_diet_as_needed_for || order.oral_diet_instruction) ? {
+    type: oralDietTypes.length ? oralDietTypes : undefined,
+    scheduleTiming: order.oral_diet_schedule_timing,
+    asNeeded: oralDietAsNeeded,
+    asNeededFor: mapCodeableText(order.oral_diet_as_needed_for),
+    instruction: order.oral_diet_instruction
+  } : undefined;
+
+  const supplementAsNeeded = normalizeBoolean(order.supplement_as_needed as any);
+  const supplementQuantity = mapQuantity(order.supplement_quantity_value as any, order.supplement_quantity_unit);
+  const supplement = (order.supplement_type_code || order.supplement_type_reference_id || order.supplement_product_name || order.supplement_schedule_timing || supplementAsNeeded !== undefined || order.supplement_as_needed_for || supplementQuantity || order.supplement_instruction) ? [{
+    typeCodeableConcept: mapCodeableText(order.supplement_type_code),
+    typeReference: order.supplement_type_reference_id,
+    productName: order.supplement_product_name,
+    scheduleTiming: order.supplement_schedule_timing,
+    asNeeded: supplementAsNeeded,
+    asNeededFor: mapCodeableText(order.supplement_as_needed_for),
+    quantity: supplementQuantity || undefined,
+    instruction: order.supplement_instruction
+  }] : undefined;
+
+  const enteralCaloricDensity = mapQuantity(order.enteral_caloric_density_value as any, order.enteral_caloric_density_unit);
+  const enteralFormula = (order.enteral_base_formula_code || order.enteral_base_formula_reference_id || order.enteral_base_formula_product_name || order.enteral_route_of_administration || enteralCaloricDensity || order.enteral_administration_instruction) ? {
+    baseFormulaTypeCodeableConcept: mapCodeableText(order.enteral_base_formula_code),
+    baseFormulaTypeReference: order.enteral_base_formula_reference_id,
+    baseFormulaProductName: order.enteral_base_formula_product_name,
+    caloricDensity: enteralCaloricDensity || undefined,
+    routeOfAdministration: mapCodeableText(order.enteral_route_of_administration),
+    administrationInstruction: order.enteral_administration_instruction
+  } : undefined;
+
+  return {
+    id: order.nutrition_order_id,
+    identifier: normalizeArray(order.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    instantiatesCanonical: normalizeStringArray(order.instantiates_canonical),
+    instantiatesUri: normalizeStringArray(order.instantiates_uri),
+    instantiates: normalizeStringArray(order.instantiates),
+    basedOn: normalizeStringArray(order.based_on_ids),
+    groupIdentifier: order.group_identifier ? mapIdentifier(order.group_identifier) : undefined,
+    status: order.status,
+    intent: order.intent,
+    priority: order.priority,
+    subject: order.subject_id,
+    encounter: order.encounter_id,
+    supportingInformation: normalizeStringArray(order.supporting_information_ids),
+    dateTime: order.date_time,
+    orderer: order.orderer_id,
+    performer: performers.length ? performers : undefined,
+    allergyIntolerance: normalizeStringArray(order.allergy_intolerance_ids),
+    foodPreferenceModifier: normalizeStringArray(order.food_preference_modifier).map(code => mapCodeableText(code)).filter(isDefined),
+    excludeFoodModifier: normalizeStringArray(order.exclude_food_modifier).map(code => mapCodeableText(code)).filter(isDefined),
+    outsideFoodAllowed: normalizeBoolean(order.outside_food_allowed as any),
+    oralDiet,
+    supplement,
+    enteralFormula,
+    note: normalizeStringArray(order.note)
+  };
+}
+
+function buildCanonicalRiskAssessmentGlobal(assessment: z.infer<typeof GlobalRiskAssessmentSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    if (!source.code && !source.display && !source.code_system) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapRange = (source?: z.infer<typeof GlobalRangeSchema>) => {
+    if (!source) return undefined;
+    const lowValue = toNumber(source.low_value as any);
+    const highValue = toNumber(source.high_value as any);
+    const low = (lowValue !== undefined || source.low_unit) ? { value: lowValue, unit: source.low_unit } : undefined;
+    const high = (highValue !== undefined || source.high_unit) ? { value: highValue, unit: source.high_unit } : undefined;
+    if (!low && !high) return undefined;
+    return { low, high };
+  };
+
+  const predictions = normalizeArray(assessment.prediction).map(pred => ({
+    outcome: mapCodeable((pred as any).outcome),
+    probabilityDecimal: toNumber((pred as any).probability_decimal as any),
+    probabilityRange: mapRange((pred as any).probability_range),
+    qualitativeRisk: mapCodeable((pred as any).qualitative_risk),
+    relativeRisk: toNumber((pred as any).relative_risk as any),
+    whenPeriod: (pred as any).when_period
+      ? mapPeriod((pred as any).when_period.start, (pred as any).when_period.end)
+      : undefined,
+    whenRange: mapRange((pred as any).when_range),
+    rationale: (pred as any).rationale
+  })).filter(entry => entry.outcome || entry.probabilityDecimal !== undefined || entry.probabilityRange || entry.qualitativeRisk || entry.relativeRisk !== undefined || entry.whenPeriod || entry.whenRange || entry.rationale);
+
+  return {
+    id: assessment.risk_assessment_id,
+    identifier: normalizeArray(assessment.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    basedOn: assessment.based_on_id,
+    parent: assessment.parent_id,
+    status: assessment.status,
+    method: mapCodeable(assessment.method),
+    code: mapCodeable(assessment.code),
+    subject: assessment.subject_id,
+    encounter: assessment.encounter_id,
+    occurrenceDateTime: assessment.occurrence_date_time,
+    occurrencePeriod: mapPeriod(assessment.occurrence_start, assessment.occurrence_end),
+    condition: assessment.condition_id,
+    performer: assessment.performer_id,
+    reason: normalizeStringArray(assessment.reason_ids),
+    basis: normalizeStringArray(assessment.basis_ids),
+    prediction: predictions.length ? predictions : undefined,
+    mitigation: assessment.mitigation,
+    note: normalizeStringArray(assessment.note)
   };
 }
 

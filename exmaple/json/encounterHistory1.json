@@ -1,0 +1,18 @@
+{
+  "encounter_history": {
+    "encounter_history_id": "EH-1",
+    "encounter_history_encounter_id": "ENC-1",
+    "status": "completed",
+    "class": "AMB",
+    "type": "outpatient",
+    "subject_id": "PAT-3",
+    "actual_start": "2024-02-01T09:00:00Z",
+    "actual_end": "2024-02-01T09:45:00Z",
+    "planned_start_date": "2024-02-01T09:00:00Z",
+    "planned_end_date": "2024-02-01T10:00:00Z",
+    "length_value": 45,
+    "length_unit": "min",
+    "location_id": "LOC-9",
+    "location_form": "room"
+  }
+}

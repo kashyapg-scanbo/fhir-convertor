@@ -1,0 +1,19 @@
+{
+  "nutrition_intake": {
+    "nutrition_intake_id": "NI-1",
+    "status": "completed",
+    "code": { "code": "meal", "display": "Meal" },
+    "subject_id": "PAT-6",
+    "encounter_id": "ENC-4",
+    "occurrence_date_time": "2024-05-10T12:30:00Z",
+    "recorded": "2024-05-10T13:00:00Z",
+    "consumed_item": [
+      {
+        "type": { "code": "food", "display": "Food" },
+        "nutrition_product_codeable": { "code": "NP-1", "display": "NutritionProduct" },
+        "amount": { "value": 1, "unit": "serving" }
+      }
+    ],
+    "note": "Lunch recorded"
+  }
+}

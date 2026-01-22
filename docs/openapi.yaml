@@ -789,7 +789,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -934,7 +934,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -989,6 +989,54 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomDeviceDispense'
+        device_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceRequest'
+        device_usage:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceUsage'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceUsage'
+        encounter_history:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEncounterHistory'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEncounterHistory'
+        flag:
+          oneOf:
+            - $ref: '#/components/schemas/CustomFlag'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomFlag'
+        list:
+          oneOf:
+            - $ref: '#/components/schemas/CustomList'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomList'
+        nutrition_intake:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNutritionIntake'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNutritionIntake'
+        nutrition_order:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNutritionOrder'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNutritionOrder'
+        risk_assessment:
+          oneOf:
+            - $ref: '#/components/schemas/CustomRiskAssessment'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomRiskAssessment'
         capability_statement:
           oneOf:
             - $ref: '#/components/schemas/CustomCapabilityStatement'
@@ -1916,6 +1964,640 @@ components:
             - type: array
               items:
                 type: string
+    CustomDeviceRequest:
+      type: object
+      properties:
+        device_request_id:
+          type: string
+        device_request_status:
+          type: string
+        device_request_intent:
+          type: string
+        device_request_priority:
+          type: string
+        device_request_do_not_perform:
+          oneOf:
+            - type: boolean
+            - type: string
+        device_request_device_code:
+          type: string
+        device_request_device_reference_id:
+          type: string
+        device_request_subject_id:
+          type: string
+        device_request_encounter_id:
+          type: string
+        device_request_occurrence_date_time:
+          type: string
+          format: date-time
+        device_request_occurrence_start:
+          type: string
+          format: date-time
+        device_request_occurrence_end:
+          type: string
+          format: date-time
+        device_request_occurrence_timing:
+          type: string
+        device_request_authored_on:
+          type: string
+          format: date-time
+        device_request_requester_id:
+          type: string
+        device_request_performer_id:
+          type: string
+        device_request_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_as_needed:
+          oneOf:
+            - type: boolean
+            - type: string
+        device_request_as_needed_for:
+          type: string
+        device_request_insurance_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_note:
+          type: string
+        device_request_relevant_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_replaces_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_group_identifier:
+          type: string
+        device_request_quantity_value:
+          type: number
+        device_request_parameter_code:
+          type: string
+        device_request_parameter_value_code:
+          type: string
+        device_request_parameter_value_quantity_value:
+          type: number
+        device_request_parameter_value_quantity_unit:
+          type: string
+        device_request_parameter_value_boolean:
+          oneOf:
+            - type: boolean
+            - type: string
+    CustomDeviceUsage:
+      type: object
+      properties:
+        device_usage_id:
+          type: string
+        device_usage_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_status:
+          type: string
+        device_usage_category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_patient_id:
+          type: string
+        device_usage_derived_from_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_context_id:
+          type: string
+        device_usage_timing_timing:
+          type: string
+        device_usage_timing_start:
+          type: string
+          format: date-time
+        device_usage_timing_end:
+          type: string
+          format: date-time
+        device_usage_timing_date_time:
+          type: string
+          format: date-time
+        device_usage_date_asserted:
+          type: string
+          format: date-time
+        device_usage_usage_status:
+          type: string
+        device_usage_usage_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_adherence_code:
+          type: string
+        device_usage_adherence_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_information_source_id:
+          type: string
+        device_usage_device_code:
+          type: string
+        device_usage_device_reference_id:
+          type: string
+        device_usage_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_body_site_id:
+          type: string
+        device_usage_note:
+          type: string
+    CustomEncounterHistory:
+      type: object
+      properties:
+        encounter_history_id:
+          type: string
+        encounter_history_encounter_id:
+          type: string
+        encounter_history_status:
+          type: string
+        encounter_history_class:
+          type: string
+        encounter_history_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_history_service_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_history_service_type_reference_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_history_subject_id:
+          type: string
+        encounter_history_subject_status:
+          type: string
+        encounter_history_actual_start:
+          type: string
+          format: date-time
+        encounter_history_actual_end:
+          type: string
+          format: date-time
+        encounter_history_planned_start_date:
+          type: string
+          format: date-time
+        encounter_history_planned_end_date:
+          type: string
+          format: date-time
+        encounter_history_length_value:
+          type: number
+        encounter_history_length_unit:
+          type: string
+        encounter_history_length_system:
+          type: string
+        encounter_history_length_code:
+          type: string
+        encounter_history_location_id:
+          type: string
+        encounter_history_location_form:
+          type: string
+    CustomFlag:
+      type: object
+      properties:
+        flag_id:
+          type: string
+        flag_status:
+          type: string
+        flag_category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        flag_code:
+          type: string
+        flag_subject_id:
+          type: string
+        flag_period_start:
+          type: string
+          format: date-time
+        flag_period_end:
+          type: string
+          format: date-time
+        flag_encounter_id:
+          type: string
+        flag_author_id:
+          type: string
+    CustomList:
+      type: object
+      properties:
+        list_id:
+          type: string
+        list_status:
+          type: string
+        list_mode:
+          type: string
+        list_title:
+          type: string
+        list_code:
+          type: string
+        list_subject_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        list_encounter_id:
+          type: string
+        list_date:
+          type: string
+          format: date-time
+        list_source_id:
+          type: string
+        list_ordered_by:
+          type: string
+        list_note:
+          type: string
+        list_entry_flag:
+          type: string
+        list_entry_deleted:
+          oneOf:
+            - type: boolean
+            - type: string
+        list_entry_date:
+          type: string
+          format: date-time
+        list_entry_item_id:
+          type: string
+        list_empty_reason:
+          type: string
+    CustomNutritionIntake:
+      type: object
+      properties:
+        nutrition_intake_id:
+          type: string
+        nutrition_intake_status:
+          type: string
+        nutrition_intake_status_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_code:
+          type: string
+        nutrition_intake_subject_id:
+          type: string
+        nutrition_intake_encounter_id:
+          type: string
+        nutrition_intake_occurrence_date_time:
+          type: string
+          format: date-time
+        nutrition_intake_occurrence_start:
+          type: string
+          format: date-time
+        nutrition_intake_occurrence_end:
+          type: string
+          format: date-time
+        nutrition_intake_recorded:
+          type: string
+          format: date-time
+        nutrition_intake_reported_boolean:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_intake_reported_reference_id:
+          type: string
+        nutrition_intake_instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_consumed_type:
+          type: string
+        nutrition_intake_consumed_product_code:
+          type: string
+        nutrition_intake_consumed_product_reference_id:
+          type: string
+        nutrition_intake_consumed_amount_value:
+          type: number
+        nutrition_intake_consumed_amount_unit:
+          type: string
+        nutrition_intake_consumed_not_consumed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_intake_consumed_not_consumed_reason:
+          type: string
+        nutrition_intake_ingredient_nutrient_code:
+          type: string
+        nutrition_intake_ingredient_nutrient_reference_id:
+          type: string
+        nutrition_intake_ingredient_amount_value:
+          type: number
+        nutrition_intake_ingredient_amount_unit:
+          type: string
+        nutrition_intake_performer_function:
+          type: string
+        nutrition_intake_performer_actor_id:
+          type: string
+        nutrition_intake_location_id:
+          type: string
+        nutrition_intake_derived_from_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_note:
+          type: string
+    CustomNutritionOrder:
+      type: object
+      properties:
+        nutrition_order_id:
+          type: string
+        nutrition_order_status:
+          type: string
+        nutrition_order_intent:
+          type: string
+        nutrition_order_priority:
+          type: string
+        nutrition_order_subject_id:
+          type: string
+        nutrition_order_encounter_id:
+          type: string
+        nutrition_order_date_time:
+          type: string
+          format: date-time
+        nutrition_order_orderer_id:
+          type: string
+        nutrition_order_supporting_information_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_instantiates:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_group_identifier:
+          type: string
+        nutrition_order_performer_concept:
+          type: string
+        nutrition_order_performer_reference_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_allergy_intolerance_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_food_preference_modifier:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_exclude_food_modifier:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_outside_food_allowed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_order_oral_diet_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_oral_diet_schedule_timing:
+          type: string
+        nutrition_order_oral_diet_as_needed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_order_oral_diet_as_needed_for:
+          type: string
+        nutrition_order_oral_diet_instruction:
+          type: string
+        nutrition_order_supplement_type_code:
+          type: string
+        nutrition_order_supplement_type_reference_id:
+          type: string
+        nutrition_order_supplement_product_name:
+          type: string
+        nutrition_order_supplement_schedule_timing:
+          type: string
+        nutrition_order_supplement_as_needed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_order_supplement_as_needed_for:
+          type: string
+        nutrition_order_supplement_quantity_value:
+          type: number
+        nutrition_order_supplement_quantity_unit:
+          type: string
+        nutrition_order_supplement_instruction:
+          type: string
+        nutrition_order_enteral_base_formula_code:
+          type: string
+        nutrition_order_enteral_base_formula_reference_id:
+          type: string
+        nutrition_order_enteral_base_formula_product_name:
+          type: string
+        nutrition_order_enteral_route_of_administration:
+          type: string
+        nutrition_order_enteral_caloric_density_value:
+          type: number
+        nutrition_order_enteral_caloric_density_unit:
+          type: string
+        nutrition_order_enteral_administration_instruction:
+          type: string
+        nutrition_order_note:
+          type: string
+    CustomRiskAssessment:
+      type: object
+      properties:
+        risk_assessment_id:
+          type: string
+        risk_assessment_status:
+          type: string
+        risk_assessment_method:
+          type: string
+        risk_assessment_code:
+          type: string
+        risk_assessment_subject_id:
+          type: string
+        risk_assessment_encounter_id:
+          type: string
+        risk_assessment_occurrence_date_time:
+          type: string
+          format: date-time
+        risk_assessment_occurrence_start:
+          type: string
+          format: date-time
+        risk_assessment_occurrence_end:
+          type: string
+          format: date-time
+        risk_assessment_based_on_id:
+          type: string
+        risk_assessment_parent_id:
+          type: string
+        risk_assessment_condition_id:
+          type: string
+        risk_assessment_performer_id:
+          type: string
+        risk_assessment_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        risk_assessment_basis_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        risk_assessment_prediction_outcome:
+          type: string
+        risk_assessment_prediction_probability_decimal:
+          type: number
+        risk_assessment_prediction_probability_range_low_value:
+          type: number
+        risk_assessment_prediction_probability_range_low_unit:
+          type: string
+        risk_assessment_prediction_probability_range_high_value:
+          type: number
+        risk_assessment_prediction_probability_range_high_unit:
+          type: string
+        risk_assessment_prediction_qualitative_risk:
+          type: string
+        risk_assessment_prediction_relative_risk:
+          type: number
+        risk_assessment_prediction_when_start:
+          type: string
+          format: date-time
+        risk_assessment_prediction_when_end:
+          type: string
+          format: date-time
+        risk_assessment_prediction_when_range_low_value:
+          type: number
+        risk_assessment_prediction_when_range_low_unit:
+          type: string
+        risk_assessment_prediction_when_range_high_value:
+          type: number
+        risk_assessment_prediction_when_range_high_unit:
+          type: string
+        risk_assessment_prediction_rationale:
+          type: string
+        risk_assessment_mitigation:
+          type: string
+        risk_assessment_note:
+          type: string
     CustomMedicationDispenseMedication:
       type: object
       properties:
@@ -4452,6 +5134,54 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [device_dispense]
+    CustomJsonDeviceRequestOnly:
+      title: DeviceRequest
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_request]
+    CustomJsonDeviceUsageOnly:
+      title: DeviceUsage
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_usage]
+    CustomJsonEncounterHistoryOnly:
+      title: EncounterHistory
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [encounter_history]
+    CustomJsonFlagOnly:
+      title: Flag
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [flag]
+    CustomJsonListOnly:
+      title: List
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [list]
+    CustomJsonNutritionIntakeOnly:
+      title: NutritionIntake
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [nutrition_intake]
+    CustomJsonNutritionOrderOnly:
+      title: NutritionOrder
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [nutrition_order]
+    CustomJsonRiskAssessmentOnly:
+      title: RiskAssessment
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [risk_assessment]
     CustomJsonCapabilityStatementOnly:
       title: CapabilityStatement
       allOf:

@@ -3,6 +3,11 @@ import {
     CanonicalModel,
     CanonicalPatient,
     CanonicalEncounter,
+    CanonicalEncounterHistory,
+    CanonicalFlag,
+    CanonicalList,
+    CanonicalNutritionIntake,
+    CanonicalNutritionOrder,
     CanonicalObservation,
     CanonicalPractitioner,
     CanonicalPractitionerRole,
@@ -14,6 +19,8 @@ import {
     CanonicalMedicationAdministration,
     CanonicalMedicationDispense,
     CanonicalDeviceDispense,
+    CanonicalDeviceRequest,
+    CanonicalDeviceUsage,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
@@ -40,6 +47,7 @@ import {
     CanonicalCarePlan,
     CanonicalCareTeam,
     CanonicalGoal,
+    CanonicalRiskAssessment,
     CanonicalServiceRequest,
     CanonicalTask,
     CanonicalCommunication,
@@ -78,6 +86,14 @@ export function parseR4(input: string): CanonicalModel {
         medicationAdministrations: [],
         medicationDispenses: [],
         deviceDispenses: [],
+        deviceRequests: [],
+        deviceUsages: [],
+        encounterHistories: [],
+        flags: [],
+        lists: [],
+        nutritionIntakes: [],
+        nutritionOrders: [],
+        riskAssessments: [],
         procedures: [],
         conditions: [],
         appointments: [],
@@ -320,6 +336,38 @@ export function parseR4(input: string): CanonicalModel {
             case 'DeviceDispense':
                 const deviceDispense = mapR4DeviceDispense(res);
                 if (deviceDispense) model.deviceDispenses?.push(deviceDispense);
+                break;
+            case 'DeviceRequest':
+                const deviceRequest = mapR4DeviceRequest(res);
+                if (deviceRequest) model.deviceRequests?.push(deviceRequest);
+                break;
+            case 'DeviceUsage':
+                const deviceUsage = mapR4DeviceUsage(res);
+                if (deviceUsage) model.deviceUsages?.push(deviceUsage);
+                break;
+            case 'EncounterHistory':
+                const encounterHistory = mapR4EncounterHistory(res);
+                if (encounterHistory) model.encounterHistories?.push(encounterHistory);
+                break;
+            case 'Flag':
+                const flag = mapR4Flag(res);
+                if (flag) model.flags?.push(flag);
+                break;
+            case 'List':
+                const list = mapR4List(res);
+                if (list) model.lists?.push(list);
+                break;
+            case 'NutritionIntake':
+                const nutritionIntake = mapR4NutritionIntake(res);
+                if (nutritionIntake) model.nutritionIntakes?.push(nutritionIntake);
+                break;
+            case 'NutritionOrder':
+                const nutritionOrder = mapR4NutritionOrder(res);
+                if (nutritionOrder) model.nutritionOrders?.push(nutritionOrder);
+                break;
+            case 'RiskAssessment':
+                const riskAssessment = mapR4RiskAssessment(res);
+                if (riskAssessment) model.riskAssessments?.push(riskAssessment);
                 break;
             case 'Immunization':
                 const immunization = mapR4Immunization(res);
@@ -857,6 +905,661 @@ function mapR4DeviceDispense(dispense: any): CanonicalDeviceDispense {
         note: dispense.note?.map((note: any) => note.text).filter(Boolean),
         usageInstruction: dispense.usageInstruction,
         eventHistory: dispense.eventHistory?.map((ref: any) => ref.reference).filter(Boolean)
+    };
+}
+
+function mapR4DeviceRequest(request: any): CanonicalDeviceRequest {
+    const reasonReferences = [
+        ...(request.reasonReference || []).map((ref: any) => ref.reference).filter(Boolean),
+        ...(request.reason || []).map((reason: any) => reason.reference).filter(Boolean)
+    ];
+    const reasonCodes = (request.reasonCode || []).map((code: any) => code.text || code.coding?.[0]?.code).filter(Boolean);
+
+    return {
+        id: request.id,
+        identifier: request.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        instantiatesCanonical: request.instantiatesCanonical,
+        instantiatesUri: request.instantiatesUri,
+        basedOn: request.basedOn?.map((ref: any) => ref.reference).filter(Boolean),
+        replaces: request.replaces?.map((ref: any) => ref.reference?.replace(/^DeviceRequest\//, '')).filter(Boolean),
+        groupIdentifier: request.groupIdentifier ? {
+            system: request.groupIdentifier.system,
+            value: request.groupIdentifier.value,
+            type: request.groupIdentifier.type?.coding?.[0] ? {
+                system: request.groupIdentifier.type.coding[0].system,
+                code: request.groupIdentifier.type.coding[0].code,
+                display: request.groupIdentifier.type.coding[0].display
+            } : undefined
+        } : undefined,
+        status: request.status,
+        intent: request.intent,
+        priority: request.priority,
+        doNotPerform: request.doNotPerform,
+        codeCodeableConcept: request.codeCodeableConcept?.coding?.[0] ? {
+            system: request.codeCodeableConcept.coding[0].system,
+            code: request.codeCodeableConcept.coding[0].code,
+            display: request.codeCodeableConcept.coding[0].display
+        } : undefined,
+        codeReference: request.codeReference?.reference?.split('/').pop(),
+        quantity: request.quantity?.value,
+        parameter: request.parameter?.map((param: any) => ({
+            code: param.code?.coding?.[0]
+                ? {
+                    system: param.code.coding[0].system,
+                    code: param.code.coding[0].code,
+                    display: param.code.coding[0].display
+                }
+                : undefined,
+            valueCodeableConcept: param.valueCodeableConcept?.coding?.[0]
+                ? {
+                    system: param.valueCodeableConcept.coding[0].system,
+                    code: param.valueCodeableConcept.coding[0].code,
+                    display: param.valueCodeableConcept.coding[0].display
+                }
+                : undefined,
+            valueQuantity: param.valueQuantity
+                ? {
+                    value: param.valueQuantity.value,
+                    unit: param.valueQuantity.unit,
+                    system: param.valueQuantity.system,
+                    code: param.valueQuantity.code
+                }
+                : undefined,
+            valueBoolean: param.valueBoolean
+        })),
+        subject: request.subject?.reference?.replace(/^(Device|Group|Location|Patient)\//, ''),
+        encounter: request.encounter?.reference?.replace(/^Encounter\//, ''),
+        occurrenceDateTime: request.occurrenceDateTime,
+        occurrencePeriod: request.occurrencePeriod ? { start: request.occurrencePeriod.start, end: request.occurrencePeriod.end } : undefined,
+        occurrenceTiming: request.occurrenceTiming?.code?.text || request.occurrenceTiming?.code?.coding?.[0]?.code,
+        authoredOn: request.authoredOn,
+        requester: request.requester?.reference?.replace(/^(Device|Organization|Practitioner|PractitionerRole)\//, ''),
+        performer: request.performer?.reference?.replace(/^(CareTeam|Device|HealthcareService|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+        reason: [...reasonReferences, ...reasonCodes].filter(Boolean),
+        asNeeded: request.asNeededBoolean,
+        asNeededFor: request.asNeededCodeableConcept?.coding?.[0]
+            ? {
+                system: request.asNeededCodeableConcept.coding[0].system,
+                code: request.asNeededCodeableConcept.coding[0].code,
+                display: request.asNeededCodeableConcept.coding[0].display
+            }
+            : undefined,
+        insurance: request.insurance?.map((ref: any) => ref.reference?.replace(/^(ClaimResponse|Coverage)\//, '')).filter(Boolean),
+        supportingInfo: request.supportingInfo?.map((info: any) => info.reference).filter(Boolean),
+        note: request.note?.map((note: any) => note.text).filter(Boolean),
+        relevantHistory: request.relevantHistory?.map((ref: any) => ref.reference).filter(Boolean)
+    };
+}
+
+function mapR4DeviceUsage(usage: any): CanonicalDeviceUsage {
+    return {
+        id: usage.id,
+        identifier: usage.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        basedOn: usage.basedOn?.map((ref: any) => ref.reference?.replace(/^ServiceRequest\//, '')).filter(Boolean),
+        status: usage.status,
+        category: usage.category?.map((cat: any) => cat.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        patient: usage.patient?.reference?.replace(/^Patient\//, ''),
+        derivedFrom: usage.derivedFrom?.map((ref: any) => ref.reference).filter(Boolean),
+        context: usage.context?.reference?.replace(/^(Encounter|EpisodeOfCare)\//, ''),
+        timingTiming: usage.timingTiming?.code?.text || usage.timingTiming?.code?.coding?.[0]?.code,
+        timingPeriod: usage.timingPeriod ? { start: usage.timingPeriod.start, end: usage.timingPeriod.end } : undefined,
+        timingDateTime: usage.timingDateTime,
+        dateAsserted: usage.dateAsserted,
+        usageStatus: usage.usageStatus?.coding?.[0]
+            ? {
+                system: usage.usageStatus.coding[0].system,
+                code: usage.usageStatus.coding[0].code,
+                display: usage.usageStatus.coding[0].display
+            }
+            : undefined,
+        usageReason: usage.usageReason?.map((reason: any) => reason.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        adherence: usage.adherence ? {
+            code: usage.adherence.code?.coding?.[0]
+                ? {
+                    system: usage.adherence.code.coding[0].system,
+                    code: usage.adherence.code.coding[0].code,
+                    display: usage.adherence.code.coding[0].display
+                }
+                : undefined,
+            reason: usage.adherence.reason?.map((reason: any) => reason.coding?.[0]).filter(Boolean).map((coding: any) => ({
+                system: coding.system,
+                code: coding.code,
+                display: coding.display
+            }))
+        } : undefined,
+        informationSource: usage.informationSource?.reference?.replace(/^(Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+        deviceCodeableConcept: usage.device?.concept?.coding?.[0]
+            ? {
+                system: usage.device.concept.coding[0].system,
+                code: usage.device.concept.coding[0].code,
+                display: usage.device.concept.coding[0].display
+            }
+            : undefined,
+        deviceReference: usage.device?.reference?.reference?.split('/').pop(),
+        reason: usage.reason?.map((ref: any) => ref.reference).filter(Boolean),
+        bodySite: usage.bodySite?.reference?.split('/').pop(),
+        note: usage.note?.map((note: any) => note.text).filter(Boolean)
+    };
+}
+
+function mapR4EncounterHistory(history: any): CanonicalEncounterHistory {
+    return {
+        id: history.id,
+        encounter: history.encounter?.reference?.replace(/^Encounter\//, ''),
+        identifier: history.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        status: history.status,
+        class: history.class?.coding?.[0]
+            ? {
+                system: history.class.coding[0].system,
+                code: history.class.coding[0].code,
+                display: history.class.coding[0].display
+            }
+            : undefined,
+        type: history.type?.map((type: any) => type.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        serviceType: history.serviceType?.map((service: any) => ({
+            concept: service.concept?.coding?.[0]
+                ? {
+                    system: service.concept.coding[0].system,
+                    code: service.concept.coding[0].code,
+                    display: service.concept.coding[0].display
+                }
+                : undefined,
+            reference: service.reference?.reference?.replace(/^HealthcareService\//, '')
+        })),
+        subject: history.subject?.reference?.replace(/^(Group|Patient)\//, ''),
+        subjectStatus: history.subjectStatus?.coding?.[0]
+            ? {
+                system: history.subjectStatus.coding[0].system,
+                code: history.subjectStatus.coding[0].code,
+                display: history.subjectStatus.coding[0].display
+            }
+            : undefined,
+        actualPeriod: history.actualPeriod ? { start: history.actualPeriod.start, end: history.actualPeriod.end } : undefined,
+        plannedStartDate: history.plannedStartDate,
+        plannedEndDate: history.plannedEndDate,
+        length: history.length
+            ? {
+                value: history.length.value,
+                unit: history.length.unit,
+                system: history.length.system,
+                code: history.length.code
+            }
+            : undefined,
+        location: history.location?.map((loc: any) => ({
+            location: loc.location?.reference?.replace(/^Location\//, ''),
+            form: loc.form?.coding?.[0]
+                ? {
+                    system: loc.form.coding[0].system,
+                    code: loc.form.coding[0].code,
+                    display: loc.form.coding[0].display
+                }
+                : undefined
+        }))
+    };
+}
+
+function mapR4Flag(flag: any): CanonicalFlag {
+    return {
+        id: flag.id,
+        identifier: flag.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        status: flag.status,
+        category: flag.category?.map((cat: any) => cat.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        code: flag.code?.coding?.[0]
+            ? {
+                system: flag.code.coding[0].system,
+                code: flag.code.coding[0].code,
+                display: flag.code.coding[0].display
+            }
+            : undefined,
+        subject: flag.subject?.reference?.replace(/^(Group|Location|Medication|Organization|Patient|PlanDefinition|Practitioner|PractitionerRole|Procedure|RelatedPerson)\//, ''),
+        period: flag.period ? { start: flag.period.start, end: flag.period.end } : undefined,
+        encounter: flag.encounter?.reference?.replace(/^Encounter\//, ''),
+        author: flag.author?.reference?.replace(/^(Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, '')
+    };
+}
+
+function mapR4List(list: any): CanonicalList {
+    const entry = list.entry?.map((item: any) => ({
+        flag: item.flag?.coding?.[0]
+            ? {
+                system: item.flag.coding[0].system,
+                code: item.flag.coding[0].code,
+                display: item.flag.coding[0].display
+            }
+            : undefined,
+        deleted: item.deleted,
+        date: item.date,
+        item: item.item?.reference
+    }));
+
+    return {
+        id: list.id,
+        identifier: list.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        status: list.status,
+        mode: list.mode,
+        title: list.title,
+        code: list.code?.coding?.[0]
+            ? {
+                system: list.code.coding[0].system,
+                code: list.code.coding[0].code,
+                display: list.code.coding[0].display
+            }
+            : undefined,
+        subject: list.subject?.map((ref: any) => ref.reference).filter(Boolean),
+        encounter: list.encounter?.reference?.replace(/^Encounter\//, ''),
+        date: list.date,
+        source: list.source?.reference?.replace(/^(CareTeam|Device|Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+        orderedBy: list.orderedBy?.coding?.[0]
+            ? {
+                system: list.orderedBy.coding[0].system,
+                code: list.orderedBy.coding[0].code,
+                display: list.orderedBy.coding[0].display
+            }
+            : undefined,
+        note: list.note?.map((note: any) => note.text).filter(Boolean),
+        entry: entry?.length ? entry : undefined,
+        emptyReason: list.emptyReason?.coding?.[0]
+            ? {
+                system: list.emptyReason.coding[0].system,
+                code: list.emptyReason.coding[0].code,
+                display: list.emptyReason.coding[0].display
+            }
+            : undefined
+    };
+}
+
+function mapR4NutritionIntake(intake: any): CanonicalNutritionIntake {
+    return {
+        id: intake.id,
+        identifier: intake.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        instantiatesCanonical: intake.instantiatesCanonical,
+        instantiatesUri: intake.instantiatesUri,
+        basedOn: intake.basedOn?.map((ref: any) => ref.reference?.replace(/^(CarePlan|NutritionOrder|ServiceRequest)\//, '')).filter(Boolean),
+        partOf: intake.partOf?.map((ref: any) => ref.reference?.replace(/^(NutritionIntake|Observation|Procedure)\//, '')).filter(Boolean),
+        status: intake.status,
+        statusReason: intake.statusReason?.map((reason: any) => reason.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        code: intake.code?.coding?.[0]
+            ? {
+                system: intake.code.coding[0].system,
+                code: intake.code.coding[0].code,
+                display: intake.code.coding[0].display
+            }
+            : undefined,
+        subject: intake.subject?.reference?.replace(/^(Group|Patient)\//, ''),
+        encounter: intake.encounter?.reference?.replace(/^Encounter\//, ''),
+        occurrenceDateTime: intake.occurrenceDateTime,
+        occurrencePeriod: intake.occurrencePeriod ? { start: intake.occurrencePeriod.start, end: intake.occurrencePeriod.end } : undefined,
+        recorded: intake.recorded,
+        reportedBoolean: intake.reportedBoolean,
+        reportedReference: intake.reportedReference?.reference?.replace(/^(Organization|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+        consumedItem: intake.consumedItem?.map((item: any) => ({
+            type: item.type?.coding?.[0]
+                ? {
+                    system: item.type.coding[0].system,
+                    code: item.type.coding[0].code,
+                    display: item.type.coding[0].display
+                }
+                : undefined,
+            nutritionProductCodeableConcept: item.nutritionProduct?.concept?.coding?.[0]
+                ? {
+                    system: item.nutritionProduct.concept.coding[0].system,
+                    code: item.nutritionProduct.concept.coding[0].code,
+                    display: item.nutritionProduct.concept.coding[0].display
+                }
+                : undefined,
+            nutritionProductReference: item.nutritionProduct?.reference?.reference?.replace(/^NutritionProduct\//, ''),
+            schedule: item.schedule?.code?.text || item.schedule?.code?.coding?.[0]?.code,
+            amount: item.amount
+                ? {
+                    value: item.amount.value,
+                    unit: item.amount.unit,
+                    system: item.amount.system,
+                    code: item.amount.code
+                }
+                : undefined,
+            rate: item.rate
+                ? {
+                    value: item.rate.value,
+                    unit: item.rate.unit,
+                    system: item.rate.system,
+                    code: item.rate.code
+                }
+                : undefined,
+            notConsumed: item.notConsumed,
+            notConsumedReason: item.notConsumedReason?.coding?.[0]
+                ? {
+                    system: item.notConsumedReason.coding[0].system,
+                    code: item.notConsumedReason.coding[0].code,
+                    display: item.notConsumedReason.coding[0].display
+                }
+                : undefined
+        })),
+        ingredientLabel: intake.ingredientLabel?.map((item: any) => ({
+            nutrientCodeableConcept: item.nutrient?.concept?.coding?.[0]
+                ? {
+                    system: item.nutrient.concept.coding[0].system,
+                    code: item.nutrient.concept.coding[0].code,
+                    display: item.nutrient.concept.coding[0].display
+                }
+                : undefined,
+            nutrientReference: item.nutrient?.reference?.reference?.replace(/^Substance\//, ''),
+            amount: item.amount
+                ? {
+                    value: item.amount.value,
+                    unit: item.amount.unit,
+                    system: item.amount.system,
+                    code: item.amount.code
+                }
+                : undefined
+        })),
+        performer: intake.performer?.map((perf: any) => ({
+            function: perf.function?.coding?.[0]
+                ? {
+                    system: perf.function.coding[0].system,
+                    code: perf.function.coding[0].code,
+                    display: perf.function.coding[0].display
+                }
+                : undefined,
+            actor: perf.actor?.reference?.split('/').pop()
+        })),
+        location: intake.location?.reference?.replace(/^Location\//, ''),
+        derivedFrom: intake.derivedFrom?.map((ref: any) => ref.reference).filter(Boolean),
+        reason: intake.reason?.map((ref: any) => ref.reference).filter(Boolean),
+        note: intake.note?.map((note: any) => note.text).filter(Boolean)
+    };
+}
+
+function mapR4NutritionOrder(order: any): CanonicalNutritionOrder {
+    return {
+        id: order.id,
+        identifier: order.identifier?.map((id: any) => ({
+            system: id.system,
+            value: id.value,
+            type: id.type?.coding?.[0] ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            } : undefined
+        })),
+        instantiatesCanonical: order.instantiatesCanonical,
+        instantiatesUri: order.instantiatesUri,
+        instantiates: order.instantiates,
+        basedOn: order.basedOn?.map((ref: any) => ref.reference?.replace(/^(CarePlan|NutritionOrder|ServiceRequest)\//, '')).filter(Boolean),
+        groupIdentifier: order.groupIdentifier ? {
+            system: order.groupIdentifier.system,
+            value: order.groupIdentifier.value,
+            type: order.groupIdentifier.type?.coding?.[0] ? {
+                system: order.groupIdentifier.type.coding[0].system,
+                code: order.groupIdentifier.type.coding[0].code,
+                display: order.groupIdentifier.type.coding[0].display
+            } : undefined
+        } : undefined,
+        status: order.status,
+        intent: order.intent,
+        priority: order.priority,
+        subject: order.subject?.reference?.replace(/^(Group|Patient)\//, ''),
+        encounter: order.encounter?.reference?.replace(/^Encounter\//, ''),
+        supportingInformation: order.supportingInformation?.map((ref: any) => ref.reference).filter(Boolean),
+        dateTime: order.dateTime,
+        orderer: order.orderer?.reference?.replace(/^(Practitioner|PractitionerRole)\//, ''),
+        performer: order.performer?.map((perf: any) => ({
+            concept: perf.concept?.coding?.[0]
+                ? {
+                    system: perf.concept.coding[0].system,
+                    code: perf.concept.coding[0].code,
+                    display: perf.concept.coding[0].display
+                }
+                : undefined,
+            reference: perf.reference?.reference?.split('/').pop()
+        })),
+        allergyIntolerance: order.allergyIntolerance?.map((ref: any) => ref.reference?.replace(/^AllergyIntolerance\//, '')).filter(Boolean),
+        foodPreferenceModifier: order.foodPreferenceModifier?.map((mod: any) => mod.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        excludeFoodModifier: order.excludeFoodModifier?.map((mod: any) => mod.coding?.[0]).filter(Boolean).map((coding: any) => ({
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        })),
+        outsideFoodAllowed: order.outsideFoodAllowed,
+        oralDiet: order.oralDiet ? {
+            type: order.oralDiet.type?.map((type: any) => type.coding?.[0]).filter(Boolean).map((coding: any) => ({
+                system: coding.system,
+                code: coding.code,
+                display: coding.display
+            })),
+            scheduleTiming: order.oralDiet.schedule?.timing?.[0]?.code?.text || order.oralDiet.schedule?.timing?.[0]?.code?.coding?.[0]?.code,
+            asNeeded: order.oralDiet.schedule?.asNeeded,
+            asNeededFor: order.oralDiet.schedule?.asNeededFor?.coding?.[0]
+                ? {
+                    system: order.oralDiet.schedule.asNeededFor.coding[0].system,
+                    code: order.oralDiet.schedule.asNeededFor.coding[0].code,
+                    display: order.oralDiet.schedule.asNeededFor.coding[0].display
+                }
+                : undefined,
+            nutrient: order.oralDiet.nutrient?.map((nutrient: any) => ({
+                modifier: nutrient.modifier?.coding?.[0]
+                    ? {
+                        system: nutrient.modifier.coding[0].system,
+                        code: nutrient.modifier.coding[0].code,
+                        display: nutrient.modifier.coding[0].display
+                    }
+                    : undefined,
+                amount: nutrient.amount
+                    ? {
+                        value: nutrient.amount.value,
+                        unit: nutrient.amount.unit,
+                        system: nutrient.amount.system,
+                        code: nutrient.amount.code
+                    }
+                    : undefined
+            })),
+            texture: order.oralDiet.texture?.map((texture: any) => ({
+                modifier: texture.modifier?.coding?.[0]
+                    ? {
+                        system: texture.modifier.coding[0].system,
+                        code: texture.modifier.coding[0].code,
+                        display: texture.modifier.coding[0].display
+                    }
+                    : undefined,
+                foodType: texture.foodType?.coding?.[0]
+                    ? {
+                        system: texture.foodType.coding[0].system,
+                        code: texture.foodType.coding[0].code,
+                        display: texture.foodType.coding[0].display
+                    }
+                    : undefined
+            })),
+            fluidConsistencyType: order.oralDiet.fluidConsistencyType?.map((fluid: any) => fluid.coding?.[0]).filter(Boolean).map((coding: any) => ({
+                system: coding.system,
+                code: coding.code,
+                display: coding.display
+            })),
+            instruction: order.oralDiet.instruction
+        } : undefined,
+        supplement: order.supplement?.map((supp: any) => ({
+            typeCodeableConcept: supp.type?.concept?.coding?.[0]
+                ? {
+                    system: supp.type.concept.coding[0].system,
+                    code: supp.type.concept.coding[0].code,
+                    display: supp.type.concept.coding[0].display
+                }
+                : undefined,
+            typeReference: supp.type?.reference?.reference?.replace(/^NutritionProduct\//, ''),
+            productName: supp.productName,
+            scheduleTiming: supp.schedule?.timing?.[0]?.code?.text || supp.schedule?.timing?.[0]?.code?.coding?.[0]?.code,
+            asNeeded: supp.schedule?.asNeeded,
+            asNeededFor: supp.schedule?.asNeededFor?.coding?.[0]
+                ? {
+                    system: supp.schedule.asNeededFor.coding[0].system,
+                    code: supp.schedule.asNeededFor.coding[0].code,
+                    display: supp.schedule.asNeededFor.coding[0].display
+                }
+                : undefined,
+            quantity: supp.quantity
+                ? {
+                    value: supp.quantity.value,
+                    unit: supp.quantity.unit,
+                    system: supp.quantity.system,
+                    code: supp.quantity.code
+                }
+                : undefined,
+            instruction: supp.instruction
+        })),
+        enteralFormula: order.enteralFormula ? {
+            baseFormulaTypeCodeableConcept: order.enteralFormula.baseFormulaType?.concept?.coding?.[0]
+                ? {
+                    system: order.enteralFormula.baseFormulaType.concept.coding[0].system,
+                    code: order.enteralFormula.baseFormulaType.concept.coding[0].code,
+                    display: order.enteralFormula.baseFormulaType.concept.coding[0].display
+                }
+                : undefined,
+            baseFormulaTypeReference: order.enteralFormula.baseFormulaType?.reference?.reference?.replace(/^NutritionProduct\//, ''),
+            baseFormulaProductName: order.enteralFormula.baseFormulaProductName,
+            deliveryDevice: order.enteralFormula.deliveryDevice?.map((dev: any) => dev.reference?.reference?.replace(/^DeviceDefinition\//, '')).filter(Boolean),
+            additive: order.enteralFormula.additive?.map((add: any) => ({
+                typeCodeableConcept: add.type?.concept?.coding?.[0]
+                    ? {
+                        system: add.type.concept.coding[0].system,
+                        code: add.type.concept.coding[0].code,
+                        display: add.type.concept.coding[0].display
+                    }
+                    : undefined,
+                typeReference: add.type?.reference?.reference?.replace(/^NutritionProduct\//, ''),
+                productName: add.productName,
+                quantity: add.quantity
+                    ? {
+                        value: add.quantity.value,
+                        unit: add.quantity.unit,
+                        system: add.quantity.system,
+                        code: add.quantity.code
+                    }
+                    : undefined
+            })),
+            caloricDensity: order.enteralFormula.caloricDensity
+                ? {
+                    value: order.enteralFormula.caloricDensity.value,
+                    unit: order.enteralFormula.caloricDensity.unit,
+                    system: order.enteralFormula.caloricDensity.system,
+                    code: order.enteralFormula.caloricDensity.code
+                }
+                : undefined,
+            routeOfAdministration: order.enteralFormula.routeOfAdministration?.coding?.[0]
+                ? {
+                    system: order.enteralFormula.routeOfAdministration.coding[0].system,
+                    code: order.enteralFormula.routeOfAdministration.coding[0].code,
+                    display: order.enteralFormula.routeOfAdministration.coding[0].display
+                }
+                : undefined,
+            administration: order.enteralFormula.administration?.map((admin: any) => ({
+                scheduleTiming: admin.schedule?.timing?.[0]?.code?.text || admin.schedule?.timing?.[0]?.code?.coding?.[0]?.code,
+                asNeeded: admin.schedule?.asNeeded,
+                asNeededFor: admin.schedule?.asNeededFor?.coding?.[0]
+                    ? {
+                        system: admin.schedule.asNeededFor.coding[0].system,
+                        code: admin.schedule.asNeededFor.coding[0].code,
+                        display: admin.schedule.asNeededFor.coding[0].display
+                    }
+                    : undefined,
+                quantity: admin.quantity
+                    ? {
+                        value: admin.quantity.value,
+                        unit: admin.quantity.unit,
+                        system: admin.quantity.system,
+                        code: admin.quantity.code
+                    }
+                    : undefined,
+                rateQuantity: admin.rateQuantity
+                    ? {
+                        value: admin.rateQuantity.value,
+                        unit: admin.rateQuantity.unit,
+                        system: admin.rateQuantity.system,
+                        code: admin.rateQuantity.code
+                    }
+                    : undefined,
+                rateRatio: admin.rateRatio ? JSON.stringify(admin.rateRatio) : undefined
+            })),
+            maxVolumeToDeliver: order.enteralFormula.maxVolumeToDeliver
+                ? {
+                    value: order.enteralFormula.maxVolumeToDeliver.value,
+                    unit: order.enteralFormula.maxVolumeToDeliver.unit,
+                    system: order.enteralFormula.maxVolumeToDeliver.system,
+                    code: order.enteralFormula.maxVolumeToDeliver.code
+                }
+                : undefined,
+            administrationInstruction: order.enteralFormula.administrationInstruction
+        } : undefined,
+        note: order.note?.map((note: any) => note.text).filter(Boolean)
     };
 }
 
@@ -2291,6 +2994,76 @@ function mapR4Goal(goal: any): CanonicalGoal {
     addresses: goal.addresses?.map((ref: any) => ref.reference).filter(Boolean),
     note: goal.note?.map((note: any) => note.text).filter(Boolean),
     outcome: goal.outcome?.map((ref: any) => ref.reference).filter(Boolean)
+  };
+}
+
+function mapR4RiskAssessment(assessment: any): CanonicalRiskAssessment {
+  const mapCodeable = (source: any) => {
+    const coding = source?.coding?.[0];
+    if (!coding && !source?.text) return undefined;
+    return {
+      system: coding?.system,
+      code: coding?.code,
+      display: coding?.display || source?.text
+    };
+  };
+
+  const mapQuantity = (source: any) => {
+    if (!source) return undefined;
+    return {
+      value: source.value,
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  const mapRange = (range: any) => {
+    if (!range) return undefined;
+    const low = mapQuantity(range.low);
+    const high = mapQuantity(range.high);
+    if (!low && !high) return undefined;
+    return { low, high };
+  };
+
+  return {
+    id: assessment.id,
+    identifier: assessment.identifier?.map((id: any) => ({
+      system: id.system,
+      value: id.value,
+      type: mapCodeable(id.type)
+    })),
+    basedOn: assessment.basedOn?.reference?.split('/').pop(),
+    parent: assessment.parent?.reference?.split('/').pop(),
+    status: assessment.status,
+    method: mapCodeable(assessment.method),
+    code: mapCodeable(assessment.code),
+    subject: assessment.subject?.reference?.replace(/^(Patient|Group)\//, ''),
+    encounter: assessment.encounter?.reference?.replace(/^Encounter\//, ''),
+    occurrenceDateTime: assessment.occurrenceDateTime,
+    occurrencePeriod: assessment.occurrencePeriod ? {
+      start: assessment.occurrencePeriod.start,
+      end: assessment.occurrencePeriod.end
+    } : undefined,
+    condition: assessment.condition?.reference?.replace(/^Condition\//, ''),
+    performer: assessment.performer?.reference?.replace(/^(Device|Patient|Practitioner|PractitionerRole|RelatedPerson)\//, ''),
+    reason: assessment.reason?.map((reason: any) => reason.reference?.split('/').pop()).filter(Boolean),
+    basis: assessment.basis?.map((ref: any) => ref.reference?.split('/').pop()).filter(Boolean),
+    prediction: assessment.prediction?.map((prediction: any) => ({
+      outcome: mapCodeable(prediction.outcome),
+      probabilityDecimal: prediction.probabilityDecimal,
+      probabilityRange: mapRange(prediction.probabilityRange),
+      qualitativeRisk: mapCodeable(prediction.qualitativeRisk),
+      relativeRisk: prediction.relativeRisk,
+      whenPeriod: prediction.whenPeriod ? {
+        start: prediction.whenPeriod.start,
+        end: prediction.whenPeriod.end
+      } : undefined,
+      whenRange: mapRange(prediction.whenRange),
+      rationale: prediction.rationale
+    })),
+    mitigation: assessment.mitigation,
+    note: assessment.note?.map((note: any) => note.text).filter(Boolean)
   };
 }
 

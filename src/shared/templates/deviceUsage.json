@@ -1,0 +1,22 @@
+{
+  "resourceType": "DeviceUsage",
+  "identifier": [],
+  "basedOn": [],
+  "status": "",
+  "category": [],
+  "patient": {},
+  "derivedFrom": [],
+  "context": {},
+  "timingTiming": {},
+  "timingPeriod": {},
+  "timingDateTime": "",
+  "dateAsserted": "",
+  "usageStatus": {},
+  "usageReason": [],
+  "adherence": {},
+  "informationSource": {},
+  "device": {},
+  "reason": [],
+  "bodySite": {},
+  "note": []
+}

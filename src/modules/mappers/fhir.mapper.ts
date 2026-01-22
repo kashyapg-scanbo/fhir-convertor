@@ -13,6 +13,14 @@ import { mapMedicationStatements } from './medicationStatement.mapper.js';
 import { mapMedicationAdministrations } from './medicationAdministration.mapper.js';
 import { mapMedicationDispenses } from './medicationDispense.mapper.js';
 import { mapDeviceDispenses } from './deviceDispense.mapper.js';
+import { mapDeviceRequests } from './deviceRequest.mapper.js';
+import { mapDeviceUsages } from './deviceUsage.mapper.js';
+import { mapEncounterHistories } from './encounterHistory.mapper.js';
+import { mapFlags } from './flag.mapper.js';
+import { mapLists } from './list.mapper.js';
+import { mapNutritionIntakes } from './nutritionIntake.mapper.js';
+import { mapNutritionOrders } from './nutritionOrder.mapper.js';
+import { mapRiskAssessments } from './riskAssessment.mapper.js';
 import { mapCapabilityStatements } from './capabilityStatement.mapper.js';
 import { mapOperationOutcomes } from './operationOutcome.mapper.js';
 import { mapParameters } from './parameters.mapper.js';
@@ -210,6 +218,102 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (deviceDispenseEntries.length > 0) {
     bundle.entry.push(...deviceDispenseEntries);
+  }
+
+  const deviceRequestEntries = mapDeviceRequests({
+    deviceRequests: canonical.deviceRequests,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (deviceRequestEntries.length > 0) {
+    bundle.entry.push(...deviceRequestEntries);
+  }
+
+  const deviceUsageEntries = mapDeviceUsages({
+    deviceUsages: canonical.deviceUsages,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (deviceUsageEntries.length > 0) {
+    bundle.entry.push(...deviceUsageEntries);
+  }
+
+  const encounterHistoryEntries = mapEncounterHistories({
+    encounterHistories: canonical.encounterHistories,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (encounterHistoryEntries.length > 0) {
+    bundle.entry.push(...encounterHistoryEntries);
+  }
+
+  const flagEntries = mapFlags({
+    flags: canonical.flags,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (flagEntries.length > 0) {
+    bundle.entry.push(...flagEntries);
+  }
+
+  const listEntries = mapLists({
+    lists: canonical.lists,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (listEntries.length > 0) {
+    bundle.entry.push(...listEntries);
+  }
+
+  const nutritionIntakeEntries = mapNutritionIntakes({
+    nutritionIntakes: canonical.nutritionIntakes,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (nutritionIntakeEntries.length > 0) {
+    bundle.entry.push(...nutritionIntakeEntries);
+  }
+
+  const nutritionOrderEntries = mapNutritionOrders({
+    nutritionOrders: canonical.nutritionOrders,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (nutritionOrderEntries.length > 0) {
+    bundle.entry.push(...nutritionOrderEntries);
+  }
+
+  const riskAssessmentEntries = mapRiskAssessments({
+    riskAssessments: canonical.riskAssessments,
+    operation,
+    registry,
+    resolveRef,
+    patientFullUrl,
+    encounterFullUrl
+  });
+  if (riskAssessmentEntries.length > 0) {
+    bundle.entry.push(...riskAssessmentEntries);
   }
 
   const capabilityEntries = mapCapabilityStatements({

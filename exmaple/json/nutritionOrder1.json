@@ -1,0 +1,20 @@
+{
+  "nutrition_order": {
+    "nutrition_order_id": "NO-1",
+    "status": "active",
+    "intent": "order",
+    "priority": "routine",
+    "subject_id": "PAT-6",
+    "encounter_id": "ENC-4",
+    "date_time": "2024-05-10T11:30:00Z",
+    "orderer_id": "PRAC-9",
+    "food_preference_modifier": ["vegetarian"],
+    "oral_diet_type": ["regular"],
+    "oral_diet_instruction": "Low sodium",
+    "supplement_type_code": "SUP-1",
+    "supplement_product_name": "Ensure",
+    "supplement_quantity_value": 1,
+    "supplement_quantity_unit": "bottle",
+    "note": "Start with breakfast"
+  }
+}

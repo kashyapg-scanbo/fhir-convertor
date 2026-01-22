@@ -489,6 +489,604 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (deviceDispenses.length > 0) canonical.deviceDispenses = deviceDispenses as any[];
 
+  const deviceRequests = rows.map(row => {
+    const requestId = readValue(row, 'device_request_id');
+    const status = readValue(row, 'device_request_status');
+    const deviceCode = readValue(row, 'device_request_device_code');
+    const deviceReferenceId = readValue(row, 'device_request_device_reference_id');
+    if (!requestId && !status && !deviceCode && !deviceReferenceId) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const basedOnRaw = readValue(row, 'device_request_based_on_ids');
+    const replacesRaw = readValue(row, 'device_request_replaces_ids');
+    const reasonRaw = readValue(row, 'device_request_reason_ids');
+    const insuranceRaw = readValue(row, 'device_request_insurance_ids');
+    const supportingInfoRaw = readValue(row, 'device_request_supporting_info_ids');
+    const relevantHistoryRaw = readValue(row, 'device_request_relevant_history_ids');
+    const instantiatesCanonicalRaw = readValue(row, 'device_request_instantiates_canonical');
+    const instantiatesUriRaw = readValue(row, 'device_request_instantiates_uri');
+    const note = readValue(row, 'device_request_note');
+
+    const quantityValue = readNumber(row, 'device_request_quantity_value');
+    const doNotPerform = readBoolean(row, 'device_request_do_not_perform');
+    const asNeeded = readBoolean(row, 'device_request_as_needed');
+    const parameterQuantityValue = readNumber(row, 'device_request_parameter_value_quantity_value');
+    const parameterBoolean = readBoolean(row, 'device_request_parameter_value_boolean');
+    const parameterQuantityUnit = readValue(row, 'device_request_parameter_value_quantity_unit');
+
+    const parameterCode = readValue(row, 'device_request_parameter_code');
+    const parameterValueCodeable = readValue(row, 'device_request_parameter_value_code');
+
+    const parameters = (parameterCode || parameterValueCodeable || parameterQuantityValue !== undefined || parameterQuantityUnit || parameterBoolean !== undefined)
+      ? [{
+          code: parameterCode ? { code: parameterCode, display: parameterCode } : undefined,
+          valueCodeableConcept: parameterValueCodeable ? { code: parameterValueCodeable, display: parameterValueCodeable } : undefined,
+          valueQuantity: (parameterQuantityValue !== undefined || parameterQuantityUnit)
+            ? { value: parameterQuantityValue, unit: parameterQuantityUnit || undefined }
+            : undefined,
+          valueBoolean: parameterBoolean
+        }]
+      : undefined;
+
+    return {
+      id: requestId || undefined,
+      identifier: requestId ? [{ value: requestId }] : undefined,
+      instantiatesCanonical: toList(instantiatesCanonicalRaw),
+      instantiatesUri: toList(instantiatesUriRaw),
+      basedOn: toList(basedOnRaw),
+      replaces: toList(replacesRaw),
+      groupIdentifier: readValue(row, 'device_request_group_identifier')
+        ? { value: readValue(row, 'device_request_group_identifier') }
+        : undefined,
+      status: status || undefined,
+      intent: readValue(row, 'device_request_intent') || undefined,
+      priority: readValue(row, 'device_request_priority') || undefined,
+      doNotPerform: doNotPerform,
+      codeCodeableConcept: deviceCode ? { code: deviceCode, display: deviceCode } : undefined,
+      codeReference: deviceReferenceId || undefined,
+      quantity: quantityValue !== undefined ? quantityValue : undefined,
+      parameter: parameters,
+      subject: readValue(row, 'device_request_subject_id') || undefined,
+      encounter: readValue(row, 'device_request_encounter_id') || undefined,
+      occurrenceDateTime: readValue(row, 'device_request_occurrence_date_time') || undefined,
+      occurrencePeriod: (readValue(row, 'device_request_occurrence_start') || readValue(row, 'device_request_occurrence_end'))
+        ? {
+            start: readValue(row, 'device_request_occurrence_start') || undefined,
+            end: readValue(row, 'device_request_occurrence_end') || undefined
+          }
+        : undefined,
+      occurrenceTiming: readValue(row, 'device_request_occurrence_timing') || undefined,
+      authoredOn: readValue(row, 'device_request_authored_on') || undefined,
+      requester: readValue(row, 'device_request_requester_id') || undefined,
+      performer: readValue(row, 'device_request_performer_id') || undefined,
+      reason: toList(reasonRaw),
+      asNeeded: asNeeded,
+      asNeededFor: readValue(row, 'device_request_as_needed_for')
+        ? { code: readValue(row, 'device_request_as_needed_for'), display: readValue(row, 'device_request_as_needed_for') }
+        : undefined,
+      insurance: toList(insuranceRaw),
+      supportingInfo: toList(supportingInfoRaw),
+      note: note ? [note] : undefined,
+      relevantHistory: toList(relevantHistoryRaw)
+    };
+  }).filter(Boolean);
+  if (deviceRequests.length > 0) canonical.deviceRequests = deviceRequests as any[];
+
+  const deviceUsages = rows.map(row => {
+    const usageId = readValue(row, 'device_usage_id');
+    const status = readValue(row, 'device_usage_status');
+    const deviceCode = readValue(row, 'device_usage_device_code');
+    const deviceReferenceId = readValue(row, 'device_usage_device_reference_id');
+    if (!usageId && !status && !deviceCode && !deviceReferenceId) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const basedOnRaw = readValue(row, 'device_usage_based_on_ids');
+    const categoryRaw = readValue(row, 'device_usage_category');
+    const derivedFromRaw = readValue(row, 'device_usage_derived_from_ids');
+    const usageReasonRaw = readValue(row, 'device_usage_usage_reason');
+    const adherenceReasonRaw = readValue(row, 'device_usage_adherence_reason');
+    const reasonRaw = readValue(row, 'device_usage_reason_ids');
+    const note = readValue(row, 'device_usage_note');
+
+    return {
+      id: usageId || undefined,
+      identifier: usageId ? [{ value: usageId }] : undefined,
+      basedOn: toList(basedOnRaw),
+      status: status || undefined,
+      category: toList(categoryRaw)?.map(value => ({ code: value, display: value })),
+      patient: readValue(row, 'device_usage_patient_id') || undefined,
+      derivedFrom: toList(derivedFromRaw),
+      context: readValue(row, 'device_usage_context_id') || undefined,
+      timingTiming: readValue(row, 'device_usage_timing_timing') || undefined,
+      timingPeriod: (readValue(row, 'device_usage_timing_start') || readValue(row, 'device_usage_timing_end'))
+        ? {
+            start: readValue(row, 'device_usage_timing_start') || undefined,
+            end: readValue(row, 'device_usage_timing_end') || undefined
+          }
+        : undefined,
+      timingDateTime: readValue(row, 'device_usage_timing_date_time') || undefined,
+      dateAsserted: readValue(row, 'device_usage_date_asserted') || undefined,
+      usageStatus: readValue(row, 'device_usage_usage_status')
+        ? { code: readValue(row, 'device_usage_usage_status'), display: readValue(row, 'device_usage_usage_status') }
+        : undefined,
+      usageReason: toList(usageReasonRaw)?.map(value => ({ code: value, display: value })),
+      adherence: (readValue(row, 'device_usage_adherence_code') || adherenceReasonRaw)
+        ? {
+            code: readValue(row, 'device_usage_adherence_code')
+              ? { code: readValue(row, 'device_usage_adherence_code'), display: readValue(row, 'device_usage_adherence_code') }
+              : undefined,
+            reason: toList(adherenceReasonRaw)?.map(value => ({ code: value, display: value }))
+          }
+        : undefined,
+      informationSource: readValue(row, 'device_usage_information_source_id') || undefined,
+      deviceCodeableConcept: deviceCode ? { code: deviceCode, display: deviceCode } : undefined,
+      deviceReference: deviceReferenceId || undefined,
+      reason: toList(reasonRaw),
+      bodySite: readValue(row, 'device_usage_body_site_id') || undefined,
+      note: note ? [note] : undefined
+    };
+  }).filter(Boolean);
+  if (deviceUsages.length > 0) canonical.deviceUsages = deviceUsages as any[];
+
+  const encounterHistories = rows.map(row => {
+    const historyId = readValue(row, 'encounter_history_id');
+    const status = readValue(row, 'encounter_history_status');
+    const encounterId = readValue(row, 'encounter_history_encounter_id');
+    if (!historyId && !status && !encounterId) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const typeRaw = readValue(row, 'encounter_history_type');
+    const serviceTypeRaw = readValue(row, 'encounter_history_service_type');
+    const serviceTypeReferenceRaw = readValue(row, 'encounter_history_service_type_reference_ids');
+    const locationId = readValue(row, 'encounter_history_location_id');
+    const locationForm = readValue(row, 'encounter_history_location_form');
+
+    const lengthValue = readNumber(row, 'encounter_history_length_value');
+
+    return {
+      id: historyId || undefined,
+      identifier: historyId ? [{ value: historyId }] : undefined,
+      encounter: encounterId || undefined,
+      status: status || undefined,
+      class: readValue(row, 'encounter_history_class')
+        ? { code: readValue(row, 'encounter_history_class'), display: readValue(row, 'encounter_history_class') }
+        : undefined,
+      type: toList(typeRaw)?.map(value => ({ code: value, display: value })),
+      serviceType: (() => {
+        const conceptValues = toList(serviceTypeRaw)?.map(value => ({ concept: { code: value, display: value } })) || [];
+        const referenceValues = toList(serviceTypeReferenceRaw)?.map(value => ({ reference: value })) || [];
+        const merged = [...conceptValues, ...referenceValues];
+        return merged.length ? merged : undefined;
+      })(),
+      subject: readValue(row, 'encounter_history_subject_id') || undefined,
+      subjectStatus: readValue(row, 'encounter_history_subject_status')
+        ? { code: readValue(row, 'encounter_history_subject_status'), display: readValue(row, 'encounter_history_subject_status') }
+        : undefined,
+      actualPeriod: (readValue(row, 'encounter_history_actual_start') || readValue(row, 'encounter_history_actual_end'))
+        ? {
+            start: readValue(row, 'encounter_history_actual_start') || undefined,
+            end: readValue(row, 'encounter_history_actual_end') || undefined
+          }
+        : undefined,
+      plannedStartDate: readValue(row, 'encounter_history_planned_start_date') || undefined,
+      plannedEndDate: readValue(row, 'encounter_history_planned_end_date') || undefined,
+      length: (lengthValue !== undefined || readValue(row, 'encounter_history_length_unit') || readValue(row, 'encounter_history_length_system') || readValue(row, 'encounter_history_length_code'))
+        ? {
+            value: lengthValue,
+            unit: readValue(row, 'encounter_history_length_unit') || undefined,
+            system: readValue(row, 'encounter_history_length_system') || undefined,
+            code: readValue(row, 'encounter_history_length_code') || undefined
+          }
+        : undefined,
+      location: (locationId || locationForm)
+        ? [{
+            location: locationId || undefined,
+            form: locationForm ? { code: locationForm, display: locationForm } : undefined
+          }]
+        : undefined
+    };
+  }).filter(Boolean);
+  if (encounterHistories.length > 0) canonical.encounterHistories = encounterHistories as any[];
+
+  const flags = rows.map(row => {
+    const flagId = readValue(row, 'flag_id');
+    const status = readValue(row, 'flag_status');
+    const code = readValue(row, 'flag_code');
+    const subjectId = readValue(row, 'flag_subject_id');
+    if (!flagId && !status && !code && !subjectId) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const categoryRaw = readValue(row, 'flag_category');
+
+    return {
+      id: flagId || undefined,
+      identifier: flagId ? [{ value: flagId }] : undefined,
+      status: status || undefined,
+      category: toList(categoryRaw)?.map(value => ({ code: value, display: value })),
+      code: code ? { code, display: code } : undefined,
+      subject: subjectId || undefined,
+      period: (readValue(row, 'flag_period_start') || readValue(row, 'flag_period_end'))
+        ? {
+            start: readValue(row, 'flag_period_start') || undefined,
+            end: readValue(row, 'flag_period_end') || undefined
+          }
+        : undefined,
+      encounter: readValue(row, 'flag_encounter_id') || undefined,
+      author: readValue(row, 'flag_author_id') || undefined
+    };
+  }).filter(Boolean);
+  if (flags.length > 0) canonical.flags = flags as any[];
+
+  const lists = rows.map(row => {
+    const listId = readValue(row, 'list_id');
+    const status = readValue(row, 'list_status');
+    const mode = readValue(row, 'list_mode');
+    if (!listId && !status && !mode) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const subjectRaw = readValue(row, 'list_subject_ids');
+    const note = readValue(row, 'list_note');
+
+    return {
+      id: listId || undefined,
+      identifier: listId ? [{ value: listId }] : undefined,
+      status: status || undefined,
+      mode: mode || undefined,
+      title: readValue(row, 'list_title') || undefined,
+      code: readValue(row, 'list_code')
+        ? { code: readValue(row, 'list_code'), display: readValue(row, 'list_code') }
+        : undefined,
+      subject: toList(subjectRaw),
+      encounter: readValue(row, 'list_encounter_id') || undefined,
+      date: readValue(row, 'list_date') || undefined,
+      source: readValue(row, 'list_source_id') || undefined,
+      orderedBy: readValue(row, 'list_ordered_by')
+        ? { code: readValue(row, 'list_ordered_by'), display: readValue(row, 'list_ordered_by') }
+        : undefined,
+      note: note ? [note] : undefined,
+      entry: (readValue(row, 'list_entry_item_id') || readValue(row, 'list_entry_flag') || readValue(row, 'list_entry_date'))
+        ? [{
+            flag: readValue(row, 'list_entry_flag')
+              ? { code: readValue(row, 'list_entry_flag'), display: readValue(row, 'list_entry_flag') }
+              : undefined,
+            deleted: readBoolean(row, 'list_entry_deleted'),
+            date: readValue(row, 'list_entry_date') || undefined,
+            item: readValue(row, 'list_entry_item_id') || undefined
+          }]
+        : undefined,
+      emptyReason: readValue(row, 'list_empty_reason')
+        ? { code: readValue(row, 'list_empty_reason'), display: readValue(row, 'list_empty_reason') }
+        : undefined
+    };
+  }).filter(Boolean);
+  if (lists.length > 0) canonical.lists = lists as any[];
+
+  const nutritionIntakes = rows.map(row => {
+    const intakeId = readValue(row, 'nutrition_intake_id');
+    const status = readValue(row, 'nutrition_intake_status');
+    const code = readValue(row, 'nutrition_intake_code');
+    if (!intakeId && !status && !code) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const statusReasonRaw = readValue(row, 'nutrition_intake_status_reason');
+    const basedOnRaw = readValue(row, 'nutrition_intake_based_on_ids');
+    const partOfRaw = readValue(row, 'nutrition_intake_part_of_ids');
+    const derivedFromRaw = readValue(row, 'nutrition_intake_derived_from_ids');
+    const reasonRaw = readValue(row, 'nutrition_intake_reason_ids');
+    const note = readValue(row, 'nutrition_intake_note');
+
+    const reportedBoolean = readBoolean(row, 'nutrition_intake_reported_boolean');
+    const consumedNotConsumed = readBoolean(row, 'nutrition_intake_consumed_not_consumed');
+
+    const consumedAmountValue = readNumber(row, 'nutrition_intake_consumed_amount_value');
+    const ingredientAmountValue = readNumber(row, 'nutrition_intake_ingredient_amount_value');
+
+    return {
+      id: intakeId || undefined,
+      identifier: intakeId ? [{ value: intakeId }] : undefined,
+      instantiatesCanonical: toList(readValue(row, 'nutrition_intake_instantiates_canonical')),
+      instantiatesUri: toList(readValue(row, 'nutrition_intake_instantiates_uri')),
+      basedOn: toList(basedOnRaw),
+      partOf: toList(partOfRaw),
+      status: status || undefined,
+      statusReason: toList(statusReasonRaw)?.map(value => ({ code: value, display: value })),
+      code: code ? { code, display: code } : undefined,
+      subject: readValue(row, 'nutrition_intake_subject_id') || undefined,
+      encounter: readValue(row, 'nutrition_intake_encounter_id') || undefined,
+      occurrenceDateTime: readValue(row, 'nutrition_intake_occurrence_date_time') || undefined,
+      occurrencePeriod: (readValue(row, 'nutrition_intake_occurrence_start') || readValue(row, 'nutrition_intake_occurrence_end'))
+        ? {
+            start: readValue(row, 'nutrition_intake_occurrence_start') || undefined,
+            end: readValue(row, 'nutrition_intake_occurrence_end') || undefined
+          }
+        : undefined,
+      recorded: readValue(row, 'nutrition_intake_recorded') || undefined,
+      reportedBoolean: reportedBoolean,
+      reportedReference: readValue(row, 'nutrition_intake_reported_reference_id') || undefined,
+      consumedItem: (readValue(row, 'nutrition_intake_consumed_type') || readValue(row, 'nutrition_intake_consumed_product_code') || readValue(row, 'nutrition_intake_consumed_product_reference_id'))
+        ? [{
+            type: readValue(row, 'nutrition_intake_consumed_type')
+              ? { code: readValue(row, 'nutrition_intake_consumed_type'), display: readValue(row, 'nutrition_intake_consumed_type') }
+              : undefined,
+            nutritionProductCodeableConcept: readValue(row, 'nutrition_intake_consumed_product_code')
+              ? { code: readValue(row, 'nutrition_intake_consumed_product_code'), display: readValue(row, 'nutrition_intake_consumed_product_code') }
+              : undefined,
+            nutritionProductReference: readValue(row, 'nutrition_intake_consumed_product_reference_id') || undefined,
+            amount: (consumedAmountValue !== undefined || readValue(row, 'nutrition_intake_consumed_amount_unit'))
+              ? {
+                  value: consumedAmountValue,
+                  unit: readValue(row, 'nutrition_intake_consumed_amount_unit') || undefined
+                }
+              : undefined,
+            notConsumed: consumedNotConsumed,
+            notConsumedReason: readValue(row, 'nutrition_intake_consumed_not_consumed_reason')
+              ? { code: readValue(row, 'nutrition_intake_consumed_not_consumed_reason'), display: readValue(row, 'nutrition_intake_consumed_not_consumed_reason') }
+              : undefined
+          }]
+        : undefined,
+      ingredientLabel: (readValue(row, 'nutrition_intake_ingredient_nutrient_code') || readValue(row, 'nutrition_intake_ingredient_nutrient_reference_id'))
+        ? [{
+            nutrientCodeableConcept: readValue(row, 'nutrition_intake_ingredient_nutrient_code')
+              ? { code: readValue(row, 'nutrition_intake_ingredient_nutrient_code'), display: readValue(row, 'nutrition_intake_ingredient_nutrient_code') }
+              : undefined,
+            nutrientReference: readValue(row, 'nutrition_intake_ingredient_nutrient_reference_id') || undefined,
+            amount: (ingredientAmountValue !== undefined || readValue(row, 'nutrition_intake_ingredient_amount_unit'))
+              ? {
+                  value: ingredientAmountValue,
+                  unit: readValue(row, 'nutrition_intake_ingredient_amount_unit') || undefined
+                }
+              : undefined
+          }]
+        : undefined,
+      performer: (readValue(row, 'nutrition_intake_performer_actor_id') || readValue(row, 'nutrition_intake_performer_function'))
+        ? [{
+            function: readValue(row, 'nutrition_intake_performer_function')
+              ? { code: readValue(row, 'nutrition_intake_performer_function'), display: readValue(row, 'nutrition_intake_performer_function') }
+              : undefined,
+            actor: readValue(row, 'nutrition_intake_performer_actor_id') || undefined
+          }]
+        : undefined,
+      location: readValue(row, 'nutrition_intake_location_id') || undefined,
+      derivedFrom: toList(derivedFromRaw),
+      reason: toList(reasonRaw),
+      note: note ? [note] : undefined
+    };
+  }).filter(Boolean);
+  if (nutritionIntakes.length > 0) canonical.nutritionIntakes = nutritionIntakes as any[];
+
+  const nutritionOrders = rows.map(row => {
+    const orderId = readValue(row, 'nutrition_order_id');
+    const status = readValue(row, 'nutrition_order_status');
+    const intent = readValue(row, 'nutrition_order_intent');
+    if (!orderId && !status && !intent) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const supportingInfoRaw = readValue(row, 'nutrition_order_supporting_information_ids');
+    const basedOnRaw = readValue(row, 'nutrition_order_based_on_ids');
+    const performerRefs = toList(readValue(row, 'nutrition_order_performer_reference_ids'));
+    const performerConcept = readValue(row, 'nutrition_order_performer_concept');
+    const allergyRaw = readValue(row, 'nutrition_order_allergy_intolerance_ids');
+    const foodPrefRaw = readValue(row, 'nutrition_order_food_preference_modifier');
+    const excludeFoodRaw = readValue(row, 'nutrition_order_exclude_food_modifier');
+    const note = readValue(row, 'nutrition_order_note');
+
+    const outsideFoodAllowed = readBoolean(row, 'nutrition_order_outside_food_allowed');
+    const oralDietAsNeeded = readBoolean(row, 'nutrition_order_oral_diet_as_needed');
+    const supplementAsNeeded = readBoolean(row, 'nutrition_order_supplement_as_needed');
+
+    const supplementQuantityValue = readNumber(row, 'nutrition_order_supplement_quantity_value');
+    const enteralCaloricValue = readNumber(row, 'nutrition_order_enteral_caloric_density_value');
+
+    const performerEntries: Array<{ concept?: { code?: string; display?: string }; reference?: string }> = [];
+    if (performerConcept) {
+      performerEntries.push({ concept: { code: performerConcept, display: performerConcept } });
+    }
+    if (performerRefs?.length) {
+      performerRefs.forEach(ref => performerEntries.push({ reference: ref }));
+    }
+
+    const oralDietType = toList(readValue(row, 'nutrition_order_oral_diet_type'));
+    const oralDietTiming = readValue(row, 'nutrition_order_oral_diet_schedule_timing');
+    const oralDietAsNeededFor = readValue(row, 'nutrition_order_oral_diet_as_needed_for');
+    const oralDietInstruction = readValue(row, 'nutrition_order_oral_diet_instruction');
+
+    const supplementTypeCode = readValue(row, 'nutrition_order_supplement_type_code');
+    const supplementTypeReference = readValue(row, 'nutrition_order_supplement_type_reference_id');
+    const supplementProductName = readValue(row, 'nutrition_order_supplement_product_name');
+    const supplementScheduleTiming = readValue(row, 'nutrition_order_supplement_schedule_timing');
+    const supplementAsNeededFor = readValue(row, 'nutrition_order_supplement_as_needed_for');
+    const supplementQuantityUnit = readValue(row, 'nutrition_order_supplement_quantity_unit');
+    const supplementInstruction = readValue(row, 'nutrition_order_supplement_instruction');
+
+    const enteralBaseFormulaCode = readValue(row, 'nutrition_order_enteral_base_formula_code');
+    const enteralBaseFormulaReference = readValue(row, 'nutrition_order_enteral_base_formula_reference_id');
+    const enteralBaseFormulaProductName = readValue(row, 'nutrition_order_enteral_base_formula_product_name');
+    const enteralRoute = readValue(row, 'nutrition_order_enteral_route_of_administration');
+    const enteralCaloricUnit = readValue(row, 'nutrition_order_enteral_caloric_density_unit');
+    const enteralInstruction = readValue(row, 'nutrition_order_enteral_administration_instruction');
+
+    const groupIdentifier = readValue(row, 'nutrition_order_group_identifier');
+
+    const hasOralDiet = Boolean(oralDietType?.length || oralDietTiming || oralDietAsNeeded !== undefined || oralDietAsNeededFor || oralDietInstruction);
+    const hasSupplement = Boolean(supplementTypeCode || supplementTypeReference || supplementProductName || supplementScheduleTiming || supplementAsNeeded !== undefined || supplementAsNeededFor || supplementQuantityValue !== undefined || supplementQuantityUnit || supplementInstruction);
+    const hasEnteral = Boolean(enteralBaseFormulaCode || enteralBaseFormulaReference || enteralBaseFormulaProductName || enteralRoute || enteralCaloricValue !== undefined || enteralCaloricUnit || enteralInstruction);
+
+    return {
+      id: orderId || undefined,
+      identifier: orderId ? [{ value: orderId }] : undefined,
+      instantiatesCanonical: toList(readValue(row, 'nutrition_order_instantiates_canonical')),
+      instantiatesUri: toList(readValue(row, 'nutrition_order_instantiates_uri')),
+      instantiates: toList(readValue(row, 'nutrition_order_instantiates')),
+      basedOn: toList(basedOnRaw),
+      groupIdentifier: groupIdentifier ? { value: groupIdentifier } : undefined,
+      status: status || undefined,
+      intent: intent || undefined,
+      priority: readValue(row, 'nutrition_order_priority') || undefined,
+      subject: readValue(row, 'nutrition_order_subject_id') || undefined,
+      encounter: readValue(row, 'nutrition_order_encounter_id') || undefined,
+      supportingInformation: toList(supportingInfoRaw),
+      dateTime: readValue(row, 'nutrition_order_date_time') || undefined,
+      orderer: readValue(row, 'nutrition_order_orderer_id') || undefined,
+      performer: performerEntries.length ? performerEntries : undefined,
+      allergyIntolerance: toList(allergyRaw),
+      foodPreferenceModifier: toList(foodPrefRaw)?.map(value => ({ code: value, display: value })),
+      excludeFoodModifier: toList(excludeFoodRaw)?.map(value => ({ code: value, display: value })),
+      outsideFoodAllowed: outsideFoodAllowed,
+      oralDiet: hasOralDiet ? {
+        type: oralDietType?.map(value => ({ code: value, display: value })),
+        scheduleTiming: oralDietTiming || undefined,
+        asNeeded: oralDietAsNeeded,
+        asNeededFor: oralDietAsNeededFor ? { code: oralDietAsNeededFor, display: oralDietAsNeededFor } : undefined,
+        instruction: oralDietInstruction || undefined
+      } : undefined,
+      supplement: hasSupplement ? [{
+        typeCodeableConcept: supplementTypeCode ? { code: supplementTypeCode, display: supplementTypeCode } : undefined,
+        typeReference: supplementTypeReference || undefined,
+        productName: supplementProductName || undefined,
+        scheduleTiming: supplementScheduleTiming || undefined,
+        asNeeded: supplementAsNeeded,
+        asNeededFor: supplementAsNeededFor ? { code: supplementAsNeededFor, display: supplementAsNeededFor } : undefined,
+        quantity: (supplementQuantityValue !== undefined || supplementQuantityUnit)
+          ? { value: supplementQuantityValue, unit: supplementQuantityUnit || undefined }
+          : undefined,
+        instruction: supplementInstruction || undefined
+      }] : undefined,
+      enteralFormula: hasEnteral ? {
+        baseFormulaTypeCodeableConcept: enteralBaseFormulaCode ? { code: enteralBaseFormulaCode, display: enteralBaseFormulaCode } : undefined,
+        baseFormulaTypeReference: enteralBaseFormulaReference || undefined,
+        baseFormulaProductName: enteralBaseFormulaProductName || undefined,
+        caloricDensity: (enteralCaloricValue !== undefined || enteralCaloricUnit)
+          ? { value: enteralCaloricValue, unit: enteralCaloricUnit || undefined }
+          : undefined,
+        routeOfAdministration: enteralRoute ? { code: enteralRoute, display: enteralRoute } : undefined,
+        administrationInstruction: enteralInstruction || undefined
+      } : undefined,
+      note: note ? [note] : undefined
+    };
+  }).filter(Boolean);
+  if (nutritionOrders.length > 0) canonical.nutritionOrders = nutritionOrders as any[];
+
+  const riskAssessments = rows.map(row => {
+    const assessmentId = readValue(row, 'risk_assessment_id');
+    const status = readValue(row, 'risk_assessment_status');
+    const code = readValue(row, 'risk_assessment_code');
+    if (!assessmentId && !status && !code) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const reasonRaw = readValue(row, 'risk_assessment_reason_ids');
+    const basisRaw = readValue(row, 'risk_assessment_basis_ids');
+    const mitigation = readValue(row, 'risk_assessment_mitigation');
+    const note = readValue(row, 'risk_assessment_note');
+
+    const probabilityDecimal = readNumber(row, 'risk_assessment_prediction_probability_decimal');
+    const probabilityRangeLowValue = readNumber(row, 'risk_assessment_prediction_probability_range_low_value');
+    const probabilityRangeHighValue = readNumber(row, 'risk_assessment_prediction_probability_range_high_value');
+    const relativeRisk = readNumber(row, 'risk_assessment_prediction_relative_risk');
+    const whenRangeLowValue = readNumber(row, 'risk_assessment_prediction_when_range_low_value');
+    const whenRangeHighValue = readNumber(row, 'risk_assessment_prediction_when_range_high_value');
+
+    const hasPrediction = Boolean(
+      readValue(row, 'risk_assessment_prediction_outcome') ||
+      probabilityDecimal !== undefined ||
+      probabilityRangeLowValue !== undefined ||
+      probabilityRangeHighValue !== undefined ||
+      readValue(row, 'risk_assessment_prediction_qualitative_risk') ||
+      relativeRisk !== undefined ||
+      readValue(row, 'risk_assessment_prediction_when_start') ||
+      readValue(row, 'risk_assessment_prediction_when_end') ||
+      whenRangeLowValue !== undefined ||
+      whenRangeHighValue !== undefined ||
+      readValue(row, 'risk_assessment_prediction_rationale')
+    );
+
+    return {
+      id: assessmentId || undefined,
+      identifier: assessmentId ? [{ value: assessmentId }] : undefined,
+      basedOn: readValue(row, 'risk_assessment_based_on_id') || undefined,
+      parent: readValue(row, 'risk_assessment_parent_id') || undefined,
+      status: status || undefined,
+      method: readValue(row, 'risk_assessment_method')
+        ? { code: readValue(row, 'risk_assessment_method'), display: readValue(row, 'risk_assessment_method') }
+        : undefined,
+      code: code ? { code, display: code } : undefined,
+      subject: readValue(row, 'risk_assessment_subject_id') || undefined,
+      encounter: readValue(row, 'risk_assessment_encounter_id') || undefined,
+      occurrenceDateTime: readValue(row, 'risk_assessment_occurrence_date_time') || undefined,
+      occurrencePeriod: (readValue(row, 'risk_assessment_occurrence_start') || readValue(row, 'risk_assessment_occurrence_end'))
+        ? {
+            start: readValue(row, 'risk_assessment_occurrence_start') || undefined,
+            end: readValue(row, 'risk_assessment_occurrence_end') || undefined
+          }
+        : undefined,
+      condition: readValue(row, 'risk_assessment_condition_id') || undefined,
+      performer: readValue(row, 'risk_assessment_performer_id') || undefined,
+      reason: toList(reasonRaw),
+      basis: toList(basisRaw),
+      prediction: hasPrediction
+        ? [{
+            outcome: readValue(row, 'risk_assessment_prediction_outcome')
+              ? { code: readValue(row, 'risk_assessment_prediction_outcome'), display: readValue(row, 'risk_assessment_prediction_outcome') }
+              : undefined,
+            probabilityDecimal: probabilityDecimal,
+            probabilityRange: (probabilityRangeLowValue !== undefined || probabilityRangeHighValue !== undefined || readValue(row, 'risk_assessment_prediction_probability_range_low_unit') || readValue(row, 'risk_assessment_prediction_probability_range_high_unit'))
+              ? {
+                  low: (probabilityRangeLowValue !== undefined || readValue(row, 'risk_assessment_prediction_probability_range_low_unit'))
+                    ? {
+                        value: probabilityRangeLowValue,
+                        unit: readValue(row, 'risk_assessment_prediction_probability_range_low_unit') || undefined
+                      }
+                    : undefined,
+                  high: (probabilityRangeHighValue !== undefined || readValue(row, 'risk_assessment_prediction_probability_range_high_unit'))
+                    ? {
+                        value: probabilityRangeHighValue,
+                        unit: readValue(row, 'risk_assessment_prediction_probability_range_high_unit') || undefined
+                      }
+                    : undefined
+                }
+              : undefined,
+            qualitativeRisk: readValue(row, 'risk_assessment_prediction_qualitative_risk')
+              ? { code: readValue(row, 'risk_assessment_prediction_qualitative_risk'), display: readValue(row, 'risk_assessment_prediction_qualitative_risk') }
+              : undefined,
+            relativeRisk: relativeRisk,
+            whenPeriod: (readValue(row, 'risk_assessment_prediction_when_start') || readValue(row, 'risk_assessment_prediction_when_end'))
+              ? {
+                  start: readValue(row, 'risk_assessment_prediction_when_start') || undefined,
+                  end: readValue(row, 'risk_assessment_prediction_when_end') || undefined
+                }
+              : undefined,
+            whenRange: (whenRangeLowValue !== undefined || whenRangeHighValue !== undefined || readValue(row, 'risk_assessment_prediction_when_range_low_unit') || readValue(row, 'risk_assessment_prediction_when_range_high_unit'))
+              ? {
+                  low: (whenRangeLowValue !== undefined || readValue(row, 'risk_assessment_prediction_when_range_low_unit'))
+                    ? {
+                        value: whenRangeLowValue,
+                        unit: readValue(row, 'risk_assessment_prediction_when_range_low_unit') || undefined
+                      }
+                    : undefined,
+                  high: (whenRangeHighValue !== undefined || readValue(row, 'risk_assessment_prediction_when_range_high_unit'))
+                    ? {
+                        value: whenRangeHighValue,
+                        unit: readValue(row, 'risk_assessment_prediction_when_range_high_unit') || undefined
+                      }
+                    : undefined
+                }
+              : undefined,
+            rationale: readValue(row, 'risk_assessment_prediction_rationale') || undefined
+          }]
+        : undefined,
+      mitigation: mitigation || undefined,
+      note: note ? [note] : undefined
+    };
+  }).filter(Boolean);
+  if (riskAssessments.length > 0) canonical.riskAssessments = riskAssessments as any[];
+
   const capabilityStatements = rows.map(row => {
     const capabilityId = readValue(row, 'capability_statement_id');
     const url = readValue(row, 'capability_statement_url');
