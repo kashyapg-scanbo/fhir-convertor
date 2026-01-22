@@ -23,6 +23,9 @@ export function parseWhoop(input: string): CanonicalModel {
     throw new Error('Invalid JSON input for Whoop parser');
   }
 
+  // Store original request body as base64 in DocumentReference
+  const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
+
   const observations: CanonicalObservation[] = [];
   
   // Helper function to create observations with common fields
@@ -799,7 +802,26 @@ export function parseWhoop(input: string): CanonicalModel {
 
   const result: CanonicalModel = {
     patient: Object.keys(patient).length > 1 ? patient : undefined,
-    observations: observations.length > 0 ? observations : undefined
+    observations: observations.length > 0 ? observations : undefined,
+    documentReferences: [{
+      status: 'current',
+      type: {
+        coding: [{
+          system: 'http://loinc.org',
+          code: '34133-9',
+          display: 'Summary of episode note'
+        }]
+      },
+      date: new Date().toISOString(),
+      content: [{
+        attachment: {
+          contentType: 'application/json',
+          data: originalDataBase64,
+          title: 'Whoop API Original Request Data',
+          format: 'json'
+        }
+      }]
+    }]
   };
 
   return result;
