@@ -47,6 +47,8 @@ export interface WhoopCycle {
   timezone_offset: string;
   score_state: string;
   score: WhoopCycleScore;
+  // Optional: Real-time heart rate time-series data (array of {timestamp, value})
+  heart_rate_time_series?: Array<{ timestamp: string; value: number }>;
 }
 
 export interface WhoopSleepStageSummary {
@@ -122,6 +124,8 @@ export interface WhoopWorkout {
   sport_id: number;
   score_state: string;
   score: WhoopWorkoutScore;
+  // Optional: Real-time heart rate time-series data (array of {timestamp, value})
+  heart_rate_time_series?: Array<{ timestamp: string; value: number }>;
 }
 
 export interface WhoopData {

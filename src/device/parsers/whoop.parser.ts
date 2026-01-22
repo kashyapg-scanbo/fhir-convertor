@@ -83,129 +83,231 @@ export function parseWhoop(input: string): CanonicalModel {
     }
   }
 
-  // Parse Recovery Data
+  // Parse Recovery Data - Single Observation with Components
   if (data.recovery?.score) {
     const recovery = data.recovery;
     const score = recovery.score;
-
-    // Add device reference for all recovery observations
     const deviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
+    const recoveryDate = recovery.created_at || recovery.updated_at;
 
-    // Heart Rate Variability (HRV RMSSD)
-    // Note: Using display text that avoids triggering heartrate profile auto-detection
-    if (score.hrv_rmssd_milli !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '80404-7',
-          display: 'R-R interval standard deviation (SDNN) - HRV'
+    // Build components array for recovery metrics
+    const recoveryComponents: Array<{
+      code: { system: string; code: string; display: string };
+      valueQuantity?: { value: number; unit: string; system?: string; code?: string };
+      valueInteger?: number;
+      valueBoolean?: boolean;
+      valueCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    }> = [];
+
+    // Recovery Score (device-specific, use local code)
+    if (score.recovery_score !== undefined) {
+      recoveryComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-recovery-score',
+          display: 'Recovery Score'
         },
-        score.hrv_rmssd_milli,
-        'ms',
-        recovery.created_at || recovery.updated_at,
-        deviceUid,
-        'exam'
-      ));
+        valueQuantity: {
+          value: Math.round(score.recovery_score),
+          unit: '{score}',
+          system: 'http://unitsofmeasure.org',
+          code: '{score}'
+        }
+      });
     }
 
-    // Resting Heart Rate (RHR)
+    // Resting Heart Rate (valid LOINC code)
     if (score.resting_heart_rate !== undefined) {
-      observations.push(createObservation(
-        {
+      recoveryComponents.push({
+        code: {
           system: 'http://loinc.org',
           code: '8867-4',
           display: 'Heart rate'
         },
-        score.resting_heart_rate,
-        '/min',
-        recovery.created_at || recovery.updated_at,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: score.resting_heart_rate,
+          unit: 'beats/min',
+          system: 'http://unitsofmeasure.org',
+          code: '/min'
+        }
+      });
     }
 
-    // Recovery Score
-    if (score.recovery_score !== undefined) {
-      observations.push(createObservation(
-        {
+    // HRV RMSSD (valid LOINC code)
+    if (score.hrv_rmssd_milli !== undefined) {
+      recoveryComponents.push({
+        code: {
           system: 'http://loinc.org',
-          code: '93834-0',
-          display: 'Recovery score'
+          code: '80404-7',
+          display: 'R-R interval.standard deviation (Heart rate variability)'
         },
-        score.recovery_score,
-        '{score}',
-        recovery.created_at || recovery.updated_at,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: score.hrv_rmssd_milli,
+          unit: 'ms',
+          system: 'http://unitsofmeasure.org',
+          code: 'ms'
+        }
+      });
     }
 
-    // SpO2
+    // SpO2 (valid LOINC code)
     if (score.spo2_percentage !== undefined) {
-      observations.push(createObservation(
-        {
+      recoveryComponents.push({
+        code: {
           system: 'http://loinc.org',
           code: '2708-6',
           display: 'Oxygen saturation in Arterial blood'
         },
-        score.spo2_percentage,
-        '%',
-        recovery.created_at || recovery.updated_at,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: score.spo2_percentage,
+          unit: '%',
+          system: 'http://unitsofmeasure.org',
+          code: '%'
+        }
+      });
     }
 
-    // Skin Temperature
+    // Skin Temperature (valid LOINC code)
     if (score.skin_temp_celsius !== undefined) {
-      observations.push(createObservation(
-        {
+      recoveryComponents.push({
+        code: {
           system: 'http://loinc.org',
           code: '8310-5',
           display: 'Body temperature'
         },
-        score.skin_temp_celsius,
-        'Cel',
-        recovery.created_at || recovery.updated_at,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: score.skin_temp_celsius,
+          unit: '°C',
+          system: 'http://unitsofmeasure.org',
+          code: 'Cel'
+        }
+      });
     }
 
-    // User Calibrating Status (NEW - was missing)
+    // User Calibrating Status (device-specific, use local code)
     if (score.user_calibrating !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93848-0',
-          display: 'Device calibration status'
+      recoveryComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-device-calibrating',
+          display: 'Device Calibration Status'
         },
-        score.user_calibrating ? 1 : 0,
-        '{boolean}',
-        recovery.created_at || recovery.updated_at,
-        deviceUid
-      ));
+        valueCodeableConcept: {
+          system: 'http://terminology.hl7.org/CodeSystem/v2-0136',
+          code: score.user_calibrating ? 'Y' : 'N',
+          display: score.user_calibrating ? 'Yes' : 'No'
+        }
+      });
+    }
+
+    // Create single Recovery Observation with all components
+    if (recoveryComponents.length > 0) {
+      observations.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-recovery-summary',
+          display: 'WHOOP Recovery Summary'
+        },
+        date: recoveryDate,
+        device: {
+          uid: deviceUid
+        },
+        status: 'final',
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: 'activity',
+          display: 'Activity'
+        }],
+        components: recoveryComponents
+      });
     }
   }
+
+  // Helper function to convert time-series data to valueSampledData format
+  const convertTimeSeriesToSampledData = (
+    timeSeries: Array<{ timestamp: string; value: number }>,
+    periodSeconds: number = 1
+  ): { origin: { value: number; unit: string }; period: number; dimensions: number; data: string } | null => {
+    if (!timeSeries || timeSeries.length === 0) return null;
+
+    // Sort by timestamp
+    const sorted = [...timeSeries].sort((a, b) => 
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
+    // Extract values and create data string (space-separated)
+    const values = sorted.map(item => Math.round(item.value));
+    const dataString = values.join(' ');
+
+    // Use first value as origin
+    const originValue = values[0] || 0;
+
+    return {
+      origin: {
+        value: originValue,
+        unit: 'beats/min'
+      },
+      period: periodSeconds, // Period in seconds (1 = 1 second intervals)
+      dimensions: 1, // Single dimension (heart rate)
+      data: dataString
+    };
+  };
 
   // Parse Cycle (Strain/Workout) Data
   if (data.cycle?.score) {
     const cycle = data.cycle;
     const score = cycle.score;
-
-    // Add device reference for all cycle observations
     const deviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
+    const cycleDate = cycle.start || cycle.created_at;
 
-    // Strain Score
+    // Handle real-time heart rate time-series data if available
+    if ((cycle as any).heart_rate_time_series && Array.isArray((cycle as any).heart_rate_time_series)) {
+      const sampledData = convertTimeSeriesToSampledData((cycle as any).heart_rate_time_series, 1);
+      if (sampledData) {
+        const startTime = cycle.start || cycle.created_at;
+        const endTime = cycle.end || new Date(new Date(startTime).getTime() + (sampledData.data.split(' ').length * 1000)).toISOString();
+        
+        observations.push({
+          code: {
+            system: 'http://loinc.org',
+            code: '8867-4',
+            display: 'Heart Rate Time Series'
+          },
+          effectivePeriod: startTime && endTime ? {
+            start: startTime,
+            end: endTime
+          } : undefined,
+          date: startTime,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final',
+          category: [{
+            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+            code: 'vital-signs',
+            display: 'Vital Signs'
+          }],
+          valueSampledData: sampledData
+        });
+      }
+    }
+
+    // Strain Score (device-specific, use local code since 93831-6 is actually for Deep sleep duration)
+    // Use valueQuantity instead of valueInteger for FHIR R5 compatibility
     if (score.strain !== undefined) {
       observations.push(createObservation(
         {
-          system: 'http://loinc.org',
-          code: '93831-6',
+          system: 'urn:hl7-org:local',
+          code: 'whoop-strain-score',
           display: 'Physical activity strain score'
         },
-        score.strain,
+        Math.round(score.strain),
         '{score}',
-        cycle.start || cycle.created_at,
+        cycleDate,
         deviceUid,
         'activity'
       ));
@@ -223,15 +325,14 @@ export function parseWhoop(input: string): CanonicalModel {
         },
         Math.round(calories),
         'kcal',
-        cycle.start || cycle.created_at,
+        cycleDate,
         deviceUid,
         'activity'
       ));
     }
 
-    // Average Heart Rate during Cycle
-    // Note: Heart rate observations (8867-4) must use 'vital-signs' category to comply with heartrate profile
-    if (score.average_heart_rate !== undefined) {
+    // Average Heart Rate during Cycle (only if no time-series data)
+    if (score.average_heart_rate !== undefined && !(cycle as any).heart_rate_time_series) {
       observations.push(createObservation(
         {
           system: 'http://loinc.org',
@@ -240,14 +341,13 @@ export function parseWhoop(input: string): CanonicalModel {
         },
         score.average_heart_rate,
         '/min',
-        cycle.start || cycle.created_at,
+        cycleDate,
         deviceUid,
         'vital-signs'
       ));
     }
 
     // Max Heart Rate during Cycle
-    // Note: Heart rate observations (8867-4) must use 'vital-signs' category to comply with heartrate profile
     if (score.max_heart_rate !== undefined) {
       observations.push(createObservation(
         {
@@ -257,295 +357,361 @@ export function parseWhoop(input: string): CanonicalModel {
         },
         score.max_heart_rate,
         '/min',
-        cycle.start || cycle.created_at,
+        cycleDate,
         deviceUid,
         'vital-signs'
       ));
     }
   }
 
-  // Parse Sleep Data
+  // Parse Sleep Data - Single Observation with Components
   if (data.sleep?.score) {
     const sleep = data.sleep;
     const score = sleep.score;
     const stageSummary = score.stage_summary;
-
-    // Add device reference for all sleep observations
     const deviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
 
-    // Sleep Duration (total time in bed)
+    // Build components array for sleep metrics
+    const sleepComponents: Array<{
+      code: { system: string; code: string; display: string };
+      valueQuantity?: { value: number; unit: string; system?: string; code?: string };
+      valueInteger?: number;
+      valueBoolean?: boolean;
+      valueCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    }> = [];
+
+    // Total Sleep Time (total time in bed) - use local code to avoid constraint violation
+    // (Observation code is 93832-4, so component can't use same code)
     if (stageSummary?.total_in_bed_time_milli !== undefined) {
       const durationSeconds = Math.round(stageSummary.total_in_bed_time_milli / 1000);
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93832-4',
-          display: 'Sleep duration'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-total-sleep-time',
+          display: 'Total Sleep Time'
         },
-        durationSeconds,
-        's',
-        sleep.start || sleep.end,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: durationSeconds,
+          unit: 'seconds',
+          system: 'http://unitsofmeasure.org',
+          code: 's'
+        }
+      });
     }
 
-    // Sleep Efficiency
+    // Sleep Efficiency (device-specific, use local code)
     if (score.sleep_efficiency_percentage !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93830-8',
-          display: 'Sleep efficiency'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-sleep-efficiency',
+          display: 'Sleep Efficiency'
         },
-        score.sleep_efficiency_percentage,
-        '%',
-        sleep.start || sleep.end,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: score.sleep_efficiency_percentage,
+          unit: '%',
+          system: 'http://unitsofmeasure.org',
+          code: '%'
+        }
+      });
     }
 
-    // Sleep Performance
+    // Sleep Performance (device-specific, use local code)
     if (score.sleep_performance_percentage !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93833-2',
-          display: 'Sleep quality score'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-sleep-performance',
+          display: 'Sleep Performance'
         },
-        score.sleep_performance_percentage,
-        '{score}',
-        sleep.start || sleep.end,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: Math.round(score.sleep_performance_percentage),
+          unit: '{score}',
+          system: 'http://unitsofmeasure.org',
+          code: '{score}'
+        }
+      });
     }
 
-    // Sleep Consistency (NEW - was missing)
+    // Sleep Consistency (device-specific, use local code)
     if (score.sleep_consistency_percentage !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93841-5',
-          display: 'Sleep consistency percentage'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-sleep-consistency',
+          display: 'Sleep Consistency'
         },
-        score.sleep_consistency_percentage,
-        '%',
-        sleep.start || sleep.end,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: score.sleep_consistency_percentage,
+          unit: '%',
+          system: 'http://unitsofmeasure.org',
+          code: '%'
+        }
+      });
     }
 
-    // Deep Sleep (Slow Wave Sleep)
+    // Deep Sleep (Slow Wave Sleep) (device-specific, use local code)
     if (stageSummary?.total_slow_wave_sleep_time_milli !== undefined) {
       const durationSeconds = Math.round(stageSummary.total_slow_wave_sleep_time_milli / 1000);
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93835-7',
-          display: 'Deep sleep duration'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-slow-wave-sleep',
+          display: 'Slow Wave Sleep'
         },
-        durationSeconds,
-        's',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: durationSeconds,
+          unit: 'seconds',
+          system: 'http://unitsofmeasure.org',
+          code: 's'
+        }
+      });
     }
 
-    // REM Sleep
+    // REM Sleep (device-specific, use local code)
     if (stageSummary?.total_rem_sleep_time_milli !== undefined) {
       const durationSeconds = Math.round(stageSummary.total_rem_sleep_time_milli / 1000);
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93836-5',
-          display: 'REM sleep duration'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-rem-sleep',
+          display: 'REM Sleep'
         },
-        durationSeconds,
-        's',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: durationSeconds,
+          unit: 'seconds',
+          system: 'http://unitsofmeasure.org',
+          code: 's'
+        }
+      });
     }
 
-    // Light Sleep
+    // Light Sleep (device-specific, use local code)
     if (stageSummary?.total_light_sleep_time_milli !== undefined) {
       const durationSeconds = Math.round(stageSummary.total_light_sleep_time_milli / 1000);
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93837-3',
-          display: 'Light sleep duration'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-light-sleep',
+          display: 'Light Sleep'
         },
-        durationSeconds,
-        's',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: durationSeconds,
+          unit: 'seconds',
+          system: 'http://unitsofmeasure.org',
+          code: 's'
+        }
+      });
     }
 
-    // Awake Time
+    // Awake Time (device-specific, use local code)
     if (stageSummary?.total_awake_time_milli !== undefined) {
       const durationSeconds = Math.round(stageSummary.total_awake_time_milli / 1000);
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93838-1',
-          display: 'Awake time during sleep'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-awake-time',
+          display: 'Awake Time'
         },
-        durationSeconds,
-        's',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: durationSeconds,
+          unit: 'seconds',
+          system: 'http://unitsofmeasure.org',
+          code: 's'
+        }
+      });
     }
 
-    // Respiratory Rate during Sleep
+    // Respiratory Rate during Sleep (valid LOINC code)
     if (score.respiratory_rate !== undefined) {
-      observations.push(createObservation(
-        {
+      sleepComponents.push({
+        code: {
           system: 'http://loinc.org',
           code: '9279-1',
           display: 'Respiratory rate'
         },
-        score.respiratory_rate,
-        '/min',
-        sleep.start || sleep.end,
-        deviceUid,
-        'vital-signs'
-      ));
+        valueQuantity: {
+          value: score.respiratory_rate,
+          unit: 'beats/min',
+          system: 'http://unitsofmeasure.org',
+          code: '/min'
+        }
+      });
     }
 
-    // Sleep Cycles Count
+    // Sleep Cycles Count (device-specific, use local code)
     if (stageSummary?.sleep_cycle_count !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93839-9',
-          display: 'Sleep cycle count'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-sleep-cycle-count',
+          display: 'Sleep Cycle Count'
         },
-        stageSummary.sleep_cycle_count,
-        '{count}',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: stageSummary.sleep_cycle_count,
+          unit: '{count}',
+          system: 'http://unitsofmeasure.org',
+          code: '{count}'
+        }
+      });
     }
 
-    // Disturbance Count
+    // Disturbance Count (device-specific, use local code)
     if (stageSummary?.disturbance_count !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93840-7',
-          display: 'Sleep disturbance count'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-sleep-disturbance-count',
+          display: 'Disturbance Count'
         },
-        stageSummary.disturbance_count,
-        '{count}',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: stageSummary.disturbance_count,
+          unit: '{count}',
+          system: 'http://unitsofmeasure.org',
+          code: '{count}'
+        }
+      });
     }
 
-    // Total No Data Time (NEW - was missing)
+    // Total No Data Time (device-specific, use local code)
     if (stageSummary?.total_no_data_time_milli !== undefined) {
       const durationSeconds = Math.round(stageSummary.total_no_data_time_milli / 1000);
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93842-3',
-          display: 'Sleep data gap duration'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-sleep-data-gap',
+          display: 'Sleep Data Gap Duration'
         },
-        durationSeconds,
-        's',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueQuantity: {
+          value: durationSeconds,
+          unit: 'seconds',
+          system: 'http://unitsofmeasure.org',
+          code: 's'
+        }
+      });
     }
 
-    // Sleep Needed Metrics (NEW - was missing)
+    // Sleep Needed Metrics (device-specific, use local codes)
     if (score.sleep_needed) {
       const sleepNeeded = score.sleep_needed;
 
       // Baseline Sleep Need
       if (sleepNeeded.baseline_milli !== undefined) {
         const durationSeconds = Math.round(sleepNeeded.baseline_milli / 1000);
-        observations.push(createObservation(
-          {
-            system: 'http://loinc.org',
-            code: '93843-1',
-            display: 'Baseline sleep need'
+        sleepComponents.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'whoop-baseline-sleep-need',
+            display: 'Baseline Sleep Need'
           },
-          durationSeconds,
-          's',
-          sleep.start || sleep.end,
-          deviceUid
-        ));
+          valueQuantity: {
+            value: durationSeconds,
+            unit: 'seconds',
+            system: 'http://unitsofmeasure.org',
+            code: 's'
+          }
+        });
       }
 
       // Sleep Need from Sleep Debt
       if (sleepNeeded.need_from_sleep_debt_milli !== undefined) {
         const durationSeconds = Math.round(sleepNeeded.need_from_sleep_debt_milli / 1000);
-        observations.push(createObservation(
-          {
-            system: 'http://loinc.org',
-            code: '93844-9',
-            display: 'Sleep need from sleep debt'
+        sleepComponents.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'whoop-sleep-need-debt',
+            display: 'Sleep Need from Sleep Debt'
           },
-          durationSeconds,
-          's',
-          sleep.start || sleep.end,
-          deviceUid
-        ));
+          valueQuantity: {
+            value: durationSeconds,
+            unit: 'seconds',
+            system: 'http://unitsofmeasure.org',
+            code: 's'
+          }
+        });
       }
 
       // Sleep Need from Recent Strain
       if (sleepNeeded.need_from_recent_strain_milli !== undefined) {
         const durationSeconds = Math.round(sleepNeeded.need_from_recent_strain_milli / 1000);
-        observations.push(createObservation(
-          {
-            system: 'http://loinc.org',
-            code: '93845-6',
-            display: 'Sleep need from recent strain'
+        sleepComponents.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'whoop-sleep-need-strain',
+            display: 'Sleep Need from Recent Strain'
           },
-          durationSeconds,
-          's',
-          sleep.start || sleep.end,
-          deviceUid
-        ));
+          valueQuantity: {
+            value: durationSeconds,
+            unit: 'seconds',
+            system: 'http://unitsofmeasure.org',
+            code: 's'
+          }
+        });
       }
 
       // Sleep Need from Recent Nap
       if (sleepNeeded.need_from_recent_nap_milli !== undefined) {
         const durationSeconds = Math.round(sleepNeeded.need_from_recent_nap_milli / 1000);
-        observations.push(createObservation(
-          {
-            system: 'http://loinc.org',
-            code: '93846-4',
-            display: 'Sleep need from recent nap'
+        sleepComponents.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'whoop-sleep-need-nap',
+            display: 'Sleep Need from Recent Nap'
           },
-          durationSeconds,
-          's',
-          sleep.start || sleep.end,
-          deviceUid
-        ));
+          valueQuantity: {
+            value: durationSeconds,
+            unit: 'seconds',
+            system: 'http://unitsofmeasure.org',
+            code: 's'
+          }
+        });
       }
     }
 
-    // Nap Indicator (as a note/flag)
+    // Nap Indicator (device-specific, use local code)
     if (sleep.nap !== undefined) {
-      observations.push(createObservation(
-        {
-          system: 'http://loinc.org',
-          code: '93847-2',
-          display: 'Nap indicator'
+      sleepComponents.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'whoop-nap-indicator',
+          display: 'Nap Indicator'
         },
-        sleep.nap ? 1 : 0,
-        '{boolean}',
-        sleep.start || sleep.end,
-        deviceUid
-      ));
+        valueCodeableConcept: {
+          system: 'http://terminology.hl7.org/CodeSystem/v2-0136',
+          code: sleep.nap ? 'Y' : 'N',
+          display: sleep.nap ? 'Yes' : 'No'
+        }
+      });
+    }
+
+    // Create single Sleep Observation with all components
+    if (sleepComponents.length > 0) {
+      observations.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '93832-4',
+          display: 'Sleep duration'
+        },
+        effectivePeriod: sleep.start && sleep.end ? {
+          start: sleep.start,
+          end: sleep.end
+        } : undefined,
+        date: sleep.start || sleep.end,
+        device: {
+          uid: deviceUid
+        },
+        status: 'final',
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: 'vital-signs',
+          display: 'Vital Signs'
+        }],
+        components: sleepComponents
+      });
     }
   }
 
@@ -631,6 +797,38 @@ export function parseWhoop(input: string): CanonicalModel {
       const score = workout.score;
       const workoutDate = workout.start || workout.created_at;
 
+      // Handle real-time heart rate time-series data if available
+      if (workout.heart_rate_time_series && Array.isArray(workout.heart_rate_time_series)) {
+        const sampledData = convertTimeSeriesToSampledData(workout.heart_rate_time_series, 1);
+        if (sampledData) {
+          const startTime = workout.start || workout.created_at;
+          const endTime = workout.end || new Date(new Date(startTime).getTime() + (sampledData.data.split(' ').length * 1000)).toISOString();
+          
+          observations.push({
+            code: {
+              system: 'http://loinc.org',
+              code: '8867-4',
+              display: 'Heart Rate Time Series'
+            },
+            effectivePeriod: startTime && endTime ? {
+              start: startTime,
+              end: endTime
+            } : undefined,
+            date: startTime,
+            device: {
+              uid: deviceUid
+            },
+            status: 'final',
+            category: [{
+              system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+              code: 'vital-signs',
+              display: 'Vital Signs'
+            }],
+            valueSampledData: sampledData
+          });
+        }
+      }
+
       // Strain Score
       if (score.strain !== undefined) {
         observations.push(createObservation(
@@ -665,8 +863,8 @@ export function parseWhoop(input: string): CanonicalModel {
         ));
       }
 
-      // Average Heart Rate during Workout
-      if (score.average_heart_rate !== undefined) {
+      // Average Heart Rate during Workout (only if no time-series data)
+      if (score.average_heart_rate !== undefined && !workout.heart_rate_time_series) {
         observations.push(createObservation(
           {
             system: 'http://loinc.org',

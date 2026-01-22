@@ -1,0 +1,81 @@
+{
+  "profile": {
+    "user_id": 22023248,
+    "email": "ashisshraichura@scanbo.com",
+    "first_name": "Ashissh",
+    "last_name": "Raichura"
+  },
+  "recovery": {
+    "cycle_id": 1249833757,
+    "sleep_id": "1af1d2f9-558a-477d-b40d-953f896b57d0",
+    "user_id": 22023248,
+    "created_at": "2026-01-12T08:14:24.447Z",
+    "updated_at": "2026-01-12T08:14:24.447Z",
+    "score_state": "SCORED",
+    "score": {
+      "user_calibrating": false,
+      "recovery_score": 68,
+      "resting_heart_rate": 64,
+      "hrv_rmssd_milli": 42.902706,
+      "spo2_percentage": 91.6,
+      "skin_temp_celsius": 35.831165
+    }
+  },
+  "cycle": {
+    "id": 1249833757,
+    "user_id": 22023248,
+    "created_at": "2026-01-12T08:14:18.607Z",
+    "updated_at": "2026-01-12T14:24:44.168Z",
+    "start": "2026-01-12T00:38:40.250Z",
+    "end": null,
+    "timezone_offset": "-05:00",
+    "score_state": "SCORED",
+    "score": {
+      "strain": 6.8703284,
+      "kilojoule": 6330.3174,
+      "average_heart_rate": 76,
+      "max_heart_rate": 132
+    }
+  },
+  "sleep": {
+    "id": "00a72001-5516-4fc9-8b39-7c9142ce1265",
+    "cycle_id": 1249833757,
+    "v1_id": null,
+    "user_id": 22023248,
+    "created_at": "2026-01-12T14:24:43.985Z",
+    "updated_at": "2026-01-12T14:24:43.985Z",
+    "start": "2026-01-12T08:49:10.930Z",
+    "end": "2026-01-12T10:00:47.030Z",
+    "timezone_offset": "-05:00",
+    "nap": true,
+    "score_state": "SCORED",
+    "score": {
+      "stage_summary": {
+        "total_in_bed_time_milli": 4296100,
+        "total_awake_time_milli": 120000,
+        "total_no_data_time_milli": 0,
+        "total_light_sleep_time_milli": 1715000,
+        "total_slow_wave_sleep_time_milli": 1711050,
+        "total_rem_sleep_time_milli": 750050,
+        "sleep_cycle_count": 1,
+        "disturbance_count": 1
+      },
+      "sleep_needed": {
+        "baseline_milli": 26774727,
+        "need_from_sleep_debt_milli": 5507335,
+        "need_from_recent_strain_milli": 51870,
+        "need_from_recent_nap_milli": 0
+      },
+      "respiratory_rate": 15.5859375,
+      "sleep_performance_percentage": 26,
+      "sleep_consistency_percentage": 0,
+      "sleep_efficiency_percentage": 97.20677
+    }
+  },
+  "body": {
+    "height_meter": 1.7526,
+    "weight_kilogram": 61.5,
+    "max_heart_rate": 173
+  }
+}
+

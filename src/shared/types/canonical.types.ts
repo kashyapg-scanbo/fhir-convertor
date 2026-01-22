@@ -51,6 +51,15 @@ export type CanonicalObservation = {
     display?: string;
   }>;
   value?: string | number | Array<string | number>;
+  valueSampledData?: {
+    origin: {
+      value: number;
+      unit: string;
+    };
+    period: number;
+    dimensions: number;
+    data: string;
+  };
   unit?: string;
   unitSystem?: string;
   unitCode?: string;
@@ -58,6 +67,10 @@ export type CanonicalObservation = {
   abnormalFlags?: string[];
   status?: string;
   date?: string;
+  effectivePeriod?: {
+    start?: string;
+    end?: string;
+  };
   producer?: {
     organizationId?: string;
     system?: string;
@@ -100,7 +113,34 @@ export type CanonicalObservation = {
       code: string;
       display: string;
     };
-    valueCodeableConcept?: any;
+    valueQuantity?: {
+      value: number;
+      unit: string;
+      system?: string;
+      code?: string;
+    };
+    valueInteger?: number;
+    valueString?: string;
+    valueBoolean?: boolean;
+    valueCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+    };
+    valueSampledData?: {
+      origin: {
+        value: number;
+        unit: string;
+      };
+      period: number;
+      dimensions: number;
+      data: string;
+    };
   }>;
 };
 
