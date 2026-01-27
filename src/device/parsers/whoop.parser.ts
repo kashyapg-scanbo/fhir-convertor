@@ -294,76 +294,115 @@ export function parseWhoop(input: string): CanonicalModel {
       }
     }
 
-    // Process each unique cycle
+    // Process each unique cycle as a single Observation with components
     for (const cycle of uniqueCycles) {
       const score = cycle.score;
       const cycleDate = cycle.start || cycle.created_at;
-      
+
+      const cycleComponents: Array<{
+        code: { system: string; code: string; display: string };
+        valueQuantity?: { value: number; unit: string; system?: string; code?: string };
+        valueInteger?: number;
+        valueBoolean?: boolean;
+        valueCodeableConcept?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+      }> = [];
+
       // Strain Score (device-specific, use local code since 93831-6 is actually for Deep sleep duration)
-      // Use valueQuantity instead of valueInteger for FHIR R5 compatibility
       if (score.strain !== undefined) {
-        observations.push(createObservation(
-          {
+        cycleComponents.push({
+          code: {
             system: 'urn:hl7-org:local',
             code: 'whoop-strain-score',
             display: 'Physical activity strain score'
           },
-          Math.round(score.strain),
-          '{score}',
-          cycleDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: Math.round(score.strain),
+            unit: '{score}',
+            system: 'http://unitsofmeasure.org',
+            code: '{score}'
+          }
+        });
       }
 
       // Calories/Kilojoules
       if (score.kilojoule !== undefined) {
-        // Convert kilojoules to calories (1 kJ = 0.239006 kcal)
         const calories = score.kilojoule * 0.239006;
-        observations.push(createObservation(
-          {
+        cycleComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '41981-2',
             display: 'Calories burned'
           },
-          Math.round(calories),
-          'kcal',
-          cycleDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: Math.round(calories),
+            unit: 'kcal',
+            system: 'http://unitsofmeasure.org',
+            code: 'kcal'
+          }
+        });
       }
 
       // Average Heart Rate during Cycle
       if (score.average_heart_rate !== undefined) {
-        observations.push(createObservation(
-          {
+        cycleComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '8867-4',
             display: 'Heart rate'
           },
-          score.average_heart_rate,
-          '/min',
-          cycleDate,
-          deviceUid,
-          'vital-signs'
-        ));
+          valueQuantity: {
+            value: score.average_heart_rate,
+            unit: 'beats/min',
+            system: 'http://unitsofmeasure.org',
+            code: '/min'
+          }
+        });
       }
 
       // Max Heart Rate during Cycle
       if (score.max_heart_rate !== undefined) {
-        observations.push(createObservation(
-          {
+        cycleComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '8867-4',
             display: 'Heart rate'
           },
-          score.max_heart_rate,
-          '/min',
-          cycleDate,
-          deviceUid,
-          'vital-signs'
-        ));
+          valueQuantity: {
+            value: score.max_heart_rate,
+            unit: 'beats/min',
+            system: 'http://unitsofmeasure.org',
+            code: '/min'
+          }
+        });
+      }
+
+      if (cycleComponents.length > 0) {
+        observations.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'whoop-cycle-summary',
+            display: 'WHOOP Cycle Summary'
+          },
+          effectivePeriod: cycle.start && cycle.end ? {
+            start: cycle.start,
+            end: cycle.end
+          } : undefined,
+          date: cycleDate,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final',
+          category: [{
+            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+            code: 'activity',
+            display: 'Activity'
+          }],
+          components: cycleComponents
+        });
       }
     }
   }
@@ -845,176 +884,220 @@ export function parseWhoop(input: string): CanonicalModel {
       }
     }
 
-    // Process each unique workout
+    // Process each unique workout as a single Observation with components
     for (const workout of uniqueWorkouts) {
       const score = workout.score;
       const workoutDate = workout.start || workout.created_at;
-      
+
+      const workoutComponents: Array<{
+        code: { system: string; code: string; display: string };
+        valueQuantity?: { value: number; unit: string; system?: string; code?: string };
+        valueInteger?: number;
+        valueBoolean?: boolean;
+        valueCodeableConcept?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+      }> = [];
+
       // Strain Score
       if (score.strain !== undefined) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'urn:hl7-org:local',
             code: 'whoop-strain-score',
             display: 'Physical activity strain score'
           },
-          score.strain,
-          '{score}',
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: score.strain,
+            unit: '{score}',
+            system: 'http://unitsofmeasure.org',
+            code: '{score}'
+          }
+        });
       }
 
       // Calories/Kilojoules
       if (score.kilojoule !== undefined) {
-        // Convert kilojoules to calories (1 kJ = 0.239006 kcal)
         const calories = score.kilojoule * 0.239006;
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '41981-2',
             display: 'Calories burned'
           },
-          Math.round(calories),
-          'kcal',
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: Math.round(calories),
+            unit: 'kcal',
+            system: 'http://unitsofmeasure.org',
+            code: 'kcal'
+          }
+        });
       }
 
       // Average Heart Rate during Workout
       if (score.average_heart_rate !== undefined) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '8867-4',
             display: 'Heart rate'
           },
-          score.average_heart_rate,
-          '/min',
-          workoutDate,
-          deviceUid,
-          'vital-signs'
-        ));
+          valueQuantity: {
+            value: score.average_heart_rate,
+            unit: 'beats/min',
+            system: 'http://unitsofmeasure.org',
+            code: '/min'
+          }
+        });
       }
 
       // Max Heart Rate during Workout
       if (score.max_heart_rate !== undefined) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '8867-4',
             display: 'Heart rate'
           },
-          score.max_heart_rate,
-          '/min',
-          workoutDate,
-          deviceUid,
-          'vital-signs'
-        ));
+          valueQuantity: {
+            value: score.max_heart_rate,
+            unit: 'beats/min',
+            system: 'http://unitsofmeasure.org',
+            code: '/min'
+          }
+        });
       }
 
       // Distance
       if (score.distance_meter !== undefined) {
-        // Convert meters to kilometers
         const distanceKm = score.distance_meter / 1000;
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '55423-8',
             display: 'Distance traveled'
           },
-          Math.round(distanceKm * 100) / 100, // Round to 2 decimals
-          'km',
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: Math.round(distanceKm * 100) / 100,
+            unit: 'km',
+            system: 'http://unitsofmeasure.org',
+            code: 'km'
+          }
+        });
       }
 
       // Altitude Gain
       if (score.altitude_gain_meter !== undefined) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '93848-0',
             display: 'Elevation gain'
           },
-          Math.round(score.altitude_gain_meter * 100) / 100, // Round to 2 decimals
-          'm',
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: Math.round(score.altitude_gain_meter * 100) / 100,
+            unit: 'm',
+            system: 'http://unitsofmeasure.org',
+            code: 'm'
+          }
+        });
       }
 
       // Altitude Change
       if (score.altitude_change_meter !== undefined) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '93849-8',
             display: 'Elevation change'
           },
-          Math.round(score.altitude_change_meter * 100) / 100, // Round to 2 decimals
-          'm',
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: Math.round(score.altitude_change_meter * 100) / 100,
+            unit: 'm',
+            system: 'http://unitsofmeasure.org',
+            code: 'm'
+          }
+        });
       }
 
       // Percent Recorded
       if (score.percent_recorded !== undefined) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '93850-6',
             display: 'Workout data completeness percentage'
           },
-          score.percent_recorded,
-          '%',
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueQuantity: {
+            value: score.percent_recorded,
+            unit: '%',
+            system: 'http://unitsofmeasure.org',
+            code: '%'
+          }
+        });
       }
 
       // Sport Name (as a codeable concept)
       if (workout.sport_name) {
-        observations.push(createObservation(
-          {
+        workoutComponents.push({
+          code: {
             system: 'http://loinc.org',
             code: '93851-4',
             display: 'Exercise type'
           },
-          workout.sport_name,
-          undefined,
-          workoutDate,
-          deviceUid,
-          'activity'
-        ));
+          valueCodeableConcept: {
+            system: 'urn:hl7-org:local',
+            code: workout.sport_id?.toString(),
+            display: workout.sport_name
+          }
+        });
       }
 
       // Zone Durations (if available)
       if (score.zone_durations && Object.keys(score.zone_durations).length > 0) {
         for (const [zoneName, durationMs] of Object.entries(score.zone_durations)) {
           const durationSeconds = Math.round((durationMs as number) / 1000);
-          observations.push(createObservation(
-            {
+          workoutComponents.push({
+            code: {
               system: 'http://loinc.org',
               code: '93852-2',
               display: `Heart rate zone duration: ${zoneName}`
             },
-            durationSeconds,
-            's',
-            workoutDate,
-            deviceUid,
-            'activity'
-          ));
+            valueQuantity: {
+              value: durationSeconds,
+              unit: 's',
+              system: 'http://unitsofmeasure.org',
+              code: 's'
+            }
+          });
         }
+      }
+
+      if (workoutComponents.length > 0) {
+        observations.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'whoop-workout-summary',
+            display: 'WHOOP Workout Summary'
+          },
+          effectivePeriod: workout.start && workout.end ? {
+            start: workout.start,
+            end: workout.end
+          } : undefined,
+          date: workoutDate,
+          device: {
+            uid: deviceUid
+          },
+          status: 'final',
+          category: [{
+            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+            code: 'activity',
+            display: 'Activity'
+          }],
+          components: workoutComponents
+        });
       }
     }
   }
