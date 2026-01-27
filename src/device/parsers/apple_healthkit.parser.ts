@@ -1,4 +1,4 @@
-import { CanonicalModel, CanonicalObservation } from '../../shared/types/canonical.types.js';
+import { CanonicalModel, CanonicalObservation, CanonicalPatient } from '../../shared/types/canonical.types.js';
 import type { HealthKitData, HealthKitSample, HealthKitWorkout } from '../types/apple_healthkit.types.js';
 
 /**
@@ -17,6 +17,10 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
 
   const observations: CanonicalObservation[] = [];
   const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
+  const patient: CanonicalPatient = {
+    name: {},
+    identifier: 'healthkit-user'
+  };
 
   const normalizeDeviceUid = (source?: string): string => {
     if (!source) return 'apple-health-kit';
@@ -29,6 +33,18 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
       return Number(value);
     }
     return undefined;
+  };
+
+  const toDateOnly = (value?: string): string | undefined => {
+    if (!value) return value;
+    const tIndex = value.indexOf('T');
+    return tIndex === -1 ? value : value.slice(0, tIndex);
+  };
+
+  const dailyContainerCode = {
+    system: 'urn:hl7-org:local',
+    code: 'healthkit-daily-samples',
+    display: 'HealthKit daily samples'
   };
 
   const quantityTypeMap: Record<string, {
@@ -153,86 +169,146 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
   const handleHeartSamples = (samples?: HealthKitSample[]) => {
     if (!samples || !Array.isArray(samples)) return;
 
-    const bpMap = new Map<string, { timestamp?: string; source?: string; systolic?: number; diastolic?: number }>();
+    const grouped = new Map<string, {
+      code: { system: string; code: string; display: string };
+      sampleCode: { system: string; code: string; display: string };
+      date: string;
+      category: 'vital-signs' | 'activity' | 'exam' | 'laboratory';
+      deviceUid?: string;
+      components: CanonicalObservation['components'];
+    }>();
+
+    const bpGrouped = new Map<string, {
+      date: string;
+      deviceUid?: string;
+      components: CanonicalObservation['components'];
+    }>();
 
     for (const sample of samples) {
       if (!sample || sample.value === undefined) continue;
       const deviceUid = normalizeDeviceUid(sample.source);
+      const date = toDateOnly(sample.timestamp || sample.startDate || sample.endDate);
+      if (!date) continue;
 
       if (sample.type === 'bloodPressureSystolic' || sample.type === 'bloodPressureDiastolic') {
-        const key = `${sample.timestamp || ''}|${sample.source || ''}`;
-        const entry = bpMap.get(key) || { timestamp: sample.timestamp, source: sample.source };
         const bpValue = toNumber(sample.value);
         if (bpValue === undefined) continue;
-        if (sample.type === 'bloodPressureSystolic') entry.systolic = bpValue;
-        if (sample.type === 'bloodPressureDiastolic') entry.diastolic = bpValue;
-        bpMap.set(key, entry);
+        const key = `${date}|${sample.source || ''}`;
+        const entry = bpGrouped.get(key) || { date, deviceUid, components: [] };
+        entry.components?.push({
+          code: {
+            system: 'http://loinc.org',
+            code: sample.type === 'bloodPressureSystolic' ? '8480-6' : '8462-4',
+            display: sample.type === 'bloodPressureSystolic' ? 'Systolic blood pressure' : 'Diastolic blood pressure'
+          },
+          valueQuantity: {
+            value: bpValue,
+            unit: 'mmHg',
+            system: 'http://unitsofmeasure.org',
+            code: 'mm[Hg]'
+          }
+        });
+        if (sample.timestamp || sample.startDate || sample.endDate) {
+          entry.components?.push({
+            code: {
+              system: 'urn:hl7-org:local',
+              code: 'healthkit-sample-timestamp',
+              display: 'Sample timestamp'
+            },
+            valueString: sample.timestamp || sample.startDate || sample.endDate
+          });
+        }
+        bpGrouped.set(key, entry);
         continue;
       }
 
-      if (handleMappedQuantity(sample, 'vital-signs')) continue;
-
       const numeric = toNumber(sample.value);
       if (numeric === undefined) continue;
-      pushQuantityObservation(
-        {
-          system: 'urn:hl7-org:local',
-          code: `healthkit-${sample.type}`,
-          display: sample.type
+
+      const mapping = quantityTypeMap[sample.type];
+      const sampleCode = mapping?.code || {
+        system: 'urn:hl7-org:local',
+        code: `healthkit-${sample.type}`,
+        display: sample.type
+      };
+      const code = dailyContainerCode;
+      const category = mapping?.category || 'vital-signs';
+      const unit = mapping?.forceUnit ? mapping.unit : (sample.unit || mapping?.unit || '{count}');
+      const unitCode = mapping?.forceUnit ? mapping.unitCode : (sample.unit || mapping?.unitCode || '{count}');
+      const value = mapping?.valueTransform ? mapping.valueTransform(numeric) : numeric;
+      const key = `${sample.type}|${sample.source || ''}|${date}`;
+
+      const entry = grouped.get(key) || {
+        code,
+        sampleCode,
+        date,
+        category,
+        deviceUid,
+        components: []
+      };
+
+      entry.components?.push({
+        code: {
+          system: entry.sampleCode.system,
+          code: entry.sampleCode.code,
+          display: entry.sampleCode.display
         },
-        numeric,
-        sample.unit || '{count}',
-        sample.unit || '{count}',
-        sample.timestamp || sample.startDate || sample.endDate,
-        'vital-signs',
-        deviceUid
-      );
+        valueQuantity: {
+          value,
+          unit,
+          system: 'http://unitsofmeasure.org',
+          code: unitCode
+        }
+      });
+      if (sample.timestamp || sample.startDate || sample.endDate) {
+        entry.components?.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'healthkit-sample-timestamp',
+            display: 'Sample timestamp'
+          },
+          valueString: sample.timestamp || sample.startDate || sample.endDate
+        });
+      }
+
+      grouped.set(key, entry);
     }
 
-    for (const entry of bpMap.values()) {
-      if (entry.systolic === undefined && entry.diastolic === undefined) continue;
+    for (const entry of grouped.values()) {
+      if (!entry.components || entry.components.length === 0) continue;
       observations.push({
-        code: {
-          system: 'http://loinc.org',
-          code: '85354-9',
-          display: 'Blood pressure panel with all children optional'
-        },
-        date: entry.timestamp,
-        device: entry.source ? { uid: normalizeDeviceUid(entry.source) } : undefined,
+        code: entry.code,
+        date: entry.date,
+        device: entry.deviceUid ? { uid: entry.deviceUid } : undefined,
+        status: 'final',
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: entry.category,
+          display: entry.category === 'vital-signs'
+            ? 'Vital Signs'
+            : entry.category === 'activity'
+              ? 'Activity'
+              : entry.category === 'laboratory'
+                ? 'Laboratory'
+                : 'Exam'
+        }],
+        components: entry.components
+      });
+    }
+
+    for (const entry of bpGrouped.values()) {
+      if (!entry.components || entry.components.length === 0) continue;
+      observations.push({
+        code: dailyContainerCode,
+        date: entry.date,
+        device: entry.deviceUid ? { uid: entry.deviceUid } : undefined,
         status: 'final',
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
           code: 'vital-signs',
           display: 'Vital Signs'
         }],
-        components: [
-          entry.systolic !== undefined ? {
-            code: {
-              system: 'http://loinc.org',
-              code: '8480-6',
-              display: 'Systolic blood pressure'
-            },
-            valueQuantity: {
-              value: entry.systolic,
-              unit: 'mmHg',
-              system: 'http://unitsofmeasure.org',
-              code: 'mm[Hg]'
-            }
-          } : undefined,
-          entry.diastolic !== undefined ? {
-            code: {
-              system: 'http://loinc.org',
-              code: '8462-4',
-              display: 'Diastolic blood pressure'
-            },
-            valueQuantity: {
-              value: entry.diastolic,
-              unit: 'mmHg',
-              system: 'http://unitsofmeasure.org',
-              code: 'mm[Hg]'
-            }
-          } : undefined
-        ].filter(Boolean) as CanonicalObservation['components']
+        components: entry.components
       });
     }
   };
@@ -240,9 +316,20 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
   const handleBodySamples = (samples?: HealthKitSample[]) => {
     if (!samples || !Array.isArray(samples)) return;
 
+    const grouped = new Map<string, {
+      code: { system: string; code: string; display: string };
+      sampleCode: { system: string; code: string; display: string };
+      date: string;
+      category: 'vital-signs' | 'activity' | 'exam' | 'laboratory';
+      deviceUid?: string;
+      components: CanonicalObservation['components'];
+    }>();
+
     for (const sample of samples) {
       if (!sample || sample.value === undefined) continue;
       const deviceUid = normalizeDeviceUid(sample.source);
+      const date = toDateOnly(sample.timestamp || sample.startDate || sample.endDate);
+      if (!date) continue;
 
       if (handleMappedQuantity(sample, 'vital-signs')) continue;
 
@@ -253,160 +340,429 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
           const value = sample.unit === 'cm' ? numeric : numeric;
           const unit = sample.unit === 'cm' ? 'cm' : 'm';
           const unitCode = unit;
-          pushQuantityObservation(
-            {
-              system: 'http://loinc.org',
-              code: '8302-2',
-              display: 'Body height'
+          const sampleCode = {
+            system: 'http://loinc.org',
+            code: '8302-2',
+            display: 'Body height'
+          };
+          const code = dailyContainerCode;
+          const key = `${sample.type}|${sample.source || ''}|${date}`;
+          const entry = grouped.get(key) || {
+            code,
+            sampleCode,
+            date,
+            category: 'vital-signs',
+            deviceUid,
+            components: []
+          };
+          entry.components?.push({
+            code: {
+              system: entry.sampleCode.system,
+              code: entry.sampleCode.code,
+              display: entry.sampleCode.display
             },
-            value,
-            unit,
-            unitCode,
-            sample.timestamp || sample.startDate || sample.endDate,
-            'vital-signs',
-            deviceUid
-          );
+            valueQuantity: {
+              value,
+              unit,
+              system: 'http://unitsofmeasure.org',
+              code: unitCode
+            }
+          });
+          if (sample.timestamp || sample.startDate || sample.endDate) {
+            entry.components?.push({
+              code: {
+                system: 'urn:hl7-org:local',
+                code: 'healthkit-sample-timestamp',
+                display: 'Sample timestamp'
+              },
+              valueString: sample.timestamp || sample.startDate || sample.endDate
+            });
+          }
+          grouped.set(key, entry);
           break;
         }
         case 'weight': {
           const numeric = toNumber(sample.value);
           if (numeric === undefined) break;
           const valueKg = sample.unit === 'g' ? numeric / 1000 : numeric;
-          pushQuantityObservation(
-            {
-              system: 'http://loinc.org',
-              code: '29463-7',
-              display: 'Body weight'
+          const sampleCode = {
+            system: 'http://loinc.org',
+            code: '29463-7',
+            display: 'Body weight'
+          };
+          const code = dailyContainerCode;
+          const key = `${sample.type}|${sample.source || ''}|${date}`;
+          const entry = grouped.get(key) || {
+            code,
+            sampleCode,
+            date,
+            category: 'vital-signs',
+            deviceUid,
+            components: []
+          };
+          entry.components?.push({
+            code: {
+              system: entry.sampleCode.system,
+              code: entry.sampleCode.code,
+              display: entry.sampleCode.display
             },
-            valueKg,
-            'kg',
-            'kg',
-            sample.timestamp || sample.startDate || sample.endDate,
-            'vital-signs',
-            deviceUid
-          );
+            valueQuantity: {
+              value: valueKg,
+              unit: 'kg',
+              system: 'http://unitsofmeasure.org',
+              code: 'kg'
+            }
+          });
+          if (sample.timestamp || sample.startDate || sample.endDate) {
+            entry.components?.push({
+              code: {
+                system: 'urn:hl7-org:local',
+                code: 'healthkit-sample-timestamp',
+                display: 'Sample timestamp'
+              },
+              valueString: sample.timestamp || sample.startDate || sample.endDate
+            });
+          }
+          grouped.set(key, entry);
           break;
         }
         case 'bmi': {
           const numeric = toNumber(sample.value);
           if (numeric === undefined) break;
-          pushQuantityObservation(
-            {
-              system: 'http://loinc.org',
-              code: '39156-5',
-              display: 'Body mass index (BMI) [Ratio]'
+          const sampleCode = {
+            system: 'http://loinc.org',
+            code: '39156-5',
+            display: 'Body mass index (BMI) [Ratio]'
+          };
+          const code = dailyContainerCode;
+          const key = `${sample.type}|${sample.source || ''}|${date}`;
+          const entry = grouped.get(key) || {
+            code,
+            sampleCode,
+            date,
+            category: 'vital-signs',
+            deviceUid,
+            components: []
+          };
+          entry.components?.push({
+            code: {
+              system: entry.sampleCode.system,
+              code: entry.sampleCode.code,
+              display: entry.sampleCode.display
             },
-            numeric,
-            'kg/m2',
-            'kg/m2',
-            sample.timestamp || sample.startDate || sample.endDate,
-            'vital-signs',
-            deviceUid
-          );
+            valueQuantity: {
+              value: numeric,
+              unit: 'kg/m2',
+              system: 'http://unitsofmeasure.org',
+              code: 'kg/m2'
+            }
+          });
+          if (sample.timestamp || sample.startDate || sample.endDate) {
+            entry.components?.push({
+              code: {
+                system: 'urn:hl7-org:local',
+                code: 'healthkit-sample-timestamp',
+                display: 'Sample timestamp'
+              },
+              valueString: sample.timestamp || sample.startDate || sample.endDate
+            });
+          }
+          grouped.set(key, entry);
           break;
         }
         case 'bodyFatPercentage': {
           const numeric = toNumber(sample.value);
           if (numeric === undefined) break;
           const value = sample.unit === '%' && numeric <= 1 ? numeric * 100 : numeric;
-          pushQuantityObservation(
-            {
-              system: 'urn:hl7-org:local',
-              code: 'body-fat-percentage',
-              display: 'Body fat percentage'
+          const sampleCode = {
+            system: 'urn:hl7-org:local',
+            code: 'body-fat-percentage',
+            display: 'Body fat percentage'
+          };
+          const code = dailyContainerCode;
+          const key = `${sample.type}|${sample.source || ''}|${date}`;
+          const entry = grouped.get(key) || {
+            code,
+            sampleCode,
+            date,
+            category: 'vital-signs',
+            deviceUid,
+            components: []
+          };
+          entry.components?.push({
+            code: {
+              system: entry.sampleCode.system,
+              code: entry.sampleCode.code,
+              display: entry.sampleCode.display
             },
-            value,
-            '%',
-            '%',
-            sample.timestamp || sample.startDate || sample.endDate,
-            'vital-signs',
-            deviceUid
-          );
+            valueQuantity: {
+              value,
+              unit: '%',
+              system: 'http://unitsofmeasure.org',
+              code: '%'
+            }
+          });
+          if (sample.timestamp || sample.startDate || sample.endDate) {
+            entry.components?.push({
+              code: {
+                system: 'urn:hl7-org:local',
+                code: 'healthkit-sample-timestamp',
+                display: 'Sample timestamp'
+              },
+              valueString: sample.timestamp || sample.startDate || sample.endDate
+            });
+          }
+          grouped.set(key, entry);
           break;
         }
         case 'leanBodyMass': {
           const numeric = toNumber(sample.value);
           if (numeric === undefined) break;
           const valueKg = sample.unit === 'g' ? numeric / 1000 : numeric;
-          pushQuantityObservation(
-            {
-              system: 'urn:hl7-org:local',
-              code: 'lean-body-mass',
-              display: 'Lean body mass'
+          const sampleCode = {
+            system: 'urn:hl7-org:local',
+            code: 'lean-body-mass',
+            display: 'Lean body mass'
+          };
+          const code = dailyContainerCode;
+          const key = `${sample.type}|${sample.source || ''}|${date}`;
+          const entry = grouped.get(key) || {
+            code,
+            sampleCode,
+            date,
+            category: 'vital-signs',
+            deviceUid,
+            components: []
+          };
+          entry.components?.push({
+            code: {
+              system: entry.sampleCode.system,
+              code: entry.sampleCode.code,
+              display: entry.sampleCode.display
             },
-            valueKg,
-            'kg',
-            'kg',
-            sample.timestamp || sample.startDate || sample.endDate,
-            'vital-signs',
-            deviceUid
-          );
+            valueQuantity: {
+              value: valueKg,
+              unit: 'kg',
+              system: 'http://unitsofmeasure.org',
+              code: 'kg'
+            }
+          });
+          if (sample.timestamp || sample.startDate || sample.endDate) {
+            entry.components?.push({
+              code: {
+                system: 'urn:hl7-org:local',
+                code: 'healthkit-sample-timestamp',
+                display: 'Sample timestamp'
+              },
+              valueString: sample.timestamp || sample.startDate || sample.endDate
+            });
+          }
+          grouped.set(key, entry);
           break;
         }
         default: {
           const numeric = toNumber(sample.value);
           if (numeric === undefined) break;
-          pushQuantityObservation(
-            {
-              system: 'urn:hl7-org:local',
-              code: `healthkit-${sample.type}`,
-              display: sample.type
+          const sampleCode = {
+            system: 'urn:hl7-org:local',
+            code: `healthkit-${sample.type}`,
+            display: sample.type
+          };
+          const code = dailyContainerCode;
+          const key = `${sample.type}|${sample.source || ''}|${date}`;
+          const entry = grouped.get(key) || {
+            code,
+            sampleCode,
+            date,
+            category: 'vital-signs',
+            deviceUid,
+            components: []
+          };
+          entry.components?.push({
+            code: {
+              system: entry.sampleCode.system,
+              code: entry.sampleCode.code,
+              display: entry.sampleCode.display
             },
-            numeric,
-            sample.unit || '{count}',
-            sample.unit || '{count}',
-            sample.timestamp || sample.startDate || sample.endDate,
-            'vital-signs',
-            deviceUid
-          );
+            valueQuantity: {
+              value: numeric,
+              unit: sample.unit || '{count}',
+              system: 'http://unitsofmeasure.org',
+              code: sample.unit || '{count}'
+            }
+          });
+          if (sample.timestamp || sample.startDate || sample.endDate) {
+            entry.components?.push({
+              code: {
+                system: 'urn:hl7-org:local',
+                code: 'healthkit-sample-timestamp',
+                display: 'Sample timestamp'
+              },
+              valueString: sample.timestamp || sample.startDate || sample.endDate
+            });
+          }
+          grouped.set(key, entry);
         }
       }
+    }
+
+    for (const entry of grouped.values()) {
+      if (!entry.components || entry.components.length === 0) continue;
+      observations.push({
+        code: entry.code,
+        date: entry.date,
+        device: entry.deviceUid ? { uid: entry.deviceUid } : undefined,
+        status: 'final',
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: entry.category,
+          display: entry.category === 'vital-signs'
+            ? 'Vital Signs'
+            : entry.category === 'activity'
+              ? 'Activity'
+              : entry.category === 'laboratory'
+                ? 'Laboratory'
+                : 'Exam'
+        }],
+        components: entry.components
+      });
     }
   };
 
   const handleActivitySamples = (samples?: HealthKitSample[]) => {
     if (!samples || !Array.isArray(samples)) return;
 
+    const grouped = new Map<string, {
+      code: { system: string; code: string; display: string };
+      sampleCode: { system: string; code: string; display: string };
+      date: string;
+      category: 'vital-signs' | 'activity' | 'exam' | 'laboratory';
+      deviceUid?: string;
+      components: CanonicalObservation['components'];
+    }>();
+
     for (const sample of samples) {
       if (!sample || sample.value === undefined) continue;
       const deviceUid = normalizeDeviceUid(sample.source);
-
-      if (handleMappedQuantity(sample, 'activity')) continue;
+      const date = toDateOnly(sample.timestamp || sample.startDate || sample.endDate);
+      if (!date) continue;
 
       if (sample.type === 'stepCount') {
         const numeric = toNumber(sample.value);
         if (numeric === undefined) continue;
-        pushQuantityObservation(
-          {
-            system: 'http://loinc.org',
-            code: '41950-7',
-            display: 'Number of steps in unspecified time'
+        const sampleCode = {
+          system: 'http://loinc.org',
+          code: '41950-7',
+          display: 'Number of steps in unspecified time'
+        };
+        const code = dailyContainerCode;
+        const key = `${sample.type}|${sample.source || ''}|${date}`;
+        const entry = grouped.get(key) || {
+          code,
+          sampleCode,
+          date,
+          category: 'activity',
+          deviceUid,
+          components: []
+        };
+        entry.components?.push({
+          code: {
+            system: entry.sampleCode.system,
+            code: entry.sampleCode.code,
+            display: entry.sampleCode.display
           },
-          numeric,
-          'steps',
-          '{steps}',
-          sample.timestamp || sample.startDate || sample.endDate,
-          'activity',
-          deviceUid
-        );
+          valueQuantity: {
+            value: numeric,
+            unit: 'steps',
+            system: 'http://unitsofmeasure.org',
+            code: '{steps}'
+          }
+        });
+        if (sample.timestamp || sample.startDate || sample.endDate) {
+          entry.components?.push({
+            code: {
+              system: 'urn:hl7-org:local',
+              code: 'healthkit-sample-timestamp',
+              display: 'Sample timestamp'
+            },
+            valueString: sample.timestamp || sample.startDate || sample.endDate
+          });
+        }
+        grouped.set(key, entry);
         continue;
       }
 
       const numeric = toNumber(sample.value);
       if (numeric === undefined) continue;
-      pushQuantityObservation(
-        {
-          system: 'urn:hl7-org:local',
-          code: `healthkit-${sample.type}`,
-          display: sample.type
+      const mapping = quantityTypeMap[sample.type];
+      const sampleCode = mapping?.code || {
+        system: 'urn:hl7-org:local',
+        code: `healthkit-${sample.type}`,
+        display: sample.type
+      };
+      const code = dailyContainerCode;
+      const category = mapping?.category || 'activity';
+      const unit = mapping?.forceUnit ? mapping.unit : (sample.unit || mapping?.unit || '{count}');
+      const unitCode = mapping?.forceUnit ? mapping.unitCode : (sample.unit || mapping?.unitCode || '{count}');
+      const value = mapping?.valueTransform ? mapping.valueTransform(numeric) : numeric;
+      const key = `${sample.type}|${sample.source || ''}|${date}`;
+
+      const entry = grouped.get(key) || {
+        code,
+        sampleCode,
+        date,
+        category,
+        deviceUid,
+        components: []
+      };
+
+      entry.components?.push({
+        code: {
+          system: entry.sampleCode.system,
+          code: entry.sampleCode.code,
+          display: entry.sampleCode.display
         },
-        numeric,
-        sample.unit || '{count}',
-        sample.unit || '{count}',
-        sample.timestamp || sample.startDate || sample.endDate,
-        'activity',
-        deviceUid
-      );
+        valueQuantity: {
+          value,
+          unit,
+          system: 'http://unitsofmeasure.org',
+          code: unitCode
+        }
+      });
+      if (sample.timestamp || sample.startDate || sample.endDate) {
+        entry.components?.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'healthkit-sample-timestamp',
+            display: 'Sample timestamp'
+          },
+          valueString: sample.timestamp || sample.startDate || sample.endDate
+        });
+      }
+
+      grouped.set(key, entry);
+    }
+
+    for (const entry of grouped.values()) {
+      if (!entry.components || entry.components.length === 0) continue;
+      observations.push({
+        code: entry.code,
+        date: entry.date,
+        device: entry.deviceUid ? { uid: entry.deviceUid } : undefined,
+        status: 'final',
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: entry.category,
+          display: entry.category === 'vital-signs'
+            ? 'Vital Signs'
+            : entry.category === 'activity'
+              ? 'Activity'
+              : entry.category === 'laboratory'
+                ? 'Laboratory'
+                : 'Exam'
+        }],
+        components: entry.components
+      });
     }
   };
 
@@ -587,6 +943,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
   handleWorkouts(data.workouts?.data);
 
   return {
+    patient: Object.keys(patient).length > 1 ? patient : undefined,
     observations: observations.length > 0 ? observations : undefined,
     documentReferences: [{
       status: 'current',
