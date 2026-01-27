@@ -166,10 +166,10 @@ app.post('/convert/hl7', async (req, res) => {
  * 
  * Request body:
  * - JSON object with device data (Whoop or Dexcom format)
- * - OR { data: object, deviceType?: 'whoop' | 'dexcom' }
+ * - OR { data: object, deviceType?: 'whoop' | 'dexcom' | 'apple-health-kit' }
  * 
  * Query params:
- * - deviceType: 'whoop' | 'dexcom' (optional, auto-detected if not provided)
+ * - deviceType: 'whoop' | 'dexcom' | 'apple-health-kit' (optional, auto-detected if not provided)
  * - fhirVersion: 'r4' | 'r5' (default: 'r5')
  * 
  * Example:
@@ -213,18 +213,20 @@ app.post('/convert/deviceData', async (req, res) => {
       else if (deviceData.egvs || deviceData.calibrations || (deviceData.device && deviceData.device.transmitter_id)) {
         deviceType = 'dexcom';
       }
-      else {
+      else if (deviceData.heart?.data || deviceData.body?.data || deviceData.activity?.data || deviceData.sleep?.data || deviceData.sleepAnalysis?.data || deviceData.workouts?.data) {
+        deviceType = 'apple-health-kit';
+      } else {
         return res.status(400).json({
-          error: 'Unable to detect device type. Please specify deviceType parameter (whoop or dexcom) or provide data in recognized format.',
-          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score fields. Dexcom data should contain: egvs, calibrations, or device.transmitter_id'
+          error: 'Unable to detect device type. Please specify deviceType parameter (whoop, dexcom, or apple-health-kit) or provide data in recognized format.',
+          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score. Dexcom data should contain: egvs, calibrations, or device.transmitter_id. Apple HealthKit data should contain: heart.data, body.data, activity.data, sleep.data, sleepAnalysis.data, or workouts.data.'
         });
       }
     }
 
     // Validate device type
-    if (deviceType !== 'whoop' && deviceType !== 'dexcom') {
+    if (deviceType !== 'whoop' && deviceType !== 'dexcom' && deviceType !== 'apple-health-kit') {
       return res.status(400).json({
-        error: `Unsupported device type: ${deviceType}. Supported types: whoop, dexcom`
+        error: `Unsupported device type: ${deviceType}. Supported types: whoop, dexcom, apple-health-kit`
       });
     }
 
