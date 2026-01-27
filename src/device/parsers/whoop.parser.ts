@@ -27,29 +27,32 @@ export function parseWhoop(input: string): CanonicalModel {
   const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
 
   const observations: CanonicalObservation[] = [];
-  
+
   // Helper function to create observations with common fields
   const createObservation = (
     code: { system: string; code: string; display: string },
     value: string | number,
-    unit: string,
-    date: string | undefined,
-    deviceUid: string,
+    unit?: string,
+    date?: string,
+    deviceUid?: string,
     categoryCode: 'vital-signs' | 'activity' | 'exam' = 'vital-signs',
     categoryDisplay: string = categoryCode === 'vital-signs' ? 'Vital Signs' : categoryCode === 'activity' ? 'Activity' : 'Exam'
   ): CanonicalObservation => {
     const observation: CanonicalObservation = {
       code,
       value,
-      unit,
-      unitSystem: 'http://unitsofmeasure.org',
-      unitCode: unit,
       date,
       device: {
         uid: deviceUid
       },
       status: 'final'
     };
+
+    if (unit) {
+      observation.unit = unit;
+      observation.unitSystem = 'http://unitsofmeasure.org';
+      observation.unitCode = unit;
+    }
 
     // Add category if provided
     if (categoryCode) {
@@ -295,7 +298,7 @@ export function parseWhoop(input: string): CanonicalModel {
     for (const cycle of uniqueCycles) {
       const score = cycle.score;
       const cycleDate = cycle.start || cycle.created_at;
-
+      
       // Strain Score (device-specific, use local code since 93831-6 is actually for Deep sleep duration)
       // Use valueQuantity instead of valueInteger for FHIR R5 compatibility
       if (score.strain !== undefined) {
@@ -449,42 +452,6 @@ export function parseWhoop(input: string): CanonicalModel {
         });
       }
 
-      // Total Sleep Time (total time in bed) - use local code to avoid constraint violation
-      // (Observation code is 93832-4, so component can't use same code)
-      if (stageSummary?.total_in_bed_time_milli !== undefined) {
-        const durationSeconds = Math.round(stageSummary.total_in_bed_time_milli / 1000);
-        sleepComponents.push({
-          code: {
-            system: 'urn:hl7-org:local',
-            code: 'whoop-total-sleep-time',
-            display: 'Total Sleep Time'
-          },
-          valueQuantity: {
-            value: durationSeconds,
-            unit: 'seconds',
-            system: 'http://unitsofmeasure.org',
-            code: 's'
-          }
-        });
-      }
-
-      // Sleep Efficiency (device-specific, use local code)
-      if (score.sleep_efficiency_percentage !== undefined) {
-        sleepComponents.push({
-          code: {
-            system: 'urn:hl7-org:local',
-            code: 'whoop-sleep-efficiency',
-            display: 'Sleep Efficiency'
-          },
-          valueQuantity: {
-            value: score.sleep_efficiency_percentage,
-            unit: '%',
-            system: 'http://unitsofmeasure.org',
-            code: '%'
-          }
-        });
-      }
-
       // Sleep Performance (device-specific, use local code)
       if (score.sleep_performance_percentage !== undefined) {
         sleepComponents.push({
@@ -601,7 +568,7 @@ export function parseWhoop(input: string): CanonicalModel {
           },
           valueQuantity: {
             value: score.respiratory_rate,
-            unit: 'beats/min',
+            unit: 'breaths/min',
             system: 'http://unitsofmeasure.org',
             code: '/min'
           }
@@ -774,6 +741,10 @@ export function parseWhoop(input: string): CanonicalModel {
             system: 'http://terminology.hl7.org/CodeSystem/observation-category',
             code: 'vital-signs',
             display: 'Vital Signs'
+          }, {
+            system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+            code: 'activity',
+            display: 'Activity'
           }],
           components: sleepComponents
         });
@@ -878,13 +849,13 @@ export function parseWhoop(input: string): CanonicalModel {
     for (const workout of uniqueWorkouts) {
       const score = workout.score;
       const workoutDate = workout.start || workout.created_at;
-
+      
       // Strain Score
       if (score.strain !== undefined) {
         observations.push(createObservation(
           {
-            system: 'http://loinc.org',
-            code: '93831-6',
+            system: 'urn:hl7-org:local',
+            code: 'whoop-strain-score',
             display: 'Physical activity strain score'
           },
           score.strain,
@@ -1020,7 +991,7 @@ export function parseWhoop(input: string): CanonicalModel {
             display: 'Exercise type'
           },
           workout.sport_name,
-          '{text}',
+          undefined,
           workoutDate,
           deviceUid,
           'activity'
@@ -1074,4 +1045,3 @@ export function parseWhoop(input: string): CanonicalModel {
 
   return result;
 }
-
