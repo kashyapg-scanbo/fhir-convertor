@@ -50,7 +50,7 @@ export function detectInputFormat(input: string): InputFormat {
       }
 
       // Detect Apple HealthKit format
-      if (jsonData.heart?.data || jsonData.body?.data || jsonData.activity?.data || jsonData.sleep?.data || jsonData.sleepAnalysis?.data || jsonData.workouts?.data) {
+      if (jsonData.heart?.data || jsonData.respiratory?.data || jsonData.hearing?.data || jsonData.reproductive?.data || jsonData.body?.data || jsonData.activity?.data || jsonData.sleep?.data || jsonData.sleepAnalysis?.data || jsonData.workouts?.data) {
         return 'apple-health-kit';
       }
       

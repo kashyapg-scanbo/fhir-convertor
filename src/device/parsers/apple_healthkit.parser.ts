@@ -41,6 +41,19 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
     return tIndex === -1 ? value : value.slice(0, tIndex);
   };
 
+  const normalizeUnitCode = (unit?: string, unitCode?: string): { unit: string; code: string } => {
+    const resolvedUnit = unit || unitCode || 'count';
+    const resolvedCode = unitCode || unit || resolvedUnit;
+    const normalized = resolvedCode.toLowerCase();
+    if (normalized === 'dbaspl') {
+      return { unit: 'dB', code: 'dB' };
+    }
+    if (resolvedCode === 'count') {
+      return { unit: 'count', code: '{count}' };
+    }
+    return { unit: resolvedUnit, code: resolvedCode };
+  };
+
   const dailyContainerCode = {
     system: 'urn:hl7-org:local',
     code: 'healthkit-daily-samples',
@@ -235,6 +248,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
       const category = mapping?.category || 'vital-signs';
       const unit = mapping?.forceUnit ? mapping.unit : (sample.unit || mapping?.unit || '{count}');
       const unitCode = mapping?.forceUnit ? mapping.unitCode : (sample.unit || mapping?.unitCode || '{count}');
+      const normalizedUnit = normalizeUnitCode(unit, unitCode);
       const value = mapping?.valueTransform ? mapping.valueTransform(numeric) : numeric;
       const key = `${sample.type}|${sample.source || ''}|${date}`;
 
@@ -255,9 +269,9 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
         },
         valueQuantity: {
           value,
-          unit,
+          unit: normalizedUnit.unit,
           system: 'http://unitsofmeasure.org',
-          code: unitCode
+          code: normalizedUnit.code
         }
       });
       if (sample.timestamp || sample.startDate || sample.endDate) {
@@ -586,9 +600,9 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
             },
             valueQuantity: {
               value: numeric,
-              unit: sample.unit || '{count}',
+              unit: sample.unit === 'count' || !sample.unit ? 'count' : sample.unit,
               system: 'http://unitsofmeasure.org',
-              code: sample.unit || '{count}'
+              code: sample.unit === 'count' || !sample.unit ? '{count}' : sample.unit
             }
           });
           if (sample.timestamp || sample.startDate || sample.endDate) {
@@ -653,7 +667,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
         const sampleCode = {
           system: 'http://loinc.org',
           code: '41950-7',
-          display: 'Number of steps in unspecified time'
+          display: 'Number of steps in 24 Hours, Measured'
         };
         const code = dailyContainerCode;
         const key = `${sample.type}|${sample.source || ''}|${date}`;
@@ -704,6 +718,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
       const category = mapping?.category || 'activity';
       const unit = mapping?.forceUnit ? mapping.unit : (sample.unit || mapping?.unit || '{count}');
       const unitCode = mapping?.forceUnit ? mapping.unitCode : (sample.unit || mapping?.unitCode || '{count}');
+      const normalizedUnit = normalizeUnitCode(unit, unitCode);
       const value = mapping?.valueTransform ? mapping.valueTransform(numeric) : numeric;
       const key = `${sample.type}|${sample.source || ''}|${date}`;
 
@@ -724,9 +739,9 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
         },
         valueQuantity: {
           value,
-          unit,
+          unit: normalizedUnit.unit,
           system: 'http://unitsofmeasure.org',
-          code: unitCode
+          code: normalizedUnit.code
         }
       });
       if (sample.timestamp || sample.startDate || sample.endDate) {
@@ -815,9 +830,9 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
           },
           valueQuantity: {
             value: numeric,
-            unit: sample.unit || '{count}',
+            unit: sample.unit === 'count' || !sample.unit ? 'count' : sample.unit,
             system: 'http://unitsofmeasure.org',
-            code: sample.unit || '{count}'
+            code: sample.unit === 'count' || !sample.unit ? '{count}' : sample.unit
           }
         });
       }
@@ -844,13 +859,20 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
   const handleWorkouts = (workouts?: HealthKitWorkout[]) => {
     if (!workouts || !Array.isArray(workouts)) return;
 
+    const grouped = new Map<string, {
+      date: string;
+      components: CanonicalObservation['components'];
+    }>();
+
     for (const workout of workouts) {
       if (!workout) continue;
+      const date = toDateOnly(workout.startDate || workout.endDate);
+      if (!date) continue;
 
-      const components: CanonicalObservation['components'] = [];
+      const entry = grouped.get(date) || { date, components: [] };
 
       if (workout.calories !== undefined) {
-        components.push({
+        entry.components?.push({
           code: {
             system: 'http://loinc.org',
             code: '41981-2',
@@ -867,11 +889,11 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
 
       if (workout.distance !== undefined) {
         const distanceKm = workout.distance / 1000;
-        components.push({
+        entry.components?.push({
           code: {
-            system: 'http://loinc.org',
-            code: '55423-8',
-            display: 'Distance traveled'
+            system: 'urn:hl7-org:local',
+            code: 'workout-distance',
+            display: 'Workout distance'
           },
           valueQuantity: {
             value: Math.round(distanceKm * 100) / 100,
@@ -883,7 +905,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
       }
 
       if (workout.duration !== undefined) {
-        components.push({
+        entry.components?.push({
           code: {
             system: 'urn:hl7-org:local',
             code: 'workout-duration',
@@ -899,7 +921,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
       }
 
       if (workout.activityType !== undefined) {
-        components.push({
+        entry.components?.push({
           code: {
             system: 'urn:hl7-org:local',
             code: 'workout-activity-type',
@@ -913,29 +935,51 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
         });
       }
 
+      if (workout.startDate) {
+        entry.components?.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'workout-start',
+            display: 'Workout start'
+          },
+          valueString: workout.startDate
+        });
+      }
+
+      if (workout.endDate) {
+        entry.components?.push({
+          code: {
+            system: 'urn:hl7-org:local',
+            code: 'workout-end',
+            display: 'Workout end'
+          },
+          valueString: workout.endDate
+        });
+      }
+
+      grouped.set(date, entry);
+    }
+
+    for (const entry of grouped.values()) {
+      if (!entry.components || entry.components.length === 0) continue;
       observations.push({
-        code: {
-          system: 'urn:hl7-org:local',
-          code: 'healthkit-workout',
-          display: 'HealthKit Workout Summary'
-        },
-        date: workout.startDate,
-        effectivePeriod: workout.startDate && workout.endDate ? {
-          start: workout.startDate,
-          end: workout.endDate
-        } : undefined,
+        code: dailyContainerCode,
+        date: entry.date,
         status: 'final',
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
           code: 'activity',
           display: 'Activity'
         }],
-        components: components.length > 0 ? components : undefined
+        components: entry.components
       });
     }
   };
 
   handleHeartSamples(data.heart?.data);
+  handleHeartSamples(data.respiratory?.data);
+  handleHeartSamples(data.hearing?.data);
+  handleHeartSamples(data.reproductive?.data);
   handleBodySamples(data.body?.data);
   handleActivitySamples(data.activity?.data);
   handleSleepSamples(data.sleep?.data);

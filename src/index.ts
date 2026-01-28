@@ -213,12 +213,12 @@ app.post('/convert/deviceData', async (req, res) => {
       else if (deviceData.egvs || deviceData.calibrations || (deviceData.device && deviceData.device.transmitter_id)) {
         deviceType = 'dexcom';
       }
-      else if (deviceData.heart?.data || deviceData.body?.data || deviceData.activity?.data || deviceData.sleep?.data || deviceData.sleepAnalysis?.data || deviceData.workouts?.data) {
+      else if (deviceData.heart?.data || deviceData.respiratory?.data || deviceData.hearing?.data || deviceData.reproductive?.data || deviceData.body?.data || deviceData.activity?.data || deviceData.sleep?.data || deviceData.sleepAnalysis?.data || deviceData.workouts?.data) {
         deviceType = 'apple-health-kit';
       } else {
         return res.status(400).json({
           error: 'Unable to detect device type. Please specify deviceType parameter (whoop, dexcom, or apple-health-kit) or provide data in recognized format.',
-          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score. Dexcom data should contain: egvs, calibrations, or device.transmitter_id. Apple HealthKit data should contain: heart.data, body.data, activity.data, sleep.data, sleepAnalysis.data, or workouts.data.'
+          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score. Dexcom data should contain: egvs, calibrations, or device.transmitter_id. Apple HealthKit data should contain: heart.data, respiratory.data, hearing.data, reproductive.data, body.data, activity.data, sleep.data, sleepAnalysis.data, or workouts.data.'
         });
       }
     }

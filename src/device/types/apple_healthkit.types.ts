@@ -29,6 +29,9 @@ export interface HealthKitSection {
 
 export interface HealthKitData {
   heart?: HealthKitSection;
+  respiratory?: HealthKitSection;
+  hearing?: HealthKitSection;
+  reproductive?: HealthKitSection;
   body?: HealthKitSection;
   activity?: HealthKitSection;
   sleep?: HealthKitSection;
