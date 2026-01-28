@@ -401,7 +401,8 @@ export function mapObservations({
           system: 'http://unitsofmeasure.org',
           code: obs.valueSampledData.origin.unit
         },
-        period: obs.valueSampledData.period,
+        interval: obs.valueSampledData.period,
+        intervalUnit: 's',
         dimensions: obs.valueSampledData.dimensions,
         data: obs.valueSampledData.data
       };
@@ -728,7 +729,8 @@ export function mapObservations({
                 system: 'http://unitsofmeasure.org',
                 code: c.valueSampledData.origin.unit
               },
-              period: c.valueSampledData.period,
+              interval: c.valueSampledData.period,
+              intervalUnit: 's',
               dimensions: c.valueSampledData.dimensions,
               data: c.valueSampledData.data
             };

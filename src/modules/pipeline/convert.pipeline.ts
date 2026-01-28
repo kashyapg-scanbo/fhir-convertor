@@ -10,9 +10,9 @@ import { parseBinary } from '../parsers/binary.parser.js';
 import { isLegacyTypeSupported } from '../../shared/types/documentTypes.mapping.js';
 import { parseCsv } from '../parsers/csv.parser.js';
 import { parseExcel } from '../parsers/excel.parser.js';
-import { parseWhoop, parseDexcom, parseAppleHealthKit } from '../../device/parsers/index.js';
+import { parseWhoop, parseDexcom, parseAppleHealthKit, parseAndroidHealthConnect } from '../../device/parsers/index.js';
 
-export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | 'csv' | 'xlsx' | 'xls' | 'whoop' | 'dexcom' | 'apple-health-kit' | string;
+export type InputFormat = 'hl7v2' | 'cda' | 'json' | 'fhir-r4' | 'hl7v3' | 'csv' | 'xlsx' | 'xls' | 'whoop' | 'dexcom' | 'apple-health-kit' | 'android-health-connect' | string;
 
 export type FhirOutputVersion = FhirVersion;
 
@@ -52,6 +52,11 @@ export function detectInputFormat(input: string): InputFormat {
       // Detect Apple HealthKit format
       if (jsonData.heart?.data || jsonData.respiratory?.data || jsonData.hearing?.data || jsonData.reproductive?.data || jsonData.body?.data || jsonData.activity?.data || jsonData.sleep?.data || jsonData.sleepAnalysis?.data || jsonData.workouts?.data) {
         return 'apple-health-kit';
+      }
+
+      // Detect Android Health Connect format (Oura-style keys)
+      if (jsonData['Daily Activity'] || jsonData['Sleep Detailed'] || jsonData['Sleep'] || jsonData['Workout'] || jsonData['Heart Rate']) {
+        return 'android-health-connect';
       }
       
       // Default to generic JSON parser
@@ -147,6 +152,10 @@ export async function convertLegacyData(
 
     case 'apple-health-kit':
       canonical = parseAppleHealthKit(input);
+      break;
+
+    case 'android-health-connect':
+      canonical = parseAndroidHealthConnect(input);
       break;
 
     default:
