@@ -1,0 +1,19 @@
+{
+  "location": {
+    "location_id": "LOC-3",
+    "location_status": "active",
+    "location_name": "Example location 3",
+    "location_alias": "Example 3",
+    "location_description": "Example description 3",
+    "location_mode": "Example 3",
+    "location_type": "Example 3",
+    "location_address_line1": "103 Main St",
+    "location_address_line2": "Suite 103",
+    "location_city": "Metropolis",
+    "location_state": "CA",
+    "location_postal_code": "CODE-3",
+    "location_country": 31,
+    "location_managing_org_id": "LOC-3",
+    "location_part_of_id": "LOC-3"
+  }
+}

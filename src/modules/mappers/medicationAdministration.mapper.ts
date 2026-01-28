@@ -102,11 +102,14 @@ export function mapMedicationAdministrations({
       ? source.supportingInformation.map(ref => ({ reference: ref }))
       : undefined;
 
-    medicationAdministration.occurrenceDateTime = source.occurrenceDateTime || undefined;
-    medicationAdministration.occurrencePeriod = source.occurrencePeriod
+    medicationAdministration.occurenceDateTime = source.occurrenceDateTime || undefined;
+    medicationAdministration.occurencePeriod = source.occurrencePeriod
       ? { start: source.occurrencePeriod.start, end: source.occurrencePeriod.end }
       : undefined;
-    medicationAdministration.occurrenceTiming = source.occurrenceTiming || undefined;
+    medicationAdministration.occurenceTiming = source.occurrenceTiming || undefined;
+    medicationAdministration.occurrenceDateTime = undefined;
+    medicationAdministration.occurrencePeriod = undefined;
+    medicationAdministration.occurrenceTiming = undefined;
     medicationAdministration.recorded = source.recorded || undefined;
 
     medicationAdministration.isSubPotent = source.isSubPotent ?? undefined;

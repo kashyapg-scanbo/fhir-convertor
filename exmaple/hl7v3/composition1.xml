@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-composition-1"/>
+  <creationTime value="20240511120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <composition><id extension="COM1"/><code code="COMP1" displayName="Composition Example 1" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="20240511090000"/></composition>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

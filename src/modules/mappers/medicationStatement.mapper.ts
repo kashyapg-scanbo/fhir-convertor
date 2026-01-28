@@ -48,7 +48,7 @@ export function mapMedicationStatements({
       fullUrl
     );
 
-    medicationStatement.status = source.status || 'recorded';
+    medicationStatement.status = normalizeMedicationStatementStatus(source.status);
 
     if (source.category?.length) {
       medicationStatement.category = source.category.map(cat => ({
@@ -251,4 +251,13 @@ function mapDosage(dosage: CanonicalDosage) {
   }
 
   return mapped;
+}
+
+function normalizeMedicationStatementStatus(status?: string) {
+  if (!status) return 'recorded';
+  const normalized = status.toLowerCase();
+  if (normalized === 'recorded' || normalized === 'entered-in-error' || normalized === 'draft') {
+    return normalized;
+  }
+  return 'recorded';
 }

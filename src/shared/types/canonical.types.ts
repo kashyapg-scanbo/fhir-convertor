@@ -4513,6 +4513,127 @@ export type CanonicalCoverage = {
   insurancePlan?: string;
 };
 
+export type CanonicalAccount = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  billingStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  name?: string;
+  subject?: string[];
+  servicePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  coverage?: Array<{
+    coverage?: string;
+    priority?: number;
+  }>;
+  owner?: string;
+  description?: string;
+  guarantor?: Array<{
+    party?: string;
+    onHold?: boolean;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  diagnosis?: Array<{
+    sequence?: number;
+    condition?: {
+      reference?: string;
+      code?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    };
+    dateOfDiagnosis?: string;
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    onAdmission?: boolean;
+    packageCode?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+  }>;
+  procedure?: Array<{
+    sequence?: number;
+    code?: {
+      reference?: string;
+      code?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    };
+    dateOfService?: string;
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    packageCode?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    device?: string[];
+  }>;
+  relatedAccount?: Array<{
+    relationship?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    account?: string;
+  }>;
+  currency?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  balance?: Array<{
+    aggregate?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    term?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    estimate?: boolean;
+    amount?: {
+      value?: number;
+      currency?: string;
+    };
+  }>;
+  calculatedAt?: string;
+};
+
 export type CanonicalSchedule = {
   id?: string;
   identifier?: string;
@@ -5097,6 +5218,7 @@ export type CanonicalModel = {
   explanationOfBenefits?: CanonicalExplanationOfBenefit[]; // ExplanationOfBenefit
   compositions?: CanonicalComposition[]; // Composition
   coverages?: CanonicalCoverage[]; // Coverage
+  accounts?: CanonicalAccount[]; // Account
   schedules?: CanonicalSchedule[]; // Schedule
   slots?: CanonicalSlot[]; // Slot
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport

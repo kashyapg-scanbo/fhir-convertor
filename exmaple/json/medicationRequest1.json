@@ -1,0 +1,12 @@
+{
+  "medication_request": {
+    "medication_request_id": "MR-1",
+    "medication_status": "active",
+    "medication_authored_on": "Example 1",
+    "medication_dose": "Example 1",
+    "medication_dose_unit": "mg",
+    "medication_route": "Example 1",
+    "medication_route_display": "Display 1",
+    "medication_sig": "Example 1"
+  }
+}

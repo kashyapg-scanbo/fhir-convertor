@@ -1,0 +1,25 @@
+{
+  "claim_response": {
+    "claim_response_id": "CLR-3",
+    "claim_response_status": "active",
+    "claim_response_type": "Example 3",
+    "claim_response_sub_type": "Example 3",
+    "claim_response_use": "Example 3",
+    "claim_response_patient_id": "PAT-3",
+    "claim_response_created": "Example 3",
+    "claim_response_insurer_id": "CLR-3",
+    "claim_response_requestor_id": "CLR-3",
+    "claim_response_request_id": "CLR-3",
+    "claim_response_outcome": "Example 3",
+    "claim_response_disposition": "Example 3",
+    "claim_response_pre_auth_ref": "Example 3",
+    "claim_response_pre_auth_start": "2024-05-13T09:00:00Z",
+    "claim_response_pre_auth_end": "2024-05-13T10:30:00Z",
+    "claim_response_payee_type": "Example 3",
+    "claim_response_total_value": 31,
+    "claim_response_total_currency": "Example 3",
+    "claim_response_item_sequence": "Example 3",
+    "claim_response_item_category": "Example 3",
+    "claim_response_item_amount": 31
+  }
+}

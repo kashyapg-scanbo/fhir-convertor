@@ -1,0 +1,2 @@
+organization_id,organization_name,organization_alias,organization_type_code,organization_type_system,organization_type_display,organization_phone,organization_email,organization_address_line1,organization_address_line2,organization_city,organization_state,organization_postal_code,organization_country,organization_part_of,organization_active
+ORG-1,Example organization 1,Example 1,CODE-1,http://example.org/system/organization,Display 1,555-0101,user1@example.org,101 Main St,Suite 101,Metropolis,CA,CODE-1,11,Example 1,Example 1

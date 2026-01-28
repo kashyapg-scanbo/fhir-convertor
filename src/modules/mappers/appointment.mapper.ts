@@ -50,7 +50,9 @@ export function mapAppointments({
     appointment.description = source.description || undefined;
     appointment.start = source.start || undefined;
     appointment.end = source.end || undefined;
-    appointment.minutesDuration = source.minutesDuration ?? undefined;
+    appointment.minutesDuration = (source.minutesDuration && source.minutesDuration > 0)
+      ? source.minutesDuration
+      : undefined;
     appointment.created = source.created || undefined;
     appointment.cancellationDate = source.cancellationDate || undefined;
     appointment.extension = source.extension?.length ? source.extension : undefined;
@@ -165,6 +167,22 @@ export function mapAppointments({
         } : undefined
       }))
       : undefined;
+
+    if (!appointment.participant || appointment.participant.length === 0) {
+      const subjectRef = appointment.subject?.reference || patientFullUrl;
+      if (subjectRef) {
+        appointment.participant = [{
+          actor: { reference: subjectRef },
+          status: 'accepted'
+        }];
+      } else {
+        appointment.participant = undefined;
+      }
+    }
+
+    // Remove template defaults that violate FHIR constraints when not provided.
+    appointment.recurrenceId = undefined;
+    appointment.occurrenceChanged = undefined;
 
     const appointmentSummary = appointment.description || appointment.id;
     if (appointmentSummary) appointment.text = makeNarrative('Appointment', appointmentSummary);

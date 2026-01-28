@@ -1,0 +1,16 @@
+{
+  "practitioner_role": {
+    "practitioner_role_id": "PROLE-1",
+    "practitioner_role_practitioner_id": "PROLE-1",
+    "practitioner_role_organization_id": "PROLE-1",
+    "practitioner_role_code": "CODE-1",
+    "practitioner_role_code_system": "http://example.org/system/practitionerRole",
+    "practitioner_role_code_display": "CODE-1",
+    "practitioner_role_specialty": "Example 1",
+    "practitioner_role_specialty_system": "http://example.org/system/practitionerRole",
+    "practitioner_role_specialty_display": "Display 1",
+    "practitioner_role_period_start": "2024-05-11T09:00:00Z",
+    "practitioner_role_period_end": "2024-05-11T10:30:00Z",
+    "practitioner_role_active": "Example 1"
+  }
+}

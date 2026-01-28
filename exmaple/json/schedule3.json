@@ -1,0 +1,14 @@
+{
+  "schedule": {
+    "schedule_id": "SCH-3",
+    "schedule_active": "Example 3",
+    "schedule_name": "Example schedule 3",
+    "schedule_actor_id": "SCH-3",
+    "schedule_start": "2024-05-13T09:00:00Z",
+    "schedule_end": "2024-05-13T10:30:00Z",
+    "schedule_comment": "Example note 3",
+    "schedule_service_category": "Example 3",
+    "schedule_service_type": "Example 3",
+    "schedule_specialty": "Example 3"
+  }
+}

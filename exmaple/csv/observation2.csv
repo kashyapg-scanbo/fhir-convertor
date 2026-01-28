@@ -1,0 +1,2 @@
+observation_id,observation_code,observation_code_system,observation_display,observation_value,observation_unit,observation_date,observation_status
+OBS-2,CODE-2,http://example.org/system/observation,Display 2,21,mg,2024-05-12T10:02:00Z,completed

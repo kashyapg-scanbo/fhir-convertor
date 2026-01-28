@@ -113,15 +113,13 @@ export function mapDocumentReferences({
     }
 
     if (source.context) {
-      documentReference.context = {};
-      if (source.context.encounter) {
-        documentReference.context.encounter = source.context.encounter.map((enc: string) => ({
+      const contextRefs = source.context.encounter
+        ? source.context.encounter.map((enc: string) => ({
           reference: resolveRef('Encounter', enc) || `Encounter/${enc}`
-        }));
-      }
-      if (source.context.period) {
-        documentReference.period = source.context.period;
-      }
+        }))
+        : [];
+      documentReference.context = contextRefs.length ? contextRefs : undefined;
+      documentReference.period = source.context.period || undefined;
     } else {
       documentReference.context = undefined;
       documentReference.period = undefined;

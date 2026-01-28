@@ -1,0 +1,23 @@
+{
+  "practitioner": {
+    "practitioner_id": "PRAC-2",
+    "practitioner_first_name": "Example practitioner 2",
+    "practitioner_middle_name": "Example practitioner 2",
+    "practitioner_last_name": "Example practitioner 2",
+    "practitioner_name": "Example practitioner 2",
+    "practitioner_gender": "female",
+    "practitioner_birth_date": "2024-05-12T10:02:00Z",
+    "practitioner_phone": "555-0102",
+    "practitioner_email": "user2@example.org",
+    "practitioner_address_line1": "102 Main St",
+    "practitioner_address_line2": "Suite 102",
+    "practitioner_city": "Metropolis",
+    "practitioner_state": "CA",
+    "practitioner_postal_code": "CODE-2",
+    "practitioner_country": 21,
+    "practitioner_qualification_code": "CODE-2",
+    "practitioner_qualification_system": "http://example.org/system/practitioner",
+    "practitioner_qualification_display": "Display 2",
+    "practitioner_active": "Example 2"
+  }
+}

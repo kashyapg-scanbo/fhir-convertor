@@ -1,0 +1,20 @@
+{
+  "organization": {
+    "organization_id": "ORG-2",
+    "organization_name": "Example organization 2",
+    "organization_alias": "Example 2",
+    "organization_type_code": "CODE-2",
+    "organization_type_system": "http://example.org/system/organization",
+    "organization_type_display": "Display 2",
+    "organization_phone": "555-0102",
+    "organization_email": "user2@example.org",
+    "organization_address_line1": "102 Main St",
+    "organization_address_line2": "Suite 102",
+    "organization_city": "Metropolis",
+    "organization_state": "CA",
+    "organization_postal_code": "CODE-2",
+    "organization_country": 21,
+    "organization_part_of": "Example 2",
+    "organization_active": "Example 2"
+  }
+}

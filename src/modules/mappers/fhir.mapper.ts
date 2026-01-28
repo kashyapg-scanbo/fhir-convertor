@@ -50,6 +50,7 @@ import { mapClaimResponses } from './claimResponse.mapper.js';
 import { mapExplanationOfBenefits } from './explanationOfBenefit.mapper.js';
 import { mapCompositions } from './composition.mapper.js';
 import { mapCoverages } from './coverage.mapper.js';
+import { mapAccounts } from './account.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -615,6 +616,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (coverageEntries.length > 0) {
     bundle.entry.push(...coverageEntries);
+  }
+
+  const accountEntries = mapAccounts({
+    accounts: canonical.accounts,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (accountEntries.length > 0) {
+    bundle.entry.push(...accountEntries);
   }
 
   const scheduleEntries = mapSchedules({

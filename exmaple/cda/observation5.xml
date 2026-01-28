@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-5"/>
+      <patient>
+        <name>
+          <family>Doe5</family>
+          <given>John5</given>
+        </name>
+        <administrativeGenderCode code="M"/>
+        <birthTime value="19800105"/>
+      </patient>
+      
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="8716-3" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <observation><id extension="OBS5"/><code code="OBSE5" displayName="Observation Example 5" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="20240515090000"/></observation>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

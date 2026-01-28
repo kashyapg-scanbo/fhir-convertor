@@ -1211,6 +1211,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomCoverage'
+        account:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAccount'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAccount'
         binary:
           oneOf:
             - $ref: '#/components/schemas/CustomBinary'
@@ -4208,6 +4214,79 @@ components:
           type: string
         coverage_insurance_plan_id:
           type: string
+    CustomAccount:
+      type: object
+      properties:
+        account_id:
+          type: string
+        account_status:
+          type: string
+        account_billing_status:
+          type: string
+        account_type:
+          type: string
+        account_name:
+          type: string
+        account_subject_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        account_service_period_start:
+          type: string
+          format: date-time
+        account_service_period_end:
+          type: string
+          format: date-time
+        account_coverage_id:
+          type: string
+        account_coverage_priority:
+          type: number
+        account_owner_id:
+          type: string
+        account_description:
+          type: string
+        account_guarantor_party_id:
+          type: string
+        account_guarantor_on_hold:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        account_guarantor_period_start:
+          type: string
+          format: date-time
+        account_guarantor_period_end:
+          type: string
+          format: date-time
+        account_currency:
+          type: string
+        account_balance_amount:
+          type: number
+        account_balance_currency:
+          type: string
+        account_calculated_at:
+          type: string
+          format: date-time
+        account_related_account_id:
+          type: string
+        account_related_account_relationship:
+          type: string
+        account_diagnosis_condition_id:
+          type: string
+        account_diagnosis_sequence:
+          type: number
+        account_diagnosis_date:
+          type: string
+          format: date-time
+        account_procedure_code:
+          type: string
+        account_procedure_sequence:
+          type: number
+        account_procedure_date:
+          type: string
+          format: date-time
     CustomBinary:
       type: object
       properties:
@@ -5356,6 +5435,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [coverage]
+    CustomJsonAccountOnly:
+      title: Account
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [account]
     CustomJsonBinaryOnly:
       title: Binary
       allOf:

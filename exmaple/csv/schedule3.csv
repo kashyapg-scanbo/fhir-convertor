@@ -1,0 +1,2 @@
+schedule_id,schedule_active,schedule_name,schedule_actor_id,schedule_start,schedule_end,schedule_comment,schedule_service_category,schedule_service_type,schedule_specialty
+SCH-3,Example 3,Example schedule 3,SCH-3,2024-05-13T09:00:00Z,2024-05-13T10:30:00Z,Example note 3,Example 3,Example 3,Example 3

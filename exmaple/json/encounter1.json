@@ -1,0 +1,11 @@
+{
+  "encounter": {
+    "encounter_id": "ENC-1",
+    "encounter_class": 11,
+    "encounter_start": "2024-05-11T09:00:00Z",
+    "encounter_location": 11,
+    "encounter_status": "active",
+    "encounter_practitioner_id": "ENC-1",
+    "encounter_service_provider_id": "ENC-1"
+  }
+}

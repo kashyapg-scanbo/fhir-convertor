@@ -61,7 +61,8 @@ import {
     CanonicalTerminologyCapabilities,
     CanonicalProvenance,
     CanonicalAuditEvent,
-    CanonicalConsent
+    CanonicalConsent,
+    CanonicalAccount
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -103,6 +104,7 @@ export function parseR4(input: string): CanonicalModel {
         explanationOfBenefits: [],
         compositions: [],
         coverages: [],
+        accounts: [],
         carePlans: [],
         careTeams: [],
         goals: [],
@@ -220,6 +222,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Coverage':
                 const coverage = mapR4Coverage(res);
                 if (coverage) model.coverages?.push(coverage);
+                break;
+            case 'Account':
+                const account = mapR4Account(res);
+                if (account) model.accounts?.push(account);
                 break;
             case 'CarePlan':
                 const carePlan = mapR4CarePlan(res);
@@ -2829,6 +2835,104 @@ function mapR4Coverage(coverage: any): CanonicalCoverage {
         subrogation: coverage.subrogation,
         contract: coverage.contract?.map((ref: any) => stripRef(ref.reference, /^Contract\//)).filter(Boolean),
         insurancePlan: stripRef(coverage.insurancePlan?.reference, /^InsurancePlan\//)
+    };
+}
+
+function mapR4Account(account: any): CanonicalAccount {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    const mapCodeableReference = (source: any, resourceType: string) => {
+        if (!source) return undefined;
+        const reference = source.reference ? stripRef(source.reference, new RegExp(`^${resourceType}\\/`)) : undefined;
+        const concept = mapCodeable(source.concept);
+        if (!reference && !concept) return undefined;
+        return {
+            reference,
+            code: concept
+        };
+    };
+
+    return {
+        id: account.id,
+        identifier: account.identifier?.map(mapIdentifier).filter(Boolean),
+        status: account.status,
+        billingStatus: mapCodeable(account.billingStatus),
+        type: mapCodeable(account.type),
+        name: account.name,
+        subject: account.subject?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        servicePeriod: mapPeriod(account.servicePeriod),
+        coverage: account.coverage?.map((entry: any) => ({
+            coverage: stripRef(entry.coverage?.reference, /^Coverage\//),
+            priority: entry.priority
+        })),
+        owner: stripRef(account.owner?.reference, /^Organization\//),
+        description: account.description,
+        guarantor: account.guarantor?.map((entry: any) => ({
+            party: stripRef(entry.party?.reference),
+            onHold: entry.onHold,
+            period: mapPeriod(entry.period)
+        })),
+        diagnosis: account.diagnosis?.map((entry: any) => ({
+            sequence: entry.sequence,
+            condition: mapCodeableReference(entry.condition, 'Condition'),
+            dateOfDiagnosis: entry.dateOfDiagnosis,
+            type: entry.type?.map(mapCodeable),
+            onAdmission: entry.onAdmission,
+            packageCode: entry.packageCode?.map(mapCodeable)
+        })),
+        procedure: account.procedure?.map((entry: any) => ({
+            sequence: entry.sequence,
+            code: mapCodeableReference(entry.code, 'Procedure'),
+            dateOfService: entry.dateOfService,
+            type: entry.type?.map(mapCodeable),
+            packageCode: entry.packageCode?.map(mapCodeable),
+            device: entry.device?.map((ref: any) => stripRef(ref.reference, /^Device\//)).filter(Boolean)
+        })),
+        relatedAccount: account.relatedAccount?.map((entry: any) => ({
+            relationship: mapCodeable(entry.relationship),
+            account: stripRef(entry.account?.reference, /^Account\//)
+        })),
+        currency: mapCodeable(account.currency),
+        balance: account.balance?.map((entry: any) => ({
+            aggregate: mapCodeable(entry.aggregate),
+            term: mapCodeable(entry.term),
+            estimate: entry.estimate,
+            amount: mapMoney(entry.amount)
+        })),
+        calculatedAt: account.calculatedAt
     };
 }
 

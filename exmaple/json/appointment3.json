@@ -1,0 +1,29 @@
+{
+  "appointment": {
+    "appointment_id": "APT-3",
+    "appointment_status": "active",
+    "appointment_description": "Example description 3",
+    "appointment_start": "2024-05-13T09:00:00Z",
+    "appointment_end": "2024-05-13T10:30:00Z",
+    "appointment_minutes_duration": "Example 3",
+    "appointment_created": "Example 3",
+    "appointment_cancellation_date": "2024-05-13T10:03:00Z",
+    "appointment_cancellation_reason_display": "Display 3",
+    "appointment_cancellation_reason_code": "CODE-3",
+    "appointment_cancellation_reason_system": "http://example.org/system/appointment",
+    "appointment_subject_id": "APT-3",
+    "appointment_location_phone_number": 31,
+    "appointment_location_phone_extension": "555-0103",
+    "appointment_waiting_room_path": "Example 3",
+    "appointment_confirmation_type": "Example 3",
+    "appointment_last_modified": "Example 3",
+    "appointment_provider_location_id": "LOC-3",
+    "appointment_practice_id": "APT-3",
+    "appointment_visit_reason_id": "APT-3",
+    "appointment_patient_type": "Example 3",
+    "appointment_is_provider_resource": "Example 3",
+    "appointment_participant_id": "APT-3",
+    "appointment_participant_status": "active",
+    "appointment_note": "Example note 3"
+  }
+}

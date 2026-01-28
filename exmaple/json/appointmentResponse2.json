@@ -1,0 +1,16 @@
+{
+  "appointment_response": {
+    "appointment_response_id": "APR-2",
+    "appointment_response_appointment_id": "APR-2",
+    "appointment_response_proposed_new_time": "Example 2",
+    "appointment_response_start": "2024-05-12T09:00:00Z",
+    "appointment_response_end": "2024-05-12T10:30:00Z",
+    "appointment_response_participant_type": "Example 2",
+    "appointment_response_actor_id": "APR-2",
+    "appointment_response_participant_status": "completed",
+    "appointment_response_comment": "Example note 2",
+    "appointment_response_recurring": "Example 2",
+    "appointment_response_occurrence_date": "2024-05-12T10:02:00Z",
+    "appointment_response_recurrence_id": "APR-2"
+  }
+}

@@ -2,7 +2,6 @@ import crypto from 'crypto';
 import parametersTemplate from '../../shared/templates/parameters.json' with { type: 'json' };
 import type { CanonicalParameters, OperationType } from '../../shared/types/canonical.types.js';
 import { FullUrlRegistry } from './fullUrlRegistry.js';
-import { makeNarrative } from './utils.js';
 
 interface ParametersMapperArgs {
   parameters?: CanonicalParameters[];
@@ -49,9 +48,6 @@ export function mapParameters({
       else if (param.valueReference !== undefined) entry.valueReference = { reference: param.valueReference };
       return entry;
     }) || [];
-
-    const summary = params.parameter?.[0]?.name;
-    if (summary) params.text = makeNarrative('Parameters', summary);
 
     if (operation === 'delete') {
       params.parameter = [{

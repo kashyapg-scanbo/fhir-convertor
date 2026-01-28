@@ -1,0 +1,2 @@
+procedure_id,procedure_status,procedure_category,procedure_code,procedure_code_system,procedure_display,procedure_subject_id,procedure_encounter_id,procedure_occurrence_date,procedure_occurrence_start,procedure_occurrence_end,procedure_recorded,procedure_performer_id,procedure_location,procedure_reason,procedure_body_site,procedure_note
+PROC-4,completed,Example 4,CODE-4,http://example.org/system/procedure,Display 4,PROC-4,ENC-4,2024-05-14T10:04:00Z,2024-05-14T09:00:00Z,2024-05-14T10:30:00Z,Example 4,PROC-4,Example 4,Example 4,Example 4,Example note 4

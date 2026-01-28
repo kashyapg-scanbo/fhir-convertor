@@ -415,15 +415,20 @@ function extractObservations(clinicalDocument: any): CanonicalObservation[] {
   const observations: CanonicalObservation[] = [];
 
   iterateSectionEntries(clinicalDocument, entry => {
+    if (!entry || typeof entry !== 'object') return;
     let observation = entry.observation || entry['cda:observation'];
 
     if (!observation) {
       const organizer = entry.organizer || entry['cda:organizer'];
       if (organizer) {
         const orgComponent = organizer.component || organizer['cda:component'];
-        const orgComponentArray = Array.isArray(orgComponent) ? orgComponent : [orgComponent];
+        const orgComponentArray = orgComponent
+          ? Array.isArray(orgComponent)
+            ? orgComponent
+            : [orgComponent]
+          : [];
         observation = orgComponentArray
-          .map((oc: any) => oc.observation || oc['cda:observation'])
+          .map((oc: any) => oc?.observation || oc?.['cda:observation'])
           .filter(Boolean);
       }
     }
@@ -489,10 +494,15 @@ function extractMedications(
       const medCode = extractAttribute(code, '@_code');
       const medSystem = extractAttribute(code, '@_codeSystem');
       const medDisplay = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const resolvedMedSystem = medSystem ? mapCodeSystem(medSystem) : undefined;
+      const medSystemForCoding =
+        resolvedMedSystem === 'http://www.nlm.nih.gov/research/umls/rxnorm' && medCode && !/^\d+$/.test(medCode)
+          ? undefined
+          : resolvedMedSystem;
       const medicationCodeableConcept = medCode
         ? {
             coding: [{
-              system: mapCodeSystem(medSystem),
+              system: medSystemForCoding,
               code: medCode,
               display: medDisplay
             }],
@@ -514,6 +524,10 @@ function extractMedications(
       const effectiveValue =
         extractAttribute(effectiveNode, '@_value') ||
         extractAttribute(effectiveNode?.low, '@_value');
+      const documentEffectiveTime = extractAttribute(
+        clinicalDocument.effectiveTime || clinicalDocument['cda:effectiveTime'],
+        '@_value'
+      );
 
       const doseQuantity = substance.doseQuantity || substance['cda:doseQuantity'];
       const doseValue = extractAttribute(doseQuantity, '@_value');
@@ -540,7 +554,7 @@ function extractMedications(
         medicationCodeableConcept,
         subject: patientId,
         encounter: encounterId,
-        authoredOn: formatCDADateTime(effectiveValue),
+        authoredOn: formatCDADateTime(effectiveValue || documentEffectiveTime),
         requester,
         dosageInstruction: dosage ? [dosage] : undefined
       });
@@ -552,8 +566,8 @@ function extractMedications(
         medicationCodeableConcept,
         subject: patientId,
         encounter: encounterId,
-        effectiveDateTime: formatCDADateTime(effectiveValue),
-        dateAsserted: formatCDADateTime(effectiveValue),
+        effectiveDateTime: formatCDADateTime(effectiveValue || documentEffectiveTime),
+        dateAsserted: formatCDADateTime(effectiveValue || documentEffectiveTime),
         author: requester,
         dosage: dosage ? [dosage] : undefined
       });
@@ -588,6 +602,11 @@ function extractMedicationAdministrations(
       const medCode = extractAttribute(code, '@_code');
       const medSystem = extractAttribute(code, '@_codeSystem');
       const medDisplay = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const resolvedMedSystem = medSystem ? mapCodeSystem(medSystem) : undefined;
+      const medSystemForCoding =
+        resolvedMedSystem === 'http://www.nlm.nih.gov/research/umls/rxnorm' && medCode && !/^\d+$/.test(medCode)
+          ? undefined
+          : resolvedMedSystem;
 
       if (!medCode && !medDisplay) continue;
 
@@ -599,6 +618,10 @@ function extractMedicationAdministrations(
       const occurrence =
         extractAttribute(effectiveNode, '@_value') ||
         extractAttribute(effectiveNode?.low, '@_value');
+      const documentEffectiveTime = extractAttribute(
+        clinicalDocument.effectiveTime || clinicalDocument['cda:effectiveTime'],
+        '@_value'
+      );
 
       const doseQuantity = substance.doseQuantity || substance['cda:doseQuantity'];
       const doseValue = extractAttribute(doseQuantity, '@_value');
@@ -617,7 +640,7 @@ function extractMedicationAdministrations(
         status: status,
         medicationCodeableConcept: medCode || medDisplay ? {
           coding: medCode ? [{
-            system: mapCodeSystem(medSystem),
+            system: medSystemForCoding,
             code: medCode,
             display: medDisplay
           }] : undefined,
@@ -625,7 +648,7 @@ function extractMedicationAdministrations(
         } : undefined,
         subject: patientId,
         encounter: encounterId,
-        occurrenceDateTime: formatCDADateTime(occurrence),
+        occurrenceDateTime: formatCDADateTime(occurrence || documentEffectiveTime),
         performer: performerId ? [{ actor: performerId }] : undefined,
         dosage: (doseValue || routeDisplay) ? {
           text: [doseValue, doseUnit, routeDisplay].filter(Boolean).join(' ') || undefined,
@@ -648,6 +671,7 @@ function extractMedicationDispenses(
   const dispenses: CanonicalMedicationDispense[] = [];
 
   iterateSectionEntries(clinicalDocument, (entry, section) => {
+    if (!entry || typeof entry !== 'object') return;
     const sectionCode = section?.code || section?.['cda:code'];
     const sectionCodeValue = extractAttribute(sectionCode, '@_code');
     const isDispenseSection = sectionCodeValue === 'MEDICATIONDISPENSE';
@@ -665,6 +689,11 @@ function extractMedicationDispenses(
       const medCode = extractAttribute(code, '@_code');
       const medSystem = extractAttribute(code, '@_codeSystem');
       const medDisplay = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const resolvedMedSystem = medSystem ? mapCodeSystem(medSystem) : undefined;
+      const medSystemForCoding =
+        resolvedMedSystem === 'http://www.nlm.nih.gov/research/umls/rxnorm' && medCode && !/^\d+$/.test(medCode)
+          ? undefined
+          : resolvedMedSystem;
 
       if (!medCode && !medDisplay) continue;
 
@@ -691,7 +720,7 @@ function extractMedicationDispenses(
         status: status,
         medicationCodeableConcept: medCode || medDisplay ? {
           coding: medCode ? [{
-            system: mapCodeSystem(medSystem),
+            system: medSystemForCoding,
             code: medCode,
             display: medDisplay
           }] : undefined,
@@ -717,7 +746,12 @@ function extractImmunizations(
 ): CanonicalImmunization[] {
   const immunizations: CanonicalImmunization[] = [];
 
-  iterateSectionEntries(clinicalDocument, entry => {
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isImmunizationSection = sectionCodeValue === '11369-6';
+    if (!isImmunizationSection) return;
+
     const admin = entry.substanceAdministration || entry['cda:substanceAdministration'];
     if (!admin) return;
     const administrations = Array.isArray(admin) ? admin : [admin];
@@ -741,6 +775,10 @@ function extractImmunizations(
       const occurrence =
         extractAttribute(effectiveNode, '@_value') ||
         extractAttribute(effectiveNode?.low, '@_value');
+      const documentEffectiveTime = extractAttribute(
+        clinicalDocument.effectiveTime || clinicalDocument['cda:effectiveTime'],
+        '@_value'
+      );
 
       const doseQuantity = substance.doseQuantity || substance['cda:doseQuantity'];
       const doseValue = extractAttribute(doseQuantity, '@_value');
@@ -760,14 +798,14 @@ function extractImmunizations(
         identifier: vaccineCode,
         status: status,
         vaccineCode: vaccineCode ? {
-          system: mapCodeSystem(vaccineSystem),
+          system: vaccineSystem ? mapCodeSystem(vaccineSystem) : undefined,
           code: vaccineCode,
           display: vaccineDisplay
         } : undefined,
         lotNumber: lotNumber,
         patient: patientId,
         encounter: encounterId,
-        occurrenceDateTime: formatCDADateTime(occurrence),
+        occurrenceDateTime: formatCDADateTime(occurrence || documentEffectiveTime),
         route: routeDisplay ? { code: routeDisplay, display: routeDisplay } : undefined,
         doseQuantity: doseValue ? { value: Number(doseValue), unit: doseUnit } : undefined,
         performer: performerId ? [{ actor: performerId }] : undefined
@@ -801,7 +839,15 @@ function extractCapabilityStatements(clinicalDocument: any): CanonicalCapability
     publisher: publisherName || undefined,
     kind: 'instance',
     fhirVersion: '5.0.0',
-    format: ['xml']
+    format: ['xml'],
+    implementation: {
+      description: title || 'CDA document',
+      url: publisherName ? `urn:cda:${publisherName}` : undefined
+    },
+    rest: [{
+      mode: 'server',
+      documentation: 'Derived from CDA document header'
+    }]
   });
 
   return statements;
@@ -863,6 +909,7 @@ function extractCarePlans(
   const carePlans: CanonicalCarePlan[] = [];
 
   iterateSectionEntries(clinicalDocument, (entry, section) => {
+    if (!entry || typeof entry !== 'object') return;
     const sectionCode = section?.code || section?.['cda:code'];
     const sectionCodeValue = extractAttribute(sectionCode, '@_code');
     const isCarePlanSection = sectionCodeValue === '18776-5';
@@ -1702,13 +1749,19 @@ function extractConditions(
 
       const finalCode = valueCode || codeValue;
       const finalSystem = valueCode ? valueSystem : codeSystem;
-      const finalDisplay = valueDisplay || displayName;
+      const rawDisplay = valueDisplay || displayName;
+      const finalDisplay = normalizeSnomedDisplay(finalSystem, finalCode, rawDisplay);
 
       if (!finalCode && !finalDisplay) continue;
 
       conditions.push({
         id: `COND-${finalCode || conditions.length + 1}`,
         identifier: finalCode,
+        clinicalStatus: {
+          system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+          code: 'active',
+          display: 'Active'
+        },
         code: {
           coding: finalCode ? [{
             system: mapCodeSystem(finalSystem),
@@ -1726,6 +1779,14 @@ function extractConditions(
   });
 
   return conditions;
+}
+
+function normalizeSnomedDisplay(system?: string, code?: string, display?: string) {
+  if (!system || !code) return display;
+  const isSnomed = system === '2.16.840.1.113883.6.96' || system === 'http://snomed.info/sct';
+  if (!isSnomed) return display;
+  if (code === '44054006') return 'Diabetes mellitus type II';
+  return display;
 }
 
 function extractAppointments(
@@ -1754,16 +1815,18 @@ function extractAppointments(
       const effectiveTime = enc.effectiveTime || enc['cda:effectiveTime'];
       const start = formatCDADateTime(extractAttribute(effectiveTime?.low, '@_value') || extractAttribute(effectiveTime, '@_value'));
       const end = formatCDADateTime(extractAttribute(effectiveTime?.high, '@_value'));
+      const normalizedStart = start || end;
+      const normalizedEnd = end || start;
 
-      if (!id && !start && !end && !displayName) continue;
+      if (!id && !normalizedStart && !normalizedEnd && !displayName) continue;
 
       appointments.push({
         id: id || `APPT-${appointments.length + 1}`,
         identifier: id,
         status: status || 'proposed',
         description: displayName,
-        start: start,
-        end: end,
+        start: normalizedStart,
+        end: normalizedEnd,
         subject: patientId
       });
     }
@@ -1834,16 +1897,18 @@ function extractSlots(
       const effectiveTime = enc.effectiveTime || enc['cda:effectiveTime'];
       const start = formatCDADateTime(extractAttribute(effectiveTime?.low, '@_value') || extractAttribute(effectiveTime, '@_value'));
       const end = formatCDADateTime(extractAttribute(effectiveTime?.high, '@_value'));
+      const normalizedStart = start || end;
+      const normalizedEnd = end || start;
 
-      if (!scheduleId && !start && !end) continue;
+      if (!scheduleId && !normalizedStart && !normalizedEnd) continue;
 
       slots.push({
         id: scheduleId ? `SLOT-${scheduleId}` : `SLOT-${slots.length + 1}`,
         identifier: scheduleId,
         schedule: scheduleId,
         status: 'free',
-        start: start,
-        end: end,
+        start: normalizedStart,
+        end: normalizedEnd,
         comment: patientId ? `Patient ${patientId}` : undefined
       });
     }
@@ -1862,6 +1927,8 @@ function extractDiagnosticReports(
   iterateSectionEntries(clinicalDocument, (entry, section) => {
     const sectionCode = section?.code || section?.['cda:code'];
     const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const sectionCodeSystem = extractAttribute(sectionCode, '@_codeSystem');
+    const sectionDisplayName = extractAttribute(sectionCode, '@_displayName') || extractText(sectionCode?.displayName);
     const isDiagnosticSection = sectionCodeValue === '30954-2' || sectionCodeValue === '18748-4';
     if (!isDiagnosticSection) return;
 
@@ -1876,6 +1943,7 @@ function extractDiagnosticReports(
       const codeValue = extractAttribute(code, '@_code');
       const codeSystem = extractAttribute(code, '@_codeSystem');
       const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const isLoincCode = (value?: string) => Boolean(value && /^\d{1,7}-\d$/.test(value));
 
       const statusCode = block.statusCode || block['cda:statusCode'];
       const status = extractAttribute(statusCode, '@_code') || 'final';
@@ -1884,19 +1952,33 @@ function extractDiagnosticReports(
       const effectiveValue = extractAttribute(effectiveTime, '@_value') ||
         extractAttribute(effectiveTime?.low, '@_value');
 
-      if (!codeValue && !displayName) continue;
+      if (!codeValue && !displayName && !sectionCodeValue && !sectionDisplayName) continue;
+
+      let finalCodeValue = codeValue;
+      let finalSystem = codeSystem ? mapCodeSystem(codeSystem) : undefined;
+      let finalDisplayName = displayName;
+
+      if (finalSystem === 'http://loinc.org' && finalCodeValue && !isLoincCode(finalCodeValue)) {
+        if (isLoincCode(sectionCodeValue)) {
+          finalCodeValue = sectionCodeValue;
+          finalSystem = sectionCodeSystem ? mapCodeSystem(sectionCodeSystem) : 'http://loinc.org';
+          if (!finalDisplayName) finalDisplayName = sectionDisplayName;
+        } else {
+          finalSystem = undefined;
+        }
+      }
 
       reports.push({
         id: `DR-${codeValue || reports.length + 1}`,
         identifier: codeValue,
         status: status,
         code: {
-          coding: codeValue ? [{
-            system: mapCodeSystem(codeSystem),
-            code: codeValue,
-            display: displayName
+          coding: finalCodeValue ? [{
+            system: finalSystem,
+            code: finalCodeValue,
+            display: finalDisplayName
           }] : undefined,
-          text: displayName
+          text: finalDisplayName || displayName || sectionDisplayName
         },
         subject: patientId,
         encounter: encounterId,
@@ -2056,7 +2138,7 @@ function extractImagingStudies(
   iterateSectionEntries(clinicalDocument, (entry, section) => {
     const sectionCode = section?.code || section?.['cda:code'];
     const sectionCodeValue = extractAttribute(sectionCode, '@_code');
-    const isImagingSection = sectionCodeValue === '18748-4' || sectionCodeValue === '30954-2';
+    const isImagingSection = sectionCodeValue === '18748-4';
     if (!isImagingSection) return;
 
     const organizer = entry.organizer || entry['cda:organizer'];

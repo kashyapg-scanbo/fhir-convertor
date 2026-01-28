@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-medication-4"/>
+  <creationTime value="20240514120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <medication><id extension="MED4"/><code code="MEDI4" displayName="Medication Example 4" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="20240514090000"/></medication>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

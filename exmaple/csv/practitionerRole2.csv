@@ -1,0 +1,2 @@
+practitioner_role_id,practitioner_role_practitioner_id,practitioner_role_organization_id,practitioner_role_code,practitioner_role_code_system,practitioner_role_code_display,practitioner_role_specialty,practitioner_role_specialty_system,practitioner_role_specialty_display,practitioner_role_period_start,practitioner_role_period_end,practitioner_role_active
+PROLE-2,PROLE-2,PROLE-2,CODE-2,http://example.org/system/practitionerRole,CODE-2,Example 2,http://example.org/system/practitionerRole,Display 2,2024-05-12T09:00:00Z,2024-05-12T10:30:00Z,Example 2

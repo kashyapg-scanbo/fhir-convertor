@@ -1,0 +1,29 @@
+{
+  "explanation_of_benefit": {
+    "explanation_of_benefit_id": "EXP-2",
+    "explanation_of_benefit_status": "completed",
+    "explanation_of_benefit_type": "Example 2",
+    "explanation_of_benefit_sub_type": "Example 2",
+    "explanation_of_benefit_use": "Example 2",
+    "explanation_of_benefit_patient_id": "PAT-2",
+    "explanation_of_benefit_billable_start": "2024-05-12T09:00:00Z",
+    "explanation_of_benefit_billable_end": "2024-05-12T10:30:00Z",
+    "explanation_of_benefit_created": "Example 2",
+    "explanation_of_benefit_enterer_id": "EXP-2",
+    "explanation_of_benefit_insurer_id": "EXP-2",
+    "explanation_of_benefit_provider_id": "EXP-2",
+    "explanation_of_benefit_priority": "urgent",
+    "explanation_of_benefit_claim_id": "CLM-2",
+    "explanation_of_benefit_claim_response_id": "CLR-2",
+    "explanation_of_benefit_outcome": "Example 2",
+    "explanation_of_benefit_disposition": "Example 2",
+    "explanation_of_benefit_pre_auth_ref": "Example 2",
+    "explanation_of_benefit_total_value": 21,
+    "explanation_of_benefit_total_currency": "Example 2",
+    "explanation_of_benefit_item_sequence": "Example 2",
+    "explanation_of_benefit_item_product_or_service": "Example 2",
+    "explanation_of_benefit_item_quantity": 21,
+    "explanation_of_benefit_item_unit_price": "mg",
+    "explanation_of_benefit_item_net": "Example 2"
+  }
+}

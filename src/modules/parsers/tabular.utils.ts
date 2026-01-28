@@ -45,6 +45,12 @@ function readBoolean(row: TabularRow, keys: string | string[]): boolean | undefi
   return undefined;
 }
 
+function splitValues(value?: string): string[] | undefined {
+  if (!value) return undefined;
+  const parts = value.split(/[|,;]/).map(part => part.trim()).filter(Boolean);
+  return parts.length ? parts : undefined;
+}
+
 function splitFullName(fullName?: string): { given?: string[]; family?: string } | undefined {
   if (!fullName) return undefined;
   const trimmed = fullName.trim();
@@ -2596,6 +2602,81 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     };
   }).filter(Boolean);
   if (compositions.length > 0) canonical.compositions = compositions as any[];
+
+  const accounts = rows.map(row => {
+    const accountId = readValue(row, 'account_id');
+    const status = readValue(row, 'account_status');
+    const name = readValue(row, 'account_name');
+    const subjectIds = splitValues(readValue(row, 'account_subject_ids'));
+    if (!accountId && !status && !name && (!subjectIds || subjectIds.length === 0)) return null;
+
+    const billingStatus = readValue(row, 'account_billing_status');
+    const type = readValue(row, 'account_type');
+    const servicePeriodStart = readValue(row, 'account_service_period_start');
+    const servicePeriodEnd = readValue(row, 'account_service_period_end');
+    const coverageId = readValue(row, 'account_coverage_id');
+    const coveragePriority = readNumber(row, 'account_coverage_priority');
+    const ownerId = readValue(row, 'account_owner_id');
+    const description = readValue(row, 'account_description');
+    const guarantorPartyId = readValue(row, 'account_guarantor_party_id');
+    const guarantorOnHold = readBoolean(row, 'account_guarantor_on_hold');
+    const guarantorPeriodStart = readValue(row, 'account_guarantor_period_start');
+    const guarantorPeriodEnd = readValue(row, 'account_guarantor_period_end');
+    const currency = readValue(row, 'account_currency');
+    const balanceAmount = readNumber(row, 'account_balance_amount');
+    const balanceCurrency = readValue(row, 'account_balance_currency');
+    const calculatedAt = readValue(row, 'account_calculated_at');
+    const relatedAccountId = readValue(row, 'account_related_account_id');
+    const relatedAccountRelationship = readValue(row, 'account_related_account_relationship');
+    const diagnosisConditionId = readValue(row, 'account_diagnosis_condition_id');
+    const diagnosisSequence = readNumber(row, 'account_diagnosis_sequence');
+    const diagnosisDate = readValue(row, 'account_diagnosis_date');
+    const procedureCode = readValue(row, 'account_procedure_code');
+    const procedureSequence = readNumber(row, 'account_procedure_sequence');
+    const procedureDate = readValue(row, 'account_procedure_date');
+
+    return {
+      id: accountId || undefined,
+      identifier: accountId ? [{ value: accountId }] : undefined,
+      status: status || undefined,
+      billingStatus: billingStatus ? { code: billingStatus, display: billingStatus } : undefined,
+      type: type ? { code: type, display: type } : undefined,
+      name: name || undefined,
+      subject: subjectIds?.length ? subjectIds : undefined,
+      servicePeriod: (servicePeriodStart || servicePeriodEnd) ? { start: servicePeriodStart, end: servicePeriodEnd } : undefined,
+      coverage: (coverageId || coveragePriority !== undefined) ? [{
+        coverage: coverageId || undefined,
+        priority: coveragePriority ?? undefined
+      }] : undefined,
+      owner: ownerId || undefined,
+      description: description || undefined,
+      guarantor: (guarantorPartyId || guarantorOnHold !== undefined || guarantorPeriodStart || guarantorPeriodEnd) ? [{
+        party: guarantorPartyId || undefined,
+        onHold: guarantorOnHold,
+        period: (guarantorPeriodStart || guarantorPeriodEnd) ? { start: guarantorPeriodStart, end: guarantorPeriodEnd } : undefined
+      }] : undefined,
+      diagnosis: (diagnosisConditionId || diagnosisSequence !== undefined || diagnosisDate) ? [{
+        sequence: diagnosisSequence ?? undefined,
+        condition: diagnosisConditionId ? { reference: diagnosisConditionId } : undefined,
+        dateOfDiagnosis: diagnosisDate || undefined
+      }] : undefined,
+      procedure: (procedureCode || procedureSequence !== undefined || procedureDate) ? [{
+        sequence: procedureSequence ?? undefined,
+        code: procedureCode ? { code: { code: procedureCode, display: procedureCode } } : undefined,
+        dateOfService: procedureDate || undefined
+      }] : undefined,
+      relatedAccount: (relatedAccountId || relatedAccountRelationship) ? [{
+        account: relatedAccountId || undefined,
+        relationship: relatedAccountRelationship ? { code: relatedAccountRelationship, display: relatedAccountRelationship } : undefined
+      }] : undefined,
+      currency: currency ? { code: currency, display: currency } : undefined,
+      balance: (balanceAmount !== undefined || balanceCurrency) ? [{
+        amount: { value: balanceAmount ?? undefined, currency: balanceCurrency || undefined }
+      }] : undefined,
+      calculatedAt: calculatedAt || undefined
+    };
+  }).filter(Boolean);
+  if (accounts.length > 0) canonical.accounts = accounts as any[];
 
   const coverages = rows.map(row => {
     const coverageId = readValue(row, 'coverage_id');

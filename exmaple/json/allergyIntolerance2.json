@@ -1,0 +1,31 @@
+{
+  "allergy_intolerance": {
+    "allergy_id": "ALG-2",
+    "allergy_clinical_status": "completed",
+    "allergy_verification_status": "completed",
+    "allergy_type": "Example 2",
+    "allergy_category": "Example 2",
+    "allergy_criticality": "Example 2",
+    "allergy_code": "CODE-2",
+    "allergy_code_system": "http://example.org/system/allergyIntolerance",
+    "allergy_display": "Display 2",
+    "allergy_patient_id": "PAT-2",
+    "allergy_encounter_id": "ENC-2",
+    "allergy_onset_date": "2024-05-12T10:02:00Z",
+    "allergy_onset_start": "2024-05-12T09:00:00Z",
+    "allergy_onset_end": "2024-05-12T10:30:00Z",
+    "allergy_onset_text": "Example text 2",
+    "allergy_recorded_date": "2024-05-12T10:02:00Z",
+    "allergy_participant_actor_id": "ALG-2",
+    "allergy_participant_function": "Example 2",
+    "allergy_last_occurrence": "Example 2",
+    "allergy_note": "Example note 2",
+    "allergy_reaction_substance": "Example 2",
+    "allergy_reaction_manifestation": "Example 2",
+    "allergy_reaction_description": "Example description 2",
+    "allergy_reaction_onset": "Example 2",
+    "allergy_reaction_severity": "Example 2",
+    "allergy_reaction_exposure_route": "Example 2",
+    "allergy_reaction_note": "Example note 2"
+  }
+}

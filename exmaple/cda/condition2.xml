@@ -20,7 +20,7 @@
         <section>
           <code code="11450-4" codeSystem="2.16.840.1.113883.6.1"/>
           <entry>
-            <observation><code code="COND2" displayName="Diabetes 2" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="202401020100"/><value code="COND2" displayName="Diabetes 2" codeSystem="2.16.840.1.113883.6.96"/></observation>
+            <observation><code code="44054006" displayName="Diabetes mellitus type II" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="202401020100"/><value code="44054006" displayName="Diabetes mellitus type II" codeSystem="2.16.840.1.113883.6.96"/></observation>
           </entry>
         </section>
       </component>

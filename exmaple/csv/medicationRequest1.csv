@@ -1,0 +1,2 @@
+medication_request_id,medication_status,medication_authored_on,medication_dose,medication_dose_unit,medication_route,medication_route_display,medication_sig
+MR-1,active,Example 1,Example 1,mg,Example 1,Display 1,Example 1

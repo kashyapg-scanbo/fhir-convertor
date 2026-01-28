@@ -1,0 +1,2 @@
+slot_id,slot_status,slot_start,slot_end,slot_schedule_id,slot_overbooked,slot_comment,slot_service_category,slot_service_type,slot_specialty,slot_appointment_type
+SLT-4,completed,2024-05-14T09:00:00Z,2024-05-14T10:30:00Z,SCH-4,Example 4,Example note 4,Example 4,Example 4,Example 4,Example 4

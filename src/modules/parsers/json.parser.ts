@@ -1607,6 +1607,72 @@ const GlobalCompositionSchema = z.object({
   section: z.union([GlobalCompositionSectionSchema, z.array(GlobalCompositionSectionSchema)]).optional()
 });
 
+const GlobalAccountCoverageSchema = z.object({
+  coverage_id: GlobalIdSchema.optional(),
+  priority: GlobalNumberSchema.optional()
+});
+
+const GlobalAccountGuarantorSchema = z.object({
+  party_id: GlobalIdSchema.optional(),
+  on_hold: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  period_start: z.string().optional(),
+  period_end: z.string().optional()
+});
+
+const GlobalAccountDiagnosisSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  condition_id: GlobalIdSchema.optional(),
+  condition_code: GlobalCodeableConceptSchema.optional(),
+  date_of_diagnosis: z.string().optional(),
+  type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  on_admission: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  package_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional()
+});
+
+const GlobalAccountProcedureSchema = z.object({
+  sequence: GlobalNumberSchema.optional(),
+  procedure_id: GlobalIdSchema.optional(),
+  procedure_code: GlobalCodeableConceptSchema.optional(),
+  date_of_service: z.string().optional(),
+  type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  package_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  device_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
+const GlobalAccountRelatedAccountSchema = z.object({
+  relationship: GlobalCodeableConceptSchema.optional(),
+  account_id: GlobalIdSchema.optional()
+});
+
+const GlobalAccountBalanceSchema = z.object({
+  aggregate: GlobalCodeableConceptSchema.optional(),
+  term: GlobalCodeableConceptSchema.optional(),
+  estimate: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  amount: GlobalMoneySchema.optional()
+});
+
+const GlobalAccountSchema = z.object({
+  account_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  billing_status: GlobalCodeableConceptSchema.optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  name: z.string().optional(),
+  subject_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  service_period_start: z.string().optional(),
+  service_period_end: z.string().optional(),
+  coverage: z.union([GlobalAccountCoverageSchema, z.array(GlobalAccountCoverageSchema)]).optional(),
+  owner_id: GlobalIdSchema.optional(),
+  description: z.string().optional(),
+  guarantor: z.union([GlobalAccountGuarantorSchema, z.array(GlobalAccountGuarantorSchema)]).optional(),
+  diagnosis: z.union([GlobalAccountDiagnosisSchema, z.array(GlobalAccountDiagnosisSchema)]).optional(),
+  procedure: z.union([GlobalAccountProcedureSchema, z.array(GlobalAccountProcedureSchema)]).optional(),
+  related_account: z.union([GlobalAccountRelatedAccountSchema, z.array(GlobalAccountRelatedAccountSchema)]).optional(),
+  currency: GlobalCodeableConceptSchema.optional(),
+  balance: z.union([GlobalAccountBalanceSchema, z.array(GlobalAccountBalanceSchema)]).optional(),
+  calculated_at: z.string().optional()
+});
+
 const GlobalCoveragePaymentBySchema = z.object({
   party_id: GlobalIdSchema.optional(),
   responsibility: z.string().optional()
@@ -2261,6 +2327,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   composition: z.union([GlobalCompositionSchema, z.array(GlobalCompositionSchema)]).optional(),
   explanation_of_benefit: z.union([GlobalExplanationOfBenefitSchema, z.array(GlobalExplanationOfBenefitSchema)]).optional(),
   coverage: z.union([GlobalCoverageSchema, z.array(GlobalCoverageSchema)]).optional(),
+  account: z.union([GlobalAccountSchema, z.array(GlobalAccountSchema)]).optional(),
   binary: z.union([GlobalBinarySchema, z.array(GlobalBinarySchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
@@ -2322,6 +2389,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.composition ||
     value.explanation_of_benefit ||
     value.coverage ||
+    value.account ||
     value.binary ||
     value.schedule ||
     value.slot ||
@@ -2338,7 +2406,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2404,6 +2472,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   compositions: 'composition',
   explanationOfBenefits: 'explanationOfBenefit',
   coverages: 'coverage',
+  accounts: 'account',
   binaries: 'binary',
   schedules: 'schedule',
   slots: 'slot',
@@ -2528,6 +2597,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   explanationofbenefits: 'explanationOfBenefit',
   coverage: 'coverage',
   coverages: 'coverage',
+  account: 'account',
+  accounts: 'account',
   binary: 'binary',
   binaries: 'binary',
   schedule: 'schedule',
@@ -2700,6 +2771,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   explanationofbenefits: 'explanation_of_benefit',
   coverage: 'coverage',
   coverages: 'coverage',
+  account: 'account',
+  accounts: 'account',
   binary: 'binary',
   binaries: 'binary',
   schedule: 'schedule',
@@ -4879,6 +4952,118 @@ function normalizeGlobalCoverageAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalAccountAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const accountId = readSectionAliasValue(value, 'account', 'account_id');
+  if (normalized.account_id === undefined && accountId !== undefined) {
+    normalized.account_id = accountId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const billingStatus = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_billing_status'));
+  if (billingStatus && normalized.billing_status === undefined) {
+    normalized.billing_status = { code: billingStatus, display: billingStatus };
+  }
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const subjectIds = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_subject_ids'));
+  if (subjectIds && normalized.subject_ids === undefined) normalized.subject_ids = subjectIds;
+
+  const servicePeriodStart = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_service_period_start'));
+  if (servicePeriodStart && normalized.service_period_start === undefined) normalized.service_period_start = servicePeriodStart;
+
+  const servicePeriodEnd = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_service_period_end'));
+  if (servicePeriodEnd && normalized.service_period_end === undefined) normalized.service_period_end = servicePeriodEnd;
+
+  const coverageId = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_coverage_id'));
+  const coveragePriority = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_coverage_priority'));
+  if ((coverageId || coveragePriority) && normalized.coverage === undefined) {
+    normalized.coverage = [{
+      coverage_id: coverageId,
+      priority: coveragePriority
+    }];
+  }
+
+  const ownerId = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_owner_id'));
+  if (ownerId && normalized.owner_id === undefined) normalized.owner_id = ownerId;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const guarantorPartyId = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_guarantor_party_id'));
+  const guarantorOnHold = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_guarantor_on_hold'));
+  const guarantorStart = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_guarantor_period_start'));
+  const guarantorEnd = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_guarantor_period_end'));
+  if ((guarantorPartyId || guarantorOnHold || guarantorStart || guarantorEnd) && normalized.guarantor === undefined) {
+    normalized.guarantor = [{
+      party_id: guarantorPartyId,
+      on_hold: guarantorOnHold,
+      period_start: guarantorStart,
+      period_end: guarantorEnd
+    }];
+  }
+
+  const currency = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_currency'));
+  if (currency && normalized.currency === undefined) {
+    normalized.currency = { code: currency, display: currency };
+  }
+
+  const balanceAmount = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_balance_amount'));
+  const balanceCurrency = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_balance_currency'));
+  if ((balanceAmount || balanceCurrency) && normalized.balance === undefined) {
+    normalized.balance = [{
+      amount: {
+        value: balanceAmount,
+        currency: balanceCurrency
+      }
+    }];
+  }
+
+  const calculatedAt = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_calculated_at'));
+  if (calculatedAt && normalized.calculated_at === undefined) normalized.calculated_at = calculatedAt;
+
+  const relatedAccountId = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_related_account_id'));
+  const relatedRelationship = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_related_account_relationship'));
+  if ((relatedAccountId || relatedRelationship) && normalized.related_account === undefined) {
+    normalized.related_account = [{
+      account_id: relatedAccountId,
+      relationship: relatedRelationship ? { code: relatedRelationship, display: relatedRelationship } : undefined
+    }];
+  }
+
+  const diagnosisConditionId = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_diagnosis_condition_id'));
+  const diagnosisSequence = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_diagnosis_sequence'));
+  const diagnosisDate = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_diagnosis_date'));
+  if ((diagnosisConditionId || diagnosisSequence || diagnosisDate) && normalized.diagnosis === undefined) {
+    normalized.diagnosis = [{
+      condition_id: diagnosisConditionId,
+      sequence: diagnosisSequence,
+      date_of_diagnosis: diagnosisDate
+    }];
+  }
+
+  const procedureCode = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_procedure_code'));
+  const procedureSequence = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_procedure_sequence'));
+  const procedureDate = normalizeAliasValue(readSectionAliasValue(value, 'account', 'account_procedure_date'));
+  if ((procedureCode || procedureSequence || procedureDate) && normalized.procedure === undefined) {
+    normalized.procedure = [{
+      procedure_code: procedureCode ? { code: procedureCode, display: procedureCode } : undefined,
+      sequence: procedureSequence,
+      date_of_service: procedureDate
+    }];
+  }
+
+  return normalized;
+}
+
 function normalizeGlobalExplanationOfBenefitAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -6694,6 +6879,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalExplanationOfBenefitAliases(value);
     case 'coverage':
       return normalizeGlobalCoverageAliases(value);
+    case 'account':
+      return normalizeGlobalAccountAliases(value);
     case 'binary':
       return normalizeGlobalBinaryAliases(value);
     case 'schedule':
@@ -6767,6 +6954,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['composition', 'composition'],
     ['explanationOfBenefit', 'explanation_of_benefit'],
     ['coverage', 'coverage'],
+    ['account', 'account'],
     ['binary', 'binary'],
     ['schedule', 'schedule'],
     ['slot', 'slot'],
@@ -6902,6 +7090,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'composition',
     'explanationOfBenefit',
     'coverage',
+    'account',
     'binary',
     'schedule',
     'slot',
@@ -7081,6 +7270,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const compositions = normalizeArray(validated.composition);
   const explanationOfBenefits = normalizeArray(validated.explanation_of_benefit);
   const coverages = normalizeArray(validated.coverage);
+  const accounts = normalizeArray(validated.account);
   const binaries = normalizeArray(validated.binary);
   const schedules = normalizeArray(validated.schedule);
   const slots = normalizeArray(validated.slot);
@@ -7232,6 +7422,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (coverages.length) {
     canonical.coverages = coverages.map(buildCanonicalCoverageGlobal);
   }
+  if (accounts.length) {
+    canonical.accounts = accounts.map(buildCanonicalAccountGlobal);
+  }
   if (binaries.length) {
     canonical.binaries = binaries.map(buildCanonicalBinaryGlobal);
   }
@@ -7337,6 +7530,7 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     composition: ['composition_id', 'id', 'identifier'],
     explanation_of_benefit: ['explanation_of_benefit_id', 'id', 'identifier'],
     coverage: ['coverage_id', 'id', 'identifier'],
+    account: ['account_id', 'id', 'identifier'],
     binary: ['binary_id', 'id', 'identifier'],
     schedule: ['schedule_id', 'id', 'identifier'],
     slot: ['slot_id', 'id', 'identifier'],
@@ -7406,7 +7600,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -7455,6 +7649,7 @@ function wrapGlobalPayload(value: any) {
       value.composition,
       value.explanation_of_benefit,
       value.coverage,
+      value.account,
       value.binary,
       value.schedule,
       value.slot,
@@ -7606,6 +7801,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('coverage_id' in value || 'coverage_status' in value || 'coverage_kind' in value || 'beneficiary_id' in value) {
       return { coverage: value };
+    }
+    if ('account_id' in value || 'account_status' in value || 'account_name' in value || 'billing_status' in value) {
+      return { account: value };
     }
     if ('binary_id' in value || 'content_type' in value || 'security_context' in value || 'data' in value) {
       return { binary: value };
@@ -7786,6 +7984,9 @@ function looksLikeGlobalResource(value: any) {
     'coverage_id' in value ||
     'coverage_status' in value ||
     'coverage_kind' in value ||
+    'account_id' in value ||
+    'account_status' in value ||
+    'account_name' in value ||
     'binary_id' in value ||
     'content_type' in value ||
     'security_context' in value ||
@@ -10753,6 +10954,107 @@ function buildCanonicalCoverageGlobal(coverage: z.infer<typeof GlobalCoverageSch
     subrogation: normalizeBoolean(coverage.subrogation as any),
     contract: normalizeStringArray(coverage.contract_ids),
     insurancePlan: coverage.insurance_plan_id
+  };
+}
+
+function buildCanonicalAccountGlobal(account: z.infer<typeof GlobalAccountSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapMoney = (source?: z.infer<typeof GlobalMoneySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      currency: source.currency
+    };
+  };
+
+  const subjectIds = normalizeStringArray(account.subject_ids);
+
+  return {
+    id: account.account_id,
+    identifier: normalizeArray(account.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: account.status,
+    billingStatus: mapCodeable(account.billing_status),
+    type: mapCodeable(account.type),
+    name: account.name,
+    subject: subjectIds.length ? subjectIds : undefined,
+    servicePeriod: mapPeriod(account.service_period_start, account.service_period_end),
+    coverage: normalizeArray(account.coverage).map(entry => ({
+      coverage: (entry as any).coverage_id,
+      priority: toNumber((entry as any).priority as any)
+    })).filter(entry => entry.coverage || entry.priority !== undefined),
+    owner: account.owner_id,
+    description: account.description,
+    guarantor: normalizeArray(account.guarantor).map(entry => ({
+      party: (entry as any).party_id,
+      onHold: normalizeBoolean((entry as any).on_hold as any),
+      period: mapPeriod((entry as any).period_start, (entry as any).period_end)
+    })).filter(entry => entry.party || entry.onHold !== undefined || entry.period),
+    diagnosis: normalizeArray(account.diagnosis).map(entry => ({
+      sequence: toNumber((entry as any).sequence as any),
+      condition: ((entry as any).condition_id || (entry as any).condition_code)
+        ? {
+          reference: (entry as any).condition_id,
+          code: mapCodeable((entry as any).condition_code)
+        }
+        : undefined,
+      dateOfDiagnosis: (entry as any).date_of_diagnosis,
+      type: normalizeArray((entry as any).type).map(code => mapCodeable(code as any)).filter(isDefined),
+      onAdmission: normalizeBoolean((entry as any).on_admission as any),
+      packageCode: normalizeArray((entry as any).package_code).map(code => mapCodeable(code as any)).filter(isDefined)
+    })).filter(entry => entry.sequence !== undefined || entry.condition || entry.dateOfDiagnosis || entry.type?.length || entry.onAdmission !== undefined),
+    procedure: normalizeArray(account.procedure).map(entry => ({
+      sequence: toNumber((entry as any).sequence as any),
+      code: ((entry as any).procedure_id || (entry as any).procedure_code)
+        ? {
+          reference: (entry as any).procedure_id,
+          code: mapCodeable((entry as any).procedure_code)
+        }
+        : undefined,
+      dateOfService: (entry as any).date_of_service,
+      type: normalizeArray((entry as any).type).map(code => mapCodeable(code as any)).filter(isDefined),
+      packageCode: normalizeArray((entry as any).package_code).map(code => mapCodeable(code as any)).filter(isDefined),
+      device: normalizeStringArray((entry as any).device_ids)
+    })).filter(entry => entry.sequence !== undefined || entry.code || entry.dateOfService || entry.type?.length || entry.packageCode?.length || entry.device?.length),
+    relatedAccount: normalizeArray(account.related_account).map(entry => ({
+      relationship: mapCodeable((entry as any).relationship),
+      account: (entry as any).account_id
+    })).filter(entry => entry.relationship || entry.account),
+    currency: mapCodeable(account.currency),
+    balance: normalizeArray(account.balance).map(entry => ({
+      aggregate: mapCodeable((entry as any).aggregate),
+      term: mapCodeable((entry as any).term),
+      estimate: normalizeBoolean((entry as any).estimate as any),
+      amount: mapMoney((entry as any).amount)
+    })).filter(entry => entry.aggregate || entry.term || entry.estimate !== undefined || entry.amount),
+    calculatedAt: account.calculated_at
   };
 }
 

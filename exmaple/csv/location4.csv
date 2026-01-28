@@ -1,0 +1,2 @@
+location_id,location_status,location_name,location_alias,location_description,location_mode,location_type,location_address_line1,location_address_line2,location_city,location_state,location_postal_code,location_country,location_managing_org_id,location_part_of_id
+LOC-4,completed,Example location 4,Example 4,Example description 4,Example 4,Example 4,104 Main St,Suite 104,Metropolis,CA,CODE-4,41,LOC-4,LOC-4
