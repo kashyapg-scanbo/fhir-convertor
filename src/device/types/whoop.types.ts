@@ -126,9 +126,9 @@ export interface WhoopWorkout {
 
 export interface WhoopData {
   profile: WhoopProfile;
-  recovery?: WhoopRecovery;
-  cycle?: WhoopCycle;
-  sleep?: WhoopSleep;
+  recovery?: WhoopRecovery | WhoopRecovery[];
+  cycle?: WhoopCycle | WhoopCycle[];
+  sleep?: WhoopSleep | WhoopSleep[];
   body?: WhoopBody;
   workout?: WhoopWorkout | WhoopWorkout[];
 }

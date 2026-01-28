@@ -354,7 +354,18 @@ export function mapObservations({
     if (obsSummary) resource.text = makeNarrative('Observation', String(obsSummary));
 
     resource.status = obs.status || 'final';
-    resource.effectiveDateTime = obs.date || new Date().toISOString();
+    
+    // Handle effectivePeriod if provided, otherwise use effectiveDateTime
+    if (obs.effectivePeriod?.start || obs.effectivePeriod?.end) {
+      resource.effectivePeriod = {
+        start: obs.effectivePeriod.start,
+        end: obs.effectivePeriod.end
+      };
+      resource.effectiveDateTime = undefined;
+    } else {
+      resource.effectiveDateTime = obs.date || new Date().toISOString();
+      resource.effectivePeriod = undefined;
+    }
 
   if (obs.code) {
       const codes = Array.isArray(obs.code) ? obs.code : [obs.code];
@@ -368,7 +379,8 @@ export function mapObservations({
             system: normalizedSystem ?? fallbackSystem,
             code: coding.code || ''
           };
-          if (coding.display && (!result.system || !result.system.includes('loinc'))) {
+          // Always include display if provided (even for LOINC codes, as it helps with readability)
+          if (coding.display) {
             result.display = coding.display;
           }
           return result;
@@ -380,7 +392,20 @@ export function mapObservations({
 
     applyVitalSignCoding(resource, primaryCode);
 
-    if (obs.value !== undefined) {
+    // Handle valueSampledData for time-series data (e.g., real-time heart rate)
+    if (obs.valueSampledData !== undefined) {
+      resource.valueSampledData = {
+        origin: {
+          value: obs.valueSampledData.origin.value,
+          unit: obs.valueSampledData.origin.unit,
+          system: 'http://unitsofmeasure.org',
+          code: obs.valueSampledData.origin.unit
+        },
+        period: obs.valueSampledData.period,
+        dimensions: obs.valueSampledData.dimensions,
+        data: obs.valueSampledData.data
+      };
+    } else if (obs.value !== undefined) {
       // Check for invalid UCUM units that should use different value types
       const unitCode = (obs.unitCode || obs.unit || '').toLowerCase();
       const isInvalidUcum = unitCode === '{count}' || unitCode === '{score}' || unitCode === '{boolean}';
@@ -391,12 +416,24 @@ export function mapObservations({
           if (isInvalidUcum) {
             // Use appropriate value type for invalid UCUM units
             if (unitCode === '{boolean}') {
-              resource.valueBoolean = Boolean(Number(firstValue));
+              // Convert boolean to codeable concept for FHIR R5 compatibility
+              resource.valueCodeableConcept = {
+                coding: [{
+                  system: 'http://terminology.hl7.org/CodeSystem/v2-0136',
+                  code: Boolean(Number(firstValue)) ? 'Y' : 'N',
+                  display: Boolean(Number(firstValue)) ? 'Yes' : 'No'
+                }]
+              };
             } else {
-              // For {count} and {score}, use valueInteger
+              // For {count} and {score}, use valueQuantity (not valueInteger for better FHIR R5 compatibility)
               const intValue = Math.round(Number(firstValue));
               if (!isNaN(intValue)) {
-                resource.valueInteger = intValue;
+                resource.valueQuantity = {
+                  value: intValue,
+                  unit: unitCode,
+                  system: 'http://unitsofmeasure.org',
+                  code: unitCode
+                };
               } else {
                 resource.valueString = String(firstValue);
               }
@@ -429,12 +466,24 @@ export function mapObservations({
         if (isInvalidUcum) {
           // Use appropriate value type for invalid UCUM units
           if (unitCode === '{boolean}') {
-            resource.valueBoolean = Boolean(Number(obs.value));
+            // Convert boolean to codeable concept for FHIR R5 compatibility
+            resource.valueCodeableConcept = {
+              coding: [{
+                system: 'http://terminology.hl7.org/CodeSystem/v2-0136',
+                code: Boolean(Number(obs.value)) ? 'Y' : 'N',
+                display: Boolean(Number(obs.value)) ? 'Yes' : 'No'
+              }]
+            };
           } else {
-            // For {count} and {score}, use valueInteger
+            // For {count} and {score}, use valueQuantity (not valueInteger for better FHIR R5 compatibility)
             const intValue = Math.round(Number(obs.value));
             if (!isNaN(intValue)) {
-              resource.valueInteger = intValue;
+              resource.valueQuantity = {
+                value: intValue,
+                unit: unitCode,
+                system: 'http://unitsofmeasure.org',
+                code: unitCode
+              };
             } else {
               resource.valueString = String(obs.value);
             }
@@ -628,18 +677,64 @@ export function mapObservations({
       resource.component = obs.components
         .map((c: any) => {
           if (!c.code?.code) return null;
-          return {
+          const component: any = {
             code: {
               coding: [{
                 system: absoluteSystem(c.code.system),
                 code: c.code.code,
                 display: c.code.display
               }]
-            },
-            valueCodeableConcept: c.valueCodeableConcept
-              ? { coding: [c.valueCodeableConcept] }
-              : undefined
+            }
           };
+
+          // Handle different value types for components
+          // Note: FHIR R5 components don't support valueInteger or valueBoolean directly
+          // Convert to valueQuantity or valueCodeableConcept
+          if (c.valueQuantity !== undefined) {
+            component.valueQuantity = {
+              value: c.valueQuantity.value,
+              unit: c.valueQuantity.unit || '',
+              system: c.valueQuantity.system || 'http://unitsofmeasure.org',
+              code: c.valueQuantity.code || c.valueQuantity.unit || ''
+            };
+          } else if (c.valueInteger !== undefined) {
+            // Convert integer to quantity with appropriate unit
+            component.valueQuantity = {
+              value: c.valueInteger,
+              unit: '{count}',
+              system: 'http://unitsofmeasure.org',
+              code: '{count}'
+            };
+          } else if (c.valueString !== undefined) {
+            component.valueString = c.valueString;
+          } else if (c.valueBoolean !== undefined) {
+            // Convert boolean to codeable concept
+            component.valueCodeableConcept = {
+              coding: [{
+                system: 'http://terminology.hl7.org/CodeSystem/v2-0136',
+                code: c.valueBoolean ? 'Y' : 'N',
+                display: c.valueBoolean ? 'Yes' : 'No'
+              }]
+            };
+          } else if (c.valueCodeableConcept !== undefined) {
+            component.valueCodeableConcept = Array.isArray(c.valueCodeableConcept.coding) 
+              ? c.valueCodeableConcept 
+              : { coding: [c.valueCodeableConcept] };
+          } else if (c.valueSampledData !== undefined) {
+            component.valueSampledData = {
+              origin: {
+                value: c.valueSampledData.origin.value,
+                unit: c.valueSampledData.origin.unit,
+                system: 'http://unitsofmeasure.org',
+                code: c.valueSampledData.origin.unit
+              },
+              period: c.valueSampledData.period,
+              dimensions: c.valueSampledData.dimensions,
+              data: c.valueSampledData.data
+            };
+          }
+
+          return component;
         })
         .filter(Boolean);
     }
@@ -660,7 +755,10 @@ export function mapObservations({
     resource.triggeredBy = undefined;
     resource.partOf = undefined;
     resource.focus = undefined;
-    resource.effectivePeriod = undefined;
+    // Don't clear effectivePeriod if it was set (e.g., for sleep observations with start/end times)
+    if (!resource.effectivePeriod) {
+      resource.effectivePeriod = undefined;
+    }
     resource.effectiveTiming = undefined;
     resource.effectiveInstant = undefined;
     resource.issued = undefined;
@@ -679,11 +777,12 @@ export function mapObservations({
     if (!resource.valueQuantity) resource.valueQuantity = undefined;
     if (!resource.valueCodeableConcept) resource.valueCodeableConcept = undefined;
     if (!resource.valueString) resource.valueString = undefined;
-    resource.valueBoolean = undefined;
+    if (!resource.valueSampledData) resource.valueSampledData = undefined;
+    // Clear valueInteger and valueBoolean - we convert them to valueQuantity/valueCodeableConcept for FHIR R5 compatibility
     resource.valueInteger = undefined;
+    resource.valueBoolean = undefined;
     resource.valueRange = undefined;
     resource.valueRatio = undefined;
-    resource.valueSampledData = undefined;
     resource.valueTime = undefined;
     resource.valueDateTime = undefined;
     resource.valuePeriod = undefined;
@@ -693,7 +792,8 @@ export function mapObservations({
     if (!resource.component?.length
       && !resource.valueQuantity
       && !resource.valueCodeableConcept
-      && !resource.valueString) {
+      && !resource.valueString
+      && !resource.valueSampledData) {
       resource.dataAbsentReason = {
         coding: [{
           system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason',

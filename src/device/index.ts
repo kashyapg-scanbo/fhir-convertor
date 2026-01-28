@@ -8,7 +8,7 @@
  */
 
 // Export parsers
-export { parseWhoop, parseDexcom } from './parsers/index.js';
+export { parseWhoop, parseDexcom, parseAppleHealthKit } from './parsers/index.js';
 
 // Export types
 export type {
@@ -33,3 +33,9 @@ export type {
   DexcomDeviceData
 } from './types/dexcom.types.js';
 
+export type {
+  HealthKitData,
+  HealthKitSample,
+  HealthKitWorkout,
+  HealthKitSection
+} from './types/apple_healthkit.types.js';

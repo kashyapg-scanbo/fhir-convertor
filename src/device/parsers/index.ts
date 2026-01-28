@@ -6,6 +6,7 @@
 
 export { parseWhoop } from './whoop.parser.js';
 export { parseDexcom } from './dexcom.parser.js';
+export { parseAppleHealthKit } from './apple_healthkit.parser.js';
 
 export type { 
   WhoopData, 
@@ -25,3 +26,9 @@ export type {
   DexcomDeviceData 
 } from '../types/dexcom.types.js';
 
+export type {
+  HealthKitData,
+  HealthKitSample,
+  HealthKitWorkout,
+  HealthKitSection
+} from '../types/apple_healthkit.types.js';
