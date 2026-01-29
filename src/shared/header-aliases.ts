@@ -623,6 +623,58 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     account_procedure_sequence: ['procedure_sequence', 'account_procedure_sequence'],
     account_procedure_date: ['procedure_date', 'account_procedure_date']
   },
+  chargeItem: {
+    charge_item_id: ['charge_item_identifier', 'chargeitem_id', 'chargeitemid'],
+    charge_item_status: ['status', 'charge_item_status'],
+    charge_item_code: ['code', 'charge_item_code'],
+    charge_item_subject_id: ['subject_id', 'charge_item_subject_id', 'patient_id'],
+    charge_item_encounter_id: ['encounter_id', 'charge_item_encounter_id'],
+    charge_item_occurrence_date_time: ['occurrence_date_time', 'occurrence_datetime', 'charge_item_occurrence_date_time'],
+    charge_item_occurrence_start: ['occurrence_start', 'charge_item_occurrence_start'],
+    charge_item_occurrence_end: ['occurrence_end', 'charge_item_occurrence_end'],
+    charge_item_quantity_value: ['quantity_value', 'charge_item_quantity_value'],
+    charge_item_quantity_unit: ['quantity_unit', 'charge_item_quantity_unit'],
+    charge_item_enterer_id: ['enterer_id', 'charge_item_enterer_id'],
+    charge_item_entered_date: ['entered_date', 'charge_item_entered_date'],
+    charge_item_account_id: ['account_id', 'charge_item_account_id'],
+    charge_item_total_price_value: ['total_price_value', 'charge_item_total_price_value'],
+    charge_item_total_price_currency: ['total_price_currency', 'charge_item_total_price_currency']
+  },
+  chargeItemDefinition: {
+    charge_item_definition_id: ['charge_item_definition_identifier', 'chargeitemdefinition_id', 'chargeitemdefinitionid'],
+    charge_item_definition_url: ['url', 'charge_item_definition_url'],
+    charge_item_definition_version: ['version', 'charge_item_definition_version'],
+    charge_item_definition_status: ['status', 'charge_item_definition_status'],
+    charge_item_definition_code: ['code', 'charge_item_definition_code'],
+    charge_item_definition_name: ['name', 'charge_item_definition_name'],
+    charge_item_definition_title: ['title', 'charge_item_definition_title'],
+    charge_item_definition_publisher: ['publisher', 'charge_item_definition_publisher'],
+    charge_item_definition_date: ['date', 'charge_item_definition_date']
+  },
+  device: {
+    device_id: ['device_identifier', 'deviceid', 'device_id'],
+    device_status: ['status', 'device_status'],
+    device_display_name: ['display_name', 'device_display_name'],
+    device_manufacturer: ['manufacturer', 'device_manufacturer'],
+    device_model_number: ['model_number', 'device_model_number'],
+    device_serial_number: ['serial_number', 'device_serial_number'],
+    device_lot_number: ['lot_number', 'device_lot_number'],
+    device_subject_id: ['subject_id', 'patient_id', 'device_subject_id'],
+    device_owner_id: ['owner_id', 'device_owner_id'],
+    device_location_id: ['location_id', 'device_location_id']
+  },
+  deviceMetric: {
+    device_metric_id: ['device_metric_identifier', 'devicemetric_id', 'devicemetricid'],
+    device_metric_status: ['status', 'device_metric_status'],
+    device_metric_type: ['type', 'device_metric_type'],
+    device_metric_unit: ['unit', 'device_metric_unit'],
+    device_metric_device_id: ['device_id', 'device_metric_device_id'],
+    device_metric_operational_status: ['operational_status', 'device_metric_operational_status'],
+    device_metric_color: ['color', 'device_metric_color'],
+    device_metric_category: ['category', 'device_metric_category'],
+    device_metric_frequency_value: ['frequency_value', 'device_metric_frequency_value'],
+    device_metric_frequency_unit: ['frequency_unit', 'device_metric_frequency_unit']
+  },
   coverage: {
     coverage_id: ['coverage_identifier', 'coverageid', 'policy_id'],
     coverage_status: ['status', 'coverage_status'],

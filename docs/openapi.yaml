@@ -1217,6 +1217,30 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomAccount'
+        charge_item:
+          oneOf:
+            - $ref: '#/components/schemas/CustomChargeItem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomChargeItem'
+        charge_item_definition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomChargeItemDefinition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomChargeItemDefinition'
+        device:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDevice'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDevice'
+        device_metric:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceMetric'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceMetric'
         binary:
           oneOf:
             - $ref: '#/components/schemas/CustomBinary'
@@ -4287,6 +4311,109 @@ components:
         account_procedure_date:
           type: string
           format: date-time
+    CustomChargeItem:
+      type: object
+      properties:
+        charge_item_id:
+          type: string
+        charge_item_status:
+          type: string
+        charge_item_code:
+          type: string
+        charge_item_subject_id:
+          type: string
+        charge_item_encounter_id:
+          type: string
+        charge_item_occurrence_date_time:
+          type: string
+          format: date-time
+        charge_item_occurrence_start:
+          type: string
+          format: date-time
+        charge_item_occurrence_end:
+          type: string
+          format: date-time
+        charge_item_quantity_value:
+          type: number
+        charge_item_quantity_unit:
+          type: string
+        charge_item_enterer_id:
+          type: string
+        charge_item_entered_date:
+          type: string
+          format: date-time
+        charge_item_account_id:
+          type: string
+        charge_item_total_price_value:
+          type: number
+        charge_item_total_price_currency:
+          type: string
+    CustomChargeItemDefinition:
+      type: object
+      properties:
+        charge_item_definition_id:
+          type: string
+        charge_item_definition_url:
+          type: string
+        charge_item_definition_version:
+          type: string
+        charge_item_definition_status:
+          type: string
+        charge_item_definition_code:
+          type: string
+        charge_item_definition_name:
+          type: string
+        charge_item_definition_title:
+          type: string
+        charge_item_definition_publisher:
+          type: string
+        charge_item_definition_date:
+          type: string
+          format: date-time
+    CustomDevice:
+      type: object
+      properties:
+        device_id:
+          type: string
+        device_status:
+          type: string
+        device_display_name:
+          type: string
+        device_manufacturer:
+          type: string
+        device_model_number:
+          type: string
+        device_serial_number:
+          type: string
+        device_lot_number:
+          type: string
+        device_owner_id:
+          type: string
+        device_location_id:
+          type: string
+    CustomDeviceMetric:
+      type: object
+      properties:
+        device_metric_id:
+          type: string
+        device_metric_status:
+          type: string
+        device_metric_type:
+          type: string
+        device_metric_unit:
+          type: string
+        device_metric_device_id:
+          type: string
+        device_metric_operational_status:
+          type: string
+        device_metric_color:
+          type: string
+        device_metric_category:
+          type: string
+        device_metric_frequency_value:
+          type: number
+        device_metric_frequency_unit:
+          type: string
     CustomBinary:
       type: object
       properties:
@@ -5441,6 +5568,30 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [account]
+    CustomJsonChargeItemOnly:
+      title: ChargeItem
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [charge_item]
+    CustomJsonChargeItemDefinitionOnly:
+      title: ChargeItemDefinition
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [charge_item_definition]
+    CustomJsonDeviceOnly:
+      title: Device
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device]
+    CustomJsonDeviceMetricOnly:
+      title: DeviceMetric
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_metric]
     CustomJsonBinaryOnly:
       title: Binary
       allOf:

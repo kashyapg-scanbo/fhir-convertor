@@ -4634,6 +4634,392 @@ export type CanonicalAccount = {
   calculatedAt?: string;
 };
 
+export type CanonicalChargeItem = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  definitionUri?: string[];
+  definitionCanonical?: string[];
+  status?: string;
+  partOf?: string[];
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  subject?: string;
+  encounter?: string;
+  occurrenceDateTime?: string;
+  occurrencePeriod?: {
+    start?: string;
+    end?: string;
+  };
+  occurrenceTiming?: string;
+  performer?: Array<{
+    function?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    actor?: string;
+  }>;
+  performingOrganization?: string;
+  requestingOrganization?: string;
+  costCenter?: string;
+  quantity?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
+  bodysite?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  unitPriceComponent?: {
+    amount?: {
+      value?: number;
+      currency?: string;
+    };
+  };
+  totalPriceComponent?: {
+    amount?: {
+      value?: number;
+      currency?: string;
+    };
+  };
+  overrideReason?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  enterer?: string;
+  enteredDate?: string;
+  reason?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  service?: Array<{
+    reference?: string;
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  product?: Array<{
+    reference?: string;
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  account?: string[];
+  note?: string[];
+  supportingInformation?: string[];
+};
+
+export type CanonicalChargeItemDefinition = {
+  id?: string;
+  url?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  version?: string;
+  versionAlgorithmString?: string;
+  versionAlgorithmCoding?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  name?: string;
+  title?: string;
+  derivedFromUri?: string[];
+  partOf?: string[];
+  replaces?: string[];
+  status?: string;
+  experimental?: boolean;
+  date?: string;
+  publisher?: string;
+  contact?: Array<{
+    name?: string;
+    telecom?: Array<{
+      system?: string;
+      value?: string;
+      use?: string;
+    }>;
+  }>;
+  description?: string;
+  useContext?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    value?: {
+      code?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      reference?: string;
+    };
+  }>;
+  jurisdiction?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  purpose?: string;
+  copyright?: string;
+  copyrightLabel?: string;
+  approvalDate?: string;
+  lastReviewDate?: string;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  instance?: string[];
+  applicability?: Array<{
+    condition?: string;
+    effectivePeriod?: {
+      start?: string;
+      end?: string;
+    };
+    relatedArtifact?: {
+      type?: string;
+      url?: string;
+      display?: string;
+    };
+  }>;
+  propertyGroup?: Array<{
+    applicability?: CanonicalChargeItemDefinition['applicability'];
+    priceComponent?: Array<{
+      type?: string;
+      code?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      factor?: number;
+      amount?: {
+        value?: number;
+        currency?: string;
+      };
+    }>;
+  }>;
+};
+
+export type CanonicalDevice = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  displayName?: string;
+  definition?: {
+    reference?: string;
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  };
+  udiCarrier?: Array<{
+    deviceIdentifier?: string;
+    issuer?: string;
+    jurisdiction?: string;
+    carrierAIDC?: string;
+    carrierHRF?: string;
+    entryType?: string;
+  }>;
+  status?: string;
+  availabilityStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  manufacturer?: string;
+  manufactureDate?: string;
+  expirationDate?: string;
+  lotNumber?: string;
+  serialNumber?: string;
+  name?: Array<{
+    value?: string;
+    type?: string;
+    display?: boolean;
+  }>;
+  modelNumber?: string;
+  partNumber?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  type?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  version?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    component?: {
+      system?: string;
+      value?: string;
+    };
+    installDate?: string;
+    value?: string;
+  }>;
+  conformsTo?: Array<{
+    category?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    specification?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    version?: string;
+  }>;
+  property?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    valueCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    valueString?: string;
+    valueBoolean?: boolean;
+    valueInteger?: number;
+    valueRange?: {
+      low?: { value?: number; unit?: string };
+      high?: { value?: number; unit?: string };
+    };
+    valueAttachment?: {
+      contentType?: string;
+      url?: string;
+      title?: string;
+    };
+  }>;
+  mode?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  cycle?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
+  duration?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
+  owner?: string;
+  contact?: Array<{
+    system?: string;
+    value?: string;
+    use?: string;
+  }>;
+  location?: string;
+  url?: string;
+  endpoint?: string[];
+  gateway?: Array<{
+    reference?: string;
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  note?: string[];
+  safety?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  parent?: string;
+};
+
+export type CanonicalDeviceMetric = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  type?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  unit?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  device?: string;
+  operationalStatus?: string;
+  color?: string;
+  category?: string;
+  measurementFrequency?: {
+    value?: number;
+    unit?: string;
+    system?: string;
+    code?: string;
+  };
+  calibration?: Array<{
+    type?: string;
+    state?: string;
+    time?: string;
+  }>;
+};
+
 export type CanonicalSchedule = {
   id?: string;
   identifier?: string;
@@ -5219,6 +5605,10 @@ export type CanonicalModel = {
   compositions?: CanonicalComposition[]; // Composition
   coverages?: CanonicalCoverage[]; // Coverage
   accounts?: CanonicalAccount[]; // Account
+  chargeItems?: CanonicalChargeItem[]; // ChargeItem
+  chargeItemDefinitions?: CanonicalChargeItemDefinition[]; // ChargeItemDefinition
+  devices?: CanonicalDevice[]; // Device
+  deviceMetrics?: CanonicalDeviceMetric[]; // DeviceMetric
   schedules?: CanonicalSchedule[]; // Schedule
   slots?: CanonicalSlot[]; // Slot
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport

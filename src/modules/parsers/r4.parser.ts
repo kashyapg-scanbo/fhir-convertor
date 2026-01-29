@@ -62,7 +62,11 @@ import {
     CanonicalProvenance,
     CanonicalAuditEvent,
     CanonicalConsent,
-    CanonicalAccount
+    CanonicalAccount,
+    CanonicalChargeItem,
+    CanonicalChargeItemDefinition,
+    CanonicalDevice,
+    CanonicalDeviceMetric
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -105,6 +109,10 @@ export function parseR4(input: string): CanonicalModel {
         compositions: [],
         coverages: [],
         accounts: [],
+        chargeItems: [],
+        chargeItemDefinitions: [],
+        devices: [],
+        deviceMetrics: [],
         carePlans: [],
         careTeams: [],
         goals: [],
@@ -226,6 +234,22 @@ export function parseR4(input: string): CanonicalModel {
             case 'Account':
                 const account = mapR4Account(res);
                 if (account) model.accounts?.push(account);
+                break;
+            case 'ChargeItem':
+                const chargeItem = mapR4ChargeItem(res);
+                if (chargeItem) model.chargeItems?.push(chargeItem);
+                break;
+            case 'ChargeItemDefinition':
+                const chargeItemDefinition = mapR4ChargeItemDefinition(res);
+                if (chargeItemDefinition) model.chargeItemDefinitions?.push(chargeItemDefinition);
+                break;
+            case 'Device':
+                const device = mapR4Device(res);
+                if (device) model.devices?.push(device);
+                break;
+            case 'DeviceMetric':
+                const deviceMetric = mapR4DeviceMetric(res);
+                if (deviceMetric) model.deviceMetrics?.push(deviceMetric);
                 break;
             case 'CarePlan':
                 const carePlan = mapR4CarePlan(res);
@@ -2933,6 +2957,369 @@ function mapR4Account(account: any): CanonicalAccount {
             amount: mapMoney(entry.amount)
         })),
         calculatedAt: account.calculatedAt
+    };
+}
+
+function mapR4ChargeItem(item: any): CanonicalChargeItem {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    const mapCodeableReference = (source: any) => {
+        if (!source) return undefined;
+        const reference = source.reference ? stripRef(source.reference) : undefined;
+        const concept = mapCodeable(source.concept);
+        if (!reference && !concept) return undefined;
+        return {
+            reference,
+            code: concept
+        };
+    };
+
+    return {
+        id: item.id,
+        identifier: item.identifier?.map(mapIdentifier).filter(Boolean),
+        definitionUri: item.definitionUri,
+        definitionCanonical: item.definitionCanonical,
+        status: item.status,
+        partOf: item.partOf?.map((ref: any) => stripRef(ref.reference, /^ChargeItem\//)).filter(Boolean),
+        code: mapCodeable(item.code),
+        subject: stripRef(item.subject?.reference, /^(Group|Patient)\//),
+        encounter: stripRef(item.encounter?.reference, /^Encounter\//),
+        occurrenceDateTime: item.occurrenceDateTime,
+        occurrencePeriod: mapPeriod(item.occurrencePeriod),
+        occurrenceTiming: item.occurrenceTiming?.code?.text || item.occurrenceTiming?.event?.[0],
+        performer: item.performer?.map((entry: any) => ({
+            function: mapCodeable(entry.function),
+            actor: stripRef(entry.actor?.reference)
+        })),
+        performingOrganization: stripRef(item.performingOrganization?.reference, /^Organization\//),
+        requestingOrganization: stripRef(item.requestingOrganization?.reference, /^Organization\//),
+        costCenter: stripRef(item.costCenter?.reference, /^Organization\//),
+        quantity: mapQuantity(item.quantity),
+        bodysite: item.bodysite?.map(mapCodeable),
+        unitPriceComponent: item.unitPriceComponent?.amount ? { amount: mapMoney(item.unitPriceComponent.amount) } : undefined,
+        totalPriceComponent: item.totalPriceComponent?.amount ? { amount: mapMoney(item.totalPriceComponent.amount) } : undefined,
+        overrideReason: mapCodeable(item.overrideReason),
+        enterer: stripRef(item.enterer?.reference),
+        enteredDate: item.enteredDate,
+        reason: item.reason?.map(mapCodeable),
+        service: item.service?.map(mapCodeableReference).filter(Boolean),
+        product: item.product?.map(mapCodeableReference).filter(Boolean),
+        account: item.account?.map((ref: any) => stripRef(ref.reference, /^Account\//)).filter(Boolean),
+        note: item.note?.map((note: any) => note.text).filter(Boolean),
+        supportingInformation: item.supportingInformation?.map((ref: any) => stripRef(ref.reference)).filter(Boolean)
+    };
+}
+
+function mapR4ChargeItemDefinition(definition: any): CanonicalChargeItemDefinition {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const mapRelatedArtifact = (source: any) => source ? {
+        type: source.type,
+        url: source.url,
+        display: source.display
+    } : undefined;
+
+    const stripRef = (value?: string) => {
+        if (!value) return undefined;
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    return {
+        id: definition.id,
+        url: definition.url,
+        identifier: definition.identifier?.map(mapIdentifier).filter(Boolean),
+        version: definition.version,
+        versionAlgorithmString: definition.versionAlgorithmString,
+        versionAlgorithmCoding: definition.versionAlgorithmCoding
+            ? {
+                system: definition.versionAlgorithmCoding.system,
+                code: definition.versionAlgorithmCoding.code,
+                display: definition.versionAlgorithmCoding.display
+              }
+            : undefined,
+        name: definition.name,
+        title: definition.title,
+        derivedFromUri: definition.derivedFromUri,
+        partOf: definition.partOf,
+        replaces: definition.replaces,
+        status: definition.status,
+        experimental: definition.experimental,
+        date: definition.date,
+        publisher: definition.publisher,
+        contact: definition.contact?.map((entry: any) => ({
+            name: entry.name,
+            telecom: entry.telecom?.map((tel: any) => ({
+                system: tel.system,
+                value: tel.value,
+                use: tel.use
+            }))
+        })),
+        description: definition.description,
+        useContext: definition.useContext?.map((ctx: any) => ({
+            code: mapCodeable(ctx.code),
+            value: ctx.valueCodeableConcept
+                ? { code: mapCodeable(ctx.valueCodeableConcept) }
+                : ctx.valueReference?.reference
+                  ? { reference: stripRef(ctx.valueReference.reference) }
+                  : undefined
+        })),
+        jurisdiction: definition.jurisdiction?.map(mapCodeable),
+        purpose: definition.purpose,
+        copyright: definition.copyright,
+        copyrightLabel: definition.copyrightLabel,
+        approvalDate: definition.approvalDate,
+        lastReviewDate: definition.lastReviewDate,
+        code: mapCodeable(definition.code),
+        instance: definition.instance?.map((ref: any) => stripRef(ref.reference)).filter(Boolean),
+        applicability: definition.applicability?.map((app: any) => ({
+            condition: app.condition?.expression,
+            effectivePeriod: mapPeriod(app.effectivePeriod),
+            relatedArtifact: mapRelatedArtifact(app.relatedArtifact)
+        })),
+        propertyGroup: definition.propertyGroup?.map((group: any) => ({
+            applicability: group.applicability?.map((app: any) => ({
+                condition: app.condition?.expression,
+                effectivePeriod: mapPeriod(app.effectivePeriod),
+                relatedArtifact: mapRelatedArtifact(app.relatedArtifact)
+            })),
+            priceComponent: group.priceComponent?.map((pc: any) => ({
+                type: pc.type,
+                code: mapCodeable(pc.code),
+                factor: pc.factor,
+                amount: mapMoney(pc.amount)
+            }))
+        }))
+    };
+}
+
+function mapR4Device(device: any): CanonicalDevice {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    const mapCodeableReference = (source: any, resourceType: string) => {
+        if (!source) return undefined;
+        const reference = source.reference ? stripRef(source.reference, new RegExp(`^${resourceType}\\/`)) : undefined;
+        const concept = mapCodeable(source.concept);
+        if (!reference && !concept) return undefined;
+        return {
+            reference,
+            code: concept
+        };
+    };
+
+    return {
+        id: device.id,
+        identifier: device.identifier?.map(mapIdentifier).filter(Boolean),
+        displayName: device.displayName,
+        definition: mapCodeableReference(device.definition, 'DeviceDefinition'),
+        udiCarrier: device.udiCarrier?.map((udi: any) => ({
+            deviceIdentifier: udi.deviceIdentifier,
+            issuer: udi.issuer,
+            jurisdiction: udi.jurisdiction,
+            carrierAIDC: udi.carrierAIDC,
+            carrierHRF: udi.carrierHRF,
+            entryType: udi.entryType
+        })),
+        status: device.status,
+        availabilityStatus: mapCodeable(device.availabilityStatus),
+        manufacturer: device.manufacturer,
+        manufactureDate: device.manufactureDate,
+        expirationDate: device.expirationDate,
+        lotNumber: device.lotNumber,
+        serialNumber: device.serialNumber,
+        name: device.name?.map((entry: any) => ({
+            value: entry.value,
+            type: entry.type,
+            display: entry.display
+        })),
+        modelNumber: device.modelNumber,
+        partNumber: device.partNumber,
+        category: device.category?.map(mapCodeable),
+        type: device.type?.map(mapCodeable),
+        version: device.version?.map((ver: any) => ({
+            type: mapCodeable(ver.type),
+            component: ver.component ? { system: ver.component.system, value: ver.component.value } : undefined,
+            installDate: ver.installDate,
+            value: ver.value
+        })),
+        conformsTo: device.conformsTo?.map((conf: any) => ({
+            category: mapCodeable(conf.category),
+            specification: mapCodeable(conf.specification),
+            version: conf.version
+        })),
+        property: device.property?.map((prop: any) => ({
+            type: mapCodeable(prop.type),
+            valueQuantity: mapQuantity(prop.valueQuantity),
+            valueCodeableConcept: mapCodeable(prop.valueCodeableConcept),
+            valueString: prop.valueString,
+            valueBoolean: prop.valueBoolean,
+            valueInteger: prop.valueInteger,
+            valueRange: prop.valueRange,
+            valueAttachment: prop.valueAttachment
+        })),
+        mode: mapCodeable(device.mode),
+        cycle: mapQuantity(device.cycle),
+        duration: mapQuantity(device.duration),
+        owner: stripRef(device.owner?.reference, /^Organization\//),
+        contact: device.contact?.map((contact: any) => ({
+            system: contact.system,
+            value: contact.value,
+            use: contact.use
+        })),
+        location: stripRef(device.location?.reference, /^Location\//),
+        url: device.url,
+        endpoint: device.endpoint?.map((ref: any) => stripRef(ref.reference, /^Endpoint\//)).filter(Boolean),
+        gateway: device.gateway?.map((entry: any) => mapCodeableReference(entry, 'Device')).filter(Boolean),
+        note: device.note?.map((note: any) => note.text).filter(Boolean),
+        safety: device.safety?.map(mapCodeable),
+        parent: stripRef(device.parent?.reference, /^Device\//)
+    };
+}
+
+function mapR4DeviceMetric(metric: any): CanonicalDeviceMetric {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    return {
+        id: metric.id,
+        identifier: metric.identifier?.map(mapIdentifier).filter(Boolean),
+        type: mapCodeable(metric.type),
+        unit: mapCodeable(metric.unit),
+        device: stripRef(metric.device?.reference, /^Device\//),
+        operationalStatus: metric.operationalStatus,
+        color: metric.color,
+        category: metric.category,
+        measurementFrequency: mapQuantity(metric.measurementFrequency),
+        calibration: metric.calibration?.map((entry: any) => ({
+            type: entry.type,
+            state: entry.state,
+            time: entry.time
+        }))
     };
 }
 

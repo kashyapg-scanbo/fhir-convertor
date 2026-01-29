@@ -1673,6 +1673,63 @@ const GlobalAccountSchema = z.object({
   calculated_at: z.string().optional()
 });
 
+const GlobalChargeItemSchema = z.object({
+  charge_item_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  subject_id: GlobalIdSchema.optional(),
+  encounter_id: GlobalIdSchema.optional(),
+  occurrence_date_time: z.string().optional(),
+  occurrence_start: z.string().optional(),
+  occurrence_end: z.string().optional(),
+  quantity: GlobalQuantitySchema.optional(),
+  enterer_id: GlobalIdSchema.optional(),
+  entered_date: z.string().optional(),
+  account_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  total_price_value: GlobalNumberSchema.optional(),
+  total_price_currency: z.string().optional()
+});
+
+const GlobalChargeItemDefinitionSchema = z.object({
+  charge_item_definition_id: GlobalIdSchema.optional(),
+  url: z.string().optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  version: z.string().optional(),
+  status: z.string().optional(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  publisher: z.string().optional(),
+  date: z.string().optional(),
+  code: GlobalCodeableConceptSchema.optional()
+});
+
+const GlobalDeviceSchema = z.object({
+  device_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  display_name: z.string().optional(),
+  manufacturer: z.string().optional(),
+  model_number: z.string().optional(),
+  serial_number: z.string().optional(),
+  lot_number: z.string().optional(),
+  owner_id: GlobalIdSchema.optional(),
+  location_id: GlobalIdSchema.optional()
+});
+
+const GlobalDeviceMetricSchema = z.object({
+  device_metric_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  type: GlobalCodeableConceptSchema.optional(),
+  unit: GlobalCodeableConceptSchema.optional(),
+  device_id: GlobalIdSchema.optional(),
+  operational_status: z.string().optional(),
+  color: z.string().optional(),
+  category: z.string().optional(),
+  measurement_frequency: GlobalQuantitySchema.optional()
+});
+
 const GlobalCoveragePaymentBySchema = z.object({
   party_id: GlobalIdSchema.optional(),
   responsibility: z.string().optional()
@@ -2328,6 +2385,10 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   explanation_of_benefit: z.union([GlobalExplanationOfBenefitSchema, z.array(GlobalExplanationOfBenefitSchema)]).optional(),
   coverage: z.union([GlobalCoverageSchema, z.array(GlobalCoverageSchema)]).optional(),
   account: z.union([GlobalAccountSchema, z.array(GlobalAccountSchema)]).optional(),
+  charge_item: z.union([GlobalChargeItemSchema, z.array(GlobalChargeItemSchema)]).optional(),
+  charge_item_definition: z.union([GlobalChargeItemDefinitionSchema, z.array(GlobalChargeItemDefinitionSchema)]).optional(),
+  device: z.union([GlobalDeviceSchema, z.array(GlobalDeviceSchema)]).optional(),
+  device_metric: z.union([GlobalDeviceMetricSchema, z.array(GlobalDeviceMetricSchema)]).optional(),
   binary: z.union([GlobalBinarySchema, z.array(GlobalBinarySchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
@@ -2390,6 +2451,10 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.explanation_of_benefit ||
     value.coverage ||
     value.account ||
+    value.charge_item ||
+    value.charge_item_definition ||
+    value.device ||
+    value.device_metric ||
     value.binary ||
     value.schedule ||
     value.slot ||
@@ -2406,7 +2471,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2473,6 +2538,10 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   explanationOfBenefits: 'explanationOfBenefit',
   coverages: 'coverage',
   accounts: 'account',
+  chargeItems: 'chargeItem',
+  chargeItemDefinitions: 'chargeItemDefinition',
+  devices: 'device',
+  deviceMetrics: 'deviceMetric',
   binaries: 'binary',
   schedules: 'schedule',
   slots: 'slot',
@@ -2599,6 +2668,20 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   coverages: 'coverage',
   account: 'account',
   accounts: 'account',
+  charge_item: 'chargeItem',
+  charge_items: 'chargeItem',
+  chargeitem: 'chargeItem',
+  chargeitems: 'chargeItem',
+  charge_item_definition: 'chargeItemDefinition',
+  charge_item_definitions: 'chargeItemDefinition',
+  chargeitemdefinition: 'chargeItemDefinition',
+  chargeitemdefinitions: 'chargeItemDefinition',
+  device: 'device',
+  devices: 'device',
+  device_metric: 'deviceMetric',
+  device_metrics: 'deviceMetric',
+  devicemetric: 'deviceMetric',
+  devicemetrics: 'deviceMetric',
   binary: 'binary',
   binaries: 'binary',
   schedule: 'schedule',
@@ -2773,6 +2856,20 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   coverages: 'coverage',
   account: 'account',
   accounts: 'account',
+  charge_item: 'charge_item',
+  charge_items: 'charge_item',
+  chargeitem: 'charge_item',
+  chargeitems: 'charge_item',
+  charge_item_definition: 'charge_item_definition',
+  charge_item_definitions: 'charge_item_definition',
+  chargeitemdefinition: 'charge_item_definition',
+  chargeitemdefinitions: 'charge_item_definition',
+  device: 'device',
+  devices: 'device',
+  device_metric: 'device_metric',
+  device_metrics: 'device_metric',
+  devicemetric: 'device_metric',
+  devicemetrics: 'device_metric',
   binary: 'binary',
   binaries: 'binary',
   schedule: 'schedule',
@@ -5064,6 +5161,174 @@ function normalizeGlobalAccountAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalChargeItemAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const chargeItemId = readSectionAliasValue(value, 'chargeItem', 'charge_item_id');
+  if (normalized.charge_item_id === undefined && chargeItemId !== undefined) {
+    normalized.charge_item_id = chargeItemId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_code'));
+  if (code && normalized.code === undefined) normalized.code = { code, display: code };
+
+  const subjectId = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_subject_id'));
+  if (subjectId && normalized.subject_id === undefined) normalized.subject_id = subjectId;
+
+  const encounterId = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_encounter_id'));
+  if (encounterId && normalized.encounter_id === undefined) normalized.encounter_id = encounterId;
+
+  const occurrenceDateTime = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_occurrence_date_time'));
+  if (occurrenceDateTime && normalized.occurrence_date_time === undefined) normalized.occurrence_date_time = occurrenceDateTime;
+
+  const occurrenceStart = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_occurrence_start'));
+  if (occurrenceStart && normalized.occurrence_start === undefined) normalized.occurrence_start = occurrenceStart;
+
+  const occurrenceEnd = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_occurrence_end'));
+  if (occurrenceEnd && normalized.occurrence_end === undefined) normalized.occurrence_end = occurrenceEnd;
+
+  const quantityValue = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_quantity_value'));
+  const quantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_quantity_unit'));
+  if ((quantityValue || quantityUnit) && normalized.quantity === undefined) {
+    normalized.quantity = {
+      value: quantityValue,
+      unit: quantityUnit
+    };
+  }
+
+  const entererId = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_enterer_id'));
+  if (entererId && normalized.enterer_id === undefined) normalized.enterer_id = entererId;
+
+  const enteredDate = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_entered_date'));
+  if (enteredDate && normalized.entered_date === undefined) normalized.entered_date = enteredDate;
+
+  const accountId = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_account_id'));
+  if (accountId && normalized.account_ids === undefined) normalized.account_ids = accountId;
+
+  const totalPriceValue = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_total_price_value'));
+  const totalPriceCurrency = normalizeAliasValue(readSectionAliasValue(value, 'chargeItem', 'charge_item_total_price_currency'));
+  if ((totalPriceValue || totalPriceCurrency) && normalized.total_price_value === undefined) {
+    normalized.total_price_value = totalPriceValue;
+    normalized.total_price_currency = totalPriceCurrency;
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalChargeItemDefinitionAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const definitionId = readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_id');
+  if (normalized.charge_item_definition_id === undefined && definitionId !== undefined) {
+    normalized.charge_item_definition_id = definitionId;
+  }
+
+  const url = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_url'));
+  if (url && normalized.url === undefined) normalized.url = url;
+
+  const version = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_version'));
+  if (version && normalized.version === undefined) normalized.version = version;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_code'));
+  if (code && normalized.code === undefined) normalized.code = { code, display: code };
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const title = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_title'));
+  if (title && normalized.title === undefined) normalized.title = title;
+
+  const publisher = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_publisher'));
+  if (publisher && normalized.publisher === undefined) normalized.publisher = publisher;
+
+  const date = normalizeAliasValue(readSectionAliasValue(value, 'chargeItemDefinition', 'charge_item_definition_date'));
+  if (date && normalized.date === undefined) normalized.date = date;
+
+  return normalized;
+}
+
+function normalizeGlobalDeviceAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const deviceId = readSectionAliasValue(value, 'device', 'device_id');
+  if (normalized.device_id === undefined && deviceId !== undefined) {
+    normalized.device_id = deviceId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const displayName = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_display_name'));
+  if (displayName && normalized.display_name === undefined) normalized.display_name = displayName;
+
+  const manufacturer = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_manufacturer'));
+  if (manufacturer && normalized.manufacturer === undefined) normalized.manufacturer = manufacturer;
+
+  const modelNumber = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_model_number'));
+  if (modelNumber && normalized.model_number === undefined) normalized.model_number = modelNumber;
+
+  const serialNumber = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_serial_number'));
+  if (serialNumber && normalized.serial_number === undefined) normalized.serial_number = serialNumber;
+
+  const lotNumber = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_lot_number'));
+  if (lotNumber && normalized.lot_number === undefined) normalized.lot_number = lotNumber;
+
+  const ownerId = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_owner_id'));
+  if (ownerId && normalized.owner_id === undefined) normalized.owner_id = ownerId;
+
+  const locationId = normalizeAliasValue(readSectionAliasValue(value, 'device', 'device_location_id'));
+  if (locationId && normalized.location_id === undefined) normalized.location_id = locationId;
+
+  return normalized;
+}
+
+function normalizeGlobalDeviceMetricAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const metricId = readSectionAliasValue(value, 'deviceMetric', 'device_metric_id');
+  if (normalized.device_metric_id === undefined && metricId !== undefined) {
+    normalized.device_metric_id = metricId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const unit = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_unit'));
+  if (unit && normalized.unit === undefined) normalized.unit = { code: unit, display: unit };
+
+  const deviceId = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_device_id'));
+  if (deviceId && normalized.device_id === undefined) normalized.device_id = deviceId;
+
+  const operationalStatus = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_operational_status'));
+  if (operationalStatus && normalized.operational_status === undefined) normalized.operational_status = operationalStatus;
+
+  const color = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_color'));
+  if (color && normalized.color === undefined) normalized.color = color;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const freqValue = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_frequency_value'));
+  const freqUnit = normalizeAliasValue(readSectionAliasValue(value, 'deviceMetric', 'device_metric_frequency_unit'));
+  if ((freqValue || freqUnit) && normalized.measurement_frequency === undefined) {
+    normalized.measurement_frequency = {
+      value: freqValue,
+      unit: freqUnit
+    };
+  }
+
+  return normalized;
+}
+
 function normalizeGlobalExplanationOfBenefitAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -6881,6 +7146,14 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalCoverageAliases(value);
     case 'account':
       return normalizeGlobalAccountAliases(value);
+    case 'chargeItem':
+      return normalizeGlobalChargeItemAliases(value);
+    case 'chargeItemDefinition':
+      return normalizeGlobalChargeItemDefinitionAliases(value);
+    case 'device':
+      return normalizeGlobalDeviceAliases(value);
+    case 'deviceMetric':
+      return normalizeGlobalDeviceMetricAliases(value);
     case 'binary':
       return normalizeGlobalBinaryAliases(value);
     case 'schedule':
@@ -6955,6 +7228,10 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['explanationOfBenefit', 'explanation_of_benefit'],
     ['coverage', 'coverage'],
     ['account', 'account'],
+    ['chargeItem', 'charge_item'],
+    ['chargeItemDefinition', 'charge_item_definition'],
+    ['device', 'device'],
+    ['deviceMetric', 'device_metric'],
     ['binary', 'binary'],
     ['schedule', 'schedule'],
     ['slot', 'slot'],
@@ -7091,6 +7368,10 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'explanationOfBenefit',
     'coverage',
     'account',
+    'chargeItem',
+    'chargeItemDefinition',
+    'device',
+    'deviceMetric',
     'binary',
     'schedule',
     'slot',
@@ -7271,6 +7552,10 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const explanationOfBenefits = normalizeArray(validated.explanation_of_benefit);
   const coverages = normalizeArray(validated.coverage);
   const accounts = normalizeArray(validated.account);
+  const chargeItems = normalizeArray(validated.charge_item);
+  const chargeItemDefinitions = normalizeArray(validated.charge_item_definition);
+  const devices = normalizeArray(validated.device);
+  const deviceMetrics = normalizeArray(validated.device_metric);
   const binaries = normalizeArray(validated.binary);
   const schedules = normalizeArray(validated.schedule);
   const slots = normalizeArray(validated.slot);
@@ -7425,6 +7710,18 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (accounts.length) {
     canonical.accounts = accounts.map(buildCanonicalAccountGlobal);
   }
+  if (chargeItems.length) {
+    canonical.chargeItems = chargeItems.map(buildCanonicalChargeItemGlobal);
+  }
+  if (chargeItemDefinitions.length) {
+    canonical.chargeItemDefinitions = chargeItemDefinitions.map(buildCanonicalChargeItemDefinitionGlobal);
+  }
+  if (devices.length) {
+    canonical.devices = devices.map(buildCanonicalDeviceGlobal);
+  }
+  if (deviceMetrics.length) {
+    canonical.deviceMetrics = deviceMetrics.map(buildCanonicalDeviceMetricGlobal);
+  }
   if (binaries.length) {
     canonical.binaries = binaries.map(buildCanonicalBinaryGlobal);
   }
@@ -7531,6 +7828,10 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     explanation_of_benefit: ['explanation_of_benefit_id', 'id', 'identifier'],
     coverage: ['coverage_id', 'id', 'identifier'],
     account: ['account_id', 'id', 'identifier'],
+    charge_item: ['charge_item_id', 'id', 'identifier'],
+    charge_item_definition: ['charge_item_definition_id', 'id', 'identifier'],
+    device_metric: ['device_metric_id', 'id', 'identifier'],
+    device: ['device_id', 'id', 'identifier'],
     binary: ['binary_id', 'id', 'identifier'],
     schedule: ['schedule_id', 'id', 'identifier'],
     slot: ['slot_id', 'id', 'identifier'],
@@ -7600,7 +7901,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -7650,6 +7951,10 @@ function wrapGlobalPayload(value: any) {
       value.explanation_of_benefit,
       value.coverage,
       value.account,
+      value.charge_item,
+      value.charge_item_definition,
+      value.device,
+      value.device_metric,
       value.binary,
       value.schedule,
       value.slot,
@@ -7804,6 +8109,18 @@ function wrapGlobalPayload(value: any) {
     }
     if ('account_id' in value || 'account_status' in value || 'account_name' in value || 'billing_status' in value) {
       return { account: value };
+    }
+    if ('charge_item_id' in value || 'charge_item_status' in value || 'charge_item_code' in value) {
+      return { charge_item: value };
+    }
+    if ('charge_item_definition_id' in value || 'charge_item_definition_status' in value || 'charge_item_definition_code' in value) {
+      return { charge_item_definition: value };
+    }
+    if ('device_id' in value || 'device_status' in value || 'device_display_name' in value) {
+      return { device: value };
+    }
+    if ('device_metric_id' in value || 'device_metric_status' in value || 'device_metric_type' in value) {
+      return { device_metric: value };
     }
     if ('binary_id' in value || 'content_type' in value || 'security_context' in value || 'data' in value) {
       return { binary: value };
@@ -7987,6 +8304,18 @@ function looksLikeGlobalResource(value: any) {
     'account_id' in value ||
     'account_status' in value ||
     'account_name' in value ||
+    'charge_item_id' in value ||
+    'charge_item_status' in value ||
+    'charge_item_code' in value ||
+    'charge_item_definition_id' in value ||
+    'charge_item_definition_status' in value ||
+    'charge_item_definition_code' in value ||
+    'device_id' in value ||
+    'device_status' in value ||
+    'device_display_name' in value ||
+    'device_metric_id' in value ||
+    'device_metric_status' in value ||
+    'device_metric_type' in value ||
     'binary_id' in value ||
     'content_type' in value ||
     'security_context' in value ||
@@ -11055,6 +11384,184 @@ function buildCanonicalAccountGlobal(account: z.infer<typeof GlobalAccountSchema
       amount: mapMoney((entry as any).amount)
     })).filter(entry => entry.aggregate || entry.term || entry.estimate !== undefined || entry.amount),
     calculatedAt: account.calculated_at
+  };
+}
+
+function buildCanonicalChargeItemGlobal(item: z.infer<typeof GlobalChargeItemSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  return {
+    id: item.charge_item_id,
+    identifier: normalizeArray(item.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: item.status,
+    code: mapCodeable(item.code),
+    subject: item.subject_id,
+    encounter: item.encounter_id,
+    occurrenceDateTime: item.occurrence_date_time,
+    occurrencePeriod: mapPeriod(item.occurrence_start, item.occurrence_end),
+    quantity: mapQuantity(item.quantity),
+    enterer: item.enterer_id,
+    enteredDate: item.entered_date,
+    account: normalizeStringArray(item.account_ids),
+    totalPriceComponent: (item.total_price_value !== undefined || item.total_price_currency)
+      ? {
+        amount: {
+          value: toNumber(item.total_price_value as any),
+          currency: item.total_price_currency
+        }
+      }
+      : undefined
+  };
+}
+
+function buildCanonicalChargeItemDefinitionGlobal(definition: z.infer<typeof GlobalChargeItemDefinitionSchema>) {
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  return {
+    id: definition.charge_item_definition_id,
+    url: definition.url,
+    identifier: normalizeArray(definition.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    version: definition.version,
+    status: definition.status,
+    name: definition.name,
+    title: definition.title,
+    publisher: definition.publisher,
+    date: definition.date,
+    code: mapCodeable(definition.code)
+  };
+}
+
+function buildCanonicalDeviceGlobal(device: z.infer<typeof GlobalDeviceSchema>) {
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  return {
+    id: device.device_id,
+    identifier: normalizeArray(device.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: device.status,
+    displayName: device.display_name,
+    manufacturer: device.manufacturer,
+    modelNumber: device.model_number,
+    serialNumber: device.serial_number,
+    lotNumber: device.lot_number,
+    owner: device.owner_id,
+    location: device.location_id
+  };
+}
+
+function buildCanonicalDeviceMetricGlobal(metric: z.infer<typeof GlobalDeviceMetricSchema>) {
+  const toNumber = (value?: string | number) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapQuantity = (source?: z.infer<typeof GlobalQuantitySchema>) => {
+    if (!source) return undefined;
+    return {
+      value: toNumber(source.value as any),
+      unit: source.unit,
+      system: source.system,
+      code: source.code
+    };
+  };
+
+  return {
+    id: metric.device_metric_id,
+    identifier: normalizeArray(metric.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    type: mapCodeable(metric.type),
+    unit: mapCodeable(metric.unit),
+    device: metric.device_id,
+    operationalStatus: metric.operational_status,
+    color: metric.color,
+    category: metric.category,
+    measurementFrequency: mapQuantity(metric.measurement_frequency)
   };
 }
 

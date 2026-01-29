@@ -51,6 +51,10 @@ import { mapExplanationOfBenefits } from './explanationOfBenefit.mapper.js';
 import { mapCompositions } from './composition.mapper.js';
 import { mapCoverages } from './coverage.mapper.js';
 import { mapAccounts } from './account.mapper.js';
+import { mapChargeItems } from './chargeItem.mapper.js';
+import { mapChargeItemDefinitions } from './chargeItemDefinition.mapper.js';
+import { mapDevices } from './device.mapper.js';
+import { mapDeviceMetrics } from './deviceMetric.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -626,6 +630,45 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (accountEntries.length > 0) {
     bundle.entry.push(...accountEntries);
+  }
+
+  const chargeItemEntries = mapChargeItems({
+    chargeItems: canonical.chargeItems,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (chargeItemEntries.length > 0) {
+    bundle.entry.push(...chargeItemEntries);
+  }
+
+  const chargeItemDefinitionEntries = mapChargeItemDefinitions({
+    chargeItemDefinitions: canonical.chargeItemDefinitions,
+    operation,
+    registry
+  });
+  if (chargeItemDefinitionEntries.length > 0) {
+    bundle.entry.push(...chargeItemDefinitionEntries);
+  }
+
+  const deviceEntries = mapDevices({
+    devices: canonical.devices,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (deviceEntries.length > 0) {
+    bundle.entry.push(...deviceEntries);
+  }
+
+  const deviceMetricEntries = mapDeviceMetrics({
+    deviceMetrics: canonical.deviceMetrics,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (deviceMetricEntries.length > 0) {
+    bundle.entry.push(...deviceMetricEntries);
   }
 
   const scheduleEntries = mapSchedules({

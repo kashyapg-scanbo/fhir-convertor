@@ -2678,6 +2678,131 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (accounts.length > 0) canonical.accounts = accounts as any[];
 
+  const chargeItems = rows.map(row => {
+    const chargeItemId = readValue(row, 'charge_item_id');
+    const status = readValue(row, 'charge_item_status');
+    const code = readValue(row, 'charge_item_code');
+    const subjectId = readValue(row, 'charge_item_subject_id');
+    if (!chargeItemId && !status && !code && !subjectId) return null;
+
+    const encounterId = readValue(row, 'charge_item_encounter_id');
+    const occurrenceDateTime = readValue(row, 'charge_item_occurrence_date_time');
+    const occurrenceStart = readValue(row, 'charge_item_occurrence_start');
+    const occurrenceEnd = readValue(row, 'charge_item_occurrence_end');
+    const quantityValue = readNumber(row, 'charge_item_quantity_value');
+    const quantityUnit = readValue(row, 'charge_item_quantity_unit');
+    const entererId = readValue(row, 'charge_item_enterer_id');
+    const enteredDate = readValue(row, 'charge_item_entered_date');
+    const accountId = readValue(row, 'charge_item_account_id');
+    const totalPriceValue = readNumber(row, 'charge_item_total_price_value');
+    const totalPriceCurrency = readValue(row, 'charge_item_total_price_currency');
+
+    return {
+      id: chargeItemId || undefined,
+      identifier: chargeItemId ? [{ value: chargeItemId }] : undefined,
+      status: status || undefined,
+      code: code ? { code: code, display: code } : undefined,
+      subject: subjectId || undefined,
+      encounter: encounterId || undefined,
+      occurrenceDateTime: occurrenceDateTime || undefined,
+      occurrencePeriod: (occurrenceStart || occurrenceEnd) ? { start: occurrenceStart, end: occurrenceEnd } : undefined,
+      quantity: (quantityValue !== undefined || quantityUnit) ? { value: quantityValue, unit: quantityUnit || undefined } : undefined,
+      enterer: entererId || undefined,
+      enteredDate: enteredDate || undefined,
+      account: accountId ? [accountId] : undefined,
+      totalPriceComponent: (totalPriceValue !== undefined || totalPriceCurrency) ? {
+        amount: { value: totalPriceValue ?? undefined, currency: totalPriceCurrency || undefined }
+      } : undefined
+    };
+  }).filter(Boolean);
+  if (chargeItems.length > 0) canonical.chargeItems = chargeItems as any[];
+
+  const chargeItemDefinitions = rows.map(row => {
+    const definitionId = readValue(row, 'charge_item_definition_id');
+    const status = readValue(row, 'charge_item_definition_status');
+    const code = readValue(row, 'charge_item_definition_code');
+    const url = readValue(row, 'charge_item_definition_url');
+    if (!definitionId && !status && !code && !url) return null;
+
+    const version = readValue(row, 'charge_item_definition_version');
+    const name = readValue(row, 'charge_item_definition_name');
+    const title = readValue(row, 'charge_item_definition_title');
+    const publisher = readValue(row, 'charge_item_definition_publisher');
+    const date = readValue(row, 'charge_item_definition_date');
+
+    return {
+      id: definitionId || undefined,
+      identifier: definitionId ? [{ value: definitionId }] : undefined,
+      url: url || undefined,
+      version: version || undefined,
+      status: status || undefined,
+      code: code ? { code: code, display: code } : undefined,
+      name: name || undefined,
+      title: title || undefined,
+      publisher: publisher || undefined,
+      date: date || undefined
+    };
+  }).filter(Boolean);
+  if (chargeItemDefinitions.length > 0) canonical.chargeItemDefinitions = chargeItemDefinitions as any[];
+
+  const devices = rows.map(row => {
+    const deviceId = readValue(row, 'device_id');
+    const status = readValue(row, 'device_status');
+    const displayName = readValue(row, 'device_display_name');
+    if (!deviceId && !status && !displayName) return null;
+
+    const manufacturer = readValue(row, 'device_manufacturer');
+    const modelNumber = readValue(row, 'device_model_number');
+    const serialNumber = readValue(row, 'device_serial_number');
+    const lotNumber = readValue(row, 'device_lot_number');
+    const ownerId = readValue(row, 'device_owner_id');
+    const locationId = readValue(row, 'device_location_id');
+
+    return {
+      id: deviceId || undefined,
+      identifier: deviceId ? [{ value: deviceId }] : undefined,
+      status: status || undefined,
+      displayName: displayName || undefined,
+      manufacturer: manufacturer || undefined,
+      modelNumber: modelNumber || undefined,
+      serialNumber: serialNumber || undefined,
+      lotNumber: lotNumber || undefined,
+      owner: ownerId || undefined,
+      location: locationId || undefined
+    };
+  }).filter(Boolean);
+  if (devices.length > 0) canonical.devices = devices as any[];
+
+  const deviceMetrics = rows.map(row => {
+    const metricId = readValue(row, 'device_metric_id');
+    const status = readValue(row, 'device_metric_status');
+    const type = readValue(row, 'device_metric_type');
+    const deviceId = readValue(row, 'device_metric_device_id');
+    if (!metricId && !status && !type && !deviceId) return null;
+
+    const unit = readValue(row, 'device_metric_unit');
+    const operationalStatus = readValue(row, 'device_metric_operational_status');
+    const color = readValue(row, 'device_metric_color');
+    const category = readValue(row, 'device_metric_category');
+    const frequencyValue = readNumber(row, 'device_metric_frequency_value');
+    const frequencyUnit = readValue(row, 'device_metric_frequency_unit');
+
+    return {
+      id: metricId || undefined,
+      identifier: metricId ? [{ value: metricId }] : undefined,
+      type: type ? { code: type, display: type } : undefined,
+      unit: unit ? { code: unit, display: unit } : undefined,
+      device: deviceId || undefined,
+      operationalStatus: operationalStatus || undefined,
+      color: color || undefined,
+      category: category || undefined,
+      measurementFrequency: (frequencyValue !== undefined || frequencyUnit)
+        ? { value: frequencyValue, unit: frequencyUnit || undefined }
+        : undefined
+    };
+  }).filter(Boolean);
+  if (deviceMetrics.length > 0) canonical.deviceMetrics = deviceMetrics as any[];
+
   const coverages = rows.map(row => {
     const coverageId = readValue(row, 'coverage_id');
     const status = readValue(row, 'coverage_status');
