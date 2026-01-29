@@ -13,6 +13,7 @@ import {
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
     CanonicalMedicationDispense,
+    CanonicalMedicationKnowledge,
     CanonicalOrganizationAffiliation,
     CanonicalProcedure,
     CanonicalCondition,
@@ -23,6 +24,7 @@ import {
     CanonicalExplanationOfBenefit,
     CanonicalComposition,
     CanonicalCoverage,
+    CanonicalInsurancePlan,
     CanonicalBinary,
     CanonicalAccount,
     CanonicalChargeItem,
@@ -111,6 +113,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         medicationStatements: [],
         medicationAdministrations: [],
         medicationDispenses: [],
+        medicationKnowledges: [],
         organizationAffiliations: [],
         deviceDispenses: [],
         deviceRequests: [],
@@ -132,6 +135,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         explanationOfBenefits: [],
         compositions: [],
         coverages: [],
+        insurancePlans: [],
         binaries: [],
         accounts: [],
         chargeItems: [],
@@ -345,6 +349,12 @@ export function parseHL7v3(input: string): CanonicalModel {
                 if (coverage) model.coverages?.push(coverage);
             }
 
+            const insurancePlanEvent = sub.insurancePlan || sub.InsurancePlan;
+            if (insurancePlanEvent) {
+                const plan = mapV3InsurancePlan(insurancePlanEvent);
+                if (plan) model.insurancePlans?.push(plan);
+            }
+
             const accountEvent = sub.account || sub.Account;
             if (accountEvent) {
                 const account = mapV3Account(accountEvent);
@@ -548,6 +558,12 @@ export function parseHL7v3(input: string): CanonicalModel {
 
                 const medicationDispense = mapV3MedicationDispense(substanceAdministration);
                 if (medicationDispense) model.medicationDispenses?.push(medicationDispense);
+            }
+
+            const medicationKnowledgeEvent = sub.medicationKnowledge || sub.MedicationKnowledge;
+            if (medicationKnowledgeEvent) {
+                const knowledge = mapV3MedicationKnowledge(medicationKnowledgeEvent);
+                if (knowledge) model.medicationKnowledges?.push(knowledge);
             }
 
             const procedureEvent = sub.procedure || sub.Procedure;
@@ -1048,6 +1064,33 @@ function mapV3Medication(substanceAdmin: any): { medication?: CanonicalMedicatio
     }
 
     return { medication, medicationRequest, medicationStatement };
+}
+
+function mapV3MedicationKnowledge(knowledgeEvent: any): CanonicalMedicationKnowledge | undefined {
+    const knowledge = knowledgeEvent.medicationKnowledge || knowledgeEvent.MedicationKnowledge || knowledgeEvent;
+    if (!knowledge) return undefined;
+    const idInfo = pickV3Id(knowledge.id || knowledge.Id);
+    const status = knowledge.statusCode?.['@_code'] || knowledge.StatusCode?.['@_code'];
+    const code = knowledge.code || knowledge.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const nameNode = knowledge.name || knowledge.Name;
+    const name = typeof nameNode === 'string' ? nameNode : nameNode?.['#text'];
+
+    if (!idInfo.id && !status && !codeValue && !displayName && !name) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status,
+        code: codeValue || displayName ? {
+            system: mapCodeSystem(codeSystem),
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        name: name ? [name] : (displayName ? [displayName] : undefined)
+    };
 }
 
 function mapV3MedicationAdministration(substanceAdmin: any): CanonicalMedicationAdministration | undefined {
@@ -2045,6 +2088,37 @@ function mapV3Coverage(covEvent: any): CanonicalCoverage | undefined {
     };
 }
 
+function mapV3InsurancePlan(planEvent: any): CanonicalInsurancePlan | undefined {
+    const plan = planEvent.insurancePlan || planEvent.InsurancePlan || planEvent;
+    if (!plan) return undefined;
+    const idInfo = pickV3Id(plan.id || plan.Id);
+    const status = plan.statusCode?.['@_code'] || plan.StatusCode?.['@_code'];
+    const code = plan.code || plan.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const nameNode = plan.name || plan.Name;
+    const name = typeof nameNode === 'string' ? nameNode : nameNode?.['#text'];
+    const effectiveTime = plan.effectiveTime || plan.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idInfo.id && !status && !codeValue && !displayName && !name && !start && !end) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status,
+        type: codeValue || displayName ? [{
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        }] : undefined,
+        name: name || displayName,
+        period: start || end ? { start, end } : undefined
+    };
+}
+
 function mapV3Account(accEvent: any): CanonicalAccount | undefined {
     const account = accEvent.account || accEvent.Account || accEvent;
     if (!account) return undefined;
@@ -2966,4 +3040,17 @@ function mapEncounterClass(code?: string): string {
     if (codeUpper === 'VR' || codeUpper === 'VIRTUAL') return 'VR';
 
     return 'AMB';
+}
+
+function mapCodeSystem(system?: string): string {
+    if (!system) return 'http://loinc.org';
+    if (/^https?:\/\//i.test(system)) return system;
+    const lower = system.toLowerCase();
+    if (lower.includes('loinc') || system === '2.16.840.1.113883.6.1') return 'http://loinc.org';
+    if (lower.includes('snomed') || system === '2.16.840.1.113883.6.96') return 'http://snomed.info/sct';
+    if (lower.includes('icd-10') || system === '2.16.840.1.113883.6.3') return 'http://hl7.org/fhir/sid/icd-10';
+    if (lower.includes('icd-9') || system === '2.16.840.1.113883.6.103') return 'http://hl7.org/fhir/sid/icd-9-cm';
+    if (system === '2.16.840.1.113883.6.88') return 'http://www.nlm.nih.gov/research/umls/rxnorm';
+    if (/^\d+(\.\d+)+$/.test(system)) return `urn:oid:${system}`;
+    return system;
 }

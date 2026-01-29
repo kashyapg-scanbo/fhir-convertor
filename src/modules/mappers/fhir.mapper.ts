@@ -9,6 +9,7 @@ import { mapPractitionerRoles } from './practitionerRole.mapper.js';
 import { mapOrganizations } from './organization.mapper.js';
 import { mapMedicationRequests } from './medicationRequest.mapper.js';
 import { mapMedications } from './medication.mapper.js';
+import { mapMedicationKnowledges } from './medicationKnowledge.mapper.js';
 import { mapMedicationStatements } from './medicationStatement.mapper.js';
 import { mapMedicationAdministrations } from './medicationAdministration.mapper.js';
 import { mapMedicationDispenses } from './medicationDispense.mapper.js';
@@ -60,6 +61,7 @@ import { mapDevices } from './device.mapper.js';
 import { mapDeviceMetrics } from './deviceMetric.mapper.js';
 import { mapEndpoints } from './endpoint.mapper.js';
 import { mapHealthcareServices } from './healthcareService.mapper.js';
+import { mapInsurancePlans } from './insurancePlan.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -170,6 +172,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (medicationEntries.length > 0) {
     bundle.entry.push(...medicationEntries);
+  }
+
+  const medicationKnowledgeEntries = mapMedicationKnowledges({
+    medicationKnowledges: canonical.medicationKnowledges,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (medicationKnowledgeEntries.length > 0) {
+    bundle.entry.push(...medicationKnowledgeEntries);
   }
 
   const medicationRequestEntries = mapMedicationRequests({
@@ -330,6 +342,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (healthcareServiceEntries.length > 0) {
     bundle.entry.push(...healthcareServiceEntries);
+  }
+
+  const insurancePlanEntries = mapInsurancePlans({
+    insurancePlans: canonical.insurancePlans,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (insurancePlanEntries.length > 0) {
+    bundle.entry.push(...insurancePlanEntries);
   }
 
   const nutritionIntakeEntries = mapNutritionIntakes({

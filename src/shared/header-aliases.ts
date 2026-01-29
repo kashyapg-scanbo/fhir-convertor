@@ -44,6 +44,17 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     medication_code_system: ['med_code_system', 'rxnorm_system', 'ndc_system'],
     medication_display: ['med_display', 'medication_name', 'drug_name']
   },
+  medicationKnowledge: {
+    medication_knowledge_id: ['medication_knowledge_id', 'medicationknowledge_id', 'med_knowledge_id'],
+    medication_knowledge_status: ['medication_knowledge_status', 'med_knowledge_status', 'status'],
+    medication_knowledge_code: ['medication_knowledge_code', 'med_knowledge_code', 'code'],
+    medication_knowledge_name: ['medication_knowledge_name', 'med_knowledge_name', 'name'],
+    medication_knowledge_author_id: ['medication_knowledge_author_id', 'author_id', 'author'],
+    medication_knowledge_intended_jurisdiction: ['medication_knowledge_intended_jurisdiction', 'intended_jurisdiction', 'jurisdiction'],
+    medication_knowledge_associated_medication_ids: ['associated_medication_ids', 'associated_medications'],
+    medication_knowledge_product_type: ['product_type'],
+    medication_knowledge_preparation_instruction: ['preparation_instruction']
+  },
   medicationRequest: {
     medication_request_id: ['med_request_id', 'prescription_id', 'order_id'],
     medication_status: ['med_status', 'medication_request_status'],
@@ -344,6 +355,29 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     healthcare_service_referral_method: ['referral_method', 'referral_methods'],
     healthcare_service_appointment_required: ['appointment_required'],
     healthcare_service_endpoint_ids: ['endpoint_ids', 'endpoints']
+  },
+  insurancePlan: {
+    insurance_plan_id: ['insurance_plan_id', 'insurance_plan_identifier', 'plan_id'],
+    insurance_plan_status: ['status', 'plan_status'],
+    insurance_plan_type: ['type', 'plan_type'],
+    insurance_plan_name: ['name', 'plan_name'],
+    insurance_plan_alias: ['alias', 'plan_alias'],
+    insurance_plan_period_start: ['period_start', 'plan_period_start'],
+    insurance_plan_period_end: ['period_end', 'plan_period_end'],
+    insurance_plan_owned_by: ['owned_by', 'owned_by_id'],
+    insurance_plan_administered_by: ['administered_by', 'administered_by_id'],
+    insurance_plan_coverage_area_ids: ['coverage_area_ids', 'coverage_areas'],
+    insurance_plan_contact_name: ['contact_name', 'plan_contact_name'],
+    insurance_plan_contact_phone: ['contact_phone', 'plan_contact_phone'],
+    insurance_plan_contact_email: ['contact_email', 'plan_contact_email'],
+    insurance_plan_endpoint_ids: ['endpoint_ids', 'plan_endpoints'],
+    insurance_plan_network_ids: ['network_ids', 'networks'],
+    insurance_plan_coverage_type: ['coverage_type'],
+    insurance_plan_coverage_network_ids: ['coverage_network_ids'],
+    insurance_plan_coverage_benefit_type: ['coverage_benefit_type'],
+    insurance_plan_coverage_benefit_requirement: ['coverage_benefit_requirement'],
+    insurance_plan_plan_type: ['plan_type_detail'],
+    insurance_plan_plan_network_ids: ['plan_network_ids']
   },
   nutritionIntake: {
     nutrition_intake_id: ['nutrition_intake_identifier', 'nutritionintake_id', 'nutritionintakeid'],

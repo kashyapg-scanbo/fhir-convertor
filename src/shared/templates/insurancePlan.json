@@ -1,0 +1,17 @@
+{
+  "resourceType": "InsurancePlan",
+  "identifier": [],
+  "status": "",
+  "type": [],
+  "name": "",
+  "alias": [],
+  "period": {},
+  "ownedBy": {},
+  "administeredBy": {},
+  "coverageArea": [],
+  "contact": [],
+  "endpoint": [],
+  "network": [],
+  "coverage": [],
+  "plan": []
+}

@@ -19,6 +19,7 @@ import {
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
     CanonicalMedicationDispense,
+    CanonicalMedicationKnowledge,
     CanonicalOrganizationAffiliation,
     CanonicalDeviceDispense,
     CanonicalDeviceRequest,
@@ -32,6 +33,7 @@ import {
     CanonicalExplanationOfBenefit,
     CanonicalComposition,
     CanonicalCoverage,
+    CanonicalInsurancePlan,
     CanonicalBinary,
     CanonicalSchedule,
     CanonicalSlot,
@@ -97,6 +99,7 @@ export function parseR4(input: string): CanonicalModel {
         medicationStatements: [],
         medicationAdministrations: [],
         medicationDispenses: [],
+        medicationKnowledges: [],
         organizationAffiliations: [],
         deviceDispenses: [],
         deviceRequests: [],
@@ -118,6 +121,7 @@ export function parseR4(input: string): CanonicalModel {
         explanationOfBenefits: [],
         compositions: [],
         coverages: [],
+        insurancePlans: [],
         accounts: [],
         chargeItems: [],
         chargeItemDefinitions: [],
@@ -252,6 +256,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'Coverage':
                 const coverage = mapR4Coverage(res);
                 if (coverage) model.coverages?.push(coverage);
+                break;
+            case 'InsurancePlan':
+                const insurancePlan = mapR4InsurancePlan(res);
+                if (insurancePlan) model.insurancePlans?.push(insurancePlan);
                 break;
             case 'Account':
                 const account = mapR4Account(res);
@@ -400,6 +408,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'MedicationDispense':
                 const medicationDispense = mapR4MedicationDispense(res);
                 if (medicationDispense) model.medicationDispenses?.push(medicationDispense);
+                break;
+            case 'MedicationKnowledge':
+                const medicationKnowledge = mapR4MedicationKnowledge(res);
+                if (medicationKnowledge) model.medicationKnowledges?.push(medicationKnowledge);
                 break;
             case 'OrganizationAffiliation':
                 const organizationAffiliation = mapR4OrganizationAffiliation(res);
@@ -648,6 +660,137 @@ function mapR4Medication(med: any): CanonicalMedication {
         } : undefined,
         status: med.status,
         active: med.status === 'active'
+    };
+}
+
+function mapR4MedicationKnowledge(knowledge: any): CanonicalMedicationKnowledge {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? { start: source.start, end: source.end } : undefined;
+    const mapMoney = (source: any) => source ? { value: source.value, currency: source.currency } : undefined;
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    return {
+        id: knowledge.id,
+        identifier: knowledge.identifier?.map(mapIdentifier).filter(Boolean),
+        code: mapCodeable(knowledge.code),
+        status: knowledge.status,
+        author: stripRef(knowledge.author?.reference, /^Organization\//),
+        intendedJurisdiction: knowledge.intendedJurisdiction?.map(mapCodeable).filter(Boolean),
+        name: knowledge.name,
+        relatedMedicationKnowledge: knowledge.relatedMedicationKnowledge?.map((rel: any) => ({
+            type: mapCodeable(rel.type),
+            reference: rel.reference?.map((ref: any) => stripRef(ref.reference, /^MedicationKnowledge\//)).filter(Boolean)
+        })),
+        associatedMedication: knowledge.associatedMedication?.map((ref: any) => stripRef(ref.reference, /^Medication\//)).filter(Boolean),
+        productType: knowledge.productType?.map(mapCodeable).filter(Boolean),
+        monograph: knowledge.monograph?.map((mono: any) => ({
+            type: mapCodeable(mono.type),
+            source: stripRef(mono.source?.reference, /^DocumentReference\//)
+        })),
+        preparationInstruction: knowledge.preparationInstruction,
+        cost: knowledge.cost?.map((cost: any) => ({
+            effectiveDate: cost.effectiveDate?.map(mapPeriod).filter(Boolean),
+            type: mapCodeable(cost.type),
+            source: cost.source,
+            costMoney: mapMoney(cost.costMoney),
+            costCodeableConcept: mapCodeable(cost.costCodeableConcept)
+        })),
+        monitoringProgram: knowledge.monitoringProgram?.map((program: any) => ({
+            type: mapCodeable(program.type),
+            name: program.name
+        })),
+        medicineClassification: knowledge.medicineClassification?.map((item: any) => ({
+            type: mapCodeable(item.type),
+            sourceString: item.sourceString,
+            sourceUri: item.sourceUri,
+            classification: item.classification?.map(mapCodeable).filter(Boolean)
+        })),
+        packaging: knowledge.packaging?.map((pack: any) => ({
+            cost: pack.cost?.map((cost: any) => ({
+                effectiveDate: cost.effectiveDate?.map(mapPeriod).filter(Boolean),
+                type: mapCodeable(cost.type),
+                source: cost.source,
+                costMoney: mapMoney(cost.costMoney),
+                costCodeableConcept: mapCodeable(cost.costCodeableConcept)
+            })),
+            packagedProduct: stripRef(pack.packagedProduct?.reference, /^PackagedProductDefinition\//)
+        })),
+        clinicalUseIssue: knowledge.clinicalUseIssue?.map((ref: any) => stripRef(ref.reference, /^ClinicalUseDefinition\//)).filter(Boolean),
+        storageGuideline: knowledge.storageGuideline?.map((item: any) => ({
+            reference: item.reference,
+            note: item.note?.map((note: any) => note.text).filter(Boolean),
+            stabilityDuration: item.stabilityDuration
+                ? { value: item.stabilityDuration.value, unit: item.stabilityDuration.unit }
+                : undefined,
+            environmentalSetting: item.environmentalSetting?.map((setting: any) => ({
+                type: mapCodeable(setting.type),
+                valueQuantity: mapQuantity(setting.valueQuantity),
+                valueRange: setting.valueRange,
+                valueCodeableConcept: mapCodeable(setting.valueCodeableConcept)
+            }))
+        })),
+        regulatory: knowledge.regulatory?.map((reg: any) => ({
+            regulatoryAuthority: stripRef(reg.regulatoryAuthority?.reference, /^Organization\//),
+            substitution: reg.substitution?.map((sub: any) => ({
+                type: mapCodeable(sub.type),
+                allowed: sub.allowed
+            })),
+            schedule: reg.schedule?.map(mapCodeable).filter(Boolean),
+            maxDispense: reg.maxDispense ? {
+                quantity: mapQuantity(reg.maxDispense.quantity),
+                period: reg.maxDispense.period ? { value: reg.maxDispense.period.value, unit: reg.maxDispense.period.unit } : undefined
+            } : undefined
+        })),
+        definitional: knowledge.definitional ? {
+            definition: knowledge.definitional.definition?.map((ref: any) => stripRef(ref.reference, /^MedicinalProductDefinition\//)).filter(Boolean),
+            doseForm: mapCodeable(knowledge.definitional.doseForm),
+            intendedRoute: knowledge.definitional.intendedRoute?.map(mapCodeable).filter(Boolean),
+            ingredient: knowledge.definitional.ingredient?.map((ing: any) => ({
+                itemReference: stripRef(ing.item?.reference, /^Substance\//),
+                itemCodeableConcept: mapCodeable(ing.item?.concept),
+                type: mapCodeable(ing.type),
+                strengthRatio: ing.strengthRatio,
+                strengthCodeableConcept: mapCodeable(ing.strengthCodeableConcept),
+                strengthQuantity: mapQuantity(ing.strengthQuantity)
+            })),
+            drugCharacteristic: knowledge.definitional.drugCharacteristic?.map((char: any) => ({
+                type: mapCodeable(char.type),
+                valueCodeableConcept: mapCodeable(char.valueCodeableConcept),
+                valueString: char.valueString,
+                valueQuantity: mapQuantity(char.valueQuantity),
+                valueBase64Binary: char.valueBase64Binary,
+                valueAttachment: char.valueAttachment
+            }))
+        } : undefined
     };
 }
 
@@ -3080,6 +3223,109 @@ function mapR4Coverage(coverage: any): CanonicalCoverage {
         subrogation: coverage.subrogation,
         contract: coverage.contract?.map((ref: any) => stripRef(ref.reference, /^Contract\//)).filter(Boolean),
         insurancePlan: stripRef(coverage.insurancePlan?.reference, /^InsurancePlan\//)
+    };
+}
+
+function mapR4InsurancePlan(plan: any): CanonicalInsurancePlan {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const mapMoney = (source: any) => source ? {
+        value: source.value,
+        currency: source.currency
+    } : undefined;
+
+    const mapQuantity = (source: any) => source ? {
+        value: source.value,
+        unit: source.unit,
+        system: source.system,
+        code: source.code
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    return {
+        id: plan.id,
+        identifier: plan.identifier?.map(mapIdentifier).filter(Boolean),
+        status: plan.status,
+        type: plan.type?.map(mapCodeable).filter(Boolean),
+        name: plan.name,
+        alias: plan.alias,
+        period: mapPeriod(plan.period),
+        ownedBy: stripRef(plan.ownedBy?.reference, /^Organization\//),
+        administeredBy: stripRef(plan.administeredBy?.reference, /^Organization\//),
+        coverageArea: plan.coverageArea?.map((ref: any) => stripRef(ref.reference, /^Location\//)).filter(Boolean),
+        contact: plan.contact?.map((contact: any) => ({
+            name: contact.name,
+            telecom: contact.telecom?.map((point: any) => ({
+                system: point.system,
+                value: point.value,
+                use: point.use
+            }))
+        })),
+        endpoint: plan.endpoint?.map((ref: any) => stripRef(ref.reference, /^Endpoint\//)).filter(Boolean),
+        network: plan.network?.map((ref: any) => stripRef(ref.reference, /^Organization\//)).filter(Boolean),
+        coverage: plan.coverage?.map((coverage: any) => ({
+            type: mapCodeable(coverage.type),
+            network: coverage.network?.map((ref: any) => stripRef(ref.reference, /^Organization\//)).filter(Boolean),
+            benefit: coverage.benefit?.map((benefit: any) => ({
+                type: mapCodeable(benefit.type),
+                requirement: benefit.requirement,
+                limit: benefit.limit?.map((limit: any) => ({
+                    value: mapQuantity(limit.value),
+                    code: mapCodeable(limit.code)
+                }))
+            }))
+        })),
+        plan: plan.plan?.map((entry: any) => ({
+            identifier: entry.identifier?.map(mapIdentifier).filter(Boolean),
+            type: mapCodeable(entry.type),
+            coverageArea: entry.coverageArea?.map((ref: any) => stripRef(ref.reference, /^Location\//)).filter(Boolean),
+            network: entry.network?.map((ref: any) => stripRef(ref.reference, /^Organization\//)).filter(Boolean),
+            generalCost: entry.generalCost?.map((cost: any) => ({
+                type: mapCodeable(cost.type),
+                groupSize: cost.groupSize,
+                cost: mapMoney(cost.cost),
+                comment: cost.comment
+            })),
+            specificCost: entry.specificCost?.map((spec: any) => ({
+                category: mapCodeable(spec.category),
+                benefit: spec.benefit?.map((benefit: any) => ({
+                    type: mapCodeable(benefit.type),
+                    cost: benefit.cost?.map((cost: any) => ({
+                        type: mapCodeable(cost.type),
+                        applicability: mapCodeable(cost.applicability),
+                        qualifiers: cost.qualifiers?.map(mapCodeable).filter(Boolean),
+                        value: mapQuantity(cost.value)
+                    }))
+                }))
+            }))
+        }))
     };
 }
 

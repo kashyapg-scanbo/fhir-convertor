@@ -177,6 +177,34 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medications.length > 0) canonical.medications = medications as any[];
 
+  const medicationKnowledges = rows.map(row => {
+    const knowledgeId = readValue(row, 'medication_knowledge_id');
+    const status = readValue(row, 'medication_knowledge_status');
+    const code = readValue(row, 'medication_knowledge_code');
+    const name = readValue(row, 'medication_knowledge_name');
+    if (!knowledgeId && !status && !code && !name) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    return {
+      id: knowledgeId || undefined,
+      identifier: knowledgeId ? [{ value: knowledgeId }] : undefined,
+      status: status || undefined,
+      code: code ? { code, display: code } : undefined,
+      name: name ? [name] : undefined,
+      author: readValue(row, 'medication_knowledge_author_id') || undefined,
+      intendedJurisdiction: readValue(row, 'medication_knowledge_intended_jurisdiction')
+        ? [{ code: readValue(row, 'medication_knowledge_intended_jurisdiction'), display: readValue(row, 'medication_knowledge_intended_jurisdiction') }]
+        : undefined,
+      associatedMedication: toList(readValue(row, 'medication_knowledge_associated_medication_ids')),
+      productType: readValue(row, 'medication_knowledge_product_type')
+        ? [{ code: readValue(row, 'medication_knowledge_product_type'), display: readValue(row, 'medication_knowledge_product_type') }]
+        : undefined,
+      preparationInstruction: readValue(row, 'medication_knowledge_preparation_instruction') || undefined
+    };
+  }).filter(Boolean);
+  if (medicationKnowledges.length > 0) canonical.medicationKnowledges = medicationKnowledges as any[];
+
   const medicationRequests = rows.map(row => {
     const medCode = readValue(row, 'medication_code');
     const requestId = readValue(row, 'medication_request_id');
@@ -2959,6 +2987,41 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     };
   }).filter(Boolean);
   if (endpoints.length > 0) canonical.endpoints = endpoints as any[];
+
+  const insurancePlans = rows.map(row => {
+    const planId = readValue(row, 'insurance_plan_id');
+    const status = readValue(row, 'insurance_plan_status');
+    const name = readValue(row, 'insurance_plan_name');
+    if (!planId && !status && !name) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const type = readValue(row, 'insurance_plan_type');
+    const alias = readValue(row, 'insurance_plan_alias');
+    const periodStart = readValue(row, 'insurance_plan_period_start');
+    const periodEnd = readValue(row, 'insurance_plan_period_end');
+    const ownedBy = readValue(row, 'insurance_plan_owned_by');
+    const administeredBy = readValue(row, 'insurance_plan_administered_by');
+    const coverageArea = readValue(row, 'insurance_plan_coverage_area_ids');
+    const endpointIds = readValue(row, 'insurance_plan_endpoint_ids');
+    const networkIds = readValue(row, 'insurance_plan_network_ids');
+
+    return {
+      id: planId || undefined,
+      identifier: planId ? [{ value: planId }] : undefined,
+      status: status || undefined,
+      type: type ? [{ code: type, display: type }] : undefined,
+      name: name || undefined,
+      alias: alias ? toList(alias) : undefined,
+      period: (periodStart || periodEnd) ? { start: periodStart || undefined, end: periodEnd || undefined } : undefined,
+      ownedBy: ownedBy || undefined,
+      administeredBy: administeredBy || undefined,
+      coverageArea: toList(coverageArea),
+      endpoint: toList(endpointIds),
+      network: toList(networkIds)
+    };
+  }).filter(Boolean);
+  if (insurancePlans.length > 0) canonical.insurancePlans = insurancePlans as any[];
 
   const coverages = rows.map(row => {
     const coverageId = readValue(row, 'coverage_id');

@@ -7,6 +7,7 @@ import {
   CanonicalMedicationStatement,
   CanonicalMedicationAdministration,
   CanonicalMedicationDispense,
+  CanonicalMedicationKnowledge,
   CanonicalOrganizationAffiliation,
   CanonicalPerson,
   CanonicalDeviceDispense,
@@ -21,6 +22,7 @@ import {
   CanonicalComposition,
   CanonicalExplanationOfBenefit,
   CanonicalCoverage,
+  CanonicalInsurancePlan,
   CanonicalEncounterHistory,
   CanonicalFlag,
   CanonicalList,
@@ -543,6 +545,8 @@ export function buildCanonical(parsed: any) {
   const compositions: CanonicalComposition[] = [];
   const explanationOfBenefits: CanonicalExplanationOfBenefit[] = [];
   const coverages: CanonicalCoverage[] = [];
+  const medicationKnowledges: CanonicalMedicationKnowledge[] = [];
+  const insurancePlans: CanonicalInsurancePlan[] = [];
   const deviceDispenses: CanonicalDeviceDispense[] = [];
   const deviceRequests: CanonicalDeviceRequest[] = [];
   const deviceUsages: CanonicalDeviceUsage[] = [];
@@ -634,6 +638,25 @@ export function buildCanonical(parsed: any) {
           type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
           beneficiary: patientId,
           period: messageDateTime ? { start: messageDateTime } : undefined
+        });
+        break;
+      case 'MEDICATIONKNOWLEDGE':
+        medicationKnowledges.push({
+          id: idValue || `MEDKNOW-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          name: valueText || displayName ? [valueText || displayName] : undefined,
+          author: patientId
+        });
+        break;
+      case 'INSURANCEPLAN':
+        insurancePlans.push({
+          id: idValue || `INSPLAN-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          type: codeValue || displayName ? [{ code: codeValue, display: displayName }] : undefined,
+          name: valueText || displayName
         });
         break;
       case 'DEVICEDISPENSE':
@@ -836,6 +859,8 @@ export function buildCanonical(parsed: any) {
   if (compositions.length > 0) result.compositions = compositions;
   if (explanationOfBenefits.length > 0) result.explanationOfBenefits = explanationOfBenefits;
   if (coverages.length > 0) result.coverages = coverages;
+  if (medicationKnowledges.length > 0) result.medicationKnowledges = medicationKnowledges;
+  if (insurancePlans.length > 0) result.insurancePlans = insurancePlans;
   if (deviceDispenses.length > 0) result.deviceDispenses = deviceDispenses;
   if (deviceRequests.length > 0) result.deviceRequests = deviceRequests;
   if (deviceUsages.length > 0) result.deviceUsages = deviceUsages;

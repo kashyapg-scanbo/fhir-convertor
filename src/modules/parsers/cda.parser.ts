@@ -7,6 +7,7 @@ import {
   CanonicalMedicationStatement,
   CanonicalMedicationAdministration,
   CanonicalMedicationDispense,
+  CanonicalMedicationKnowledge,
   CanonicalOrganizationAffiliation,
   CanonicalPerson,
   CanonicalProcedure,
@@ -18,6 +19,7 @@ import {
   CanonicalComposition,
   CanonicalExplanationOfBenefit,
   CanonicalCoverage,
+  CanonicalInsurancePlan,
   CanonicalDeviceDispense,
   CanonicalDeviceRequest,
   CanonicalDeviceUsage,
@@ -109,6 +111,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
     encounter?.id,
     practitionerData.authorIds[0]
   );
+  const medicationKnowledges = extractMedicationKnowledges(clinicalDocument);
   const medicationAdministrations = extractMedicationAdministrations(
     clinicalDocument,
     patient.id,
@@ -134,6 +137,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const compositions = extractCompositions(clinicalDocument, patient.id);
   const explanationOfBenefits = extractExplanationOfBenefits(clinicalDocument, patient.id, encounter?.id);
   const coverages = extractCoverages(clinicalDocument, patient.id);
+  const insurancePlans = extractInsurancePlans(clinicalDocument);
   const deviceDispenses = extractDeviceDispenses(clinicalDocument, patient.id, encounter?.id);
   const deviceRequests = extractDeviceRequests(clinicalDocument, patient.id, encounter?.id);
   const deviceUsages = extractDeviceUsages(clinicalDocument, patient.id, encounter?.id);
@@ -199,6 +203,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (observations.length) canonical.observations = observations;
   if (medicationRequests.length) canonical.medicationRequests = medicationRequests;
   if (medications.length) canonical.medications = medications;
+  if (medicationKnowledges.length) canonical.medicationKnowledges = medicationKnowledges;
   if (medicationStatements.length) canonical.medicationStatements = medicationStatements;
   if (medicationAdministrations.length) canonical.medicationAdministrations = medicationAdministrations;
   if (medicationDispenses.length) canonical.medicationDispenses = medicationDispenses;
@@ -215,6 +220,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (compositions.length) canonical.compositions = compositions;
   if (explanationOfBenefits.length) canonical.explanationOfBenefits = explanationOfBenefits;
   if (coverages.length) canonical.coverages = coverages;
+  if (insurancePlans.length) canonical.insurancePlans = insurancePlans;
   if (deviceDispenses.length) canonical.deviceDispenses = deviceDispenses;
   if (deviceRequests.length) canonical.deviceRequests = deviceRequests;
   if (deviceUsages.length) canonical.deviceUsages = deviceUsages;
@@ -371,6 +377,15 @@ function extractText(value: any): string | undefined {
     return typeof value[0] === 'string' ? value[0] : value[0]['#text'];
   }
   return undefined;
+}
+
+function extractTextArray(value: any): string[] | undefined {
+  if (!value) return undefined;
+  const items = Array.isArray(value) ? value : [value];
+  const result = items
+    .map(item => extractText(item))
+    .filter((text): text is string => Boolean(text));
+  return result.length ? result : undefined;
 }
 
 function extractGivenNames(given: any): string[] {
@@ -663,6 +678,42 @@ function extractMedications(
     medications: Array.from(medicationMap.values()),
     medicationStatements
   };
+}
+
+function extractMedicationKnowledges(clinicalDocument: any): CanonicalMedicationKnowledge[] {
+  const knowledges: CanonicalMedicationKnowledge[] = [];
+
+  iterateSectionEntries(clinicalDocument, entry => {
+    const nodes = extractEntryNodes(entry, 'medicationKnowledge');
+    for (const node of nodes) {
+      const id = extractId(node.id || node['cda:id']);
+      const statusCode = node.statusCode || node['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = node.code || node['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const name = extractText(node.name || node['cda:name']) || displayName;
+
+      if (!id && !status && !codeValue && !displayName && !name) continue;
+
+      knowledges.push({
+        id: id || `MEDKNOW-${knowledges.length + 1}`,
+        identifier: id ? [{ value: id }] : undefined,
+        status: status || undefined,
+        code: codeValue || displayName
+          ? {
+              system: mapCodeSystem(codeSystem),
+              code: codeValue,
+              display: displayName
+            }
+          : undefined,
+        name: name ? [name] : undefined
+      });
+    }
+  });
+
+  return knowledges;
 }
 
 function extractMedicationAdministrations(
@@ -2409,6 +2460,44 @@ function extractCoverages(clinicalDocument: any, patientId?: string): CanonicalC
   });
 
   return coverages;
+}
+
+function extractInsurancePlans(clinicalDocument: any): CanonicalInsurancePlan[] {
+  const plans: CanonicalInsurancePlan[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry) => {
+    const nodes = extractEntryNodes(entry, 'insurancePlan');
+    for (const node of nodes) {
+      const id = extractId(node.id || node['cda:id']);
+      const statusCode = node.statusCode || node['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = node.code || node['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const name = extractText(node.name || node['cda:name']) || displayName;
+      const effectiveTime = node.effectiveTime || node['cda:effectiveTime'];
+      const start = formatCDADateTime(extractAttribute(effectiveTime?.low, '@_value') || extractAttribute(effectiveTime, '@_value'));
+      const end = formatCDADateTime(extractAttribute(effectiveTime?.high, '@_value'));
+
+      if (!id && !status && !codeValue && !displayName && !name && !start && !end) continue;
+
+      plans.push({
+        id: id || `INSPLAN-${plans.length + 1}`,
+        identifier: id ? [{ value: id }] : undefined,
+        status: status || undefined,
+        type: codeValue || displayName ? [{
+          system: mapCodeSystem(codeSystem),
+          code: codeValue,
+          display: displayName
+        }] : undefined,
+        name,
+        period: start || end ? { start, end } : undefined
+      });
+    }
+  });
+
+  return plans;
 }
 
 function extractDeviceDispenses(clinicalDocument: any, patientId?: string, encounterId?: string): CanonicalDeviceDispense[] {

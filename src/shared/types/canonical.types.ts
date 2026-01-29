@@ -328,6 +328,141 @@ export type CanonicalHealthcareService = {
   endpoint?: string[];
 };
 
+export type CanonicalInsurancePlan = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  type?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  name?: string;
+  alias?: string[];
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  ownedBy?: string;
+  administeredBy?: string;
+  coverageArea?: string[];
+  contact?: Array<{
+    name?: string;
+    telecom?: Array<{
+      system?: string;
+      value?: string;
+      use?: string;
+    }>;
+  }>;
+  endpoint?: string[];
+  network?: string[];
+  coverage?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    network?: string[];
+    benefit?: Array<{
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      requirement?: string;
+      limit?: Array<{
+        value?: {
+          value?: number;
+          unit?: string;
+          system?: string;
+          code?: string;
+        };
+        code?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+      }>;
+    }>;
+  }>;
+  plan?: Array<{
+    identifier?: Array<{
+      system?: string;
+      value?: string;
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    }>;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    coverageArea?: string[];
+    network?: string[];
+    generalCost?: Array<{
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      groupSize?: number;
+      cost?: {
+        value?: number;
+        currency?: string;
+      };
+      comment?: string;
+    }>;
+    specificCost?: Array<{
+      category?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      benefit?: Array<{
+        type?: {
+          system?: string;
+          code?: string;
+          display?: string;
+        };
+        cost?: Array<{
+          type?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          applicability?: {
+            system?: string;
+            code?: string;
+            display?: string;
+          };
+          qualifiers?: Array<{
+            system?: string;
+            code?: string;
+            display?: string;
+          }>;
+          value?: {
+            value?: number;
+            unit?: string;
+            system?: string;
+            code?: string;
+          };
+        }>;
+      }>;
+    }>;
+  }>;
+};
+
 export type CanonicalNutritionIntake = {
   id?: string;
   identifier?: Array<{
@@ -1048,6 +1183,260 @@ export type CanonicalMedication = {
   };
   status?: string;
   active?: boolean;
+};
+
+export type CanonicalMedicationKnowledge = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  status?: string;
+  author?: string;
+  intendedJurisdiction?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  name?: string[];
+  relatedMedicationKnowledge?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    reference?: string[];
+  }>;
+  associatedMedication?: string[];
+  productType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  monograph?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    source?: string;
+  }>;
+  preparationInstruction?: string;
+  cost?: Array<{
+    effectiveDate?: Array<{
+      start?: string;
+      end?: string;
+    }>;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    source?: string;
+    costMoney?: {
+      value?: number;
+      currency?: string;
+    };
+    costCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  monitoringProgram?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    name?: string;
+  }>;
+  medicineClassification?: Array<{
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    sourceString?: string;
+    sourceUri?: string;
+    classification?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+  }>;
+  packaging?: Array<{
+    cost?: Array<{
+      effectiveDate?: Array<{
+        start?: string;
+        end?: string;
+      }>;
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      source?: string;
+      costMoney?: {
+        value?: number;
+        currency?: string;
+      };
+      costCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    }>;
+    packagedProduct?: string;
+  }>;
+  clinicalUseIssue?: string[];
+  storageGuideline?: Array<{
+    reference?: string;
+    note?: string[];
+    stabilityDuration?: {
+      value?: number;
+      unit?: string;
+    };
+    environmentalSetting?: Array<{
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      valueQuantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      valueRange?: {
+        low?: {
+          value?: number;
+          unit?: string;
+        };
+        high?: {
+          value?: number;
+          unit?: string;
+        };
+      };
+      valueCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+    }>;
+  }>;
+  regulatory?: Array<{
+    regulatoryAuthority?: string;
+    substitution?: Array<{
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      allowed?: boolean;
+    }>;
+    schedule?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    maxDispense?: {
+      quantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      period?: {
+        value?: number;
+        unit?: string;
+      };
+    };
+  }>;
+  definitional?: {
+    definition?: string[];
+    doseForm?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    intendedRoute?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    ingredient?: Array<{
+      itemReference?: string;
+      itemCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      strengthRatio?: {
+        numerator?: {
+          value?: number;
+          unit?: string;
+        };
+        denominator?: {
+          value?: number;
+          unit?: string;
+        };
+      };
+      strengthCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      strengthQuantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+    drugCharacteristic?: Array<{
+      type?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      valueCodeableConcept?: {
+        system?: string;
+        code?: string;
+        display?: string;
+      };
+      valueString?: string;
+      valueQuantity?: {
+        value?: number;
+        unit?: string;
+        system?: string;
+        code?: string;
+      };
+      valueBase64Binary?: string;
+      valueAttachment?: {
+        contentType?: string;
+        url?: string;
+        title?: string;
+        data?: string;
+      };
+    }>;
+  };
 };
 
 export type CanonicalMedicationStatement = {
@@ -5967,6 +6356,7 @@ export type CanonicalModel = {
   allergies?: CanonicalAllergy[];
   diagnoses?: CanonicalDiagnosis[];
   medications?: CanonicalMedication[]; // Medication resource (drug definition)
+  medicationKnowledges?: CanonicalMedicationKnowledge[]; // MedicationKnowledge resource
   medicationRequests?: CanonicalMedicationRequest[]; // MedicationRequest (prescription)
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
@@ -5980,6 +6370,7 @@ export type CanonicalModel = {
   lists?: CanonicalList[]; // List
   groups?: CanonicalGroup[]; // Group
   healthcareServices?: CanonicalHealthcareService[]; // HealthcareService
+  insurancePlans?: CanonicalInsurancePlan[]; // InsurancePlan
   nutritionIntakes?: CanonicalNutritionIntake[]; // NutritionIntake
   nutritionOrders?: CanonicalNutritionOrder[]; // NutritionOrder
   riskAssessments?: CanonicalRiskAssessment[]; // RiskAssessment
