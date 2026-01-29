@@ -27,6 +27,7 @@ export function parseWhoop(input: string): CanonicalModel {
   const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
 
   const observations: CanonicalObservation[] = [];
+  const defaultDeviceUid = `whoop-device-${data.profile?.user_id || 'unknown'}`;
 
   // Helper function to create observations with common fields
   const createObservation = (
@@ -1099,6 +1100,12 @@ export function parseWhoop(input: string): CanonicalModel {
           components: workoutComponents
         });
       }
+    }
+  }
+
+  for (const obs of observations) {
+    if (!obs.device || !obs.device.uid) {
+      obs.device = { uid: defaultDeviceUid };
     }
   }
 

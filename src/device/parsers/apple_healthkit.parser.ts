@@ -16,6 +16,7 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
   }
 
   const observations: CanonicalObservation[] = [];
+  const defaultDeviceUid = 'apple-health-kit';
   const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
   const patient: CanonicalPatient = {
     name: {},
@@ -985,6 +986,12 @@ export function parseAppleHealthKit(input: string): CanonicalModel {
   handleSleepSamples(data.sleep?.data);
   handleSleepSamples((data as { sleepAnalysis?: { data?: HealthKitSample[] } }).sleepAnalysis?.data);
   handleWorkouts(data.workouts?.data);
+
+  for (const obs of observations) {
+    if (!obs.device || !obs.device.uid) {
+      obs.device = { uid: defaultDeviceUid };
+    }
+  }
 
   return {
     patient: Object.keys(patient).length > 1 ? patient : undefined,

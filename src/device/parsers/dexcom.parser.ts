@@ -27,6 +27,9 @@ export function parseDexcom(input: string): CanonicalModel {
   }
 
   const observations: CanonicalObservation[] = [];
+  const defaultDeviceUid = data.device?.transmitter_id
+    ? `dexcom-${data.device.transmitter_id}`
+    : 'dexcom';
   const patient: CanonicalPatient = {
     name: {},
     identifier: data.user?.id
@@ -175,6 +178,12 @@ export function parseDexcom(input: string): CanonicalModel {
     }
   }
 
+  for (const obs of observations) {
+    if (!obs.device || !obs.device.uid) {
+      obs.device = { uid: defaultDeviceUid };
+    }
+  }
+
   const result: CanonicalModel = {
     patient: Object.keys(patient).length > 1 ? patient : undefined,
     observations: observations.length > 0 ? observations : undefined
@@ -234,4 +243,3 @@ function mapEventSeverityToInterpretation(severity?: string): string {
   if (normalized === 'warning') return 'A'; // Abnormal
   return 'N'; // Normal
 }
-

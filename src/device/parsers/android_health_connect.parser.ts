@@ -21,6 +21,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
     name: {},
     identifier: 'android-health-connect-user'
   };
+  const defaultDeviceUid = 'android-health-connect';
 
   const toArray = <T>(value?: T | T[]): T[] => {
     if (!value) return [];
@@ -65,6 +66,9 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
   };
 
   const pushObservation = (observation: CanonicalObservation) => {
+    if (!observation.device || !observation.device.uid) {
+      observation.device = { uid: defaultDeviceUid };
+    }
     observations.push(observation);
   };
 

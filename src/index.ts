@@ -166,10 +166,10 @@ app.post('/convert/hl7', async (req, res) => {
  * 
  * Request body:
  * - JSON object with device data (Whoop or Dexcom format)
- * - OR { data: object, deviceType?: 'whoop' | 'dexcom' | 'apple-health-kit' | 'android-health-connect' }
+ * - OR { data: object, deviceType?: 'whoop' | 'dexcom' | 'apple-health-kit' | 'android-health-connect' | 'strava' }
  * 
  * Query params:
- * - deviceType: 'whoop' | 'dexcom' | 'apple-health-kit' | 'android-health-connect' (optional, auto-detected if not provided)
+ * - deviceType: 'whoop' | 'dexcom' | 'apple-health-kit' | 'android-health-connect' | 'strava' (optional, auto-detected if not provided)
  * - fhirVersion: 'r4' | 'r5' (default: 'r5')
  * 
  * Example:
@@ -217,18 +217,20 @@ app.post('/convert/deviceData', async (req, res) => {
         deviceType = 'apple-health-kit';
       } else if (deviceData['Daily Activity'] || deviceData['Sleep Detailed'] || deviceData['Sleep'] || deviceData['Workout'] || deviceData['Heart Rate']) {
         deviceType = 'android-health-connect';
+      } else if (deviceData.profile?.id || Array.isArray(deviceData.activities)) {
+        deviceType = 'strava';
       } else {
         return res.status(400).json({
-          error: 'Unable to detect device type. Please specify deviceType parameter (whoop, dexcom, apple-health-kit, or android-health-connect) or provide data in recognized format.',
-          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score. Dexcom data should contain: egvs, calibrations, or device.transmitter_id. Apple HealthKit data should contain: heart.data, respiratory.data, hearing.data, reproductive.data, body.data, activity.data, sleep.data, sleepAnalysis.data, or workouts.data. Android Health Connect data should contain: Daily Activity, Sleep Detailed, Sleep, Workout, or Heart Rate.'
+          error: 'Unable to detect device type. Please specify deviceType parameter (whoop, dexcom, apple-health-kit, android-health-connect, or strava) or provide data in recognized format.',
+          hint: 'Whoop data should contain: profile.user_id, recovery.score, cycle.score, or sleep.score. Dexcom data should contain: egvs, calibrations, or device.transmitter_id. Apple HealthKit data should contain: heart.data, respiratory.data, hearing.data, reproductive.data, body.data, activity.data, sleep.data, sleepAnalysis.data, or workouts.data. Android Health Connect data should contain: Daily Activity, Sleep Detailed, Sleep, Workout, or Heart Rate. Strava data should contain: profile.id or activities[].'
         });
       }
     }
 
     // Validate device type
-    if (deviceType !== 'whoop' && deviceType !== 'dexcom' && deviceType !== 'apple-health-kit' && deviceType !== 'android-health-connect') {
+    if (deviceType !== 'whoop' && deviceType !== 'dexcom' && deviceType !== 'apple-health-kit' && deviceType !== 'android-health-connect' && deviceType !== 'strava') {
       return res.status(400).json({
-        error: `Unsupported device type: ${deviceType}. Supported types: whoop, dexcom, apple-health-kit, android-health-connect`
+        error: `Unsupported device type: ${deviceType}. Supported types: whoop, dexcom, apple-health-kit, android-health-connect, strava`
       });
     }
 
