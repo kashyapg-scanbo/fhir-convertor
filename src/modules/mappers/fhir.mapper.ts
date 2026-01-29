@@ -55,6 +55,7 @@ import { mapChargeItems } from './chargeItem.mapper.js';
 import { mapChargeItemDefinitions } from './chargeItemDefinition.mapper.js';
 import { mapDevices } from './device.mapper.js';
 import { mapDeviceMetrics } from './deviceMetric.mapper.js';
+import { mapEndpoints } from './endpoint.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -669,6 +670,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (deviceMetricEntries.length > 0) {
     bundle.entry.push(...deviceMetricEntries);
+  }
+
+  const endpointEntries = mapEndpoints({
+    endpoints: canonical.endpoints,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (endpointEntries.length > 0) {
+    bundle.entry.push(...endpointEntries);
   }
 
   const scheduleEntries = mapSchedules({

@@ -66,7 +66,8 @@ import {
     CanonicalChargeItem,
     CanonicalChargeItemDefinition,
     CanonicalDevice,
-    CanonicalDeviceMetric
+    CanonicalDeviceMetric,
+    CanonicalEndpoint
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -113,6 +114,7 @@ export function parseR4(input: string): CanonicalModel {
         chargeItemDefinitions: [],
         devices: [],
         deviceMetrics: [],
+        endpoints: [],
         carePlans: [],
         careTeams: [],
         goals: [],
@@ -250,6 +252,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'DeviceMetric':
                 const deviceMetric = mapR4DeviceMetric(res);
                 if (deviceMetric) model.deviceMetrics?.push(deviceMetric);
+                break;
+            case 'Endpoint':
+                const endpoint = mapR4Endpoint(res);
+                if (endpoint) model.endpoints?.push(endpoint);
                 break;
             case 'CarePlan':
                 const carePlan = mapR4CarePlan(res);
@@ -3320,6 +3326,61 @@ function mapR4DeviceMetric(metric: any): CanonicalDeviceMetric {
             state: entry.state,
             time: entry.time
         }))
+    };
+}
+
+function mapR4Endpoint(endpoint: any): CanonicalEndpoint {
+    const mapCodeable = (source: any) => {
+        if (!source) return undefined;
+        const coding = source.coding?.[0];
+        return {
+            system: coding?.system,
+            code: coding?.code,
+            display: coding?.display || source.text
+        };
+    };
+
+    const mapIdentifier = (source: any) => {
+        if (!source) return undefined;
+        return {
+            system: source.system,
+            value: source.value,
+            type: mapCodeable(source.type)
+        };
+    };
+
+    const mapPeriod = (source: any) => source ? {
+        start: source.start,
+        end: source.end
+    } : undefined;
+
+    const stripRef = (value?: string, pattern?: RegExp) => {
+        if (!value) return undefined;
+        if (pattern) return value.replace(pattern, '');
+        return value.replace(/^[A-Za-z]+\//, '');
+    };
+
+    return {
+        id: endpoint.id,
+        identifier: endpoint.identifier?.map(mapIdentifier).filter(Boolean),
+        status: endpoint.status,
+        connectionType: endpoint.connectionType?.map(mapCodeable),
+        name: endpoint.name,
+        description: endpoint.description,
+        environmentType: endpoint.environmentType?.map(mapCodeable),
+        managingOrganization: stripRef(endpoint.managingOrganization?.reference, /^Organization\//),
+        contact: endpoint.contact?.map((contact: any) => ({
+            system: contact.system,
+            value: contact.value,
+            use: contact.use
+        })),
+        period: mapPeriod(endpoint.period),
+        payload: endpoint.payload?.map((payload: any) => ({
+            type: payload.type?.map(mapCodeable),
+            mimeType: payload.mimeType
+        })),
+        address: endpoint.address,
+        header: endpoint.header
     };
 }
 

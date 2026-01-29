@@ -5020,6 +5020,52 @@ export type CanonicalDeviceMetric = {
   }>;
 };
 
+export type CanonicalEndpoint = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  status?: string;
+  connectionType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  name?: string;
+  description?: string;
+  environmentType?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  managingOrganization?: string;
+  contact?: Array<{
+    system?: string;
+    value?: string;
+    use?: string;
+  }>;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  payload?: Array<{
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    mimeType?: string[];
+  }>;
+  address?: string;
+  header?: string[];
+};
+
 export type CanonicalSchedule = {
   id?: string;
   identifier?: string;
@@ -5609,6 +5655,7 @@ export type CanonicalModel = {
   chargeItemDefinitions?: CanonicalChargeItemDefinition[]; // ChargeItemDefinition
   devices?: CanonicalDevice[]; // Device
   deviceMetrics?: CanonicalDeviceMetric[]; // DeviceMetric
+  endpoints?: CanonicalEndpoint[]; // Endpoint
   schedules?: CanonicalSchedule[]; // Schedule
   slots?: CanonicalSlot[]; // Slot
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport

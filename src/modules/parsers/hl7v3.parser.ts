@@ -16,6 +16,19 @@ import {
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
+    CanonicalAppointmentResponse,
+    CanonicalClaim,
+    CanonicalClaimResponse,
+    CanonicalExplanationOfBenefit,
+    CanonicalComposition,
+    CanonicalCoverage,
+    CanonicalBinary,
+    CanonicalAccount,
+    CanonicalChargeItem,
+    CanonicalChargeItemDefinition,
+    CanonicalDevice,
+    CanonicalDeviceMetric,
+    CanonicalEndpoint,
     CanonicalSchedule,
     CanonicalSlot,
     CanonicalDiagnosticReport,
@@ -29,6 +42,15 @@ import {
     CanonicalCapabilityStatement,
     CanonicalOperationOutcome,
     CanonicalParameters,
+    CanonicalEncounterHistory,
+    CanonicalFlag,
+    CanonicalList,
+    CanonicalNutritionIntake,
+    CanonicalNutritionOrder,
+    CanonicalRiskAssessment,
+    CanonicalDeviceDispense,
+    CanonicalDeviceRequest,
+    CanonicalDeviceUsage,
     CanonicalCarePlan,
     CanonicalCareTeam,
     CanonicalGoal,
@@ -83,9 +105,31 @@ export function parseHL7v3(input: string): CanonicalModel {
         medicationStatements: [],
         medicationAdministrations: [],
         medicationDispenses: [],
+        deviceDispenses: [],
+        deviceRequests: [],
+        deviceUsages: [],
+        encounterHistories: [],
+        flags: [],
+        lists: [],
+        nutritionIntakes: [],
+        nutritionOrders: [],
+        riskAssessments: [],
         procedures: [],
         conditions: [],
         appointments: [],
+        appointmentResponses: [],
+        claims: [],
+        claimResponses: [],
+        explanationOfBenefits: [],
+        compositions: [],
+        coverages: [],
+        binaries: [],
+        accounts: [],
+        chargeItems: [],
+        chargeItemDefinitions: [],
+        devices: [],
+        deviceMetrics: [],
+        endpoints: [],
         schedules: [],
         slots: [],
         diagnosticReports: [],
@@ -185,6 +229,138 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (appointmentEvent) {
                 const appointment = mapV3Appointment(appointmentEvent);
                 if (appointment) model.appointments?.push(appointment);
+            }
+
+            const appointmentResponseEvent = sub.appointmentResponse || sub.AppointmentResponse;
+            if (appointmentResponseEvent) {
+                const response = mapV3AppointmentResponse(appointmentResponseEvent);
+                if (response) model.appointmentResponses?.push(response);
+            }
+
+            const deviceDispenseEvent = sub.deviceDispense || sub.DeviceDispense;
+            if (deviceDispenseEvent) {
+                const dispense = mapV3DeviceDispense(deviceDispenseEvent);
+                if (dispense) model.deviceDispenses?.push(dispense);
+            }
+
+            const deviceRequestEvent = sub.deviceRequest || sub.DeviceRequest;
+            if (deviceRequestEvent) {
+                const request = mapV3DeviceRequest(deviceRequestEvent);
+                if (request) model.deviceRequests?.push(request);
+            }
+
+            const deviceUsageEvent = sub.deviceUsage || sub.DeviceUsage;
+            if (deviceUsageEvent) {
+                const usage = mapV3DeviceUsage(deviceUsageEvent);
+                if (usage) model.deviceUsages?.push(usage);
+            }
+
+            const encounterHistoryEvent = sub.encounterHistory || sub.EncounterHistory;
+            if (encounterHistoryEvent) {
+                const history = mapV3EncounterHistory(encounterHistoryEvent);
+                if (history) model.encounterHistories?.push(history);
+            }
+
+            const flagEvent = sub.flag || sub.Flag;
+            if (flagEvent) {
+                const flag = mapV3Flag(flagEvent);
+                if (flag) model.flags?.push(flag);
+            }
+
+            const listEvent = sub.list || sub.List;
+            if (listEvent) {
+                const list = mapV3List(listEvent);
+                if (list) model.lists?.push(list);
+            }
+
+            const nutritionIntakeEvent = sub.nutritionIntake || sub.NutritionIntake;
+            if (nutritionIntakeEvent) {
+                const intake = mapV3NutritionIntake(nutritionIntakeEvent);
+                if (intake) model.nutritionIntakes?.push(intake);
+            }
+
+            const nutritionOrderEvent = sub.nutritionOrder || sub.NutritionOrder;
+            if (nutritionOrderEvent) {
+                const order = mapV3NutritionOrder(nutritionOrderEvent);
+                if (order) model.nutritionOrders?.push(order);
+            }
+
+            const riskAssessmentEvent = sub.riskAssessment || sub.RiskAssessment;
+            if (riskAssessmentEvent) {
+                const risk = mapV3RiskAssessment(riskAssessmentEvent);
+                if (risk) model.riskAssessments?.push(risk);
+            }
+
+            const claimEvent = sub.claim || sub.Claim;
+            if (claimEvent) {
+                const claim = mapV3Claim(claimEvent);
+                if (claim) model.claims?.push(claim);
+            }
+
+            const claimResponseEvent = sub.claimResponse || sub.ClaimResponse;
+            if (claimResponseEvent) {
+                const response = mapV3ClaimResponse(claimResponseEvent);
+                if (response) model.claimResponses?.push(response);
+            }
+
+            const explanationEvent = sub.explanationOfBenefit || sub.ExplanationOfBenefit;
+            if (explanationEvent) {
+                const benefit = mapV3ExplanationOfBenefit(explanationEvent);
+                if (benefit) model.explanationOfBenefits?.push(benefit);
+            }
+
+            const compositionEvent = sub.composition || sub.Composition;
+            if (compositionEvent) {
+                const composition = mapV3Composition(compositionEvent);
+                if (composition) model.compositions?.push(composition);
+            }
+
+            const coverageEvent = sub.coverage || sub.Coverage;
+            if (coverageEvent) {
+                const coverage = mapV3Coverage(coverageEvent);
+                if (coverage) model.coverages?.push(coverage);
+            }
+
+            const accountEvent = sub.account || sub.Account;
+            if (accountEvent) {
+                const account = mapV3Account(accountEvent);
+                if (account) model.accounts?.push(account);
+            }
+
+            const chargeItemEvent = sub.chargeItem || sub.ChargeItem;
+            if (chargeItemEvent) {
+                const item = mapV3ChargeItem(chargeItemEvent);
+                if (item) model.chargeItems?.push(item);
+            }
+
+            const chargeItemDefinitionEvent = sub.chargeItemDefinition || sub.ChargeItemDefinition;
+            if (chargeItemDefinitionEvent) {
+                const definition = mapV3ChargeItemDefinition(chargeItemDefinitionEvent);
+                if (definition) model.chargeItemDefinitions?.push(definition);
+            }
+
+            const deviceEvent = sub.device || sub.Device;
+            if (deviceEvent) {
+                const device = mapV3Device(deviceEvent);
+                if (device) model.devices?.push(device);
+            }
+
+            const deviceMetricEvent = sub.deviceMetric || sub.DeviceMetric;
+            if (deviceMetricEvent) {
+                const metric = mapV3DeviceMetric(deviceMetricEvent);
+                if (metric) model.deviceMetrics?.push(metric);
+            }
+
+            const endpointEvent = sub.endpoint || sub.Endpoint;
+            if (endpointEvent) {
+                const endpoint = mapV3Endpoint(endpointEvent);
+                if (endpoint) model.endpoints?.push(endpoint);
+            }
+
+            const binaryEvent = sub.binary || sub.Binary;
+            if (binaryEvent) {
+                const binary = mapV3Binary(binaryEvent);
+                if (binary) model.binaries?.push(binary);
             }
 
             const carePlanEvent = sub.carePlan || sub.CarePlan;
@@ -1623,6 +1799,573 @@ function mapV3Appointment(apptEvent: any): CanonicalAppointment | undefined {
         description: displayName,
         start: start,
         end: end
+    };
+}
+
+function mapV3AppointmentResponse(responseEvent: any): CanonicalAppointmentResponse | undefined {
+    const response = responseEvent.appointmentResponse || responseEvent.AppointmentResponse || responseEvent;
+    if (!response) return undefined;
+    const id = response.id || response.Id;
+    const idValue = id?.['@_extension'] || id?.['@_root'];
+    const status = response.statusCode?.['@_code'] || response.StatusCode?.['@_code'];
+    const code = response.code || response.Code;
+    const displayName = code?.['@_displayName'];
+    const effectiveTime = response.effectiveTime || response.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idValue && !start && !end && !displayName) return undefined;
+
+    return {
+        id: idValue,
+        identifier: idValue,
+        appointment: idValue,
+        participantStatus: status || 'accepted',
+        start: start,
+        end: end,
+        comment: displayName
+    };
+}
+
+function mapV3Claim(claimEvent: any): CanonicalClaim | undefined {
+    const claim = claimEvent.claim || claimEvent.Claim || claimEvent;
+    if (!claim) return undefined;
+    const idInfo = pickV3Id(claim.id || claim.Id);
+    const status = claim.statusCode?.['@_code'] || claim.StatusCode?.['@_code'];
+    const code = claim.code || claim.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = claim.effectiveTime || claim.EffectiveTime;
+    const created = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !created) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        type: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        created: created
+    };
+}
+
+function mapV3ClaimResponse(responseEvent: any): CanonicalClaimResponse | undefined {
+    const response = responseEvent.claimResponse || responseEvent.ClaimResponse || responseEvent;
+    if (!response) return undefined;
+    const idInfo = pickV3Id(response.id || response.Id);
+    const status = response.statusCode?.['@_code'] || response.StatusCode?.['@_code'];
+    const code = response.code || response.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = response.effectiveTime || response.EffectiveTime;
+    const created = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !created) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        type: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        created: created
+    };
+}
+
+function mapV3ExplanationOfBenefit(eobEvent: any): CanonicalExplanationOfBenefit | undefined {
+    const eob = eobEvent.explanationOfBenefit || eobEvent.ExplanationOfBenefit || eobEvent;
+    if (!eob) return undefined;
+    const idInfo = pickV3Id(eob.id || eob.Id);
+    const status = eob.statusCode?.['@_code'] || eob.StatusCode?.['@_code'];
+    const code = eob.code || eob.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = eob.effectiveTime || eob.EffectiveTime;
+    const created = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !created) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        type: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        created: created
+    };
+}
+
+function mapV3Composition(compEvent: any): CanonicalComposition | undefined {
+    const composition = compEvent.composition || compEvent.Composition || compEvent;
+    if (!composition) return undefined;
+    const idInfo = pickV3Id(composition.id || composition.Id);
+    const status = composition.statusCode?.['@_code'] || composition.StatusCode?.['@_code'];
+    const code = composition.code || composition.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = composition.effectiveTime || composition.EffectiveTime;
+    const date = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !displayName && !date) return undefined;
+
+    return {
+        id: idInfo.id,
+        status: status || 'final',
+        type: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        title: displayName,
+        date: date
+    };
+}
+
+function mapV3Coverage(covEvent: any): CanonicalCoverage | undefined {
+    const coverage = covEvent.coverage || covEvent.Coverage || covEvent;
+    if (!coverage) return undefined;
+    const idInfo = pickV3Id(coverage.id || coverage.Id);
+    const status = coverage.statusCode?.['@_code'] || coverage.StatusCode?.['@_code'];
+    const code = coverage.code || coverage.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = coverage.effectiveTime || coverage.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !start && !end) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        type: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        period: start || end ? { start, end } : undefined
+    };
+}
+
+function mapV3Account(accEvent: any): CanonicalAccount | undefined {
+    const account = accEvent.account || accEvent.Account || accEvent;
+    if (!account) return undefined;
+    const idInfo = pickV3Id(account.id || account.Id);
+    const status = account.statusCode?.['@_code'] || account.StatusCode?.['@_code'];
+    const code = account.code || account.Code;
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const effectiveTime = account.effectiveTime || account.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idInfo.id && !displayName && !start && !end) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        name: displayName,
+        servicePeriod: start || end ? { start, end } : undefined
+    };
+}
+
+function mapV3ChargeItem(itemEvent: any): CanonicalChargeItem | undefined {
+    const item = itemEvent.chargeItem || itemEvent.ChargeItem || itemEvent;
+    if (!item) return undefined;
+    const idInfo = pickV3Id(item.id || item.Id);
+    const status = item.statusCode?.['@_code'] || item.StatusCode?.['@_code'];
+    const code = item.code || item.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = item.effectiveTime || item.EffectiveTime;
+    const occurrence = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !occurrence) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'planned',
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        occurrenceDateTime: occurrence
+    };
+}
+
+function mapV3ChargeItemDefinition(defEvent: any): CanonicalChargeItemDefinition | undefined {
+    const definition = defEvent.chargeItemDefinition || defEvent.ChargeItemDefinition || defEvent;
+    if (!definition) return undefined;
+    const idInfo = pickV3Id(definition.id || definition.Id);
+    const status = definition.statusCode?.['@_code'] || definition.StatusCode?.['@_code'];
+    const code = definition.code || definition.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = definition.effectiveTime || definition.EffectiveTime;
+    const date = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !date) return undefined;
+
+    return {
+        id: idInfo.id,
+        status: status || 'active',
+        title: displayName,
+        date: date,
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined
+    };
+}
+
+function mapV3Device(deviceEvent: any): CanonicalDevice | undefined {
+    const device = deviceEvent.device || deviceEvent.Device || deviceEvent;
+    if (!device) return undefined;
+    const idInfo = pickV3Id(device.id || device.Id);
+    const status = device.statusCode?.['@_code'] || device.StatusCode?.['@_code'];
+    const code = device.code || device.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+
+    if (!idInfo.id && !codeValue && !displayName) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        displayName: displayName,
+        type: codeValue || displayName ? [{
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        }] : undefined,
+        name: displayName ? [{ value: displayName, type: 'user-friendly-name' }] : undefined
+    };
+}
+
+function mapV3DeviceMetric(metricEvent: any): CanonicalDeviceMetric | undefined {
+    const metric = metricEvent.deviceMetric || metricEvent.DeviceMetric || metricEvent;
+    if (!metric) return undefined;
+    const idInfo = pickV3Id(metric.id || metric.Id);
+    const status = metric.statusCode?.['@_code'] || metric.StatusCode?.['@_code'];
+    const code = metric.code || metric.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+
+    if (!idInfo.id && !codeValue && !displayName) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        type: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        operationalStatus: status,
+        category: 'measurement'
+    };
+}
+
+function mapV3Endpoint(endpointEvent: any): CanonicalEndpoint | undefined {
+    const endpoint = endpointEvent.endpoint || endpointEvent.Endpoint || endpointEvent;
+    if (!endpoint) return undefined;
+    const idInfo = pickV3Id(endpoint.id || endpoint.Id);
+    const status = endpoint.statusCode?.['@_code'] || endpoint.StatusCode?.['@_code'];
+    const code = endpoint.code || endpoint.Code;
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const telecom = endpoint.telecom || endpoint.Telecom;
+    const address = telecom?.['@_value'];
+
+    if (!idInfo.id && !displayName && !address) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        name: displayName,
+        address: address
+    };
+}
+
+function mapV3Binary(binaryEvent: any): CanonicalBinary | undefined {
+    const binary = binaryEvent.binary || binaryEvent.Binary || binaryEvent;
+    if (!binary) return undefined;
+    const idInfo = pickV3Id(binary.id || binary.Id);
+    const value = binary.value || binary.Value || binary.data || binary.Data || binary['#text'];
+    const data = value?.['#text'] || value?.['@_value'] || (typeof value === 'string' ? value : undefined);
+    if (!idInfo.id && !data) return undefined;
+    return {
+        id: idInfo.id || `BIN-${Date.now()}`,
+        data: data
+    };
+}
+
+function mapV3DeviceDispense(dispenseEvent: any): CanonicalDeviceDispense | undefined {
+    const dispense = dispenseEvent.deviceDispense || dispenseEvent.DeviceDispense || dispenseEvent;
+    if (!dispense) return undefined;
+    const idInfo = pickV3Id(dispense.id || dispense.Id);
+    const status = dispense.statusCode?.['@_code'] || dispense.StatusCode?.['@_code'];
+    const code = dispense.code || dispense.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = dispense.effectiveTime || dispense.EffectiveTime;
+    const preparedDate = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !preparedDate) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'completed',
+        deviceCodeableConcept: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        preparedDate: preparedDate
+    };
+}
+
+function mapV3DeviceRequest(requestEvent: any): CanonicalDeviceRequest | undefined {
+    const request = requestEvent.deviceRequest || requestEvent.DeviceRequest || requestEvent;
+    if (!request) return undefined;
+    const idInfo = pickV3Id(request.id || request.Id);
+    const status = request.statusCode?.['@_code'] || request.StatusCode?.['@_code'];
+    const code = request.code || request.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = request.effectiveTime || request.EffectiveTime;
+    const authoredOn = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !authoredOn) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        intent: 'order',
+        codeCodeableConcept: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        authoredOn: authoredOn
+    };
+}
+
+function mapV3DeviceUsage(usageEvent: any): CanonicalDeviceUsage | undefined {
+    const usage = usageEvent.deviceUsage || usageEvent.DeviceUsage || usageEvent;
+    if (!usage) return undefined;
+    const idInfo = pickV3Id(usage.id || usage.Id);
+    const status = usage.statusCode?.['@_code'] || usage.StatusCode?.['@_code'];
+    const code = usage.code || usage.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = usage.effectiveTime || usage.EffectiveTime;
+    const timing = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !timing) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        deviceCodeableConcept: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        timingDateTime: timing
+    };
+}
+
+function mapV3EncounterHistory(historyEvent: any): CanonicalEncounterHistory | undefined {
+    const history = historyEvent.encounterHistory || historyEvent.EncounterHistory || historyEvent;
+    if (!history) return undefined;
+    const idInfo = pickV3Id(history.id || history.Id);
+    const status = history.statusCode?.['@_code'] || history.StatusCode?.['@_code'];
+    const code = history.code || history.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = history.effectiveTime || history.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !start && !end) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'completed',
+        class: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        actualPeriod: start || end ? { start, end } : undefined
+    };
+}
+
+function mapV3Flag(flagEvent: any): CanonicalFlag | undefined {
+    const flag = flagEvent.flag || flagEvent.Flag || flagEvent;
+    if (!flag) return undefined;
+    const idInfo = pickV3Id(flag.id || flag.Id);
+    const status = flag.statusCode?.['@_code'] || flag.StatusCode?.['@_code'];
+    const code = flag.code || flag.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = flag.effectiveTime || flag.EffectiveTime;
+    const start = formatV3DateTime(effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value']);
+    const end = formatV3DateTime(effectiveTime?.high?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !start && !end) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        period: start || end ? { start, end } : undefined
+    };
+}
+
+function mapV3List(listEvent: any): CanonicalList | undefined {
+    const list = listEvent.list || listEvent.List || listEvent;
+    if (!list) return undefined;
+    const idInfo = pickV3Id(list.id || list.Id);
+    const status = list.statusCode?.['@_code'] || list.StatusCode?.['@_code'];
+    const code = list.code || list.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const title = list.title || list.Title || displayName;
+    const effectiveTime = list.effectiveTime || list.EffectiveTime;
+    const date = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !title && !codeValue && !date) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'current',
+        title: typeof title === 'string' ? title : title?.['#text'] || displayName,
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        date: date
+    };
+}
+
+function mapV3NutritionIntake(intakeEvent: any): CanonicalNutritionIntake | undefined {
+    const intake = intakeEvent.nutritionIntake || intakeEvent.NutritionIntake || intakeEvent;
+    if (!intake) return undefined;
+    const idInfo = pickV3Id(intake.id || intake.Id);
+    const status = intake.statusCode?.['@_code'] || intake.StatusCode?.['@_code'];
+    const code = intake.code || intake.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = intake.effectiveTime || intake.EffectiveTime;
+    const occurrence = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !occurrence) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'completed',
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        occurrenceDateTime: occurrence
+    };
+}
+
+function mapV3NutritionOrder(orderEvent: any): CanonicalNutritionOrder | undefined {
+    const order = orderEvent.nutritionOrder || orderEvent.NutritionOrder || orderEvent;
+    if (!order) return undefined;
+    const idInfo = pickV3Id(order.id || order.Id);
+    const status = order.statusCode?.['@_code'] || order.StatusCode?.['@_code'];
+    const code = order.code || order.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = order.effectiveTime || order.EffectiveTime;
+    const dateTime = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !dateTime) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'active',
+        intent: 'order',
+        dateTime: dateTime,
+        note: displayName ? [displayName] : undefined
+    };
+}
+
+function mapV3RiskAssessment(riskEvent: any): CanonicalRiskAssessment | undefined {
+    const risk = riskEvent.riskAssessment || riskEvent.RiskAssessment || riskEvent;
+    if (!risk) return undefined;
+    const idInfo = pickV3Id(risk.id || risk.Id);
+    const status = risk.statusCode?.['@_code'] || risk.StatusCode?.['@_code'];
+    const code = risk.code || risk.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const effectiveTime = risk.effectiveTime || risk.EffectiveTime;
+    const occurrence = formatV3DateTime(effectiveTime?.['@_value'] || effectiveTime?.low?.['@_value']);
+
+    if (!idInfo.id && !codeValue && !displayName && !occurrence) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        status: status || 'final',
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        occurrenceDateTime: occurrence
     };
 }
 

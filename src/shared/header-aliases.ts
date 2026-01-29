@@ -675,6 +675,16 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     device_metric_frequency_value: ['frequency_value', 'device_metric_frequency_value'],
     device_metric_frequency_unit: ['frequency_unit', 'device_metric_frequency_unit']
   },
+  endpoint: {
+    endpoint_id: ['endpoint_identifier', 'endpointid'],
+    endpoint_status: ['status', 'endpoint_status'],
+    endpoint_name: ['name', 'endpoint_name'],
+    endpoint_description: ['description', 'endpoint_description'],
+    endpoint_address: ['address', 'endpoint_address'],
+    endpoint_managing_organization_id: ['managing_organization_id', 'endpoint_managing_organization_id', 'organization_id'],
+    endpoint_connection_type: ['connection_type', 'endpoint_connection_type'],
+    endpoint_environment_type: ['environment_type', 'endpoint_environment_type']
+  },
   coverage: {
     coverage_id: ['coverage_identifier', 'coverageid', 'policy_id'],
     coverage_status: ['status', 'coverage_status'],

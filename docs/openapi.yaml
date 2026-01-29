@@ -1241,6 +1241,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomDeviceMetric'
+        endpoint:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEndpoint'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEndpoint'
         binary:
           oneOf:
             - $ref: '#/components/schemas/CustomBinary'
@@ -4414,6 +4420,25 @@ components:
           type: number
         device_metric_frequency_unit:
           type: string
+    CustomEndpoint:
+      type: object
+      properties:
+        endpoint_id:
+          type: string
+        endpoint_status:
+          type: string
+        endpoint_name:
+          type: string
+        endpoint_description:
+          type: string
+        endpoint_address:
+          type: string
+        endpoint_managing_organization_id:
+          type: string
+        endpoint_connection_type:
+          type: string
+        endpoint_environment_type:
+          type: string
     CustomBinary:
       type: object
       properties:
@@ -5592,6 +5617,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [device_metric]
+    CustomJsonEndpointOnly:
+      title: Endpoint
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [endpoint]
     CustomJsonBinaryOnly:
       title: Binary
       allOf:

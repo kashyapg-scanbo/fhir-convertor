@@ -2803,6 +2803,32 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (deviceMetrics.length > 0) canonical.deviceMetrics = deviceMetrics as any[];
 
+  const endpoints = rows.map(row => {
+    const endpointId = readValue(row, 'endpoint_id');
+    const status = readValue(row, 'endpoint_status');
+    const address = readValue(row, 'endpoint_address');
+    if (!endpointId && !status && !address) return null;
+
+    const name = readValue(row, 'endpoint_name');
+    const description = readValue(row, 'endpoint_description');
+    const managingOrganizationId = readValue(row, 'endpoint_managing_organization_id');
+    const connectionType = readValue(row, 'endpoint_connection_type');
+    const environmentType = readValue(row, 'endpoint_environment_type');
+
+    return {
+      id: endpointId || undefined,
+      identifier: endpointId ? [{ value: endpointId }] : undefined,
+      status: status || undefined,
+      name: name || undefined,
+      description: description || undefined,
+      address: address || undefined,
+      managingOrganization: managingOrganizationId || undefined,
+      connectionType: connectionType ? [{ code: connectionType, display: connectionType }] : undefined,
+      environmentType: environmentType ? [{ code: environmentType, display: environmentType }] : undefined
+    };
+  }).filter(Boolean);
+  if (endpoints.length > 0) canonical.endpoints = endpoints as any[];
+
   const coverages = rows.map(row => {
     const coverageId = readValue(row, 'coverage_id');
     const status = readValue(row, 'coverage_status');

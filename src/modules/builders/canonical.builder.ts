@@ -1,5 +1,68 @@
+import { Buffer } from 'node:buffer';
 import { HL7Message } from '../../shared/types/hl7.types.js';
-import { CanonicalObservation, CanonicalDocumentReference, CanonicalEncounter, CanonicalMedicationStatement, CanonicalMedicationAdministration, CanonicalMedicationDispense, CanonicalProcedure, CanonicalCondition, CanonicalAppointment, CanonicalSchedule, CanonicalSlot, CanonicalDiagnosticReport, CanonicalRelatedPerson, CanonicalLocation, CanonicalEpisodeOfCare, CanonicalSpecimen, CanonicalImagingStudy, CanonicalAllergyIntolerance, CanonicalImmunization, CanonicalCapabilityStatement, CanonicalOperationOutcome, CanonicalParameters, CanonicalCarePlan, CanonicalCareTeam, CanonicalGoal, CanonicalServiceRequest, CanonicalTask, CanonicalCommunication, CanonicalCommunicationRequest, CanonicalQuestionnaire, CanonicalQuestionnaireResponse, CanonicalCodeSystem, CanonicalValueSet, CanonicalConceptMap, CanonicalNamingSystem, CanonicalTerminologyCapabilities, CanonicalProvenance, CanonicalAuditEvent, CanonicalConsent } from '../../shared/types/canonical.types.js';
+import {
+  CanonicalObservation,
+  CanonicalDocumentReference,
+  CanonicalEncounter,
+  CanonicalMedicationStatement,
+  CanonicalMedicationAdministration,
+  CanonicalMedicationDispense,
+  CanonicalDeviceDispense,
+  CanonicalDeviceRequest,
+  CanonicalDeviceUsage,
+  CanonicalProcedure,
+  CanonicalCondition,
+  CanonicalAppointment,
+  CanonicalAppointmentResponse,
+  CanonicalClaim,
+  CanonicalClaimResponse,
+  CanonicalComposition,
+  CanonicalExplanationOfBenefit,
+  CanonicalCoverage,
+  CanonicalEncounterHistory,
+  CanonicalFlag,
+  CanonicalList,
+  CanonicalNutritionIntake,
+  CanonicalNutritionOrder,
+  CanonicalRiskAssessment,
+  CanonicalBinary,
+  CanonicalAccount,
+  CanonicalChargeItem,
+  CanonicalChargeItemDefinition,
+  CanonicalDevice,
+  CanonicalDeviceMetric,
+  CanonicalEndpoint,
+  CanonicalSchedule,
+  CanonicalSlot,
+  CanonicalDiagnosticReport,
+  CanonicalRelatedPerson,
+  CanonicalLocation,
+  CanonicalEpisodeOfCare,
+  CanonicalSpecimen,
+  CanonicalImagingStudy,
+  CanonicalAllergyIntolerance,
+  CanonicalImmunization,
+  CanonicalCapabilityStatement,
+  CanonicalOperationOutcome,
+  CanonicalParameters,
+  CanonicalCarePlan,
+  CanonicalCareTeam,
+  CanonicalGoal,
+  CanonicalServiceRequest,
+  CanonicalTask,
+  CanonicalCommunication,
+  CanonicalCommunicationRequest,
+  CanonicalQuestionnaire,
+  CanonicalQuestionnaireResponse,
+  CanonicalCodeSystem,
+  CanonicalValueSet,
+  CanonicalConceptMap,
+  CanonicalNamingSystem,
+  CanonicalTerminologyCapabilities,
+  CanonicalProvenance,
+  CanonicalAuditEvent,
+  CanonicalConsent
+} from '../../shared/types/canonical.types.js';
 import { getFhirContentType } from '../../shared/types/documentTypes.mapping.js';
 
 export function buildCanonical(parsed: any) {
@@ -466,6 +529,296 @@ export function buildCanonical(parsed: any) {
   if (documentReferences.length > 0) {
     result.documentReferences = documentReferences;
   }
+
+  /* ───── Additional Resources (custom HL7v2 OBX mapping) ───── */
+  const appointmentResponses: CanonicalAppointmentResponse[] = [];
+  const claims: CanonicalClaim[] = [];
+  const claimResponses: CanonicalClaimResponse[] = [];
+  const compositions: CanonicalComposition[] = [];
+  const explanationOfBenefits: CanonicalExplanationOfBenefit[] = [];
+  const coverages: CanonicalCoverage[] = [];
+  const deviceDispenses: CanonicalDeviceDispense[] = [];
+  const deviceRequests: CanonicalDeviceRequest[] = [];
+  const deviceUsages: CanonicalDeviceUsage[] = [];
+  const encounterHistories: CanonicalEncounterHistory[] = [];
+  const flags: CanonicalFlag[] = [];
+  const lists: CanonicalList[] = [];
+  const nutritionIntakes: CanonicalNutritionIntake[] = [];
+  const nutritionOrders: CanonicalNutritionOrder[] = [];
+  const riskAssessments: CanonicalRiskAssessment[] = [];
+  const binaries: CanonicalBinary[] = [];
+  const accounts: CanonicalAccount[] = [];
+  const chargeItems: CanonicalChargeItem[] = [];
+  const chargeItemDefinitions: CanonicalChargeItemDefinition[] = [];
+  const devices: CanonicalDevice[] = [];
+  const deviceMetrics: CanonicalDeviceMetric[] = [];
+  const endpoints: CanonicalEndpoint[] = [];
+
+  const messageId = msh?.[9]?.[0]?.[0];
+  const messageDate = msh?.[6]?.[0]?.[0];
+  const messageDateTime = toFHIRDateTime(messageDate) || toFHIRDate(messageDate);
+
+  for (const obx of obxSegments) {
+    const codeParts = obx?.[2]?.[0] ?? [];
+    const codeValue = String(codeParts[0] ?? '').trim();
+    const displayName = String(codeParts[1] ?? codeValue).trim();
+    const normalized = codeValue.toUpperCase();
+    const textValue = obx?.[4]?.[0]?.[0];
+    const valueText = textValue !== undefined ? String(textValue) : undefined;
+    const idValue = obx?.[3]?.[0]?.[0] || messageId;
+
+    switch (normalized) {
+      case 'APPOINTMENTRESPONSE':
+        appointmentResponses.push({
+          id: idValue || `APPTRESP-${Date.now()}`,
+          identifier: idValue,
+          appointment: idValue,
+          participantStatus: 'accepted',
+          comment: valueText || displayName,
+          actor: patientId
+        });
+        break;
+      case 'CLAIM':
+        claims.push({
+          id: idValue || `CLAIM-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          patient: patientId,
+          created: messageDateTime
+        });
+        break;
+      case 'CLAIMRESPONSE':
+        claimResponses.push({
+          id: idValue || `CLMRESP-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          patient: patientId,
+          created: messageDateTime
+        });
+        break;
+      case 'COMPOSITION':
+        compositions.push({
+          id: idValue || `COMP-${Date.now()}`,
+          status: 'final',
+          type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId ? [patientId] : undefined,
+          date: messageDateTime,
+          title: valueText || displayName
+        });
+        break;
+      case 'EXPLANATIONOFBENEFIT':
+        explanationOfBenefits.push({
+          id: idValue || `EOB-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          patient: patientId,
+          created: messageDateTime
+        });
+        break;
+      case 'COVERAGE':
+        coverages.push({
+          id: idValue || `COV-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          beneficiary: patientId,
+          period: messageDateTime ? { start: messageDateTime } : undefined
+        });
+        break;
+      case 'DEVICEDISPENSE':
+        deviceDispenses.push({
+          id: idValue || `DEV-DISP-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'completed',
+          deviceCodeableConcept: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          encounter: encounter?.id,
+          preparedDate: messageDateTime
+        });
+        break;
+      case 'DEVICEREQUEST':
+        deviceRequests.push({
+          id: idValue || `DEV-REQ-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          intent: 'order',
+          codeCodeableConcept: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          encounter: encounter?.id,
+          authoredOn: messageDateTime
+        });
+        break;
+      case 'DEVICEUSAGE':
+        deviceUsages.push({
+          id: idValue || `DEV-USE-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          deviceCodeableConcept: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          patient: patientId,
+          context: encounter?.id,
+          timingDateTime: messageDateTime
+        });
+        break;
+      case 'ENCOUNTERHISTORY':
+        encounterHistories.push({
+          id: idValue || `ENC-HIST-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'completed',
+          class: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          actualPeriod: messageDateTime ? { start: messageDateTime } : undefined
+        });
+        break;
+      case 'FLAG':
+        flags.push({
+          id: idValue || `FLAG-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          encounter: encounter?.id
+        });
+        break;
+      case 'LIST':
+        lists.push({
+          id: idValue || `LIST-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'current',
+          title: valueText || displayName,
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId ? [patientId] : undefined,
+          encounter: encounter?.id,
+          date: messageDateTime
+        });
+        break;
+      case 'NUTRITIONINTAKE':
+        nutritionIntakes.push({
+          id: idValue || `NINT-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'completed',
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          encounter: encounter?.id,
+          occurrenceDateTime: messageDateTime
+        });
+        break;
+      case 'NUTRITIONORDER':
+        nutritionOrders.push({
+          id: idValue || `NORD-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          intent: 'order',
+          subject: patientId,
+          encounter: encounter?.id,
+          dateTime: messageDateTime,
+          note: valueText || displayName ? [valueText || displayName] : undefined
+        });
+        break;
+      case 'RISKASSESSMENT':
+        riskAssessments.push({
+          id: idValue || `RISK-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'final',
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          encounter: encounter?.id,
+          occurrenceDateTime: messageDateTime
+        });
+        break;
+      case 'ACCOUNT':
+        accounts.push({
+          id: idValue || `ACC-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          name: valueText || displayName,
+          subject: patientId ? [patientId] : undefined,
+          servicePeriod: messageDateTime ? { start: messageDateTime } : undefined
+        });
+        break;
+      case 'CHARGEITEM':
+        chargeItems.push({
+          id: idValue || `CHG-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'planned',
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          subject: patientId,
+          occurrenceDateTime: messageDateTime
+        });
+        break;
+      case 'CHARGEITEMDEFINITION':
+        chargeItemDefinitions.push({
+          id: idValue || `CHGDEF-${Date.now()}`,
+          status: 'active',
+          title: valueText || displayName,
+          date: messageDateTime,
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined
+        });
+        break;
+      case 'DEVICE':
+        devices.push({
+          id: idValue || `DEV-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          displayName: valueText || displayName,
+          name: valueText || displayName ? [{ value: valueText || displayName, type: 'user-friendly-name' }] : undefined
+        });
+        break;
+      case 'DEVICEMETRIC':
+        deviceMetrics.push({
+          id: idValue || `METRIC-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          type: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          category: 'measurement'
+        });
+        break;
+      case 'ENDPOINT':
+        endpoints.push({
+          id: idValue || `ENDPT-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          status: 'active',
+          name: displayName,
+          address: valueText
+        });
+        break;
+      case 'BINARY':
+        if (valueText) {
+          binaries.push({
+            id: idValue || `BIN-${Date.now()}`,
+            contentType: 'text/plain',
+            data: Buffer.from(valueText).toString('base64')
+          });
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (appointmentResponses.length > 0) result.appointmentResponses = appointmentResponses;
+  if (claims.length > 0) result.claims = claims;
+  if (claimResponses.length > 0) result.claimResponses = claimResponses;
+  if (compositions.length > 0) result.compositions = compositions;
+  if (explanationOfBenefits.length > 0) result.explanationOfBenefits = explanationOfBenefits;
+  if (coverages.length > 0) result.coverages = coverages;
+  if (deviceDispenses.length > 0) result.deviceDispenses = deviceDispenses;
+  if (deviceRequests.length > 0) result.deviceRequests = deviceRequests;
+  if (deviceUsages.length > 0) result.deviceUsages = deviceUsages;
+  if (encounterHistories.length > 0) result.encounterHistories = encounterHistories;
+  if (flags.length > 0) result.flags = flags;
+  if (lists.length > 0) result.lists = lists;
+  if (nutritionIntakes.length > 0) result.nutritionIntakes = nutritionIntakes;
+  if (nutritionOrders.length > 0) result.nutritionOrders = nutritionOrders;
+  if (riskAssessments.length > 0) result.riskAssessments = riskAssessments;
+  if (binaries.length > 0) result.binaries = binaries;
+  if (accounts.length > 0) result.accounts = accounts;
+  if (chargeItems.length > 0) result.chargeItems = chargeItems;
+  if (chargeItemDefinitions.length > 0) result.chargeItemDefinitions = chargeItemDefinitions;
+  if (devices.length > 0) result.devices = devices;
+  if (deviceMetrics.length > 0) result.deviceMetrics = deviceMetrics;
+  if (endpoints.length > 0) result.endpoints = endpoints;
 
   /* ───── Parameters (from OBX) ───── */
   const parameters: CanonicalParameters[] = [];

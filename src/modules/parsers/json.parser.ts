@@ -1730,6 +1730,21 @@ const GlobalDeviceMetricSchema = z.object({
   measurement_frequency: GlobalQuantitySchema.optional()
 });
 
+const GlobalEndpointSchema = z.object({
+  endpoint_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  status: z.string().optional(),
+  connection_type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  environment_type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  managing_organization_id: GlobalIdSchema.optional(),
+  period_start: z.string().optional(),
+  period_end: z.string().optional(),
+  address: z.string().optional(),
+  header: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalCoveragePaymentBySchema = z.object({
   party_id: GlobalIdSchema.optional(),
   responsibility: z.string().optional()
@@ -2389,6 +2404,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   charge_item_definition: z.union([GlobalChargeItemDefinitionSchema, z.array(GlobalChargeItemDefinitionSchema)]).optional(),
   device: z.union([GlobalDeviceSchema, z.array(GlobalDeviceSchema)]).optional(),
   device_metric: z.union([GlobalDeviceMetricSchema, z.array(GlobalDeviceMetricSchema)]).optional(),
+  endpoint: z.union([GlobalEndpointSchema, z.array(GlobalEndpointSchema)]).optional(),
   binary: z.union([GlobalBinarySchema, z.array(GlobalBinarySchema)]).optional(),
   schedule: z.union([GlobalScheduleSchema, z.array(GlobalScheduleSchema)]).optional(),
   slot: z.union([GlobalSlotSchema, z.array(GlobalSlotSchema)]).optional(),
@@ -2455,6 +2471,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.charge_item_definition ||
     value.device ||
     value.device_metric ||
+    value.endpoint ||
     value.binary ||
     value.schedule ||
     value.slot ||
@@ -2471,7 +2488,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2542,6 +2559,8 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   chargeItemDefinitions: 'chargeItemDefinition',
   devices: 'device',
   deviceMetrics: 'deviceMetric',
+  endpoint: 'endpoint',
+  endpoints: 'endpoint',
   binaries: 'binary',
   schedules: 'schedule',
   slots: 'slot',
@@ -2682,6 +2701,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   device_metrics: 'deviceMetric',
   devicemetric: 'deviceMetric',
   devicemetrics: 'deviceMetric',
+  endpoint: 'endpoint',
+  endpoints: 'endpoint',
   binary: 'binary',
   binaries: 'binary',
   schedule: 'schedule',
@@ -2870,6 +2891,8 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   device_metrics: 'device_metric',
   devicemetric: 'device_metric',
   devicemetrics: 'device_metric',
+  endpoint: 'endpoint',
+  endpoints: 'endpoint',
   binary: 'binary',
   binaries: 'binary',
   schedule: 'schedule',
@@ -5329,6 +5352,42 @@ function normalizeGlobalDeviceMetricAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalEndpointAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const endpointId = readSectionAliasValue(value, 'endpoint', 'endpoint_id');
+  if (normalized.endpoint_id === undefined && endpointId !== undefined) {
+    normalized.endpoint_id = endpointId;
+  }
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const address = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_address'));
+  if (address && normalized.address === undefined) normalized.address = address;
+
+  const managingOrgId = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_managing_organization_id'));
+  if (managingOrgId && normalized.managing_organization_id === undefined) normalized.managing_organization_id = managingOrgId;
+
+  const connectionType = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_connection_type'));
+  if (connectionType && normalized.connection_type === undefined) {
+    normalized.connection_type = [{ code: connectionType, display: connectionType }];
+  }
+
+  const environmentType = normalizeAliasValue(readSectionAliasValue(value, 'endpoint', 'endpoint_environment_type'));
+  if (environmentType && normalized.environment_type === undefined) {
+    normalized.environment_type = [{ code: environmentType, display: environmentType }];
+  }
+
+  return normalized;
+}
+
 function normalizeGlobalExplanationOfBenefitAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -7154,6 +7213,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalDeviceAliases(value);
     case 'deviceMetric':
       return normalizeGlobalDeviceMetricAliases(value);
+    case 'endpoint':
+      return normalizeGlobalEndpointAliases(value);
     case 'binary':
       return normalizeGlobalBinaryAliases(value);
     case 'schedule':
@@ -7232,6 +7293,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['chargeItemDefinition', 'charge_item_definition'],
     ['device', 'device'],
     ['deviceMetric', 'device_metric'],
+    ['endpoint', 'endpoint'],
     ['binary', 'binary'],
     ['schedule', 'schedule'],
     ['slot', 'slot'],
@@ -7372,6 +7434,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'chargeItemDefinition',
     'device',
     'deviceMetric',
+    'endpoint',
     'binary',
     'schedule',
     'slot',
@@ -7556,6 +7619,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const chargeItemDefinitions = normalizeArray(validated.charge_item_definition);
   const devices = normalizeArray(validated.device);
   const deviceMetrics = normalizeArray(validated.device_metric);
+  const endpoints = normalizeArray(validated.endpoint);
   const binaries = normalizeArray(validated.binary);
   const schedules = normalizeArray(validated.schedule);
   const slots = normalizeArray(validated.slot);
@@ -7722,6 +7786,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (deviceMetrics.length) {
     canonical.deviceMetrics = deviceMetrics.map(buildCanonicalDeviceMetricGlobal);
   }
+  if (endpoints.length) {
+    canonical.endpoints = endpoints.map(buildCanonicalEndpointGlobal);
+  }
   if (binaries.length) {
     canonical.binaries = binaries.map(buildCanonicalBinaryGlobal);
   }
@@ -7832,6 +7899,7 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     charge_item_definition: ['charge_item_definition_id', 'id', 'identifier'],
     device_metric: ['device_metric_id', 'id', 'identifier'],
     device: ['device_id', 'id', 'identifier'],
+    endpoint: ['endpoint_id', 'id', 'identifier'],
     binary: ['binary_id', 'id', 'identifier'],
     schedule: ['schedule_id', 'id', 'identifier'],
     slot: ['slot_id', 'id', 'identifier'],
@@ -8122,6 +8190,9 @@ function wrapGlobalPayload(value: any) {
     if ('device_metric_id' in value || 'device_metric_status' in value || 'device_metric_type' in value) {
       return { device_metric: value };
     }
+    if ('endpoint_id' in value || 'endpoint_status' in value || 'endpoint_address' in value) {
+      return { endpoint: value };
+    }
     if ('binary_id' in value || 'content_type' in value || 'security_context' in value || 'data' in value) {
       return { binary: value };
     }
@@ -8316,6 +8387,9 @@ function looksLikeGlobalResource(value: any) {
     'device_metric_id' in value ||
     'device_metric_status' in value ||
     'device_metric_type' in value ||
+    'endpoint_id' in value ||
+    'endpoint_status' in value ||
+    'endpoint_address' in value ||
     'binary_id' in value ||
     'content_type' in value ||
     'security_context' in value ||
@@ -11562,6 +11636,45 @@ function buildCanonicalDeviceMetricGlobal(metric: z.infer<typeof GlobalDeviceMet
     color: metric.color,
     category: metric.category,
     measurementFrequency: mapQuantity(metric.measurement_frequency)
+  };
+}
+
+function buildCanonicalEndpointGlobal(endpoint: z.infer<typeof GlobalEndpointSchema>) {
+  const mapCodeable = (source?: z.infer<typeof GlobalCodeableConceptSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.code_system,
+      code: source.code,
+      display: source.display
+    };
+  };
+
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: mapCodeable(source.type)
+    };
+  };
+
+  const mapPeriod = (start?: string, end?: string) => {
+    if (!start && !end) return undefined;
+    return { start, end };
+  };
+
+  return {
+    id: endpoint.endpoint_id,
+    identifier: normalizeArray(endpoint.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    status: endpoint.status,
+    connectionType: normalizeArray(endpoint.connection_type).map(code => mapCodeable(code as any)).filter(isDefined),
+    name: endpoint.name,
+    description: endpoint.description,
+    environmentType: normalizeArray(endpoint.environment_type).map(code => mapCodeable(code as any)).filter(isDefined),
+    managingOrganization: endpoint.managing_organization_id,
+    period: mapPeriod(endpoint.period_start, endpoint.period_end),
+    address: endpoint.address,
+    header: normalizeStringArray(endpoint.header)
   };
 }
 
