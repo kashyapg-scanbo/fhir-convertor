@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-orgAff-2"/>
+  <creationTime value="20240201100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <organizationAffiliation>
+        <id extension="ORGAFF-2"/>
+        <statusCode code="inactive"/>
+        <code code="partner" displayName="Partner"/>
+        <organization>
+          <id extension="ORG-3"/>
+        </organization>
+        <participatingOrganization>
+          <id extension="ORG-4"/>
+        </participatingOrganization>
+      </organizationAffiliation>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

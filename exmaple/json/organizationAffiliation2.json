@@ -1,0 +1,14 @@
+{
+  "organization_affiliation": {
+    "organization_affiliation_id": "ORGAFF-2",
+    "active": false,
+    "organization_id": "ORG-3",
+    "participating_organization_id": "ORG-4",
+    "network_ids": ["ORG-NET-1"],
+    "location_ids": ["LOC-1"],
+    "healthcare_service_ids": ["HCS-1"],
+    "contact_name": "Jane Admin",
+    "contact_phone": "+1-555-555-0101",
+    "contact_email": "affiliation@org.example"
+  }
+}
