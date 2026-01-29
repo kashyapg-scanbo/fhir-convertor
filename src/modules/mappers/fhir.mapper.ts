@@ -20,6 +20,7 @@ import { mapDeviceUsages } from './deviceUsage.mapper.js';
 import { mapEncounterHistories } from './encounterHistory.mapper.js';
 import { mapFlags } from './flag.mapper.js';
 import { mapLists } from './list.mapper.js';
+import { mapGroups } from './group.mapper.js';
 import { mapNutritionIntakes } from './nutritionIntake.mapper.js';
 import { mapNutritionOrders } from './nutritionOrder.mapper.js';
 import { mapRiskAssessments } from './riskAssessment.mapper.js';
@@ -58,6 +59,7 @@ import { mapChargeItemDefinitions } from './chargeItemDefinition.mapper.js';
 import { mapDevices } from './device.mapper.js';
 import { mapDeviceMetrics } from './deviceMetric.mapper.js';
 import { mapEndpoints } from './endpoint.mapper.js';
+import { mapHealthcareServices } from './healthcareService.mapper.js';
 import { mapSchedules } from './schedule.mapper.js';
 import { mapSlots } from './slot.mapper.js';
 import { mapDiagnosticReports } from './diagnosticReport.mapper.js';
@@ -307,6 +309,26 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (listEntries.length > 0) {
     bundle.entry.push(...listEntries);
+  }
+
+  const groupEntries = mapGroups({
+    groups: canonical.groups,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (groupEntries.length > 0) {
+    bundle.entry.push(...groupEntries);
+  }
+
+  const healthcareServiceEntries = mapHealthcareServices({
+    healthcareServices: canonical.healthcareServices,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (healthcareServiceEntries.length > 0) {
+    bundle.entry.push(...healthcareServiceEntries);
   }
 
   const nutritionIntakeEntries = mapNutritionIntakes({

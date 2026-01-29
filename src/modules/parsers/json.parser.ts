@@ -880,6 +880,12 @@ const GlobalIdentifierObjectSchema = z.object({
   type: GlobalCodeableConceptSchema.optional()
 });
 
+const GlobalContactPointSchema = z.object({
+  system: z.string().optional(),
+  value: GlobalStringSchema.optional(),
+  use: z.string().optional()
+});
+
 const GlobalMoneySchema = z.object({
   value: z.union([z.number(), GlobalStringSchema]).optional(),
   currency: z.string().optional()
@@ -1191,11 +1197,86 @@ const GlobalPeriodSchema = z.object({
   end: z.string().optional()
 });
 
+const GlobalGroupCharacteristicSchema = z.object({
+  code: GlobalCodeableConceptSchema.optional(),
+  value_codeable: GlobalCodeableConceptSchema.optional(),
+  value_boolean: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  value_quantity: GlobalQuantitySchema.optional(),
+  value_range: GlobalRangeSchema.optional(),
+  value_reference_id: GlobalIdSchema.optional(),
+  exclude: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  period: GlobalPeriodSchema.optional()
+});
+
+const GlobalGroupMemberSchema = z.object({
+  entity_id: GlobalIdSchema.optional(),
+  period: GlobalPeriodSchema.optional(),
+  inactive: z.union([z.boolean(), z.string(), z.number()]).optional()
+});
+
+const GlobalGroupSchema = z.object({
+  group_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  active: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  membership: z.string().optional(),
+  code: GlobalCodeableConceptSchema.optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  quantity: GlobalNumberSchema.optional(),
+  managing_entity_id: GlobalIdSchema.optional(),
+  characteristic: z.union([GlobalGroupCharacteristicSchema, z.array(GlobalGroupCharacteristicSchema)]).optional(),
+  member: z.union([GlobalGroupMemberSchema, z.array(GlobalGroupMemberSchema)]).optional()
+});
+
 const GlobalAttachmentSchema = z.object({
   content_type: z.string().optional(),
   url: z.string().optional(),
   title: z.string().optional(),
   data: z.string().optional()
+});
+
+const GlobalHealthcareServiceContactSchema = z.object({
+  name: z.string().optional(),
+  telecom: z.array(GlobalContactPointSchema).optional()
+});
+
+const GlobalHealthcareServiceEligibilitySchema = z.object({
+  code: GlobalCodeableConceptSchema.optional(),
+  comment: z.string().optional()
+});
+
+const GlobalHealthcareServiceSchema = z.object({
+  healthcare_service_id: GlobalIdSchema.optional(),
+  identifier: z.union([GlobalIdentifierObjectSchema, z.array(GlobalIdentifierObjectSchema)]).optional(),
+  active: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  provided_by_id: GlobalIdSchema.optional(),
+  offered_in_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  category: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  type: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  specialty: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  location_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  name: z.string().optional(),
+  comment: z.string().optional(),
+  extra_details: z.string().optional(),
+  photo: GlobalAttachmentSchema.optional(),
+  contact: z.union([GlobalHealthcareServiceContactSchema, z.array(GlobalHealthcareServiceContactSchema)]).optional(),
+  coverage_area_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  service_provision_code: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  eligibility: z.union([GlobalHealthcareServiceEligibilitySchema, z.array(GlobalHealthcareServiceEligibilitySchema)]).optional(),
+  program: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  characteristic: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  communication: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  referral_method: z.union([GlobalCodeableConceptSchema, z.array(GlobalCodeableConceptSchema)]).optional(),
+  appointment_required: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  availability: z.array(z.object({
+    days_of_week: z.union([z.string(), z.array(z.string())]).optional(),
+    available_start_time: z.string().optional(),
+    available_end_time: z.string().optional(),
+    all_day: z.union([z.boolean(), z.string(), z.number()]).optional(),
+    available: z.union([z.boolean(), z.string(), z.number()]).optional()
+  })).optional(),
+  endpoint_ids: z.union([z.string(), z.array(z.string())]).optional()
 });
 
 const GlobalClaimRelatedSchema = z.object({
@@ -2435,6 +2516,8 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   encounter_history: z.union([GlobalEncounterHistorySchema, z.array(GlobalEncounterHistorySchema)]).optional(),
   flag: z.union([GlobalFlagSchema, z.array(GlobalFlagSchema)]).optional(),
   list: z.union([GlobalListSchema, z.array(GlobalListSchema)]).optional(),
+  group: z.union([GlobalGroupSchema, z.array(GlobalGroupSchema)]).optional(),
+  healthcare_service: z.union([GlobalHealthcareServiceSchema, z.array(GlobalHealthcareServiceSchema)]).optional(),
   nutrition_intake: z.union([GlobalNutritionIntakeSchema, z.array(GlobalNutritionIntakeSchema)]).optional(),
   nutrition_order: z.union([GlobalNutritionOrderSchema, z.array(GlobalNutritionOrderSchema)]).optional(),
   risk_assessment: z.union([GlobalRiskAssessmentSchema, z.array(GlobalRiskAssessmentSchema)]).optional(),
@@ -2504,6 +2587,8 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.encounter_history ||
     value.flag ||
     value.list ||
+    value.group ||
+    value.healthcare_service ||
     value.nutrition_intake ||
     value.nutrition_order ||
     value.risk_assessment ||
@@ -2560,7 +2645,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, group, healthcare_service, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2595,6 +2680,8 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   encounterHistories: 'encounterHistory',
   flags: 'flag',
   lists: 'list',
+  groups: 'group',
+  healthcareServices: 'healthcareService',
   nutritionIntakes: 'nutritionIntake',
   nutritionOrders: 'nutritionOrder',
   riskAssessments: 'riskAssessment',
@@ -4085,6 +4172,159 @@ function normalizeGlobalListAliases(value: Record<string, unknown>) {
       item_id: entryItem
     }];
   }
+
+  return normalized;
+}
+
+function normalizeGlobalGroupAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const groupId = readSectionAliasValue(value, 'group', 'group_id');
+  if (normalized.group_id === undefined && groupId !== undefined) {
+    normalized.group_id = groupId;
+  }
+
+  const active = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_active'));
+  if (active !== undefined && normalized.active === undefined) normalized.active = active;
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_type'));
+  if (type && normalized.type === undefined) normalized.type = type;
+
+  const membership = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_membership'));
+  if (membership && normalized.membership === undefined) normalized.membership = membership;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_code'));
+  if (code && normalized.code === undefined) normalized.code = { code, display: code };
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const quantity = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_quantity'));
+  if (quantity !== undefined && normalized.quantity === undefined) normalized.quantity = quantity;
+
+  const managingEntityId = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_managing_entity_id'));
+  if (managingEntityId && normalized.managing_entity_id === undefined) normalized.managing_entity_id = managingEntityId;
+
+  const characteristicCode = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_characteristic_code'));
+  const characteristicValue = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_characteristic_value'));
+  const characteristicExclude = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_characteristic_exclude'));
+  const characteristicStart = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_characteristic_period_start'));
+  const characteristicEnd = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_characteristic_period_end'));
+
+  if (
+    normalized.characteristic === undefined &&
+    (characteristicCode || characteristicValue || characteristicExclude || characteristicStart || characteristicEnd)
+  ) {
+    normalized.characteristic = [{
+      code: characteristicCode ? { code: characteristicCode, display: characteristicCode } : undefined,
+      value_codeable: characteristicValue ? { code: characteristicValue, display: characteristicValue } : undefined,
+      exclude: characteristicExclude,
+      period: characteristicStart || characteristicEnd ? { start: characteristicStart, end: characteristicEnd } : undefined
+    }];
+  }
+
+  const memberEntity = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_member_entity_id'));
+  const memberInactive = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_member_inactive'));
+  const memberStart = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_member_period_start'));
+  const memberEnd = normalizeAliasValue(readSectionAliasValue(value, 'group', 'group_member_period_end'));
+
+  if (
+    normalized.member === undefined &&
+    (memberEntity || memberInactive !== undefined || memberStart || memberEnd)
+  ) {
+    normalized.member = [{
+      entity_id: memberEntity,
+      inactive: memberInactive,
+      period: memberStart || memberEnd ? { start: memberStart, end: memberEnd } : undefined
+    }];
+  }
+
+  return normalized;
+}
+
+function normalizeGlobalHealthcareServiceAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const serviceId = readSectionAliasValue(value, 'healthcareService', 'healthcare_service_id');
+  if (normalized.healthcare_service_id === undefined && serviceId !== undefined) {
+    normalized.healthcare_service_id = serviceId;
+  }
+
+  const active = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_active'));
+  if (active !== undefined && normalized.active === undefined) normalized.active = active;
+
+  const providedBy = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_provided_by'));
+  if (providedBy && normalized.provided_by_id === undefined) normalized.provided_by_id = providedBy;
+
+  const offeredIn = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_offered_in'));
+  if (offeredIn && normalized.offered_in_ids === undefined) normalized.offered_in_ids = offeredIn;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_category'));
+  if (category && normalized.category === undefined) normalized.category = { code: category, display: category };
+
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_type'));
+  if (type && normalized.type === undefined) normalized.type = { code: type, display: type };
+
+  const specialty = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_specialty'));
+  if (specialty && normalized.specialty === undefined) normalized.specialty = { code: specialty, display: specialty };
+
+  const locations = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_location_ids'));
+  if (locations && normalized.location_ids === undefined) normalized.location_ids = locations;
+
+  const name = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_name'));
+  if (name && normalized.name === undefined) normalized.name = name;
+
+  const comment = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_comment'));
+  if (comment && normalized.comment === undefined) normalized.comment = comment;
+
+  const extraDetails = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_extra_details'));
+  if (extraDetails && normalized.extra_details === undefined) normalized.extra_details = extraDetails;
+
+  const contactName = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_contact_name'));
+  const contactPhone = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_contact_phone'));
+  const contactEmail = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_contact_email'));
+  if (normalized.contact === undefined && (contactName || contactPhone || contactEmail)) {
+    const telecom = [];
+    if (contactPhone) telecom.push({ system: 'phone', value: contactPhone });
+    if (contactEmail) telecom.push({ system: 'email', value: contactEmail });
+    normalized.contact = [{ name: contactName, telecom }];
+  }
+
+  const coverageAreas = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_coverage_area_ids'));
+  if (coverageAreas && normalized.coverage_area_ids === undefined) normalized.coverage_area_ids = coverageAreas;
+
+  const provisionCode = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_provision_code'));
+  if (provisionCode && normalized.service_provision_code === undefined) normalized.service_provision_code = { code: provisionCode, display: provisionCode };
+
+  const eligibilityCode = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_eligibility_code'));
+  const eligibilityComment = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_eligibility_comment'));
+  if (normalized.eligibility === undefined && (eligibilityCode || eligibilityComment)) {
+    normalized.eligibility = [{
+      code: eligibilityCode ? { code: eligibilityCode, display: eligibilityCode } : undefined,
+      comment: eligibilityComment
+    }];
+  }
+
+  const program = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_program'));
+  if (program && normalized.program === undefined) normalized.program = { code: program, display: program };
+
+  const characteristic = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_characteristic'));
+  if (characteristic && normalized.characteristic === undefined) normalized.characteristic = { code: characteristic, display: characteristic };
+
+  const communication = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_communication'));
+  if (communication && normalized.communication === undefined) normalized.communication = { code: communication, display: communication };
+
+  const referralMethod = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_referral_method'));
+  if (referralMethod && normalized.referral_method === undefined) normalized.referral_method = { code: referralMethod, display: referralMethod };
+
+  const appointmentRequired = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_appointment_required'));
+  if (appointmentRequired !== undefined && normalized.appointment_required === undefined) normalized.appointment_required = appointmentRequired;
+
+  const endpoints = normalizeAliasValue(readSectionAliasValue(value, 'healthcareService', 'healthcare_service_endpoint_ids'));
+  if (endpoints && normalized.endpoint_ids === undefined) normalized.endpoint_ids = endpoints;
 
   return normalized;
 }
@@ -7456,6 +7696,10 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalFlagAliases(value);
     case 'list':
       return normalizeGlobalListAliases(value);
+    case 'group':
+      return normalizeGlobalGroupAliases(value);
+    case 'healthcareService':
+      return normalizeGlobalHealthcareServiceAliases(value);
     case 'nutritionIntake':
       return normalizeGlobalNutritionIntakeAliases(value);
     case 'nutritionOrder':
@@ -7570,6 +7814,8 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['encounterHistory', 'encounter_history'],
     ['flag', 'flag'],
     ['list', 'list'],
+    ['group', 'group'],
+    ['healthcareService', 'healthcare_service'],
     ['nutritionIntake', 'nutrition_intake'],
     ['nutritionOrder', 'nutrition_order'],
     ['riskAssessment', 'risk_assessment'],
@@ -7718,6 +7964,8 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'encounterHistory',
     'flag',
     'list',
+    'group',
+    'healthcareService',
     'nutritionIntake',
     'nutritionOrder',
     'riskAssessment',
@@ -7893,6 +8141,8 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const encounterHistories = normalizeArray(validated.encounter_history);
   const flags = normalizeArray(validated.flag);
   const lists = normalizeArray(validated.list);
+  const groups = normalizeArray(validated.group);
+  const healthcareServices = normalizeArray(validated.healthcare_service);
   const nutritionIntakes = normalizeArray(validated.nutrition_intake);
   const nutritionOrders = normalizeArray(validated.nutrition_order);
   const riskAssessments = normalizeArray(validated.risk_assessment);
@@ -7990,6 +8240,12 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (lists.length) {
     canonical.lists = lists.map(buildCanonicalListGlobal);
+  }
+  if (groups.length) {
+    canonical.groups = groups.map(buildCanonicalGroupGlobal);
+  }
+  if (healthcareServices.length) {
+    canonical.healthcareServices = healthcareServices.map(buildCanonicalHealthcareServiceGlobal);
   }
   if (nutritionIntakes.length) {
     canonical.nutritionIntakes = nutritionIntakes.map(buildCanonicalNutritionIntakeGlobal);
@@ -8184,6 +8440,8 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     encounter_history: ['encounter_history_id', 'id', 'identifier'],
     flag: ['flag_id', 'id', 'identifier'],
     list: ['list_id', 'id', 'identifier'],
+    group: ['group_id', 'id', 'identifier'],
+    healthcare_service: ['healthcare_service_id', 'id', 'identifier'],
     nutrition_intake: ['nutrition_intake_id', 'id', 'identifier'],
     nutrition_order: ['nutrition_order_id', 'id', 'identifier'],
     risk_assessment: ['risk_assessment_id', 'id', 'identifier'],
@@ -10970,6 +11228,199 @@ function buildCanonicalListGlobal(list: z.infer<typeof GlobalListSchema>) {
     note: normalizeStringArray(list.note),
     entry: entries.length ? entries : undefined,
     emptyReason: mapCodeable(list.empty_reason)
+  };
+}
+
+function buildCanonicalGroupGlobal(group: z.infer<typeof GlobalGroupSchema>) {
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: z.infer<typeof GlobalCodeableConceptSchema> | string) => {
+    if (!value) return undefined;
+    if (typeof value === 'string') return { code: value, display: value };
+    return {
+      system: value.code_system,
+      code: value.code,
+      display: value.display
+    };
+  };
+
+  const mapPeriod = (period?: z.infer<typeof GlobalPeriodSchema>) => {
+    if (!period) return undefined;
+    return {
+      start: period.start,
+      end: period.end
+    };
+  };
+
+  const normalizeBoolean = (value: unknown) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const trimmed = value.trim().toLowerCase();
+      if (trimmed === 'true' || trimmed === 'yes' || trimmed === 'y' || trimmed === '1') return true;
+      if (trimmed === 'false' || trimmed === 'no' || trimmed === 'n' || trimmed === '0') return false;
+    }
+    return undefined;
+  };
+
+  const characteristic = normalizeArray(group.characteristic).map(item => {
+    if (!item) return undefined;
+    const normalizeNumber = (value: unknown) => {
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      if (typeof value === 'string') {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : undefined;
+      }
+      return undefined;
+    };
+    return {
+      code: mapCodeable(item.code),
+      valueCodeableConcept: mapCodeable(item.value_codeable),
+      valueBoolean: normalizeBoolean(item.value_boolean),
+      valueQuantity: item.value_quantity ? {
+        value: normalizeNumber(item.value_quantity.value),
+        unit: item.value_quantity.unit,
+        system: item.value_quantity.system,
+        code: item.value_quantity.code
+      } : undefined,
+      valueRange: item.value_range ? {
+        low: (item.value_range.low_value !== undefined || item.value_range.low_unit)
+          ? { value: item.value_range.low_value, unit: item.value_range.low_unit }
+          : undefined,
+        high: (item.value_range.high_value !== undefined || item.value_range.high_unit)
+          ? { value: item.value_range.high_value, unit: item.value_range.high_unit }
+          : undefined
+      } : undefined,
+      valueReference: item.value_reference_id,
+      exclude: normalizeBoolean(item.exclude),
+      period: mapPeriod(item.period)
+    };
+  }).filter(isDefined);
+
+  const member = normalizeArray(group.member).map(item => {
+    if (!item) return undefined;
+    return {
+      entity: item.entity_id,
+      period: mapPeriod(item.period),
+      inactive: normalizeBoolean(item.inactive)
+    };
+  }).filter(isDefined);
+
+  return {
+    id: group.group_id,
+    identifier: normalizeArray(group.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    active: normalizeBoolean(group.active),
+    type: group.type,
+    membership: group.membership,
+    code: mapCodeable(group.code),
+    name: group.name,
+    description: group.description,
+    quantity: typeof group.quantity === 'number' ? group.quantity : undefined,
+    managingEntity: group.managing_entity_id,
+    characteristic: characteristic.length ? characteristic : undefined,
+    member: member.length ? member : undefined
+  };
+}
+
+function buildCanonicalHealthcareServiceGlobal(service: z.infer<typeof GlobalHealthcareServiceSchema>) {
+  const mapIdentifier = (source?: z.infer<typeof GlobalIdentifierObjectSchema>) => {
+    if (!source) return undefined;
+    return {
+      system: source.system,
+      value: source.value,
+      type: source.type ? {
+        system: source.type.code_system,
+        code: source.type.code,
+        display: source.type.display
+      } : undefined
+    };
+  };
+
+  const mapCodeable = (value?: z.infer<typeof GlobalCodeableConceptSchema> | string) => {
+    if (!value) return undefined;
+    if (typeof value === 'string') return { code: value, display: value };
+    return {
+      system: value.code_system,
+      code: value.code,
+      display: value.display
+    };
+  };
+
+  const normalizeBoolean = (value: unknown) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const trimmed = value.trim().toLowerCase();
+      if (trimmed === 'true' || trimmed === 'yes' || trimmed === 'y' || trimmed === '1') return true;
+      if (trimmed === 'false' || trimmed === 'no' || trimmed === 'n' || trimmed === '0') return false;
+    }
+    return undefined;
+  };
+
+  const mapAttachment = (source?: z.infer<typeof GlobalAttachmentSchema>) => {
+    if (!source) return undefined;
+    return {
+      contentType: source.content_type,
+      url: source.url,
+      title: source.title,
+      data: source.data
+    };
+  };
+
+  const contact = normalizeArray(service.contact).map(item => ({
+    name: item.name,
+    telecom: item.telecom?.map(t => ({
+      system: t.system,
+      value: t.value,
+      use: t.use
+    }))
+  }));
+
+  return {
+    id: service.healthcare_service_id,
+    identifier: normalizeArray(service.identifier).map(id => mapIdentifier(id as any)).filter(isDefined),
+    active: normalizeBoolean(service.active),
+    providedBy: service.provided_by_id,
+    offeredIn: normalizeStringArray(service.offered_in_ids),
+    category: normalizeArray(service.category).map(mapCodeable).filter(isDefined),
+    type: normalizeArray(service.type).map(mapCodeable).filter(isDefined),
+    specialty: normalizeArray(service.specialty).map(mapCodeable).filter(isDefined),
+    location: normalizeStringArray(service.location_ids),
+    name: service.name,
+    comment: service.comment,
+    extraDetails: service.extra_details,
+    photo: mapAttachment(service.photo),
+    contact: contact.length ? contact : undefined,
+    coverageArea: normalizeStringArray(service.coverage_area_ids),
+    serviceProvisionCode: normalizeArray(service.service_provision_code).map(mapCodeable).filter(isDefined),
+    eligibility: normalizeArray(service.eligibility).map(item => ({
+      code: mapCodeable(item.code),
+      comment: item.comment
+    })).filter(item => item.code || item.comment),
+    program: normalizeArray(service.program).map(mapCodeable).filter(isDefined),
+    characteristic: normalizeArray(service.characteristic).map(mapCodeable).filter(isDefined),
+    communication: normalizeArray(service.communication).map(mapCodeable).filter(isDefined),
+    referralMethod: normalizeArray(service.referral_method).map(mapCodeable).filter(isDefined),
+    appointmentRequired: normalizeBoolean(service.appointment_required),
+    availability: service.availability?.map(item => ({
+      daysOfWeek: normalizeStringArray(item.days_of_week),
+      availableStartTime: item.available_start_time,
+      availableEndTime: item.available_end_time,
+      allDay: normalizeBoolean(item.all_day),
+      available: normalizeBoolean(item.available)
+    })),
+    endpoint: normalizeStringArray(service.endpoint_ids)
   };
 }
 

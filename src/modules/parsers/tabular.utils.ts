@@ -811,6 +811,98 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (lists.length > 0) canonical.lists = lists as any[];
 
+  const groups = rows.map(row => {
+    const groupId = readValue(row, 'group_id');
+    const type = readValue(row, 'group_type');
+    const membership = readValue(row, 'group_membership');
+    const name = readValue(row, 'group_name');
+    if (!groupId && !type && !membership && !name) return null;
+
+    const quantityValue = readNumber(row, 'group_quantity');
+    const active = readBoolean(row, 'group_active');
+
+    const characteristicCode = readValue(row, 'group_characteristic_code');
+    const characteristicValue = readValue(row, 'group_characteristic_value');
+    const characteristicExclude = readBoolean(row, 'group_characteristic_exclude');
+    const characteristicPeriodStart = readValue(row, 'group_characteristic_period_start');
+    const characteristicPeriodEnd = readValue(row, 'group_characteristic_period_end');
+
+    const memberEntity = readValue(row, 'group_member_entity_id');
+    const memberInactive = readBoolean(row, 'group_member_inactive');
+    const memberPeriodStart = readValue(row, 'group_member_period_start');
+    const memberPeriodEnd = readValue(row, 'group_member_period_end');
+
+    return {
+      id: groupId || undefined,
+      identifier: groupId ? [{ value: groupId }] : undefined,
+      active: active ?? undefined,
+      type: type || undefined,
+      membership: membership || undefined,
+      code: readValue(row, 'group_code')
+        ? { code: readValue(row, 'group_code'), display: readValue(row, 'group_code') }
+        : undefined,
+      name: name || undefined,
+      description: readValue(row, 'group_description') || undefined,
+      quantity: quantityValue !== undefined ? quantityValue : undefined,
+      managingEntity: readValue(row, 'group_managing_entity_id') || undefined,
+      characteristic: (characteristicCode || characteristicValue || characteristicExclude !== undefined || characteristicPeriodStart || characteristicPeriodEnd)
+        ? [{
+            code: characteristicCode ? { code: characteristicCode, display: characteristicCode } : undefined,
+            valueCodeableConcept: characteristicValue ? { code: characteristicValue, display: characteristicValue } : undefined,
+            exclude: characteristicExclude,
+            period: (characteristicPeriodStart || characteristicPeriodEnd)
+              ? { start: characteristicPeriodStart || undefined, end: characteristicPeriodEnd || undefined }
+              : undefined
+          }]
+        : undefined,
+      member: (memberEntity || memberInactive !== undefined || memberPeriodStart || memberPeriodEnd)
+        ? [{
+            entity: memberEntity || undefined,
+            inactive: memberInactive,
+            period: (memberPeriodStart || memberPeriodEnd)
+              ? { start: memberPeriodStart || undefined, end: memberPeriodEnd || undefined }
+              : undefined
+          }]
+        : undefined
+    };
+  }).filter(Boolean);
+  if (groups.length > 0) canonical.groups = groups as any[];
+
+  const healthcareServices = rows.map(row => {
+    const serviceId = readValue(row, 'healthcare_service_id');
+    const name = readValue(row, 'healthcare_service_name');
+    const type = readValue(row, 'healthcare_service_type');
+    if (!serviceId && !name && !type) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const active = readBoolean(row, 'healthcare_service_active');
+
+    return {
+      id: serviceId || undefined,
+      identifier: serviceId ? [{ value: serviceId }] : undefined,
+      active: active ?? undefined,
+      providedBy: readValue(row, 'healthcare_service_provided_by') || undefined,
+      offeredIn: toList(readValue(row, 'healthcare_service_offered_in')),
+      category: toList(readValue(row, 'healthcare_service_category'))?.map(code => ({ code, display: code })),
+      type: toList(readValue(row, 'healthcare_service_type'))?.map(code => ({ code, display: code })),
+      specialty: toList(readValue(row, 'healthcare_service_specialty'))?.map(code => ({ code, display: code })),
+      location: toList(readValue(row, 'healthcare_service_location_ids')),
+      name: name || undefined,
+      comment: readValue(row, 'healthcare_service_comment') || undefined,
+      extraDetails: readValue(row, 'healthcare_service_extra_details') || undefined,
+      coverageArea: toList(readValue(row, 'healthcare_service_coverage_area_ids')),
+      serviceProvisionCode: toList(readValue(row, 'healthcare_service_provision_code'))?.map(code => ({ code, display: code })),
+      program: toList(readValue(row, 'healthcare_service_program'))?.map(code => ({ code, display: code })),
+      characteristic: toList(readValue(row, 'healthcare_service_characteristic'))?.map(code => ({ code, display: code })),
+      communication: toList(readValue(row, 'healthcare_service_communication'))?.map(code => ({ code, display: code })),
+      referralMethod: toList(readValue(row, 'healthcare_service_referral_method'))?.map(code => ({ code, display: code })),
+      appointmentRequired: readBoolean(row, 'healthcare_service_appointment_required'),
+      endpoint: toList(readValue(row, 'healthcare_service_endpoint_ids'))
+    };
+  }).filter(Boolean);
+  if (healthcareServices.length > 0) canonical.healthcareServices = healthcareServices as any[];
+
   const nutritionIntakes = rows.map(row => {
     const intakeId = readValue(row, 'nutrition_intake_id');
     const status = readValue(row, 'nutrition_intake_status');

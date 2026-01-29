@@ -24,6 +24,8 @@ import {
   CanonicalEncounterHistory,
   CanonicalFlag,
   CanonicalList,
+  CanonicalGroup,
+  CanonicalHealthcareService,
   CanonicalNutritionIntake,
   CanonicalNutritionOrder,
   CanonicalRiskAssessment,
@@ -546,6 +548,8 @@ export function buildCanonical(parsed: any) {
   const encounterHistories: CanonicalEncounterHistory[] = [];
   const flags: CanonicalFlag[] = [];
   const lists: CanonicalList[] = [];
+  const groups: CanonicalGroup[] = [];
+  const healthcareServices: CanonicalHealthcareService[] = [];
   const nutritionIntakes: CanonicalNutritionIntake[] = [];
   const nutritionOrders: CanonicalNutritionOrder[] = [];
   const riskAssessments: CanonicalRiskAssessment[] = [];
@@ -697,6 +701,31 @@ export function buildCanonical(parsed: any) {
           date: messageDateTime
         });
         break;
+      case 'GROUP': {
+        const quantityValue = valueText && !Number.isNaN(Number(valueText)) ? Number(valueText) : undefined;
+        groups.push({
+          id: idValue || `GROUP-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          active: true,
+          type: 'person',
+          membership: 'enumerated',
+          code: codeValue || displayName ? { code: codeValue, display: displayName } : undefined,
+          name: valueText || displayName,
+          description: valueText || displayName,
+          quantity: quantityValue
+        });
+        break;
+      }
+      case 'HEALTHCARESERVICE':
+        healthcareServices.push({
+          id: idValue || `HCS-${Date.now()}`,
+          identifier: idValue ? [{ value: idValue }] : undefined,
+          active: true,
+          category: codeValue || displayName ? [{ code: codeValue, display: displayName }] : undefined,
+          name: valueText || displayName,
+          comment: valueText || displayName
+        });
+        break;
       case 'NUTRITIONINTAKE':
         nutritionIntakes.push({
           id: idValue || `NINT-${Date.now()}`,
@@ -812,6 +841,8 @@ export function buildCanonical(parsed: any) {
   if (encounterHistories.length > 0) result.encounterHistories = encounterHistories;
   if (flags.length > 0) result.flags = flags;
   if (lists.length > 0) result.lists = lists;
+  if (groups.length > 0) result.groups = groups;
+  if (healthcareServices.length > 0) result.healthcareServices = healthcareServices;
   if (nutritionIntakes.length > 0) result.nutritionIntakes = nutritionIntakes;
   if (nutritionOrders.length > 0) result.nutritionOrders = nutritionOrders;
   if (riskAssessments.length > 0) result.riskAssessments = riskAssessments;
