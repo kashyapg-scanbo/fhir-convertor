@@ -1032,6 +1032,27 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     episode_status_history_start: ['status_history_start'],
     episode_status_history_end: ['status_history_end']
   },
+  substance: {
+    substance_id: ['substance_id', 'substance_identifier'],
+    substance_identifier: ['identifier'],
+    substance_instance: ['instance'],
+    substance_status: ['status'],
+    substance_category: ['category'],
+    substance_code: ['code', 'substance_code'],
+    substance_code_system: ['code_system', 'substance_code_system'],
+    substance_display: ['display', 'substance_display'],
+    substance_description: ['description'],
+    substance_expiry: ['expiry', 'expiration'],
+    substance_quantity_value: ['quantity_value', 'quantity'],
+    substance_quantity_unit: ['quantity_unit', 'unit'],
+    substance_ingredient_substance: ['ingredient_substance'],
+    substance_ingredient_substance_system: ['ingredient_substance_system'],
+    substance_ingredient_substance_display: ['ingredient_substance_display'],
+    substance_ingredient_quantity_numerator_value: ['ingredient_quantity_numerator_value'],
+    substance_ingredient_quantity_numerator_unit: ['ingredient_quantity_numerator_unit'],
+    substance_ingredient_quantity_denominator_value: ['ingredient_quantity_denominator_value'],
+    substance_ingredient_quantity_denominator_unit: ['ingredient_quantity_denominator_unit']
+  },
   carePlan: {
     care_plan_id: ['careplan_id', 'care_plan_identifier', 'careplan_identifier'],
     care_plan_status: ['status'],

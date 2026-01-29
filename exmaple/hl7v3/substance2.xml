@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-substance-2"/>
+  <creationTime value="20240102123000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <substance>
+        <id extension="SUB-2"/>
+        <statusCode code="inactive"/>
+        <code code="B00002" displayName="Insulin" codeSystem="http://example.org/substances"/>
+        <quantity value="10" unit="mL"/>
+      </substance>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

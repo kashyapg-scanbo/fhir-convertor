@@ -2157,6 +2157,30 @@ const GlobalEpisodeOfCareSchema = z.object({
   status_history_end: z.string().optional()
 });
 
+const GlobalSubstanceSchema = z.object({
+  substance_id: GlobalIdSchema.optional(),
+  identifier: z.string().optional(),
+  instance: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  status: z.string().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  code: z.object({
+    code: z.string().optional(),
+    code_system: z.string().optional(),
+    display: z.string().optional()
+  }).optional(),
+  description: z.string().optional(),
+  expiry: z.string().optional(),
+  quantity_value: GlobalNumberSchema.optional(),
+  quantity_unit: z.string().optional(),
+  ingredient_substance: z.string().optional(),
+  ingredient_substance_system: z.string().optional(),
+  ingredient_substance_display: z.string().optional(),
+  ingredient_quantity_numerator_value: GlobalNumberSchema.optional(),
+  ingredient_quantity_numerator_unit: z.string().optional(),
+  ingredient_quantity_denominator_value: GlobalNumberSchema.optional(),
+  ingredient_quantity_denominator_unit: z.string().optional()
+});
+
 const GlobalSpecimenSchema = z.object({
   specimen_id: GlobalIdSchema.optional(),
   accession_identifier: z.string().optional(),
@@ -2457,6 +2481,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   person: z.union([GlobalPersonSchema, z.array(GlobalPersonSchema)]).optional(),
   location: z.union([GlobalLocationSchema, z.array(GlobalLocationSchema)]).optional(),
   episode_of_care: z.union([GlobalEpisodeOfCareSchema, z.array(GlobalEpisodeOfCareSchema)]).optional(),
+  substance: z.union([GlobalSubstanceSchema, z.array(GlobalSubstanceSchema)]).optional(),
   specimen: z.union([GlobalSpecimenSchema, z.array(GlobalSpecimenSchema)]).optional(),
   imaging_study: z.union([GlobalImagingStudySchema, z.array(GlobalImagingStudySchema)]).optional(),
   allergy_intolerance: z.union([GlobalAllergyIntoleranceSchema, z.array(GlobalAllergyIntoleranceSchema)]).optional(),
@@ -2525,6 +2550,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.person ||
     value.location ||
     value.episode_of_care ||
+    value.substance ||
     value.specimen ||
     value.imaging_study ||
     value.allergy_intolerance ||
@@ -2534,7 +2560,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2616,6 +2642,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   persons: 'person',
   locations: 'location',
   episodesOfCare: 'episodeOfCare',
+  substances: 'substance',
   specimens: 'specimen',
   imagingStudies: 'imagingStudy',
   allergyIntolerances: 'allergyIntolerance',
@@ -2771,6 +2798,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   locations: 'location',
   episode_of_care: 'episodeOfCare',
   episode_of_cares: 'episodeOfCare',
+  substance: 'substance',
+  substances: 'substance',
   specimen: 'specimen',
   specimens: 'specimen',
   imaging_study: 'imagingStudy',
@@ -2975,6 +3004,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   episode_of_cares: 'episode_of_care',
   episodeofcare: 'episode_of_care',
   episodeofcares: 'episode_of_care',
+  substance: 'substance',
+  substances: 'substance',
+  substance_id: 'substance',
+  substanceid: 'substance',
   specimen: 'specimen',
   specimens: 'specimen',
   imaging_study: 'imaging_study',
@@ -5883,6 +5916,81 @@ function normalizeGlobalPersonAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalSubstanceAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const substanceId = readSectionAliasValue(value, 'substance', 'substance_id');
+  if (normalized.substance_id === undefined && substanceId !== undefined) {
+    normalized.substance_id = substanceId;
+  }
+
+  const identifier = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_identifier'));
+  if (identifier && normalized.identifier === undefined) normalized.identifier = identifier;
+
+  const instance = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_instance'));
+  if (instance !== undefined && normalized.instance === undefined) normalized.instance = instance;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const category = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_category'));
+  if (category && normalized.category === undefined) normalized.category = category;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_code'));
+  const codeSystem = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_code_system'));
+  const display = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_display'));
+  if ((code || codeSystem || display) && normalized.code === undefined) {
+    normalized.code = {
+      code,
+      code_system: codeSystem,
+      display
+    };
+  }
+
+  const description = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_description'));
+  if (description && normalized.description === undefined) normalized.description = description;
+
+  const expiry = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_expiry'));
+  if (expiry && normalized.expiry === undefined) normalized.expiry = expiry;
+
+  const quantityValue = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_quantity_value'));
+  if (quantityValue !== undefined && normalized.quantity_value === undefined) normalized.quantity_value = quantityValue;
+
+  const quantityUnit = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_quantity_unit'));
+  if (quantityUnit && normalized.quantity_unit === undefined) normalized.quantity_unit = quantityUnit;
+
+  const ingredientSubstance = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_substance'));
+  if (ingredientSubstance && normalized.ingredient_substance === undefined) normalized.ingredient_substance = ingredientSubstance;
+
+  const ingredientSubstanceSystem = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_substance_system'));
+  if (ingredientSubstanceSystem && normalized.ingredient_substance_system === undefined) normalized.ingredient_substance_system = ingredientSubstanceSystem;
+
+  const ingredientSubstanceDisplay = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_substance_display'));
+  if (ingredientSubstanceDisplay && normalized.ingredient_substance_display === undefined) normalized.ingredient_substance_display = ingredientSubstanceDisplay;
+
+  const numeratorValue = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_quantity_numerator_value'));
+  if (numeratorValue !== undefined && normalized.ingredient_quantity_numerator_value === undefined) {
+    normalized.ingredient_quantity_numerator_value = numeratorValue;
+  }
+
+  const numeratorUnit = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_quantity_numerator_unit'));
+  if (numeratorUnit && normalized.ingredient_quantity_numerator_unit === undefined) {
+    normalized.ingredient_quantity_numerator_unit = numeratorUnit;
+  }
+
+  const denominatorValue = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_quantity_denominator_value'));
+  if (denominatorValue !== undefined && normalized.ingredient_quantity_denominator_value === undefined) {
+    normalized.ingredient_quantity_denominator_value = denominatorValue;
+  }
+
+  const denominatorUnit = normalizeAliasValue(readSectionAliasValue(value, 'substance', 'substance_ingredient_quantity_denominator_unit'));
+  if (denominatorUnit && normalized.ingredient_quantity_denominator_unit === undefined) {
+    normalized.ingredient_quantity_denominator_unit = denominatorUnit;
+  }
+
+  return normalized;
+}
+
 function normalizeGlobalLocationAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -7424,6 +7532,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalLocationAliases(value);
     case 'episodeOfCare':
       return normalizeGlobalEpisodeOfCareAliases(value);
+    case 'substance':
+      return normalizeGlobalSubstanceAliases(value);
     case 'specimen':
       return normalizeGlobalSpecimenAliases(value);
     case 'imagingStudy':
@@ -7497,6 +7607,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['relatedPerson', 'related_person'],
     ['person', 'person'],
     ['location', 'location'],
+    ['substance', 'substance'],
     ['immunization', 'immunization'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
@@ -7640,6 +7751,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'person',
     'location',
     'episodeOfCare',
+    'substance',
     'specimen',
     'imagingStudy',
     'allergyIntolerance',
@@ -7827,6 +7939,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const persons = normalizeArray(validated.person);
   const locations = normalizeArray(validated.location);
   const episodesOfCare = normalizeArray(validated.episode_of_care);
+  const substances = normalizeArray(validated.substance);
   const specimens = normalizeArray(validated.specimen);
   const imagingStudies = normalizeArray(validated.imaging_study);
   const allergyIntolerances = normalizeArray(validated.allergy_intolerance);
@@ -8016,6 +8129,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (episodesOfCare.length) {
     canonical.episodesOfCare = episodesOfCare.map(buildCanonicalEpisodeOfCareGlobal);
   }
+  if (substances.length) {
+    canonical.substances = substances.map(buildCanonicalSubstanceGlobal);
+  }
   if (specimens.length) {
     canonical.specimens = specimens.map(buildCanonicalSpecimenGlobal);
   }
@@ -8114,6 +8230,7 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     person: ['person_id', 'id', 'identifier'],
     location: ['location_id', 'id', 'identifier'],
     episode_of_care: ['episode_of_care_id', 'id', 'identifier'],
+    substance: ['substance_id', 'id', 'identifier'],
     specimen: ['specimen_id', 'id', 'identifier'],
     imaging_study: ['imaging_study_id', 'id', 'identifier'],
     allergy_intolerance: ['allergy_id', 'allergy_intolerance_id', 'id', 'identifier'],
@@ -8176,7 +8293,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -8239,6 +8356,7 @@ function wrapGlobalPayload(value: any) {
       value.person,
       value.location,
       value.episode_of_care,
+      value.substance,
       value.specimen,
       value.imaging_study,
       value.allergy_intolerance,
@@ -8428,6 +8546,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('episode_of_care_id' in value || 'care_manager_id' in value || 'period_start' in value) {
       return { episode_of_care: value };
+    }
+    if ('substance_id' in value || 'substance_code' in value || 'ingredient_substance' in value) {
+      return { substance: value };
     }
     if ('specimen_id' in value || 'accession_identifier' in value || 'received_time' in value) {
       return { specimen: value };
@@ -8633,6 +8754,9 @@ function looksLikeGlobalResource(value: any) {
     'episode_of_care_id' in value ||
     'care_manager_id' in value ||
     'period_start' in value ||
+    'substance_id' in value ||
+    'substance_code' in value ||
+    'ingredient_substance' in value ||
     'specimen_id' in value ||
     'accession_identifier' in value ||
     'received_time' in value ||
@@ -12122,6 +12246,71 @@ function buildCanonicalPersonGlobal(person: z.infer<typeof GlobalPersonSchema>) 
       target: person.link_target,
       assurance: person.link_assurance
     }] : undefined
+  };
+}
+
+function buildCanonicalSubstanceGlobal(substance: z.infer<typeof GlobalSubstanceSchema>) {
+  const instance = normalizeBoolean(substance.instance);
+  const category = normalizeStringArray(substance.category);
+
+  const ingredient =
+    substance.ingredient_substance ||
+    substance.ingredient_substance_system ||
+    substance.ingredient_substance_display ||
+    substance.ingredient_quantity_numerator_value !== undefined ||
+    substance.ingredient_quantity_denominator_value !== undefined
+      ? [{
+          quantity: (substance.ingredient_quantity_numerator_value !== undefined || substance.ingredient_quantity_denominator_value !== undefined)
+            ? {
+                numerator: substance.ingredient_quantity_numerator_value !== undefined ? {
+                  value: typeof substance.ingredient_quantity_numerator_value === 'number'
+                    ? substance.ingredient_quantity_numerator_value
+                    : Number(substance.ingredient_quantity_numerator_value),
+                  unit: substance.ingredient_quantity_numerator_unit
+                } : undefined,
+                denominator: substance.ingredient_quantity_denominator_value !== undefined ? {
+                  value: typeof substance.ingredient_quantity_denominator_value === 'number'
+                    ? substance.ingredient_quantity_denominator_value
+                    : Number(substance.ingredient_quantity_denominator_value),
+                  unit: substance.ingredient_quantity_denominator_unit
+                } : undefined
+              }
+            : undefined,
+          substanceCodeableConcept: substance.ingredient_substance
+            ? {
+                code: substance.ingredient_substance,
+                system: substance.ingredient_substance_system,
+                display: substance.ingredient_substance_display
+              }
+            : undefined
+        }]
+      : undefined;
+
+  return {
+    id: substance.substance_id,
+    identifier: substance.substance_id || substance.identifier,
+    instance,
+    status: substance.status,
+    category: category.length ? category.map(cat => ({
+      code: cat,
+      display: cat
+    })) : undefined,
+    code: substance.code?.code || substance.code?.display ? {
+      system: substance.code?.code_system,
+      code: substance.code?.code,
+      display: substance.code?.display
+    } : undefined,
+    description: substance.description,
+    expiry: substance.expiry,
+    quantity: substance.quantity_value !== undefined || substance.quantity_unit ? {
+      value: typeof substance.quantity_value === 'number'
+        ? substance.quantity_value
+        : substance.quantity_value !== undefined
+          ? Number(substance.quantity_value)
+          : undefined,
+      unit: substance.quantity_unit
+    } : undefined,
+    ingredient
   };
 }
 

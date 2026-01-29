@@ -3165,6 +3165,67 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (persons.length > 0) canonical.persons = persons as any[];
 
+  const substances = rows.map(row => {
+    const substanceId = readValue(row, 'substance_id');
+    const code = readValue(row, 'substance_code');
+    const display = readValue(row, 'substance_display');
+    if (!substanceId && !code && !display) return null;
+
+    const categoryRaw = readValue(row, 'substance_category');
+    const category = categoryRaw
+      ? categoryRaw.split(',').map(value => value.trim()).filter(Boolean).map(value => ({
+          code: value,
+          display: value
+        }))
+      : undefined;
+
+    const quantityValue = readNumber(row, 'substance_quantity_value');
+    const quantityUnit = readValue(row, 'substance_quantity_unit');
+
+    const ingredientSubstance = readValue(row, 'substance_ingredient_substance');
+    const ingredientSubstanceSystem = readValue(row, 'substance_ingredient_substance_system');
+    const ingredientSubstanceDisplay = readValue(row, 'substance_ingredient_substance_display');
+    const numeratorValue = readNumber(row, 'substance_ingredient_quantity_numerator_value');
+    const numeratorUnit = readValue(row, 'substance_ingredient_quantity_numerator_unit');
+    const denominatorValue = readNumber(row, 'substance_ingredient_quantity_denominator_value');
+    const denominatorUnit = readValue(row, 'substance_ingredient_quantity_denominator_unit');
+
+    const ingredient = ingredientSubstance || numeratorValue !== undefined || denominatorValue !== undefined
+      ? [{
+          quantity: (numeratorValue !== undefined || denominatorValue !== undefined) ? {
+            numerator: numeratorValue !== undefined ? { value: numeratorValue, unit: numeratorUnit } : undefined,
+            denominator: denominatorValue !== undefined ? { value: denominatorValue, unit: denominatorUnit } : undefined
+          } : undefined,
+          substanceCodeableConcept: ingredientSubstance ? {
+            system: ingredientSubstanceSystem,
+            code: ingredientSubstance,
+            display: ingredientSubstanceDisplay
+          } : undefined
+        }]
+      : undefined;
+
+    return {
+      id: substanceId || undefined,
+      identifier: readValue(row, 'substance_identifier') || substanceId || undefined,
+      instance: readBoolean(row, 'substance_instance'),
+      status: readValue(row, 'substance_status'),
+      category,
+      code: code || display ? {
+        system: readValue(row, 'substance_code_system'),
+        code,
+        display
+      } : undefined,
+      description: readValue(row, 'substance_description'),
+      expiry: readValue(row, 'substance_expiry'),
+      quantity: quantityValue !== undefined || quantityUnit ? {
+        value: quantityValue,
+        unit: quantityUnit
+      } : undefined,
+      ingredient
+    };
+  }).filter(Boolean);
+  if (substances.length > 0) canonical.substances = substances as any[];
+
   const locations = rows.map(row => {
     const locationId = readValue(row, 'location_id');
     const name = readValue(row, 'location_name');

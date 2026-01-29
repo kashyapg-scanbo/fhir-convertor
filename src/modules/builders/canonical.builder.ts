@@ -40,6 +40,7 @@ import {
   CanonicalRelatedPerson,
   CanonicalLocation,
   CanonicalEpisodeOfCare,
+  CanonicalSubstance,
   CanonicalSpecimen,
   CanonicalImagingStudy,
   CanonicalAllergyIntolerance,
@@ -1998,6 +1999,38 @@ export function buildCanonical(parsed: any) {
 
   if (persons.length > 0) {
     result.persons = persons;
+  }
+
+  /* ───── Substances (from OBR) ───── */
+  const substances: CanonicalSubstance[] = [];
+  const substanceObrSegments = parsed.OBR ?? [];
+  for (const obr of substanceObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const substanceId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const code = codeParts[0];
+    const display = codeParts[1];
+    const system = codeParts[2];
+    const status = obr?.[24]?.[0]?.[0];
+
+    if (!substanceId && !code && !display) continue;
+
+    substances.push({
+      id: substanceId || `SUB-${Date.now()}`,
+      identifier: substanceId,
+      status: status,
+      code: (code || display) ? {
+        system: mapCodingSystem(system),
+        code,
+        display
+      } : undefined,
+      description: display
+    });
+  }
+
+  if (substances.length > 0) {
+    result.substances = substances;
   }
 
   /* ───── Immunizations (from RXA) ───── */

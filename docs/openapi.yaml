@@ -57,6 +57,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonPersonOnly'
                 - $ref: '#/components/schemas/CustomJsonLocationOnly'
                 - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
+                - $ref: '#/components/schemas/CustomJsonSubstanceOnly'
                 - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
                 - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
                 - $ref: '#/components/schemas/CustomJsonAllergyIntoleranceOnly'
@@ -625,6 +626,29 @@ paths:
                     person_language: English
                     person_language_preferred: true
                     person_managing_organization_id: ORG001
+              substance:
+                summary: Substance
+                value:
+                  substance:
+                    substance_id: SUB001
+                    instance: true
+                    status: active
+                    category: chemical
+                    code:
+                      code: C00001
+                      code_system: http://example.org/substances
+                      display: Sodium Chloride
+                    description: Sodium Chloride 0.9%
+                    expiry: 2025-12-31T00:00:00Z
+                    quantity_value: 500
+                    quantity_unit: mL
+                    ingredient_substance: NaCl
+                    ingredient_substance_system: http://example.org/substances
+                    ingredient_substance_display: Sodium Chloride
+                    ingredient_quantity_numerator_value: 9
+                    ingredient_quantity_numerator_unit: g
+                    ingredient_quantity_denominator_value: 1000
+                    ingredient_quantity_denominator_unit: mL
               location:
                 summary: Location
                 value:
@@ -822,7 +846,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -967,7 +991,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -1334,6 +1358,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomEpisodeOfCare'
+        substance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSubstance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSubstance'
         specimen:
           oneOf:
             - $ref: '#/components/schemas/CustomSpecimen'
@@ -4863,6 +4893,58 @@ components:
         status_history_end:
           type: string
           format: date-time
+    CustomSubstance:
+      type: object
+      properties:
+        substance_id:
+          type: string
+        identifier:
+          type: string
+        instance:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        status:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        code:
+          type: object
+          properties:
+            code:
+              type: string
+            code_system:
+              type: string
+            display:
+              type: string
+        description:
+          type: string
+        expiry:
+          type: string
+          format: date-time
+        quantity_value:
+          type: number
+        quantity_unit:
+          type: string
+        ingredient_substance:
+          type: string
+        ingredient_substance_system:
+          type: string
+        ingredient_substance_display:
+          type: string
+        ingredient_quantity_numerator_value:
+          type: number
+        ingredient_quantity_numerator_unit:
+          type: string
+        ingredient_quantity_denominator_value:
+          type: number
+        ingredient_quantity_denominator_unit:
+          type: string
     CustomSpecimen:
       type: object
       properties:
@@ -5841,6 +5923,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [episode_of_care]
+    CustomJsonSubstanceOnly:
+      title: Substance
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [substance]
     CustomJsonSpecimenOnly:
       title: Specimen
       allOf:

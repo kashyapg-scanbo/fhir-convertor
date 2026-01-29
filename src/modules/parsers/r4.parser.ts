@@ -39,6 +39,7 @@ import {
     CanonicalPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
+    CanonicalSubstance,
     CanonicalSpecimen,
     CanonicalImagingStudy,
     CanonicalAllergyIntolerance,
@@ -142,6 +143,7 @@ export function parseR4(input: string): CanonicalModel {
         persons: [],
         locations: [],
         episodesOfCare: [],
+        substances: [],
         specimens: [],
         imagingStudies: [],
         allergyIntolerances: [],
@@ -356,6 +358,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'EpisodeOfCare':
                 const episode = mapR4EpisodeOfCare(res);
                 if (episode) model.episodesOfCare?.push(episode);
+                break;
+            case 'Substance':
+                const substance = mapR4Substance(res);
+                if (substance) model.substances?.push(substance);
                 break;
             case 'Specimen':
                 const specimen = mapR4Specimen(res);
@@ -4392,6 +4398,50 @@ function mapR4EpisodeOfCare(eoc: any): CanonicalEpisodeOfCare {
         careTeam: eoc.careTeam?.map((ref: any) => ref.reference?.replace('CareTeam/', '')).filter(Boolean),
         account: eoc.account?.map((ref: any) => ref.reference?.replace('Account/', '')).filter(Boolean),
         active: eoc.status ? eoc.status === 'active' : undefined
+    };
+}
+
+function mapR4Substance(sub: any): CanonicalSubstance {
+    const quantity = sub.quantity;
+    return {
+        id: sub.id,
+        identifier: sub.identifier?.[0]?.value,
+        instance: sub.instance,
+        status: sub.status,
+        category: sub.category?.map((cat: any) => ({
+            system: cat.coding?.[0]?.system,
+            code: cat.coding?.[0]?.code,
+            display: cat.coding?.[0]?.display
+        })),
+        code: sub.code?.coding?.[0] ? {
+            system: sub.code.coding[0].system,
+            code: sub.code.coding[0].code,
+            display: sub.code.coding[0].display
+        } : undefined,
+        description: sub.description,
+        expiry: sub.expiry,
+        quantity: quantity ? {
+            value: quantity.value,
+            unit: quantity.unit
+        } : undefined,
+        ingredient: sub.ingredient?.map((ingredient: any) => ({
+            quantity: ingredient.quantity ? {
+                numerator: ingredient.quantity.numerator ? {
+                    value: ingredient.quantity.numerator.value,
+                    unit: ingredient.quantity.numerator.unit
+                } : undefined,
+                denominator: ingredient.quantity.denominator ? {
+                    value: ingredient.quantity.denominator.value,
+                    unit: ingredient.quantity.denominator.unit
+                } : undefined
+            } : undefined,
+            substanceCodeableConcept: ingredient.substanceCodeableConcept?.coding?.[0] ? {
+                system: ingredient.substanceCodeableConcept.coding[0].system,
+                code: ingredient.substanceCodeableConcept.coding[0].code,
+                display: ingredient.substanceCodeableConcept.coding[0].display
+            } : undefined,
+            substanceReference: ingredient.substanceReference?.reference?.replace('Substance/', '')
+        }))
     };
 }
 

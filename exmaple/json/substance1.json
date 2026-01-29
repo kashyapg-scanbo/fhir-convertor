@@ -1,0 +1,24 @@
+{
+  "substance": {
+    "substance_id": "SUB-1",
+    "instance": true,
+    "status": "active",
+    "category": "chemical",
+    "code": {
+      "code": "C00001",
+      "code_system": "http://example.org/substances",
+      "display": "Sodium Chloride"
+    },
+    "description": "Sodium Chloride 0.9%",
+    "expiry": "2025-12-31T00:00:00Z",
+    "quantity_value": 500,
+    "quantity_unit": "mL",
+    "ingredient_substance": "NaCl",
+    "ingredient_substance_system": "http://example.org/substances",
+    "ingredient_substance_display": "Sodium Chloride",
+    "ingredient_quantity_numerator_value": 9,
+    "ingredient_quantity_numerator_unit": "g",
+    "ingredient_quantity_denominator_value": 1000,
+    "ingredient_quantity_denominator_unit": "mL"
+  }
+}

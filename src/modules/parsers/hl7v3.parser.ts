@@ -37,6 +37,7 @@ import {
     CanonicalPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
+    CanonicalSubstance,
     CanonicalSpecimen,
     CanonicalImagingStudy,
     CanonicalAllergyIntolerance,
@@ -140,6 +141,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         persons: [],
         locations: [],
         episodesOfCare: [],
+        substances: [],
         specimens: [],
         imagingStudies: [],
         allergyIntolerances: [],
@@ -493,6 +495,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (personEvent) {
                 const person = mapV3Person(personEvent);
                 if (person) model.persons?.push(person);
+            }
+
+            const substanceEvent = sub.substance || sub.Substance;
+            if (substanceEvent) {
+                const substance = mapV3Substance(substanceEvent);
+                if (substance) model.substances?.push(substance);
             }
 
             const organizationAffiliationEvent = sub.organizationAffiliation || sub.OrganizationAffiliation;
@@ -2542,6 +2550,62 @@ function mapV3Person(personEvent: any): CanonicalPerson | undefined {
         telecom: telecomValues.length ? telecomValues : undefined,
         gender,
         birthDate
+    };
+}
+
+function mapV3Substance(substanceEvent: any): CanonicalSubstance | undefined {
+    const substance = substanceEvent.substance || substanceEvent.Substance || substanceEvent;
+    const id = substance.id?.['@_extension'] || substance.id?.['@_root'];
+    const status = substance.statusCode?.['@_code'] || substance.status?.['@_code'];
+    const codeNode = substance.code || substance.Code;
+    const code = codeNode?.['@_code'];
+    const codeSystem = codeNode?.['@_codeSystem'];
+    const display = codeNode?.['@_displayName'] || extractText(codeNode?.displayName);
+    const quantityNode = substance.quantity || substance.Quantity;
+    const quantityValueRaw = quantityNode?.['@_value'] ?? quantityNode?.value;
+    const quantityValue = quantityValueRaw !== undefined ? Number(quantityValueRaw) : undefined;
+    const quantityUnit = quantityNode?.['@_unit'] ?? quantityNode?.unit;
+    const ingredientNode = substance.ingredient || substance.Ingredient;
+    const ingredientList = Array.isArray(ingredientNode) ? ingredientNode : ingredientNode ? [ingredientNode] : [];
+    const ingredient = ingredientList.length ? ingredientList.map((ing: any) => {
+        const ingredientSubstance = ing.substance || ing.Substance || ing;
+        const ingCodeNode = ingredientSubstance?.code || ingredientSubstance?.Code;
+        return {
+            quantity: ing.quantity?.numerator || ing.quantity?.denominator ? {
+                numerator: ing.quantity?.numerator ? {
+                    value: Number(ing.quantity.numerator['@_value'] || ing.quantity.numerator.value),
+                    unit: ing.quantity.numerator['@_unit'] || ing.quantity.numerator.unit
+                } : undefined,
+                denominator: ing.quantity?.denominator ? {
+                    value: Number(ing.quantity.denominator['@_value'] || ing.quantity.denominator.value),
+                    unit: ing.quantity.denominator['@_unit'] || ing.quantity.denominator.unit
+                } : undefined
+            } : undefined,
+            substanceCodeableConcept: ingCodeNode?.['@_code'] || ingCodeNode?.['@_displayName'] ? {
+                system: ingCodeNode?.['@_codeSystem'],
+                code: ingCodeNode?.['@_code'],
+                display: ingCodeNode?.['@_displayName'] || extractText(ingCodeNode?.displayName)
+            } : undefined
+        };
+    }) : undefined;
+
+    if (!id && !code && !display) return undefined;
+
+    return {
+        id,
+        identifier: id,
+        instance: substance.instance ? Boolean(substance.instance) : undefined,
+        status,
+        code: code || display ? {
+            system: codeSystem,
+            code,
+            display
+        } : undefined,
+        quantity: Number.isFinite(quantityValue) || quantityUnit ? {
+            value: Number.isFinite(quantityValue) ? quantityValue : undefined,
+            unit: quantityUnit
+        } : undefined,
+        ingredient: ingredient?.length ? ingredient : undefined
     };
 }
 

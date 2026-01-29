@@ -5450,6 +5450,48 @@ export type CanonicalSpecimen = {
   active?: boolean;
 };
 
+export type CanonicalSubstance = {
+  id?: string;
+  identifier?: string;
+  instance?: boolean;
+  status?: string;
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  description?: string;
+  expiry?: string;
+  quantity?: {
+    value?: number;
+    unit?: string;
+  };
+  ingredient?: Array<{
+    quantity?: {
+      numerator?: {
+        value?: number;
+        unit?: string;
+      };
+      denominator?: {
+        value?: number;
+        unit?: string;
+      };
+    };
+    substanceCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    substanceReference?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalImagingStudy = {
   id?: string;
   identifier?: string;
@@ -5745,6 +5787,7 @@ export type CanonicalModel = {
   persons?: CanonicalPerson[]; // Person
   locations?: CanonicalLocation[]; // Location
   episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
+  substances?: CanonicalSubstance[]; // Substance
   specimens?: CanonicalSpecimen[]; // Specimen
   imagingStudies?: CanonicalImagingStudy[]; // ImagingStudy
   allergyIntolerances?: CanonicalAllergyIntolerance[]; // AllergyIntolerance

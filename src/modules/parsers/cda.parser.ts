@@ -40,6 +40,7 @@ import {
   CanonicalRelatedPerson,
   CanonicalLocation,
   CanonicalEpisodeOfCare,
+  CanonicalSubstance,
   CanonicalSpecimen,
   CanonicalImagingStudy,
   CanonicalAllergyIntolerance,
@@ -119,6 +120,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   );
   const organizationAffiliations = extractOrganizationAffiliations(clinicalDocument);
   const persons = extractPersons(clinicalDocument);
+  const substances = extractSubstances(clinicalDocument);
   const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
   const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const appointments = extractAppointments(clinicalDocument, patient.id);
@@ -196,6 +198,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (medicationDispenses.length) canonical.medicationDispenses = medicationDispenses;
   if (organizationAffiliations.length) canonical.organizationAffiliations = organizationAffiliations;
   if (persons.length) canonical.persons = persons;
+  if (substances.length) canonical.substances = substances;
   if (procedures.length) canonical.procedures = procedures;
   if (conditions.length) canonical.conditions = conditions;
   if (appointments.length) canonical.appointments = appointments;
@@ -904,6 +907,56 @@ function extractPersons(
   });
 
   return persons;
+}
+
+function extractSubstances(
+  clinicalDocument: any
+): CanonicalSubstance[] {
+  const substances: CanonicalSubstance[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isSubstanceSection = sectionCodeValue === 'SUBSTANCE';
+    if (!isSubstanceSection) return;
+
+    const substanceNode = entry.substance || entry['cda:substance'] || entry.manufacturedMaterial || entry['cda:manufacturedMaterial'];
+    const substanceNodes = Array.isArray(substanceNode) ? substanceNode : substanceNode ? [substanceNode] : [];
+
+    for (const substance of substanceNodes) {
+      const id = extractId(substance.id || substance['cda:id']);
+      const codeNode = substance.code || substance['cda:code'];
+      const code = extractAttribute(codeNode, '@_code');
+      const codeSystem = extractAttribute(codeNode, '@_codeSystem');
+      const display = extractAttribute(codeNode, '@_displayName') || extractText(codeNode?.displayName);
+      const status = extractAttribute(substance.statusCode || substance['cda:statusCode'], '@_code');
+      const description = extractText(substance.desc || substance['cda:desc']);
+      const quantityNode = substance.quantity || substance['cda:quantity'];
+      const quantityValueRaw = extractAttribute(quantityNode, '@_value');
+      const quantityValue = quantityValueRaw ? Number(quantityValueRaw) : undefined;
+      const quantityUnit = extractAttribute(quantityNode, '@_unit');
+
+      if (!id && !code && !display) continue;
+
+      substances.push({
+        id: id || `SUBSTANCE-${substances.length + 1}`,
+        identifier: id,
+        status,
+        code: code || display ? {
+          system: codeSystem,
+          code,
+          display
+        } : undefined,
+        description: description || undefined,
+        quantity: Number.isFinite(quantityValue) || quantityUnit ? {
+          value: Number.isFinite(quantityValue) ? quantityValue : undefined,
+          unit: quantityUnit
+        } : undefined
+      });
+    }
+  });
+
+  return substances;
 }
 
 function extractImmunizations(
