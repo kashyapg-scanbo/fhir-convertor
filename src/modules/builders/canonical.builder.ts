@@ -7,6 +7,7 @@ import {
   CanonicalMedicationStatement,
   CanonicalMedicationAdministration,
   CanonicalMedicationDispense,
+  CanonicalOrganizationAffiliation,
   CanonicalDeviceDispense,
   CanonicalDeviceRequest,
   CanonicalDeviceUsage,
@@ -1939,6 +1940,38 @@ export function buildCanonical(parsed: any) {
 
   if (medicationDispenses.length > 0) {
     result.medicationDispenses = medicationDispenses;
+  }
+
+  /* ───── OrganizationAffiliations (from OBR) ───── */
+  const organizationAffiliations: CanonicalOrganizationAffiliation[] = [];
+  const orgAffilObrSegments = parsed.OBR ?? [];
+  for (const obr of orgAffilObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const affiliationId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const codeValue = codeParts[0];
+    const display = codeParts[1];
+    const system = codeParts[2];
+    const date = toFHIRDateTime(obr?.[6]?.[0]?.[0]) || toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!affiliationId && !codeValue && !display) continue;
+
+    organizationAffiliations.push({
+      id: affiliationId || `ORGAFF-${Date.now()}`,
+      identifier: affiliationId,
+      active: true,
+      period: date ? { start: date } : undefined,
+      code: (codeValue || display) ? [{
+        system: mapCodingSystem(system),
+        code: codeValue,
+        display: display
+      }] : undefined
+    });
+  }
+
+  if (organizationAffiliations.length > 0) {
+    result.organizationAffiliations = organizationAffiliations;
   }
 
   /* ───── Immunizations (from RXA) ───── */

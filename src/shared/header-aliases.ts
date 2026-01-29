@@ -145,6 +145,23 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     medication_dispense_type: ['med_dispense_type', 'type'],
     medication_dispense_event_history_ids: ['med_dispense_event_history_ids', 'event_history_ids', 'event_history_id']
   },
+  organizationAffiliation: {
+    organization_affiliation_id: ['organization_affiliation_id', 'org_affiliation_id', 'orgaffiliation_id'],
+    organization_affiliation_active: ['active'],
+    organization_affiliation_period_start: ['period_start', 'start'],
+    organization_affiliation_period_end: ['period_end', 'end'],
+    organization_affiliation_organization_id: ['organization_id', 'org_id'],
+    organization_affiliation_participating_organization_id: ['participating_organization_id', 'participating_org_id'],
+    organization_affiliation_network_ids: ['network_ids', 'network_id'],
+    organization_affiliation_code: ['code'],
+    organization_affiliation_specialty: ['specialty'],
+    organization_affiliation_location_ids: ['location_ids', 'location_id'],
+    organization_affiliation_healthcare_service_ids: ['healthcare_service_ids', 'healthcare_service_id'],
+    organization_affiliation_contact_name: ['contact_name'],
+    organization_affiliation_contact_phone: ['contact_phone'],
+    organization_affiliation_contact_email: ['contact_email'],
+    organization_affiliation_endpoint_ids: ['endpoint_ids', 'endpoint_id']
+  },
   deviceDispense: {
     device_dispense_id: ['device_dispense_identifier', 'devicedispense_id', 'devicedispenseid'],
     device_dispense_based_on_ids: ['based_on_ids', 'device_dispense_based_on_ids'],

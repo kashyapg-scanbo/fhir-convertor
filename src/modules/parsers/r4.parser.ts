@@ -18,6 +18,7 @@ import {
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
     CanonicalMedicationDispense,
+    CanonicalOrganizationAffiliation,
     CanonicalDeviceDispense,
     CanonicalDeviceRequest,
     CanonicalDeviceUsage,
@@ -91,6 +92,7 @@ export function parseR4(input: string): CanonicalModel {
         medicationStatements: [],
         medicationAdministrations: [],
         medicationDispenses: [],
+        organizationAffiliations: [],
         deviceDispenses: [],
         deviceRequests: [],
         deviceUsages: [],
@@ -368,6 +370,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'MedicationDispense':
                 const medicationDispense = mapR4MedicationDispense(res);
                 if (medicationDispense) model.medicationDispenses?.push(medicationDispense);
+                break;
+            case 'OrganizationAffiliation':
+                const organizationAffiliation = mapR4OrganizationAffiliation(res);
+                if (organizationAffiliation) model.organizationAffiliations?.push(organizationAffiliation);
                 break;
             case 'DeviceDispense':
                 const deviceDispense = mapR4DeviceDispense(res);
@@ -1596,6 +1602,41 @@ function mapR4NutritionOrder(order: any): CanonicalNutritionOrder {
             administrationInstruction: order.enteralFormula.administrationInstruction
         } : undefined,
         note: order.note?.map((note: any) => note.text).filter(Boolean)
+    };
+}
+
+function mapR4OrganizationAffiliation(affiliation: any): CanonicalOrganizationAffiliation {
+    const period = affiliation.period;
+    const contact = affiliation.contact?.[0];
+    return {
+        id: affiliation.id,
+        identifier: affiliation.identifier?.[0]?.value,
+        active: affiliation.active,
+        period: period ? { start: period.start, end: period.end } : undefined,
+        organization: affiliation.organization?.reference?.replace('Organization/', ''),
+        participatingOrganization: affiliation.participatingOrganization?.reference?.replace('Organization/', ''),
+        network: affiliation.network?.map((ref: any) => ref.reference?.replace('Organization/', '')).filter(Boolean),
+        code: affiliation.code?.map((c: any) => ({
+            system: c?.coding?.[0]?.system,
+            code: c?.coding?.[0]?.code,
+            display: c?.coding?.[0]?.display
+        })),
+        specialty: affiliation.specialty?.map((c: any) => ({
+            system: c?.coding?.[0]?.system,
+            code: c?.coding?.[0]?.code,
+            display: c?.coding?.[0]?.display
+        })),
+        location: affiliation.location?.map((ref: any) => ref.reference?.replace('Location/', '')).filter(Boolean),
+        healthcareService: affiliation.healthcareService?.map((ref: any) => ref.reference?.replace('HealthcareService/', '')).filter(Boolean),
+        contact: contact ? [{
+            name: contact.name,
+            telecom: contact.telecom?.map((t: any) => ({
+                system: t.system,
+                value: t.value,
+                use: t.use
+            }))
+        }] : undefined,
+        endpoint: affiliation.endpoint?.map((ref: any) => ref.reference?.replace('Endpoint/', '')).filter(Boolean)
     };
 }
 

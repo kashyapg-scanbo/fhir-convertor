@@ -7,6 +7,7 @@ import {
   CanonicalMedicationStatement,
   CanonicalMedicationAdministration,
   CanonicalMedicationDispense,
+  CanonicalOrganizationAffiliation,
   CanonicalProcedure,
   CanonicalCondition,
   CanonicalAppointment,
@@ -115,6 +116,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
     encounter?.id,
     practitionerData.authorIds[0]
   );
+  const organizationAffiliations = extractOrganizationAffiliations(clinicalDocument);
   const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
   const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const appointments = extractAppointments(clinicalDocument, patient.id);
@@ -190,6 +192,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (medicationStatements.length) canonical.medicationStatements = medicationStatements;
   if (medicationAdministrations.length) canonical.medicationAdministrations = medicationAdministrations;
   if (medicationDispenses.length) canonical.medicationDispenses = medicationDispenses;
+  if (organizationAffiliations.length) canonical.organizationAffiliations = organizationAffiliations;
   if (procedures.length) canonical.procedures = procedures;
   if (conditions.length) canonical.conditions = conditions;
   if (appointments.length) canonical.appointments = appointments;
@@ -802,6 +805,53 @@ function extractMedicationDispenses(
   });
 
   return dispenses;
+}
+
+function extractOrganizationAffiliations(
+  clinicalDocument: any
+): CanonicalOrganizationAffiliation[] {
+  const affiliations: CanonicalOrganizationAffiliation[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isAffiliationSection = sectionCodeValue === 'ORGAFFILIATION';
+    if (!isAffiliationSection) return;
+
+    const act = entry.act || entry['cda:act'] || entry.organizer || entry['cda:organizer'];
+    if (!act) return;
+    const acts = Array.isArray(act) ? act : [act];
+
+    for (const item of acts) {
+      const id = extractId(item.id || item['cda:id']);
+      const code = item.code || item['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const statusCode = item.statusCode || item['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const effectiveTime = item.effectiveTime || item['cda:effectiveTime'];
+      const start = extractAttribute(effectiveTime?.low, '@_value') || extractAttribute(effectiveTime, '@_value');
+      const end = extractAttribute(effectiveTime?.high, '@_value');
+
+      if (!id && !codeValue && !displayName) continue;
+
+      affiliations.push({
+        id: id || `ORGAFF-${affiliations.length + 1}`,
+        identifier: id,
+        active: status ? status === 'active' : undefined,
+        period: start || end ? {
+          start: formatCDADateTime(start),
+          end: formatCDADateTime(end)
+        } : undefined,
+        code: (codeValue || displayName) ? [{
+          code: codeValue,
+          display: displayName
+        }] : undefined
+      });
+    }
+  });
+
+  return affiliations;
 }
 
 function extractImmunizations(

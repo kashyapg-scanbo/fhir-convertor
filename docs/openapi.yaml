@@ -30,6 +30,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonMedicationRequestOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
                 - $ref: '#/components/schemas/CustomJsonMedicationDispenseOnly'
+                - $ref: '#/components/schemas/CustomJsonOrganizationAffiliationOnly'
                 - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
                 - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
                 - $ref: '#/components/schemas/CustomJsonParametersOnly'
@@ -226,6 +227,18 @@ paths:
                     quantity_value: 30
                     quantity_unit: tablet
                     when_handed_over: 2024-02-03T10:00:00Z
+              organization_affiliation:
+                summary: OrganizationAffiliation
+                value:
+                  organization_affiliation:
+                    organization_affiliation_id: ORGAFF-100
+                    active: true
+                    organization_id: ORG-1
+                    participating_organization_id: ORG-2
+                    code: member
+                    specialty: cardiology
+                    period_start: 2024-01-01
+                    period_end: 2024-12-31
               capability_statement:
                 summary: CapabilityStatement
                 value:
@@ -789,7 +802,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -934,7 +947,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -983,6 +996,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomMedicationDispense'
+        organization_affiliation:
+          oneOf:
+            - $ref: '#/components/schemas/CustomOrganizationAffiliation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomOrganizationAffiliation'
         device_dispense:
           oneOf:
             - $ref: '#/components/schemas/CustomDeviceDispense'
@@ -2643,6 +2662,67 @@ components:
           type: string
         name:
           type: string
+    CustomOrganizationAffiliation:
+      type: object
+      properties:
+        organization_affiliation_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        organization_id:
+          type: string
+        participating_organization_id:
+          type: string
+        network_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        code:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        specialty:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        location_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        healthcare_service_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        contact_name:
+          type: string
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        endpoint_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
     CustomCapabilityStatement:
       type: object
       properties:
@@ -5263,7 +5343,7 @@ components:
         affiliations:
           type: array
           items:
-            $ref: '#/components/schemas/CustomOrganizationAffiliation'
+            $ref: '#/components/schemas/CustomOrganizationAffiliationDetail'
         services_offered:
           type: array
           items:
@@ -5290,7 +5370,7 @@ components:
           type: string
         contact_phone:
           type: string
-    CustomOrganizationAffiliation:
+    CustomOrganizationAffiliationDetail:
       type: object
       properties:
         name:
@@ -5359,6 +5439,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [medication_dispense]
+    CustomJsonOrganizationAffiliationOnly:
+      title: OrganizationAffiliation
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [organization_affiliation]
     CustomJsonDeviceDispenseOnly:
       title: DeviceDispense
       allOf:

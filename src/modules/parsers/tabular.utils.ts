@@ -435,6 +435,45 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (medicationDispenses.length > 0) canonical.medicationDispenses = medicationDispenses as any[];
 
+  const organizationAffiliations = rows.map(row => {
+    const affiliationId = readValue(row, 'organization_affiliation_id');
+    const organizationId = readValue(row, 'organization_affiliation_organization_id');
+    const participatingOrgId = readValue(row, 'organization_affiliation_participating_organization_id');
+    if (!affiliationId && !organizationId && !participatingOrgId) return null;
+
+    const toList = (value?: string) => value ? value.split(',').map(v => v.trim()).filter(Boolean) : undefined;
+
+    const code = readValue(row, 'organization_affiliation_code');
+    const specialty = readValue(row, 'organization_affiliation_specialty');
+    const contactName = readValue(row, 'organization_affiliation_contact_name');
+    const contactPhone = readValue(row, 'organization_affiliation_contact_phone');
+    const contactEmail = readValue(row, 'organization_affiliation_contact_email');
+
+    const telecom = [];
+    if (contactPhone) telecom.push({ system: 'phone', value: contactPhone });
+    if (contactEmail) telecom.push({ system: 'email', value: contactEmail });
+
+    return {
+      id: affiliationId || undefined,
+      identifier: affiliationId || undefined,
+      active: readBoolean(row, 'organization_affiliation_active'),
+      period: (readValue(row, 'organization_affiliation_period_start') || readValue(row, 'organization_affiliation_period_end')) ? {
+        start: readValue(row, 'organization_affiliation_period_start') || undefined,
+        end: readValue(row, 'organization_affiliation_period_end') || undefined
+      } : undefined,
+      organization: organizationId || undefined,
+      participatingOrganization: participatingOrgId || undefined,
+      network: toList(readValue(row, 'organization_affiliation_network_ids')),
+      code: code ? [{ code, display: code }] : undefined,
+      specialty: specialty ? [{ code: specialty, display: specialty }] : undefined,
+      location: toList(readValue(row, 'organization_affiliation_location_ids')),
+      healthcareService: toList(readValue(row, 'organization_affiliation_healthcare_service_ids')),
+      contact: (contactName || telecom.length) ? [{ name: contactName || undefined, telecom: telecom.length ? telecom : undefined }] : undefined,
+      endpoint: toList(readValue(row, 'organization_affiliation_endpoint_ids'))
+    };
+  }).filter(Boolean);
+  if (organizationAffiliations.length > 0) canonical.organizationAffiliations = organizationAffiliations as any[];
+
   const deviceDispenses = rows.map(row => {
     const dispenseId = readValue(row, 'device_dispense_id');
     const status = readValue(row, 'device_dispense_status');

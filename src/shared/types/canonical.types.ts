@@ -1143,6 +1143,41 @@ export type CanonicalMedicationDispense = {
   active?: boolean;
 };
 
+export type CanonicalOrganizationAffiliation = {
+  id?: string;
+  identifier?: string;
+  active?: boolean;
+  period?: {
+    start?: string;
+    end?: string;
+  };
+  organization?: string;
+  participatingOrganization?: string;
+  network?: string[];
+  code?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  specialty?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  location?: string[];
+  healthcareService?: string[];
+  contact?: Array<{
+    name?: string;
+    telecom?: Array<{
+      system?: string;
+      value?: string;
+      use?: string;
+    }>;
+  }>;
+  endpoint?: string[];
+  activeFlag?: boolean;
+};
+
 export type CanonicalDeviceDispense = {
   id?: string;
   identifier?: Array<{
@@ -5612,6 +5647,7 @@ export type CanonicalModel = {
   medicationStatements?: CanonicalMedicationStatement[]; // MedicationStatement (usage)
   medicationAdministrations?: CanonicalMedicationAdministration[]; // MedicationAdministration
   medicationDispenses?: CanonicalMedicationDispense[]; // MedicationDispense
+  organizationAffiliations?: CanonicalOrganizationAffiliation[]; // OrganizationAffiliation
   deviceDispenses?: CanonicalDeviceDispense[]; // DeviceDispense
   deviceRequests?: CanonicalDeviceRequest[]; // DeviceRequest
   deviceUsages?: CanonicalDeviceUsage[]; // DeviceUsage

@@ -12,6 +12,7 @@ import { mapMedications } from './medication.mapper.js';
 import { mapMedicationStatements } from './medicationStatement.mapper.js';
 import { mapMedicationAdministrations } from './medicationAdministration.mapper.js';
 import { mapMedicationDispenses } from './medicationDispense.mapper.js';
+import { mapOrganizationAffiliations } from './organizationAffiliation.mapper.js';
 import { mapDeviceDispenses } from './deviceDispense.mapper.js';
 import { mapDeviceRequests } from './deviceRequest.mapper.js';
 import { mapDeviceUsages } from './deviceUsage.mapper.js';
@@ -212,6 +213,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (medicationDispenseEntries.length > 0) {
     bundle.entry.push(...medicationDispenseEntries);
+  }
+
+  const organizationAffiliationEntries = mapOrganizationAffiliations({
+    organizationAffiliations: canonical.organizationAffiliations,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (organizationAffiliationEntries.length > 0) {
+    bundle.entry.push(...organizationAffiliationEntries);
   }
 
   const deviceDispenseEntries = mapDeviceDispenses({

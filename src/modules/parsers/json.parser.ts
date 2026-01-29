@@ -334,6 +334,24 @@ const GlobalMedicationDispenseSchema = z.object({
   event_history_ids: z.union([z.string(), z.array(z.string())]).optional()
 });
 
+const GlobalOrganizationAffiliationSchema = z.object({
+  organization_affiliation_id: GlobalIdSchema.optional(),
+  active: z.union([z.boolean(), z.string()]).optional(),
+  period_start: z.string().optional(),
+  period_end: z.string().optional(),
+  organization_id: GlobalIdSchema.optional(),
+  participating_organization_id: GlobalIdSchema.optional(),
+  network_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  code: z.union([z.string(), z.array(z.string())]).optional(),
+  specialty: z.union([z.string(), z.array(z.string())]).optional(),
+  location_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  healthcare_service_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  contact_name: z.string().optional(),
+  contact_phone: z.string().optional(),
+  contact_email: z.string().optional(),
+  endpoint_ids: z.union([z.string(), z.array(z.string())]).optional()
+});
+
 const GlobalCapabilityStatementSchema = z.object({
   capability_statement_id: GlobalIdSchema.optional(),
   url: z.string().optional(),
@@ -2361,6 +2379,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   medication_statement: z.union([GlobalMedicationStatementSchema, z.array(GlobalMedicationStatementSchema)]).optional(),
   medication_administration: z.union([GlobalMedicationAdministrationSchema, z.array(GlobalMedicationAdministrationSchema)]).optional(),
   medication_dispense: z.union([GlobalMedicationDispenseSchema, z.array(GlobalMedicationDispenseSchema)]).optional(),
+  organization_affiliation: z.union([GlobalOrganizationAffiliationSchema, z.array(GlobalOrganizationAffiliationSchema)]).optional(),
   device_dispense: z.union([GlobalDeviceDispenseSchema, z.array(GlobalDeviceDispenseSchema)]).optional(),
   device_request: z.union([GlobalDeviceRequestSchema, z.array(GlobalDeviceRequestSchema)]).optional(),
   device_usage: z.union([GlobalDeviceUsageSchema, z.array(GlobalDeviceUsageSchema)]).optional(),
@@ -2488,7 +2507,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2516,6 +2535,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   medicationStatements: 'medicationStatement',
   medicationAdministrations: 'medicationAdministration',
   medicationDispenses: 'medicationDispense',
+  organizationAffiliations: 'organizationAffiliation',
   deviceDispenses: 'deviceDispense',
   deviceRequests: 'deviceRequest',
   deviceUsages: 'deviceUsage',
@@ -2590,6 +2610,10 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   medication_dispenses: 'medicationDispense',
   medicationdispense: 'medicationDispense',
   medicationdispenses: 'medicationDispense',
+  organization_affiliation: 'organizationAffiliation',
+  organization_affiliations: 'organizationAffiliation',
+  organizationaffiliation: 'organizationAffiliation',
+  organizationaffiliations: 'organizationAffiliation',
   device_dispense: 'deviceDispense',
   device_dispenses: 'deviceDispense',
   devicedispense: 'deviceDispense',
@@ -2774,6 +2798,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   medication_dispenses: 'medication_dispense',
   medicationdispense: 'medication_dispense',
   medicationdispenses: 'medication_dispense',
+  organization_affiliation: 'organization_affiliation',
+  organization_affiliations: 'organization_affiliation',
+  organizationaffiliation: 'organization_affiliation',
+  organizationaffiliations: 'organization_affiliation',
   device_dispense: 'device_dispense',
   device_dispenses: 'device_dispense',
   devicedispense: 'device_dispense',
@@ -4343,6 +4371,59 @@ function normalizeGlobalRiskAssessmentAliases(value: Record<string, unknown>) {
       rationale: predRationale
     };
   }
+
+  return normalized;
+}
+
+function normalizeGlobalOrganizationAffiliationAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const affiliationId = readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_id');
+  if (normalized.organization_affiliation_id === undefined && affiliationId !== undefined) {
+    normalized.organization_affiliation_id = affiliationId;
+  }
+
+  const active = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_active'));
+  if (active !== undefined && normalized.active === undefined) normalized.active = active;
+
+  const periodStart = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_period_start'));
+  if (periodStart && normalized.period_start === undefined) normalized.period_start = periodStart;
+
+  const periodEnd = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_period_end'));
+  if (periodEnd && normalized.period_end === undefined) normalized.period_end = periodEnd;
+
+  const organizationId = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_organization_id'));
+  if (organizationId && normalized.organization_id === undefined) normalized.organization_id = organizationId;
+
+  const participatingOrgId = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_participating_organization_id'));
+  if (participatingOrgId && normalized.participating_organization_id === undefined) normalized.participating_organization_id = participatingOrgId;
+
+  const networkIds = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_network_ids'));
+  if (networkIds && normalized.network_ids === undefined) normalized.network_ids = networkIds;
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_code'));
+  if (code && normalized.code === undefined) normalized.code = code;
+
+  const specialty = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_specialty'));
+  if (specialty && normalized.specialty === undefined) normalized.specialty = specialty;
+
+  const locationIds = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_location_ids'));
+  if (locationIds && normalized.location_ids === undefined) normalized.location_ids = locationIds;
+
+  const healthcareServiceIds = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_healthcare_service_ids'));
+  if (healthcareServiceIds && normalized.healthcare_service_ids === undefined) normalized.healthcare_service_ids = healthcareServiceIds;
+
+  const contactName = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_contact_name'));
+  if (contactName && normalized.contact_name === undefined) normalized.contact_name = contactName;
+
+  const contactPhone = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_contact_phone'));
+  if (contactPhone && normalized.contact_phone === undefined) normalized.contact_phone = contactPhone;
+
+  const contactEmail = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_contact_email'));
+  if (contactEmail && normalized.contact_email === undefined) normalized.contact_email = contactEmail;
+
+  const endpointIds = normalizeAliasValue(readSectionAliasValue(value, 'organizationAffiliation', 'organization_affiliation_endpoint_ids'));
+  if (endpointIds && normalized.endpoint_ids === undefined) normalized.endpoint_ids = endpointIds;
 
   return normalized;
 }
@@ -7143,6 +7224,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalMedicationAdministrationAliases(value);
     case 'medicationDispense':
       return normalizeGlobalMedicationDispenseAliases(value);
+    case 'organizationAffiliation':
+      return normalizeGlobalOrganizationAffiliationAliases(value);
     case 'deviceDispense':
       return normalizeGlobalDeviceDispenseAliases(value);
     case 'deviceRequest':
@@ -7258,6 +7341,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['medicationStatement', 'medication_statement'],
     ['medicationAdministration', 'medication_administration'],
     ['medicationDispense', 'medication_dispense'],
+    ['organizationAffiliation', 'organization_affiliation'],
     ['deviceDispense', 'device_dispense'],
     ['deviceRequest', 'device_request'],
     ['deviceUsage', 'device_usage'],
@@ -7576,6 +7660,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const medicationStatements = normalizeArray(validated.medication_statement);
   const medicationAdministrations = normalizeArray(validated.medication_administration);
   const medicationDispenses = normalizeArray(validated.medication_dispense);
+  const organizationAffiliations = normalizeArray(validated.organization_affiliation);
   const deviceDispenses = normalizeArray(validated.device_dispense);
   const deviceRequests = normalizeArray(validated.device_request);
   const deviceUsages = normalizeArray(validated.device_usage);
@@ -7656,6 +7741,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (medicationDispenses.length) {
     canonical.medicationDispenses = medicationDispenses.map(buildCanonicalMedicationDispenseGlobal);
+  }
+  if (organizationAffiliations.length) {
+    canonical.organizationAffiliations = organizationAffiliations.map(buildCanonicalOrganizationAffiliationGlobal);
   }
   if (deviceDispenses.length) {
     canonical.deviceDispenses = deviceDispenses.map(buildCanonicalDeviceDispenseGlobal);
@@ -7969,7 +8057,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'location', 'episode_of_care', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -7980,6 +8068,7 @@ function wrapGlobalPayload(value: any) {
       value.medication_statement,
       value.medication_administration,
       value.medication_dispense,
+      value.organization_affiliation,
       value.device_dispense,
       value.device_request,
       value.device_usage,
@@ -8060,6 +8149,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('medication_dispense_id' in value || 'when_handed_over' in value || 'quantity_value' in value) {
       return { medication_dispense: value };
+    }
+    if ('organization_affiliation_id' in value || 'participating_organization_id' in value || 'organization_id' in value) {
+      return { organization_affiliation: value };
     }
     if ('device_dispense_id' in value || 'device_dispense_status' in value || 'device_dispense_device_id' in value) {
       return { device_dispense: value };
@@ -8266,6 +8358,9 @@ function looksLikeGlobalResource(value: any) {
     'medication_dispense_id' in value ||
     'quantity_value' in value ||
     'when_handed_over' in value ||
+    'organization_affiliation_id' in value ||
+    'participating_organization_id' in value ||
+    'organization_id' in value ||
     'device_dispense_id' in value ||
     'device_dispense_status' in value ||
     'device_dispense_device_id' in value ||
@@ -8758,6 +8853,45 @@ function buildCanonicalMedicationDispenseGlobal(dispense: z.infer<typeof GlobalM
       responsibleParty: dispense.substitution_responsible_party
     } : undefined,
     eventHistory: eventHistory.length ? eventHistory : undefined
+  };
+}
+
+function buildCanonicalOrganizationAffiliationGlobal(affiliation: z.infer<typeof GlobalOrganizationAffiliationSchema>) {
+  const networks = normalizeStringArray(affiliation.network_ids);
+  const codes = normalizeStringArray(affiliation.code);
+  const specialties = normalizeStringArray(affiliation.specialty);
+  const locations = normalizeStringArray(affiliation.location_ids);
+  const services = normalizeStringArray(affiliation.healthcare_service_ids);
+  const endpoints = normalizeStringArray(affiliation.endpoint_ids);
+
+  const contactTelecom = [];
+  if (affiliation.contact_phone) {
+    contactTelecom.push({ system: 'phone', value: affiliation.contact_phone });
+  }
+  if (affiliation.contact_email) {
+    contactTelecom.push({ system: 'email', value: affiliation.contact_email });
+  }
+
+  return {
+    id: affiliation.organization_affiliation_id,
+    identifier: affiliation.organization_affiliation_id,
+    active: normalizeBoolean(affiliation.active as any),
+    period: affiliation.period_start || affiliation.period_end ? {
+      start: affiliation.period_start,
+      end: affiliation.period_end
+    } : undefined,
+    organization: affiliation.organization_id,
+    participatingOrganization: affiliation.participating_organization_id,
+    network: networks.length ? networks : undefined,
+    code: codes.length ? codes.map(value => ({ code: value, display: value })) : undefined,
+    specialty: specialties.length ? specialties.map(value => ({ code: value, display: value })) : undefined,
+    location: locations.length ? locations : undefined,
+    healthcareService: services.length ? services : undefined,
+    contact: (affiliation.contact_name || contactTelecom.length) ? [{
+      name: affiliation.contact_name,
+      telecom: contactTelecom.length ? contactTelecom : undefined
+    }] : undefined,
+    endpoint: endpoints.length ? endpoints : undefined
   };
 }
 

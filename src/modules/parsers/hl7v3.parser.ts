@@ -13,6 +13,7 @@ import {
     CanonicalMedicationStatement,
     CanonicalMedicationAdministration,
     CanonicalMedicationDispense,
+    CanonicalOrganizationAffiliation,
     CanonicalProcedure,
     CanonicalCondition,
     CanonicalAppointment,
@@ -105,6 +106,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         medicationStatements: [],
         medicationAdministrations: [],
         medicationDispenses: [],
+        organizationAffiliations: [],
         deviceDispenses: [],
         deviceRequests: [],
         deviceUsages: [],
@@ -483,6 +485,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (relatedPersonEvent) {
                 const related = mapV3RelatedPerson(relatedPersonEvent);
                 if (related) model.relatedPersons?.push(related);
+            }
+
+            const organizationAffiliationEvent = sub.organizationAffiliation || sub.OrganizationAffiliation;
+            if (organizationAffiliationEvent) {
+                const affiliation = mapV3OrganizationAffiliation(organizationAffiliationEvent);
+                if (affiliation) model.organizationAffiliations?.push(affiliation);
             }
 
             const substanceAdministration = sub.substanceAdministration || sub.SubstanceAdministration;
@@ -1090,6 +1098,40 @@ function mapV3MedicationDispense(substanceAdmin: any): CanonicalMedicationDispen
             value: Number(dose['@_value']),
             unit: dose?.['@_unit']
         } : undefined
+    };
+}
+
+function mapV3OrganizationAffiliation(affEvent: any): CanonicalOrganizationAffiliation | undefined {
+    const id = affEvent.id || affEvent.ID;
+    const code = affEvent.code || affEvent.Code;
+    const status = affEvent.statusCode || affEvent.StatusCode;
+    const effectiveTime = affEvent.effectiveTime || affEvent.EffectiveTime;
+
+    const affId = id?.['@_extension'] || id?.['@_root'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeValue = code?.['@_code'];
+    const periodStart = effectiveTime?.low?.['@_value'] || effectiveTime?.['@_value'];
+    const periodEnd = effectiveTime?.high?.['@_value'];
+
+    if (!affId && !codeValue && !displayName) return undefined;
+
+    const org = affEvent.organization || affEvent.Organization;
+    const participating = affEvent.participatingOrganization || affEvent.ParticipatingOrganization;
+
+    return {
+        id: affId || `ORGAFF-${Date.now()}`,
+        identifier: affId,
+        active: status?.['@_code'] ? status['@_code'] === 'active' : undefined,
+        period: periodStart || periodEnd ? {
+            start: formatV3DateTime(periodStart),
+            end: formatV3DateTime(periodEnd)
+        } : undefined,
+        organization: org?.id?.['@_extension'] || org?.id?.['@_root'],
+        participatingOrganization: participating?.id?.['@_extension'] || participating?.id?.['@_root'],
+        code: (codeValue || displayName) ? [{
+            code: codeValue,
+            display: displayName
+        }] : undefined
     };
 }
 
