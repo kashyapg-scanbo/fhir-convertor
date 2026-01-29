@@ -47,6 +47,8 @@ import {
     CanonicalEncounterHistory,
     CanonicalFlag,
     CanonicalList,
+    CanonicalGroup,
+    CanonicalHealthcareService,
     CanonicalNutritionIntake,
     CanonicalNutritionOrder,
     CanonicalRiskAssessment,
@@ -114,6 +116,8 @@ export function parseHL7v3(input: string): CanonicalModel {
         encounterHistories: [],
         flags: [],
         lists: [],
+        groups: [],
+        healthcareServices: [],
         nutritionIntakes: [],
         nutritionOrders: [],
         riskAssessments: [],
@@ -275,6 +279,18 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (listEvent) {
                 const list = mapV3List(listEvent);
                 if (list) model.lists?.push(list);
+            }
+
+            const groupEvent = sub.group || sub.Group;
+            if (groupEvent) {
+                const group = mapV3Group(groupEvent);
+                if (group) model.groups?.push(group);
+            }
+
+            const healthcareServiceEvent = sub.healthcareService || sub.HealthcareService;
+            if (healthcareServiceEvent) {
+                const service = mapV3HealthcareService(healthcareServiceEvent);
+                if (service) model.healthcareServices?.push(service);
             }
 
             const nutritionIntakeEvent = sub.nutritionIntake || sub.NutritionIntake;
@@ -2338,6 +2354,64 @@ function mapV3List(listEvent: any): CanonicalList | undefined {
             display: displayName
         } : undefined,
         date: date
+    };
+}
+
+function mapV3Group(groupEvent: any): CanonicalGroup | undefined {
+    const group = groupEvent.group || groupEvent.Group || groupEvent;
+    if (!group) return undefined;
+    const idInfo = pickV3Id(group.id || group.Id);
+    const status = group.statusCode?.['@_code'] || group.StatusCode?.['@_code'];
+    const code = group.code || group.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const name = group.name || group.Name || displayName;
+    const text = group.text || group.Text;
+
+    if (!idInfo.id && !codeValue && !displayName && !name && !text) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        active: status ? status.toLowerCase() === 'active' : undefined,
+        type: group.type?.['@_code'] || group.Type?.['@_code'],
+        membership: group.membership?.['@_code'] || group.Membership?.['@_code'],
+        code: codeValue || displayName ? {
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        } : undefined,
+        name: typeof name === 'string' ? name : name?.['#text'] || displayName,
+        description: typeof text === 'string' ? text : text?.['#text']
+    };
+}
+
+function mapV3HealthcareService(serviceEvent: any): CanonicalHealthcareService | undefined {
+    const service = serviceEvent.healthcareService || serviceEvent.HealthcareService || serviceEvent;
+    if (!service) return undefined;
+    const idInfo = pickV3Id(service.id || service.Id);
+    const status = service.statusCode?.['@_code'] || service.StatusCode?.['@_code'];
+    const code = service.code || service.Code;
+    const codeValue = code?.['@_code'];
+    const displayName = code?.['@_displayName'] || code?.displayName?.['#text'] || code?.['#text'];
+    const codeSystem = code?.['@_codeSystem'];
+    const name = service.name || service.Name || displayName;
+    const text = service.text || service.Text;
+
+    if (!idInfo.id && !codeValue && !displayName && !name && !text) return undefined;
+
+    return {
+        id: idInfo.id,
+        identifier: idInfo.identifier ? [{ value: idInfo.identifier }] : undefined,
+        active: status ? status.toLowerCase() === 'active' : undefined,
+        category: codeValue || displayName ? [{
+            system: codeSystem,
+            code: codeValue,
+            display: displayName
+        }] : undefined,
+        name: typeof name === 'string' ? name : name?.['#text'] || displayName,
+        comment: typeof text === 'string' ? text : text?.['#text']
     };
 }
 

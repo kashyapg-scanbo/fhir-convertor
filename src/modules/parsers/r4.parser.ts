@@ -8,6 +8,7 @@ import {
     CanonicalList,
     CanonicalNutritionIntake,
     CanonicalNutritionOrder,
+    CanonicalGroup,
     CanonicalObservation,
     CanonicalPractitioner,
     CanonicalPractitionerRole,
@@ -69,7 +70,8 @@ import {
     CanonicalChargeItemDefinition,
     CanonicalDevice,
     CanonicalDeviceMetric,
-    CanonicalEndpoint
+    CanonicalEndpoint,
+    CanonicalHealthcareService
 } from '../../shared/types/canonical.types.js';
 
 /**
@@ -100,6 +102,8 @@ export function parseR4(input: string): CanonicalModel {
         encounterHistories: [],
         flags: [],
         lists: [],
+        groups: [],
+        healthcareServices: [],
         nutritionIntakes: [],
         nutritionOrders: [],
         riskAssessments: [],
@@ -216,6 +220,14 @@ export function parseR4(input: string): CanonicalModel {
             case 'AppointmentResponse':
                 const appointmentResponse = mapR4AppointmentResponse(res);
                 if (appointmentResponse) model.appointmentResponses?.push(appointmentResponse);
+                break;
+            case 'Group':
+                const group = mapR4Group(res);
+                if (group) model.groups?.push(group);
+                break;
+            case 'HealthcareService':
+                const healthcareService = mapR4HealthcareService(res);
+                if (healthcareService) model.healthcareServices?.push(healthcareService);
                 break;
             case 'Claim':
                 const claim = mapR4Claim(res);
@@ -1269,6 +1281,150 @@ function mapR4List(list: any): CanonicalList {
                 display: list.emptyReason.coding[0].display
             }
             : undefined
+    };
+}
+
+function mapR4Group(group: any): CanonicalGroup {
+    const mapIdentifier = (id: any) => ({
+        system: id.system,
+        value: id.value,
+        type: id.type?.coding?.[0]
+            ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            }
+            : undefined
+    });
+
+    const mapCodeable = (source: any) => {
+        const coding = source?.coding?.[0];
+        if (!coding) return undefined;
+        return {
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        };
+    };
+
+    const mapQuantity = (source: any) => source
+        ? {
+            value: source.value,
+            unit: source.unit,
+            system: source.system,
+            code: source.code
+        }
+        : undefined;
+
+    const mapRange = (source: any) => source
+        ? {
+            low: source.low ? { value: source.low.value, unit: source.low.unit } : undefined,
+            high: source.high ? { value: source.high.value, unit: source.high.unit } : undefined
+        }
+        : undefined;
+
+    const characteristic = group.characteristic?.map((item: any) => ({
+        code: mapCodeable(item.code),
+        valueCodeableConcept: item.valueCodeableConcept ? mapCodeable(item.valueCodeableConcept) : undefined,
+        valueBoolean: item.valueBoolean,
+        valueQuantity: mapQuantity(item.valueQuantity),
+        valueRange: mapRange(item.valueRange),
+        valueReference: item.valueReference?.reference,
+        exclude: item.exclude,
+        period: item.period ? { start: item.period.start, end: item.period.end } : undefined
+    }));
+
+    const member = group.member?.map((item: any) => ({
+        entity: item.entity?.reference,
+        period: item.period ? { start: item.period.start, end: item.period.end } : undefined,
+        inactive: item.inactive
+    }));
+
+    return {
+        id: group.id,
+        identifier: group.identifier?.map(mapIdentifier),
+        active: group.active,
+        type: group.type,
+        membership: group.membership,
+        code: mapCodeable(group.code),
+        name: group.name,
+        description: group.description,
+        quantity: group.quantity,
+        managingEntity: group.managingEntity?.reference,
+        characteristic: characteristic?.length ? characteristic : undefined,
+        member: member?.length ? member : undefined
+    };
+}
+
+function mapR4HealthcareService(service: any): CanonicalHealthcareService {
+    const mapIdentifier = (id: any) => ({
+        system: id.system,
+        value: id.value,
+        type: id.type?.coding?.[0]
+            ? {
+                system: id.type.coding[0].system,
+                code: id.type.coding[0].code,
+                display: id.type.coding[0].display
+            }
+            : undefined
+    });
+
+    const mapCodeable = (source: any) => {
+        const coding = source?.coding?.[0];
+        if (!coding) return undefined;
+        return {
+            system: coding.system,
+            code: coding.code,
+            display: coding.display
+        };
+    };
+
+    return {
+        id: service.id,
+        identifier: service.identifier?.map(mapIdentifier),
+        active: service.active,
+        providedBy: service.providedBy?.reference?.replace(/^Organization\//, ''),
+        offeredIn: service.offeredIn?.map((ref: any) => ref.reference?.replace(/^HealthcareService\//, '')).filter(Boolean),
+        category: service.category?.map(mapCodeable).filter(Boolean),
+        type: service.type?.map(mapCodeable).filter(Boolean),
+        specialty: service.specialty?.map(mapCodeable).filter(Boolean),
+        location: service.location?.map((ref: any) => ref.reference?.replace(/^Location\//, '')).filter(Boolean),
+        name: service.name,
+        comment: service.comment,
+        extraDetails: service.extraDetails,
+        photo: service.photo ? {
+            contentType: service.photo.contentType,
+            url: service.photo.url,
+            title: service.photo.title,
+            data: service.photo.data
+        } : undefined,
+        contact: service.contact?.map((contact: any) => ({
+            name: contact.name,
+            telecom: contact.telecom?.map((t: any) => ({
+                system: t.system,
+                value: t.value,
+                use: t.use
+            }))
+        })),
+        coverageArea: service.coverageArea?.map((ref: any) => ref.reference?.replace(/^Location\//, '')).filter(Boolean),
+        serviceProvisionCode: service.serviceProvisionCode?.map(mapCodeable).filter(Boolean),
+        eligibility: service.eligibility?.map((item: any) => ({
+            code: mapCodeable(item.code),
+            comment: item.comment
+        })),
+        program: service.program?.map(mapCodeable).filter(Boolean),
+        characteristic: service.characteristic?.map(mapCodeable).filter(Boolean),
+        communication: service.communication?.map(mapCodeable).filter(Boolean),
+        referralMethod: service.referralMethod?.map(mapCodeable).filter(Boolean),
+        appointmentRequired: service.appointmentRequired,
+        availability: service.availability?.map((avail: any) => ({
+            daysOfWeek: avail.daysOfWeek,
+            availableStartTime: avail.availableStartTime,
+            availableEndTime: avail.availableEndTime,
+            allDay: avail.allDay,
+            available: avail.available
+        })),
+        endpoint: service.endpoint?.map((ref: any) => ref.reference?.replace(/^Endpoint\//, '')).filter(Boolean)
     };
 }
 

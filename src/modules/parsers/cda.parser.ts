@@ -24,6 +24,8 @@ import {
   CanonicalEncounterHistory,
   CanonicalFlag,
   CanonicalList,
+  CanonicalGroup,
+  CanonicalHealthcareService,
   CanonicalNutritionIntake,
   CanonicalNutritionOrder,
   CanonicalRiskAssessment,
@@ -134,6 +136,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const encounterHistories = extractEncounterHistories(clinicalDocument, patient.id);
   const flags = extractFlags(clinicalDocument, patient.id, encounter?.id);
   const lists = extractLists(clinicalDocument, patient.id, encounter?.id);
+  const groups = extractGroups(clinicalDocument);
+  const healthcareServices = extractHealthcareServices(clinicalDocument);
   const nutritionIntakes = extractNutritionIntakes(clinicalDocument, patient.id, encounter?.id);
   const nutritionOrders = extractNutritionOrders(clinicalDocument, patient.id, encounter?.id);
   const riskAssessments = extractRiskAssessments(clinicalDocument, patient.id, encounter?.id);
@@ -211,6 +215,8 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (encounterHistories.length) canonical.encounterHistories = encounterHistories;
   if (flags.length) canonical.flags = flags;
   if (lists.length) canonical.lists = lists;
+  if (groups.length) canonical.groups = groups;
+  if (healthcareServices.length) canonical.healthcareServices = healthcareServices;
   if (nutritionIntakes.length) canonical.nutritionIntakes = nutritionIntakes;
   if (nutritionOrders.length) canonical.nutritionOrders = nutritionOrders;
   if (riskAssessments.length) canonical.riskAssessments = riskAssessments;
@@ -2535,6 +2541,82 @@ function extractLists(clinicalDocument: any, patientId?: string, encounterId?: s
   });
 
   return lists;
+}
+
+function extractGroups(clinicalDocument: any): CanonicalGroup[] {
+  const groups: CanonicalGroup[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry) => {
+    const nodes = extractEntryNodes(entry, 'group');
+    for (const node of nodes) {
+      const id = extractId(node.id || node['cda:id']);
+      const statusCode = node.statusCode || node['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = node.code || node['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const name = extractText(node.name || node['cda:name']) || displayName;
+      const text = extractText(node.text || node['cda:text']);
+
+      if (!id && !codeValue && !displayName && !name && !text) continue;
+
+      groups.push({
+        id: id || `GROUP-${groups.length + 1}`,
+        identifier: id ? [{ value: id }] : undefined,
+        active: status ? status.toLowerCase() === 'active' : undefined,
+        type: node.type || node['cda:type'] ? extractAttribute(node.type || node['cda:type'], '@_code') : undefined,
+        membership: node.membership || node['cda:membership'] ? extractAttribute(node.membership || node['cda:membership'], '@_code') : undefined,
+        code: codeValue || displayName ? {
+          system: mapCodeSystem(codeSystem),
+          code: codeValue,
+          display: displayName
+        } : undefined,
+        name: name || undefined,
+        description: text || undefined,
+        quantity: Number.isFinite(Number(extractAttribute(node, '@_quantity'))) ? Number(extractAttribute(node, '@_quantity')) : undefined
+      });
+    }
+  });
+
+  return groups;
+}
+
+function extractHealthcareServices(clinicalDocument: any): CanonicalHealthcareService[] {
+  const services: CanonicalHealthcareService[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry) => {
+    const nodes = extractEntryNodes(entry, 'healthcareService');
+    for (const node of nodes) {
+      const id = extractId(node.id || node['cda:id']);
+      const statusCode = node.statusCode || node['cda:statusCode'];
+      const status = extractAttribute(statusCode, '@_code');
+      const code = node.code || node['cda:code'];
+      const codeValue = extractAttribute(code, '@_code');
+      const displayName = extractAttribute(code, '@_displayName') || extractText(code?.displayName);
+      const codeSystem = extractAttribute(code, '@_codeSystem');
+      const name = extractText(node.name || node['cda:name']) || displayName;
+      const text = extractText(node.text || node['cda:text']);
+      const active = status ? status.toLowerCase() === 'active' : undefined;
+
+      if (!id && !codeValue && !displayName && !name && !text) continue;
+
+      services.push({
+        id: id || `HCS-${services.length + 1}`,
+        identifier: id ? [{ value: id }] : undefined,
+        active,
+        category: codeValue || displayName ? [{
+          system: mapCodeSystem(codeSystem),
+          code: codeValue,
+          display: displayName
+        }] : undefined,
+        name: name || undefined,
+        comment: text || undefined
+      });
+    }
+  });
+
+  return services;
 }
 
 function extractNutritionIntakes(clinicalDocument: any, patientId?: string, encounterId?: string): CanonicalNutritionIntake[] {

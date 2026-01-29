@@ -174,6 +174,160 @@ export type CanonicalList = {
   };
 };
 
+export type CanonicalGroup = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  active?: boolean;
+  type?: string;
+  membership?: string;
+  code?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  name?: string;
+  description?: string;
+  quantity?: number;
+  managingEntity?: string;
+  characteristic?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    valueCodeableConcept?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    valueBoolean?: boolean;
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+      system?: string;
+      code?: string;
+    };
+    valueRange?: {
+      low?: { value?: number; unit?: string };
+      high?: { value?: number; unit?: string };
+    };
+    valueReference?: string;
+    exclude?: boolean;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+  }>;
+  member?: Array<{
+    entity?: string;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+    inactive?: boolean;
+  }>;
+};
+
+export type CanonicalHealthcareService = {
+  id?: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+  }>;
+  active?: boolean;
+  providedBy?: string;
+  offeredIn?: string[];
+  category?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  type?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  specialty?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  location?: string[];
+  name?: string;
+  comment?: string;
+  extraDetails?: string;
+  photo?: {
+    contentType?: string;
+    url?: string;
+    title?: string;
+    data?: string;
+  };
+  contact?: Array<{
+    name?: string;
+    telecom?: Array<{
+      system?: string;
+      value?: string;
+      use?: string;
+    }>;
+  }>;
+  coverageArea?: string[];
+  serviceProvisionCode?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  eligibility?: Array<{
+    code?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    comment?: string;
+  }>;
+  program?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  characteristic?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  communication?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  referralMethod?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  appointmentRequired?: boolean;
+  availability?: Array<{
+    daysOfWeek?: string[];
+    availableStartTime?: string;
+    availableEndTime?: string;
+    allDay?: boolean;
+    available?: boolean;
+  }>;
+  endpoint?: string[];
+};
+
 export type CanonicalNutritionIntake = {
   id?: string;
   identifier?: Array<{
@@ -5700,6 +5854,8 @@ export type CanonicalModel = {
   encounterHistories?: CanonicalEncounterHistory[]; // EncounterHistory
   flags?: CanonicalFlag[]; // Flag
   lists?: CanonicalList[]; // List
+  groups?: CanonicalGroup[]; // Group
+  healthcareServices?: CanonicalHealthcareService[]; // HealthcareService
   nutritionIntakes?: CanonicalNutritionIntake[]; // NutritionIntake
   nutritionOrders?: CanonicalNutritionOrder[]; // NutritionOrder
   riskAssessments?: CanonicalRiskAssessment[]; // RiskAssessment
