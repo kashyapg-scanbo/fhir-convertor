@@ -67,6 +67,7 @@ import { mapRelatedPersons } from './relatedPerson.mapper.js';
 import { mapLocations } from './location.mapper.js';
 import { mapEpisodesOfCare } from './episodeOfCare.mapper.js';
 import { mapSubstances } from './substance.mapper.js';
+import { mapVerificationResults } from './verificationResult.mapper.js';
 import { mapSpecimens } from './specimen.mapper.js';
 import { mapImagingStudies } from './imagingStudy.mapper.js';
 import { mapAllergyIntolerances } from './allergyIntolerance.mapper.js';
@@ -790,6 +791,16 @@ export function mapCanonicalToFHIRR5(canonical: CanonicalModel) {
   });
   if (episodeEntries.length > 0) {
     bundle.entry.push(...episodeEntries);
+  }
+
+  const verificationEntries = mapVerificationResults({
+    verificationResults: canonical.verificationResults,
+    operation,
+    registry,
+    resolveRef
+  });
+  if (verificationEntries.length > 0) {
+    bundle.entry.push(...verificationEntries);
   }
 
   const substanceEntries = mapSubstances({

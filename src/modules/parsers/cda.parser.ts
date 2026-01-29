@@ -42,6 +42,7 @@ import {
   CanonicalRelatedPerson,
   CanonicalLocation,
   CanonicalEpisodeOfCare,
+  CanonicalVerificationResult,
   CanonicalSubstance,
   CanonicalSpecimen,
   CanonicalImagingStudy,
@@ -123,6 +124,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   const organizationAffiliations = extractOrganizationAffiliations(clinicalDocument);
   const persons = extractPersons(clinicalDocument);
   const substances = extractSubstances(clinicalDocument);
+  const verificationResults = extractVerificationResults(clinicalDocument);
   const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
   const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const appointments = extractAppointments(clinicalDocument, patient.id);
@@ -203,6 +205,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (organizationAffiliations.length) canonical.organizationAffiliations = organizationAffiliations;
   if (persons.length) canonical.persons = persons;
   if (substances.length) canonical.substances = substances;
+  if (verificationResults.length) canonical.verificationResults = verificationResults;
   if (procedures.length) canonical.procedures = procedures;
   if (conditions.length) canonical.conditions = conditions;
   if (appointments.length) canonical.appointments = appointments;
@@ -963,6 +966,44 @@ function extractSubstances(
   });
 
   return substances;
+}
+
+function extractVerificationResults(
+  clinicalDocument: any
+): CanonicalVerificationResult[] {
+  const results: CanonicalVerificationResult[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isVerificationSection = sectionCodeValue === 'VERIFICATION_RESULT';
+    if (!isVerificationSection) return;
+
+    const verificationNode = entry.verificationResult || entry['cda:verificationResult'] || entry.act || entry['cda:act'];
+    const verificationNodes = Array.isArray(verificationNode) ? verificationNode : verificationNode ? [verificationNode] : [];
+
+    for (const verification of verificationNodes) {
+      const id = extractId(verification.id || verification['cda:id']);
+      const status = extractAttribute(verification.statusCode || verification['cda:statusCode'], '@_code');
+      const statusDate = extractAttribute(verification.statusDate || verification['cda:statusDate'], '@_value');
+      const need = extractAttribute(verification.need || verification['cda:need'], '@_code');
+      const validationType = extractAttribute(verification.validationType || verification['cda:validationType'], '@_code');
+      const failureAction = extractAttribute(verification.failureAction || verification['cda:failureAction'], '@_code');
+
+      if (!id && !status) continue;
+
+      results.push({
+        id: id || `VERIFICATION-${results.length + 1}`,
+        status: status || undefined,
+        statusDate: statusDate ? formatCDADateTime(statusDate) : undefined,
+        need: need ? { code: need, display: need } : undefined,
+        validationType: validationType ? { code: validationType, display: validationType } : undefined,
+        failureAction: failureAction ? { code: failureAction, display: failureAction } : undefined
+      });
+    }
+  });
+
+  return results;
 }
 
 function extractImmunizations(

@@ -2238,6 +2238,39 @@ const GlobalEpisodeOfCareSchema = z.object({
   status_history_end: z.string().optional()
 });
 
+const GlobalVerificationResultSchema = z.object({
+  verification_result_id: GlobalIdSchema.optional(),
+  target_ids: z.union([z.string(), z.array(z.string())]).optional(),
+  target_location: z.union([z.string(), z.array(z.string())]).optional(),
+  need: z.string().optional(),
+  status: z.string().optional(),
+  status_date: z.string().optional(),
+  validation_type: z.string().optional(),
+  validation_process: z.union([z.string(), z.array(z.string())]).optional(),
+  frequency: z.string().optional(),
+  last_performed: z.string().optional(),
+  next_scheduled: z.string().optional(),
+  failure_action: z.string().optional(),
+  primary_source_who_id: GlobalIdSchema.optional(),
+  primary_source_type: z.union([z.string(), z.array(z.string())]).optional(),
+  primary_source_communication_method: z.union([z.string(), z.array(z.string())]).optional(),
+  primary_source_validation_status: z.string().optional(),
+  primary_source_validation_date: z.string().optional(),
+  primary_source_can_push_updates: z.string().optional(),
+  primary_source_push_type_available: z.union([z.string(), z.array(z.string())]).optional(),
+  attestation_who_id: GlobalIdSchema.optional(),
+  attestation_on_behalf_of_id: GlobalIdSchema.optional(),
+  attestation_communication_method: z.string().optional(),
+  attestation_date: z.string().optional(),
+  attestation_source_identity_certificate: z.string().optional(),
+  attestation_proxy_identity_certificate: z.string().optional(),
+  attestation_proxy_signature: z.string().optional(),
+  attestation_source_signature: z.string().optional(),
+  validator_organization_id: GlobalIdSchema.optional(),
+  validator_identity_certificate: z.string().optional(),
+  validator_attestation_signature: z.string().optional()
+});
+
 const GlobalSubstanceSchema = z.object({
   substance_id: GlobalIdSchema.optional(),
   identifier: z.string().optional(),
@@ -2564,6 +2597,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   person: z.union([GlobalPersonSchema, z.array(GlobalPersonSchema)]).optional(),
   location: z.union([GlobalLocationSchema, z.array(GlobalLocationSchema)]).optional(),
   episode_of_care: z.union([GlobalEpisodeOfCareSchema, z.array(GlobalEpisodeOfCareSchema)]).optional(),
+  verification_result: z.union([GlobalVerificationResultSchema, z.array(GlobalVerificationResultSchema)]).optional(),
   substance: z.union([GlobalSubstanceSchema, z.array(GlobalSubstanceSchema)]).optional(),
   specimen: z.union([GlobalSpecimenSchema, z.array(GlobalSpecimenSchema)]).optional(),
   imaging_study: z.union([GlobalImagingStudySchema, z.array(GlobalImagingStudySchema)]).optional(),
@@ -2635,6 +2669,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.person ||
     value.location ||
     value.episode_of_care ||
+    value.verification_result ||
     value.substance ||
     value.specimen ||
     value.imaging_study ||
@@ -2645,7 +2680,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, group, healthcare_service, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, group, healthcare_service, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -2729,6 +2764,7 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   persons: 'person',
   locations: 'location',
   episodesOfCare: 'episodeOfCare',
+  verificationResults: 'verificationResult',
   substances: 'substance',
   specimens: 'specimen',
   imagingStudies: 'imagingStudy',
@@ -2885,6 +2921,8 @@ const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = 
   locations: 'location',
   episode_of_care: 'episodeOfCare',
   episode_of_cares: 'episodeOfCare',
+  verification_result: 'verificationResult',
+  verification_results: 'verificationResult',
   substance: 'substance',
   substances: 'substance',
   specimen: 'specimen',
@@ -3091,6 +3129,10 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   episode_of_cares: 'episode_of_care',
   episodeofcare: 'episode_of_care',
   episodeofcares: 'episode_of_care',
+  verification_result: 'verification_result',
+  verification_results: 'verification_result',
+  verificationresult: 'verification_result',
+  verificationresults: 'verification_result',
   substance: 'substance',
   substances: 'substance',
   substance_id: 'substance',
@@ -6231,6 +6273,114 @@ function normalizeGlobalSubstanceAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalVerificationResultAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const verificationId = readSectionAliasValue(value, 'verificationResult', 'verification_result_id');
+  if (normalized.verification_result_id === undefined && verificationId !== undefined) {
+    normalized.verification_result_id = verificationId;
+  }
+
+  const targetIds = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_target_ids'));
+  if (targetIds && normalized.target_ids === undefined) normalized.target_ids = targetIds;
+
+  const targetLocation = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_target_location'));
+  if (targetLocation && normalized.target_location === undefined) normalized.target_location = targetLocation;
+
+  const need = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_need'));
+  if (need && normalized.need === undefined) normalized.need = need;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_status'));
+  if (status && normalized.status === undefined) normalized.status = status;
+
+  const statusDate = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_status_date'));
+  if (statusDate && normalized.status_date === undefined) normalized.status_date = statusDate;
+
+  const validationType = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_validation_type'));
+  if (validationType && normalized.validation_type === undefined) normalized.validation_type = validationType;
+
+  const validationProcess = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_validation_process'));
+  if (validationProcess && normalized.validation_process === undefined) normalized.validation_process = validationProcess;
+
+  const frequency = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_frequency'));
+  if (frequency && normalized.frequency === undefined) normalized.frequency = frequency;
+
+  const lastPerformed = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_last_performed'));
+  if (lastPerformed && normalized.last_performed === undefined) normalized.last_performed = lastPerformed;
+
+  const nextScheduled = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_next_scheduled'));
+  if (nextScheduled && normalized.next_scheduled === undefined) normalized.next_scheduled = nextScheduled;
+
+  const failureAction = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_failure_action'));
+  if (failureAction && normalized.failure_action === undefined) normalized.failure_action = failureAction;
+
+  const primarySourceWho = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_who_id'));
+  if (primarySourceWho && normalized.primary_source_who_id === undefined) normalized.primary_source_who_id = primarySourceWho;
+
+  const primarySourceType = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_type'));
+  if (primarySourceType && normalized.primary_source_type === undefined) normalized.primary_source_type = primarySourceType;
+
+  const primarySourceComm = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_communication_method'));
+  if (primarySourceComm && normalized.primary_source_communication_method === undefined) normalized.primary_source_communication_method = primarySourceComm;
+
+  const primarySourceValidationStatus = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_validation_status'));
+  if (primarySourceValidationStatus && normalized.primary_source_validation_status === undefined) normalized.primary_source_validation_status = primarySourceValidationStatus;
+
+  const primarySourceValidationDate = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_validation_date'));
+  if (primarySourceValidationDate && normalized.primary_source_validation_date === undefined) normalized.primary_source_validation_date = primarySourceValidationDate;
+
+  const primarySourceCanPush = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_can_push_updates'));
+  if (primarySourceCanPush && normalized.primary_source_can_push_updates === undefined) normalized.primary_source_can_push_updates = primarySourceCanPush;
+
+  const primarySourcePushType = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_primary_source_push_type_available'));
+  if (primarySourcePushType && normalized.primary_source_push_type_available === undefined) normalized.primary_source_push_type_available = primarySourcePushType;
+
+  const attestationWho = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_who_id'));
+  if (attestationWho && normalized.attestation_who_id === undefined) normalized.attestation_who_id = attestationWho;
+
+  const attestationOnBehalfOf = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_on_behalf_of_id'));
+  if (attestationOnBehalfOf && normalized.attestation_on_behalf_of_id === undefined) normalized.attestation_on_behalf_of_id = attestationOnBehalfOf;
+
+  const attestationComm = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_communication_method'));
+  if (attestationComm && normalized.attestation_communication_method === undefined) normalized.attestation_communication_method = attestationComm;
+
+  const attestationDate = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_date'));
+  if (attestationDate && normalized.attestation_date === undefined) normalized.attestation_date = attestationDate;
+
+  const attestationSourceCert = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_source_identity_certificate'));
+  if (attestationSourceCert && normalized.attestation_source_identity_certificate === undefined) {
+    normalized.attestation_source_identity_certificate = attestationSourceCert;
+  }
+
+  const attestationProxyCert = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_proxy_identity_certificate'));
+  if (attestationProxyCert && normalized.attestation_proxy_identity_certificate === undefined) {
+    normalized.attestation_proxy_identity_certificate = attestationProxyCert;
+  }
+
+  const attestationProxySignature = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_proxy_signature'));
+  if (attestationProxySignature && normalized.attestation_proxy_signature === undefined) {
+    normalized.attestation_proxy_signature = attestationProxySignature;
+  }
+
+  const attestationSourceSignature = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_attestation_source_signature'));
+  if (attestationSourceSignature && normalized.attestation_source_signature === undefined) {
+    normalized.attestation_source_signature = attestationSourceSignature;
+  }
+
+  const validatorOrg = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_validator_organization_id'));
+  if (validatorOrg && normalized.validator_organization_id === undefined) normalized.validator_organization_id = validatorOrg;
+
+  const validatorIdentity = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_validator_identity_certificate'));
+  if (validatorIdentity && normalized.validator_identity_certificate === undefined) normalized.validator_identity_certificate = validatorIdentity;
+
+  const validatorSignature = normalizeAliasValue(readSectionAliasValue(value, 'verificationResult', 'verification_validator_attestation_signature'));
+  if (validatorSignature && normalized.validator_attestation_signature === undefined) {
+    normalized.validator_attestation_signature = validatorSignature;
+  }
+
+  return normalized;
+}
+
 function normalizeGlobalLocationAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -7776,6 +7926,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalLocationAliases(value);
     case 'episodeOfCare':
       return normalizeGlobalEpisodeOfCareAliases(value);
+    case 'verificationResult':
+      return normalizeGlobalVerificationResultAliases(value);
     case 'substance':
       return normalizeGlobalSubstanceAliases(value);
     case 'specimen':
@@ -7853,6 +8005,7 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['relatedPerson', 'related_person'],
     ['person', 'person'],
     ['location', 'location'],
+    ['verificationResult', 'verification_result'],
     ['substance', 'substance'],
     ['immunization', 'immunization'],
     ['practitioner', 'practitioner'],
@@ -7999,6 +8152,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'person',
     'location',
     'episodeOfCare',
+    'verificationResult',
     'substance',
     'specimen',
     'imagingStudy',
@@ -8189,6 +8343,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const persons = normalizeArray(validated.person);
   const locations = normalizeArray(validated.location);
   const episodesOfCare = normalizeArray(validated.episode_of_care);
+  const verificationResults = normalizeArray(validated.verification_result);
   const substances = normalizeArray(validated.substance);
   const specimens = normalizeArray(validated.specimen);
   const imagingStudies = normalizeArray(validated.imaging_study);
@@ -8385,6 +8540,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (episodesOfCare.length) {
     canonical.episodesOfCare = episodesOfCare.map(buildCanonicalEpisodeOfCareGlobal);
   }
+  if (verificationResults.length) {
+    canonical.verificationResults = verificationResults.map(buildCanonicalVerificationResultGlobal);
+  }
   if (substances.length) {
     canonical.substances = substances.map(buildCanonicalSubstanceGlobal);
   }
@@ -8488,6 +8646,7 @@ function collectSourcePayloads(resources: Record<string, unknown[] | undefined>)
     person: ['person_id', 'id', 'identifier'],
     location: ['location_id', 'id', 'identifier'],
     episode_of_care: ['episode_of_care_id', 'id', 'identifier'],
+    verification_result: ['verification_result_id', 'id', 'identifier'],
     substance: ['substance_id', 'id', 'identifier'],
     specimen: ['specimen_id', 'id', 'identifier'],
     imaging_study: ['imaging_study_id', 'id', 'identifier'],
@@ -8551,7 +8710,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'verification_result', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -8614,6 +8773,7 @@ function wrapGlobalPayload(value: any) {
       value.person,
       value.location,
       value.episode_of_care,
+      value.verification_result,
       value.substance,
       value.specimen,
       value.imaging_study,
@@ -8804,6 +8964,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('episode_of_care_id' in value || 'care_manager_id' in value || 'period_start' in value) {
       return { episode_of_care: value };
+    }
+    if ('verification_result_id' in value || 'target_ids' in value || 'validation_type' in value) {
+      return { verification_result: value };
     }
     if ('substance_id' in value || 'substance_code' in value || 'ingredient_substance' in value) {
       return { substance: value };
@@ -9012,6 +9175,9 @@ function looksLikeGlobalResource(value: any) {
     'episode_of_care_id' in value ||
     'care_manager_id' in value ||
     'period_start' in value ||
+    'verification_result_id' in value ||
+    'target_ids' in value ||
+    'validation_type' in value ||
     'substance_id' in value ||
     'substance_code' in value ||
     'ingredient_substance' in value ||
@@ -12762,6 +12928,62 @@ function buildCanonicalSubstanceGlobal(substance: z.infer<typeof GlobalSubstance
       unit: substance.quantity_unit
     } : undefined,
     ingredient
+  };
+}
+
+function buildCanonicalVerificationResultGlobal(vr: z.infer<typeof GlobalVerificationResultSchema>) {
+  const targetIds = normalizeStringArray(vr.target_ids);
+  const targetLocations = normalizeStringArray(vr.target_location);
+  const validationProcesses = normalizeStringArray(vr.validation_process);
+  const primarySourceTypes = normalizeStringArray(vr.primary_source_type);
+  const primarySourceComm = normalizeStringArray(vr.primary_source_communication_method);
+  const primarySourcePushTypes = normalizeStringArray(vr.primary_source_push_type_available);
+
+  return {
+    id: vr.verification_result_id,
+    target: targetIds.length ? targetIds : undefined,
+    targetLocation: targetLocations.length ? targetLocations : undefined,
+    need: vr.need ? { code: vr.need, display: vr.need } : undefined,
+    status: vr.status,
+    statusDate: vr.status_date,
+    validationType: vr.validation_type ? { code: vr.validation_type, display: vr.validation_type } : undefined,
+    validationProcess: validationProcesses.length
+      ? validationProcesses.map(value => ({ code: value, display: value }))
+      : undefined,
+    frequency: vr.frequency ? { text: vr.frequency } : undefined,
+    lastPerformed: vr.last_performed,
+    nextScheduled: vr.next_scheduled,
+    failureAction: vr.failure_action ? { code: vr.failure_action, display: vr.failure_action } : undefined,
+    primarySource: (vr.primary_source_who_id || primarySourceTypes.length || primarySourceComm.length || vr.primary_source_validation_status)
+      ? [{
+          who: vr.primary_source_who_id,
+          type: primarySourceTypes.length ? primarySourceTypes.map(value => ({ code: value, display: value })) : undefined,
+          communicationMethod: primarySourceComm.length ? primarySourceComm.map(value => ({ code: value, display: value })) : undefined,
+          validationStatus: vr.primary_source_validation_status ? { code: vr.primary_source_validation_status, display: vr.primary_source_validation_status } : undefined,
+          validationDate: vr.primary_source_validation_date,
+          canPushUpdates: vr.primary_source_can_push_updates ? { code: vr.primary_source_can_push_updates, display: vr.primary_source_can_push_updates } : undefined,
+          pushTypeAvailable: primarySourcePushTypes.length ? primarySourcePushTypes.map(value => ({ code: value, display: value })) : undefined
+        }]
+      : undefined,
+    attestation: (vr.attestation_who_id || vr.attestation_on_behalf_of_id || vr.attestation_date || vr.attestation_source_identity_certificate)
+      ? {
+          who: vr.attestation_who_id,
+          onBehalfOf: vr.attestation_on_behalf_of_id,
+          communicationMethod: vr.attestation_communication_method ? { code: vr.attestation_communication_method, display: vr.attestation_communication_method } : undefined,
+          date: vr.attestation_date,
+          sourceIdentityCertificate: vr.attestation_source_identity_certificate,
+          proxyIdentityCertificate: vr.attestation_proxy_identity_certificate,
+          proxySignature: vr.attestation_proxy_signature,
+          sourceSignature: vr.attestation_source_signature
+        }
+      : undefined,
+    validator: (vr.validator_organization_id || vr.validator_identity_certificate)
+      ? [{
+          organization: vr.validator_organization_id,
+          identityCertificate: vr.validator_identity_certificate,
+          attestationSignature: vr.validator_attestation_signature
+        }]
+      : undefined
   };
 }
 

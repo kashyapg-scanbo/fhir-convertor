@@ -42,6 +42,7 @@ import {
   CanonicalRelatedPerson,
   CanonicalLocation,
   CanonicalEpisodeOfCare,
+  CanonicalVerificationResult,
   CanonicalSubstance,
   CanonicalSpecimen,
   CanonicalImagingStudy,
@@ -2030,6 +2031,29 @@ export function buildCanonical(parsed: any) {
 
   if (persons.length > 0) {
     result.persons = persons;
+  }
+
+  /* ───── VerificationResults (from OBR) ───── */
+  const verificationResults: CanonicalVerificationResult[] = [];
+  const verificationObrSegments = parsed.OBR ?? [];
+  for (const obr of verificationObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const verificationId = placerId || fillerId;
+    const status = obr?.[24]?.[0]?.[0];
+    const statusDate = toFHIRDateTime(obr?.[22]?.[0]?.[0]) || toFHIRDate(obr?.[22]?.[0]?.[0]);
+
+    if (!verificationId && !status) continue;
+
+    verificationResults.push({
+      id: verificationId || `VER-${Date.now()}`,
+      status,
+      statusDate
+    });
+  }
+
+  if (verificationResults.length > 0) {
+    result.verificationResults = verificationResults;
   }
 
   /* ───── Substances (from OBR) ───── */

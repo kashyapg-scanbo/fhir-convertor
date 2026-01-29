@@ -37,6 +37,7 @@ import {
     CanonicalPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
+    CanonicalVerificationResult,
     CanonicalSubstance,
     CanonicalSpecimen,
     CanonicalImagingStudy,
@@ -145,6 +146,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         persons: [],
         locations: [],
         episodesOfCare: [],
+        verificationResults: [],
         substances: [],
         specimens: [],
         imagingStudies: [],
@@ -511,6 +513,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (personEvent) {
                 const person = mapV3Person(personEvent);
                 if (person) model.persons?.push(person);
+            }
+
+            const verificationEvent = sub.verificationResult || sub.VerificationResult;
+            if (verificationEvent) {
+                const verification = mapV3VerificationResult(verificationEvent);
+                if (verification) model.verificationResults?.push(verification);
             }
 
             const substanceEvent = sub.substance || sub.Substance;
@@ -2680,6 +2688,39 @@ function mapV3Substance(substanceEvent: any): CanonicalSubstance | undefined {
             unit: quantityUnit
         } : undefined,
         ingredient: ingredient?.length ? ingredient : undefined
+    };
+}
+
+function mapV3VerificationResult(verificationEvent: any): CanonicalVerificationResult | undefined {
+    const verification = verificationEvent.verificationResult || verificationEvent.VerificationResult || verificationEvent;
+    const id = verification.id?.['@_extension'] || verification.id?.['@_root'];
+    const status = verification.status?.['@_code'] || verification.statusCode?.['@_code'];
+    const statusDate = verification.statusDate?.['@_value'] || verification.statusDate?.value;
+    const needNode = verification.need || verification.Need;
+    const validationTypeNode = verification.validationType || verification.ValidationType;
+    const failureActionNode = verification.failureAction || verification.FailureAction;
+
+    if (!id && !status) return undefined;
+
+    return {
+        id,
+        status,
+        statusDate: statusDate ? formatV3DateTime(statusDate) : undefined,
+        need: needNode?.['@_code'] || needNode?.['@_displayName'] ? {
+            system: needNode?.['@_codeSystem'],
+            code: needNode?.['@_code'],
+            display: needNode?.['@_displayName']
+        } : undefined,
+        validationType: validationTypeNode?.['@_code'] || validationTypeNode?.['@_displayName'] ? {
+            system: validationTypeNode?.['@_codeSystem'],
+            code: validationTypeNode?.['@_code'],
+            display: validationTypeNode?.['@_displayName']
+        } : undefined,
+        failureAction: failureActionNode?.['@_code'] || failureActionNode?.['@_displayName'] ? {
+            system: failureActionNode?.['@_codeSystem'],
+            code: failureActionNode?.['@_code'],
+            display: failureActionNode?.['@_displayName']
+        } : undefined
     };
 }
 

@@ -1,0 +1,30 @@
+{
+  "verification_result": {
+    "verification_result_id": "VER-1",
+    "target_ids": ["Practitioner/PRAC-1"],
+    "target_location": ["Practitioner.qualification"],
+    "need": "initial",
+    "status": "validated",
+    "status_date": "2024-01-15T10:00:00Z",
+    "validation_type": "primary",
+    "validation_process": ["primary-source"],
+    "frequency": "annual",
+    "last_performed": "2024-01-15T10:00:00Z",
+    "next_scheduled": "2025-01-15",
+    "failure_action": "warn",
+    "primary_source_who_id": "ORG-1",
+    "primary_source_type": ["License Board"],
+    "primary_source_communication_method": ["email"],
+    "primary_source_validation_status": "successful",
+    "primary_source_validation_date": "2024-01-15T10:00:00Z",
+    "primary_source_can_push_updates": "yes",
+    "primary_source_push_type_available": ["specific"],
+    "attestation_who_id": "PRAC-1",
+    "attestation_on_behalf_of_id": "ORG-1",
+    "attestation_communication_method": "email",
+    "attestation_date": "2024-01-15",
+    "attestation_source_identity_certificate": "CERT-123",
+    "validator_organization_id": "ORG-1",
+    "validator_identity_certificate": "CERT-456"
+  }
+}

@@ -5646,6 +5646,88 @@ export type CanonicalSubstance = {
   active?: boolean;
 };
 
+export type CanonicalVerificationResult = {
+  id?: string;
+  target?: string[];
+  targetLocation?: string[];
+  need?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  status?: string;
+  statusDate?: string;
+  validationType?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  validationProcess?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  frequency?: {
+    text?: string;
+  };
+  lastPerformed?: string;
+  nextScheduled?: string;
+  failureAction?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  primarySource?: Array<{
+    who?: string;
+    type?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    communicationMethod?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+    validationStatus?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    validationDate?: string;
+    canPushUpdates?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    pushTypeAvailable?: Array<{
+      system?: string;
+      code?: string;
+      display?: string;
+    }>;
+  }>;
+  attestation?: {
+    who?: string;
+    onBehalfOf?: string;
+    communicationMethod?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    date?: string;
+    sourceIdentityCertificate?: string;
+    proxyIdentityCertificate?: string;
+    proxySignature?: string;
+    sourceSignature?: string;
+  };
+  validator?: Array<{
+    organization?: string;
+    identityCertificate?: string;
+    attestationSignature?: string;
+  }>;
+  active?: boolean;
+};
+
 export type CanonicalImagingStudy = {
   id?: string;
   identifier?: string;
@@ -5943,6 +6025,7 @@ export type CanonicalModel = {
   persons?: CanonicalPerson[]; // Person
   locations?: CanonicalLocation[]; // Location
   episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
+  verificationResults?: CanonicalVerificationResult[]; // VerificationResult
   substances?: CanonicalSubstance[]; // Substance
   specimens?: CanonicalSpecimen[]; // Specimen
   imagingStudies?: CanonicalImagingStudy[]; // ImagingStudy

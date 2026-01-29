@@ -57,6 +57,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonPersonOnly'
                 - $ref: '#/components/schemas/CustomJsonLocationOnly'
                 - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
+                - $ref: '#/components/schemas/CustomJsonVerificationResultOnly'
                 - $ref: '#/components/schemas/CustomJsonSubstanceOnly'
                 - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
                 - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
@@ -626,6 +627,42 @@ paths:
                     person_language: English
                     person_language_preferred: true
                     person_managing_organization_id: ORG001
+              verification_result:
+                summary: VerificationResult
+                value:
+                  verification_result:
+                    verification_result_id: VER001
+                    target_ids:
+                      - Practitioner/PRAC001
+                    target_location:
+                      - Practitioner.qualification
+                    need: initial
+                    status: validated
+                    status_date: 2024-01-15T10:00:00Z
+                    validation_type: primary
+                    validation_process:
+                      - primary-source
+                    frequency: annual
+                    last_performed: 2024-01-15T10:00:00Z
+                    next_scheduled: 2025-01-15
+                    failure_action: warn
+                    primary_source_who_id: ORG001
+                    primary_source_type:
+                      - License Board
+                    primary_source_communication_method:
+                      - email
+                    primary_source_validation_status: successful
+                    primary_source_validation_date: 2024-01-15T10:00:00Z
+                    primary_source_can_push_updates: yes
+                    primary_source_push_type_available:
+                      - specific
+                    attestation_who_id: PRAC001
+                    attestation_on_behalf_of_id: ORG001
+                    attestation_communication_method: email
+                    attestation_date: 2024-01-15
+                    attestation_source_identity_certificate: CERT-123
+                    validator_organization_id: ORG001
+                    validator_identity_certificate: CERT-456
               substance:
                 summary: Substance
                 value:
@@ -846,7 +883,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -991,7 +1028,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -1358,6 +1395,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomEpisodeOfCare'
+        verification_result:
+          oneOf:
+            - $ref: '#/components/schemas/CustomVerificationResult'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomVerificationResult'
         substance:
           oneOf:
             - $ref: '#/components/schemas/CustomSubstance'
@@ -4893,6 +4936,98 @@ components:
         status_history_end:
           type: string
           format: date-time
+    CustomVerificationResult:
+      type: object
+      properties:
+        verification_result_id:
+          type: string
+        target_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        target_location:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        need:
+          type: string
+        status:
+          type: string
+        status_date:
+          type: string
+          format: date-time
+        validation_type:
+          type: string
+        validation_process:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        frequency:
+          type: string
+        last_performed:
+          type: string
+          format: date-time
+        next_scheduled:
+          type: string
+          format: date
+        failure_action:
+          type: string
+        primary_source_who_id:
+          type: string
+        primary_source_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        primary_source_communication_method:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        primary_source_validation_status:
+          type: string
+        primary_source_validation_date:
+          type: string
+          format: date-time
+        primary_source_can_push_updates:
+          type: string
+        primary_source_push_type_available:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        attestation_who_id:
+          type: string
+        attestation_on_behalf_of_id:
+          type: string
+        attestation_communication_method:
+          type: string
+        attestation_date:
+          type: string
+          format: date
+        attestation_source_identity_certificate:
+          type: string
+        attestation_proxy_identity_certificate:
+          type: string
+        attestation_proxy_signature:
+          type: string
+        attestation_source_signature:
+          type: string
+        validator_organization_id:
+          type: string
+        validator_identity_certificate:
+          type: string
+        validator_attestation_signature:
+          type: string
     CustomSubstance:
       type: object
       properties:
@@ -5923,6 +6058,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [episode_of_care]
+    CustomJsonVerificationResultOnly:
+      title: VerificationResult
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [verification_result]
     CustomJsonSubstanceOnly:
       title: Substance
       allOf:

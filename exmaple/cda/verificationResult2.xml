@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-2"/>
+      <patient>
+        <name>
+          <family>Smith2</family>
+          <given>Jane2</given>
+        </name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19750505"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="VERIFICATION_RESULT" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <verificationResult>
+              <id extension="VER-2"/>
+              <statusCode code="in-process"/>
+              <statusDate value="20240220100000"/>
+              <need code="periodic"/>
+              <validationType code="multiple"/>
+            </verificationResult>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

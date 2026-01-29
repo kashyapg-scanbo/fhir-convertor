@@ -3257,6 +3257,90 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (persons.length > 0) canonical.persons = persons as any[];
 
+  const verificationResults = rows.map(row => {
+    const verificationId = readValue(row, 'verification_result_id');
+    const status = readValue(row, 'verification_status');
+    const need = readValue(row, 'verification_need');
+    if (!verificationId && !status && !need) return null;
+
+    const targetIds = readValue(row, 'verification_target_ids');
+    const targetLocations = readValue(row, 'verification_target_location');
+    const validationProcessRaw = readValue(row, 'verification_validation_process');
+    const validationProcess = validationProcessRaw
+      ? validationProcessRaw.split(',').map(value => value.trim()).filter(Boolean).map(value => ({ code: value, display: value }))
+      : undefined;
+
+    const primarySourceTypesRaw = readValue(row, 'verification_primary_source_type');
+    const primarySourceTypes = primarySourceTypesRaw
+      ? primarySourceTypesRaw.split(',').map(value => value.trim()).filter(Boolean).map(value => ({ code: value, display: value }))
+      : undefined;
+
+    const primarySourceCommRaw = readValue(row, 'verification_primary_source_communication_method');
+    const primarySourceComm = primarySourceCommRaw
+      ? primarySourceCommRaw.split(',').map(value => value.trim()).filter(Boolean).map(value => ({ code: value, display: value }))
+      : undefined;
+
+    const primarySourcePushRaw = readValue(row, 'verification_primary_source_push_type_available');
+    const primarySourcePush = primarySourcePushRaw
+      ? primarySourcePushRaw.split(',').map(value => value.trim()).filter(Boolean).map(value => ({ code: value, display: value }))
+      : undefined;
+
+    return {
+      id: verificationId || undefined,
+      target: targetIds ? targetIds.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      targetLocation: targetLocations ? targetLocations.split(',').map(value => value.trim()).filter(Boolean) : undefined,
+      need: need ? { code: need, display: need } : undefined,
+      status: status || undefined,
+      statusDate: readValue(row, 'verification_status_date'),
+      validationType: readValue(row, 'verification_validation_type') ? {
+        code: readValue(row, 'verification_validation_type'),
+        display: readValue(row, 'verification_validation_type')
+      } : undefined,
+      validationProcess,
+      frequency: readValue(row, 'verification_frequency') ? { text: readValue(row, 'verification_frequency') } : undefined,
+      lastPerformed: readValue(row, 'verification_last_performed'),
+      nextScheduled: readValue(row, 'verification_next_scheduled'),
+      failureAction: readValue(row, 'verification_failure_action') ? {
+        code: readValue(row, 'verification_failure_action'),
+        display: readValue(row, 'verification_failure_action')
+      } : undefined,
+      primarySource: (readValue(row, 'verification_primary_source_who_id') || primarySourceTypes || primarySourceComm) ? [{
+        who: readValue(row, 'verification_primary_source_who_id'),
+        type: primarySourceTypes,
+        communicationMethod: primarySourceComm,
+        validationStatus: readValue(row, 'verification_primary_source_validation_status') ? {
+          code: readValue(row, 'verification_primary_source_validation_status'),
+          display: readValue(row, 'verification_primary_source_validation_status')
+        } : undefined,
+        validationDate: readValue(row, 'verification_primary_source_validation_date'),
+        canPushUpdates: readValue(row, 'verification_primary_source_can_push_updates') ? {
+          code: readValue(row, 'verification_primary_source_can_push_updates'),
+          display: readValue(row, 'verification_primary_source_can_push_updates')
+        } : undefined,
+        pushTypeAvailable: primarySourcePush
+      }] : undefined,
+      attestation: (readValue(row, 'verification_attestation_who_id') || readValue(row, 'verification_attestation_date')) ? {
+        who: readValue(row, 'verification_attestation_who_id'),
+        onBehalfOf: readValue(row, 'verification_attestation_on_behalf_of_id'),
+        communicationMethod: readValue(row, 'verification_attestation_communication_method') ? {
+          code: readValue(row, 'verification_attestation_communication_method'),
+          display: readValue(row, 'verification_attestation_communication_method')
+        } : undefined,
+        date: readValue(row, 'verification_attestation_date'),
+        sourceIdentityCertificate: readValue(row, 'verification_attestation_source_identity_certificate'),
+        proxyIdentityCertificate: readValue(row, 'verification_attestation_proxy_identity_certificate'),
+        proxySignature: readValue(row, 'verification_attestation_proxy_signature'),
+        sourceSignature: readValue(row, 'verification_attestation_source_signature')
+      } : undefined,
+      validator: readValue(row, 'verification_validator_organization_id') ? [{
+        organization: readValue(row, 'verification_validator_organization_id'),
+        identityCertificate: readValue(row, 'verification_validator_identity_certificate'),
+        attestationSignature: readValue(row, 'verification_validator_attestation_signature')
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (verificationResults.length > 0) canonical.verificationResults = verificationResults as any[];
+
   const substances = rows.map(row => {
     const substanceId = readValue(row, 'substance_id');
     const code = readValue(row, 'substance_code');

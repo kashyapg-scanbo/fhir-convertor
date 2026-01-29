@@ -40,6 +40,7 @@ import {
     CanonicalPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
+    CanonicalVerificationResult,
     CanonicalSubstance,
     CanonicalSpecimen,
     CanonicalImagingStudy,
@@ -147,6 +148,7 @@ export function parseR4(input: string): CanonicalModel {
         persons: [],
         locations: [],
         episodesOfCare: [],
+        verificationResults: [],
         substances: [],
         specimens: [],
         imagingStudies: [],
@@ -370,6 +372,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'EpisodeOfCare':
                 const episode = mapR4EpisodeOfCare(res);
                 if (episode) model.episodesOfCare?.push(episode);
+                break;
+            case 'VerificationResult':
+                const verificationResult = mapR4VerificationResult(res);
+                if (verificationResult) model.verificationResults?.push(verificationResult);
                 break;
             case 'Substance':
                 const substance = mapR4Substance(res);
@@ -4554,6 +4560,68 @@ function mapR4EpisodeOfCare(eoc: any): CanonicalEpisodeOfCare {
         careTeam: eoc.careTeam?.map((ref: any) => ref.reference?.replace('CareTeam/', '')).filter(Boolean),
         account: eoc.account?.map((ref: any) => ref.reference?.replace('Account/', '')).filter(Boolean),
         active: eoc.status ? eoc.status === 'active' : undefined
+    };
+}
+
+function mapR4VerificationResult(vr: any): CanonicalVerificationResult {
+    return {
+        id: vr.id,
+        target: vr.target?.map((ref: any) => ref.reference).filter(Boolean),
+        targetLocation: vr.targetLocation,
+        need: vr.need?.coding?.[0] ? {
+            system: vr.need.coding[0].system,
+            code: vr.need.coding[0].code,
+            display: vr.need.coding[0].display
+        } : undefined,
+        status: vr.status,
+        statusDate: vr.statusDate,
+        validationType: vr.validationType?.coding?.[0] ? {
+            system: vr.validationType.coding[0].system,
+            code: vr.validationType.coding[0].code,
+            display: vr.validationType.coding[0].display
+        } : undefined,
+        validationProcess: vr.validationProcess?.map((proc: any) => ({
+            system: proc.coding?.[0]?.system,
+            code: proc.coding?.[0]?.code,
+            display: proc.coding?.[0]?.display
+        })),
+        frequency: vr.frequency ? { text: vr.frequency?.text } : undefined,
+        lastPerformed: vr.lastPerformed,
+        nextScheduled: vr.nextScheduled,
+        failureAction: vr.failureAction?.coding?.[0] ? {
+            system: vr.failureAction.coding[0].system,
+            code: vr.failureAction.coding[0].code,
+            display: vr.failureAction.coding[0].display
+        } : undefined,
+        primarySource: vr.primarySource?.map((primary: any) => ({
+            who: primary.who?.reference,
+            type: primary.type?.map((t: any) => ({
+                system: t.coding?.[0]?.system,
+                code: t.coding?.[0]?.code,
+                display: t.coding?.[0]?.display
+            })),
+            communicationMethod: primary.communicationMethod?.map((m: any) => ({
+                system: m.coding?.[0]?.system,
+                code: m.coding?.[0]?.code,
+                display: m.coding?.[0]?.display
+            })),
+            validationStatus: primary.validationStatus?.coding?.[0] ? {
+                system: primary.validationStatus.coding[0].system,
+                code: primary.validationStatus.coding[0].code,
+                display: primary.validationStatus.coding[0].display
+            } : undefined,
+            validationDate: primary.validationDate,
+            canPushUpdates: primary.canPushUpdates?.coding?.[0] ? {
+                system: primary.canPushUpdates.coding[0].system,
+                code: primary.canPushUpdates.coding[0].code,
+                display: primary.canPushUpdates.coding[0].display
+            } : undefined,
+            pushTypeAvailable: primary.pushTypeAvailable?.map((p: any) => ({
+                system: p.coding?.[0]?.system,
+                code: p.coding?.[0]?.code,
+                display: p.coding?.[0]?.display
+            }))
+        }))
     };
 }
 

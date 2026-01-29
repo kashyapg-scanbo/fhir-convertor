@@ -1,0 +1,22 @@
+{
+  "verification_result": {
+    "verification_result_id": "VER-2",
+    "target_ids": ["Organization/ORG-2"],
+    "need": "periodic",
+    "status": "in-process",
+    "status_date": "2024-02-20T09:00:00Z",
+    "validation_type": "multiple",
+    "validation_process": ["edit-check", "value-set"],
+    "frequency": "quarterly",
+    "last_performed": "2024-02-01T09:00:00Z",
+    "next_scheduled": "2024-05-01",
+    "failure_action": "rec-only",
+    "primary_source_who_id": "ORG-2",
+    "primary_source_type": ["issuing source"],
+    "primary_source_communication_method": ["phone"],
+    "primary_source_validation_status": "unknown",
+    "attestation_who_id": "PRAC-2",
+    "attestation_date": "2024-02-20",
+    "validator_organization_id": "ORG-2"
+  }
+}
