@@ -3109,6 +3109,62 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }).filter(Boolean);
   if (relatedPersons.length > 0) canonical.relatedPersons = relatedPersons as any[];
 
+  const persons = rows.map(row => {
+    const personId = readValue(row, 'person_id');
+    const first = readValue(row, 'person_first_name');
+    const last = readValue(row, 'person_last_name');
+    if (!personId && !first && !last) return null;
+
+    const telecom: any[] = [];
+    const phone = readValue(row, 'person_phone');
+    const email = readValue(row, 'person_email');
+    if (phone) telecom.push({ system: 'phone', value: phone });
+    if (email) telecom.push({ system: 'email', value: email });
+
+    const addressLine1 = readValue(row, 'person_address_line1');
+    const addressLine2 = readValue(row, 'person_address_line2');
+    const address = (addressLine1 || addressLine2 || readValue(row, 'person_city')) ? [{
+      line: [addressLine1, addressLine2].filter(Boolean) as string[],
+      city: readValue(row, 'person_city'),
+      state: readValue(row, 'person_state'),
+      postalCode: readValue(row, 'person_postal_code'),
+      country: readValue(row, 'person_country')
+    }] : undefined;
+
+    const language = readValue(row, 'person_language');
+    const languagePreferred = readBoolean(row, 'person_language_preferred');
+
+    return {
+      id: personId || undefined,
+      identifier: personId || undefined,
+      active: readBoolean(row, 'person_active'),
+      name: (first || last) ? {
+        family: last,
+        given: first ? [first] : undefined
+      } : undefined,
+      telecom: telecom.length ? telecom : undefined,
+      gender: readValue(row, 'person_gender'),
+      birthDate: readValue(row, 'person_birth_date'),
+      deceasedBoolean: readBoolean(row, 'person_deceased'),
+      deceasedDateTime: readValue(row, 'person_deceased_date'),
+      address,
+      maritalStatus: readValue(row, 'person_marital_status') ? {
+        code: readValue(row, 'person_marital_status'),
+        display: readValue(row, 'person_marital_status')
+      } : undefined,
+      communication: language ? [{
+        language: { code: language, display: language },
+        preferred: languagePreferred
+      }] : undefined,
+      managingOrganization: readValue(row, 'person_managing_organization_id'),
+      link: readValue(row, 'person_link_target') ? [{
+        target: readValue(row, 'person_link_target'),
+        assurance: readValue(row, 'person_link_assurance')
+      }] : undefined
+    };
+  }).filter(Boolean);
+  if (persons.length > 0) canonical.persons = persons as any[];
+
   const locations = rows.map(row => {
     const locationId = readValue(row, 'location_id');
     const name = readValue(row, 'location_name');

@@ -1,0 +1,16 @@
+{
+  "resourceType": "Person",
+  "identifier": [],
+  "active": false,
+  "name": [],
+  "telecom": [],
+  "gender": "",
+  "birthDate": "",
+  "deceasedBoolean": null,
+  "deceasedDateTime": "",
+  "address": [],
+  "maritalStatus": {},
+  "communication": [],
+  "managingOrganization": {},
+  "link": []
+}

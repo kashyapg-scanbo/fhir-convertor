@@ -34,6 +34,7 @@ import {
     CanonicalSlot,
     CanonicalDiagnosticReport,
     CanonicalRelatedPerson,
+    CanonicalPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
     CanonicalSpecimen,
@@ -136,6 +137,7 @@ export function parseHL7v3(input: string): CanonicalModel {
         slots: [],
         diagnosticReports: [],
         relatedPersons: [],
+        persons: [],
         locations: [],
         episodesOfCare: [],
         specimens: [],
@@ -485,6 +487,12 @@ export function parseHL7v3(input: string): CanonicalModel {
             if (relatedPersonEvent) {
                 const related = mapV3RelatedPerson(relatedPersonEvent);
                 if (related) model.relatedPersons?.push(related);
+            }
+
+            const personEvent = sub.person || sub.Person;
+            if (personEvent) {
+                const person = mapV3Person(personEvent);
+                if (person) model.persons?.push(person);
             }
 
             const organizationAffiliationEvent = sub.organizationAffiliation || sub.OrganizationAffiliation;
@@ -2503,6 +2511,37 @@ function mapV3RelatedPerson(rpEvent: any): CanonicalRelatedPerson | undefined {
             family,
             given
         }] : undefined
+    };
+}
+
+function mapV3Person(personEvent: any): CanonicalPerson | undefined {
+    const person = personEvent.person || personEvent.Person || personEvent;
+    const id = person.id?.['@_extension'] || person.id?.['@_root'];
+    const name = person.name || person.Name;
+    const nameObj = Array.isArray(name) ? name[0] : name;
+    const family = extractText(nameObj?.family || nameObj?.Family);
+    const given = extractTextArray(nameObj?.given || nameObj?.Given);
+    const telecom = person.telecom || person.Telecom;
+    const telecomList = Array.isArray(telecom) ? telecom : telecom ? [telecom] : [];
+    const telecomValues = telecomList.map((t: any) => ({
+        system: t?.['@_use'] === 'MC' ? 'phone' : 'email',
+        value: t?.['@_value']?.replace(/^tel:|^mailto:/, '')
+    })).filter(t => t.value);
+    const gender = person.administrativeGenderCode?.['@_code'] || person.AdministrativeGenderCode?.['@_code'];
+    const birthDate = formatV3DateTime(person.birthTime?.['@_value'] || person.BirthTime?.['@_value']);
+
+    if (!id && !family && !given?.length) return undefined;
+
+    return {
+        id,
+        identifier: id,
+        name: (family || (given && given.length)) ? {
+            family,
+            given
+        } : undefined,
+        telecom: telecomValues.length ? telecomValues : undefined,
+        gender,
+        birthDate
     };
 }
 

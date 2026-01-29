@@ -1,0 +1,40 @@
+{
+  "resourceType": "Person",
+  "id": "PER-R4-2",
+  "active": true,
+  "name": [
+    {
+      "family": "Smith",
+      "given": ["Riley"]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "riley.smith@example.com",
+      "use": "home"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1975-05-05",
+  "address": [
+    {
+      "line": ["456 Oak Ave"],
+      "city": "Springfield",
+      "state": "TX",
+      "postalCode": "73301",
+      "country": "US"
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/ORG-2"
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/PAT-2"
+      },
+      "assurance": "level1"
+    }
+  ]
+}

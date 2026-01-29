@@ -8,6 +8,7 @@ import {
   CanonicalMedicationAdministration,
   CanonicalMedicationDispense,
   CanonicalOrganizationAffiliation,
+  CanonicalPerson,
   CanonicalDeviceDispense,
   CanonicalDeviceRequest,
   CanonicalDeviceUsage,
@@ -1972,6 +1973,31 @@ export function buildCanonical(parsed: any) {
 
   if (organizationAffiliations.length > 0) {
     result.organizationAffiliations = organizationAffiliations;
+  }
+
+  /* ───── Persons (from OBR) ───── */
+  const persons: CanonicalPerson[] = [];
+  const personObrSegments = parsed.OBR ?? [];
+  for (const obr of personObrSegments) {
+    const placerId = obr?.[1]?.[0]?.[0];
+    const fillerId = obr?.[2]?.[0]?.[0];
+    const personId = placerId || fillerId;
+    const codeParts = obr?.[3]?.[0] ?? [];
+    const display = codeParts[1];
+    const date = toFHIRDate(obr?.[6]?.[0]?.[0]);
+
+    if (!personId && !display) continue;
+
+    persons.push({
+      id: personId || `PERSON-${Date.now()}`,
+      identifier: personId,
+      name: display ? { family: display } : undefined,
+      birthDate: date
+    });
+  }
+
+  if (persons.length > 0) {
+    result.persons = persons;
   }
 
   /* ───── Immunizations (from RXA) ───── */

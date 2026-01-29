@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-person-2"/>
+  <creationTime value="20240102121000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <person>
+        <id extension="PER-2"/>
+        <statusCode code="active"/>
+        <name>
+          <family>Smith2</family>
+          <given>Jane2</given>
+        </name>
+        <telecom value="mailto:jane2@example.com" use="WP"/>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19750505"/>
+      </person>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -1178,6 +1178,52 @@ export type CanonicalOrganizationAffiliation = {
   activeFlag?: boolean;
 };
 
+export type CanonicalPerson = {
+  id?: string;
+  identifier?: string;
+  active?: boolean;
+  name?: {
+    family?: string;
+    given?: string[];
+    prefix?: string[];
+    suffix?: string[];
+  };
+  telecom?: Array<{
+    system?: string;
+    value?: string;
+    use?: string;
+  }>;
+  gender?: string;
+  birthDate?: string;
+  deceasedBoolean?: boolean;
+  deceasedDateTime?: string;
+  address?: Array<{
+    line?: string[];
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  }>;
+  maritalStatus?: {
+    system?: string;
+    code?: string;
+    display?: string;
+  };
+  communication?: Array<{
+    language?: {
+      system?: string;
+      code?: string;
+      display?: string;
+    };
+    preferred?: boolean;
+  }>;
+  managingOrganization?: string;
+  link?: Array<{
+    target?: string;
+    assurance?: string;
+  }>;
+};
+
 export type CanonicalDeviceDispense = {
   id?: string;
   identifier?: Array<{
@@ -5696,6 +5742,7 @@ export type CanonicalModel = {
   slots?: CanonicalSlot[]; // Slot
   diagnosticReports?: CanonicalDiagnosticReport[]; // DiagnosticReport
   relatedPersons?: CanonicalRelatedPerson[]; // RelatedPerson
+  persons?: CanonicalPerson[]; // Person
   locations?: CanonicalLocation[]; // Location
   episodesOfCare?: CanonicalEpisodeOfCare[]; // EpisodeOfCare
   specimens?: CanonicalSpecimen[]; // Specimen

@@ -54,6 +54,7 @@ paths:
                 - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
                 - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
                 - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
+                - $ref: '#/components/schemas/CustomJsonPersonOnly'
                 - $ref: '#/components/schemas/CustomJsonLocationOnly'
                 - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
                 - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
@@ -605,6 +606,25 @@ paths:
                     operating_hours:
                       weekdays: 8:00 AM - 5:00 PM
                       weekends: 9:00 AM - 2:00 PM
+              person:
+                summary: Person
+                value:
+                  person:
+                    person_id: PER001
+                    person_first_name: Jane
+                    person_last_name: Smith
+                    person_gender: female
+                    person_birth_date: 1985-07-20
+                    person_phone: "+1-555-555-1212"
+                    person_email: jane.smith@example.com
+                    person_address_line1: 123 Main St
+                    person_city: Springfield
+                    person_state: IL
+                    person_postal_code: 62701
+                    person_country: USA
+                    person_language: English
+                    person_language_preferred: true
+                    person_managing_organization_id: ORG001
               location:
                 summary: Location
                 value:
@@ -802,7 +822,7 @@ paths:
                 emptyPayload:
                   summary: Empty payload error
                   value:
-                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
   /convert:
     post:
       tags: [Convert]
@@ -947,7 +967,7 @@ components:
       required: [error]
     CustomJsonInput:
       type: object
-      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
       properties:
         operation:
           type: string
@@ -1296,6 +1316,12 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomRelatedPerson'
+        person:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPerson'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPerson'
         location:
           oneOf:
             - $ref: '#/components/schemas/CustomLocation'
@@ -4683,6 +4709,64 @@ components:
           type: string
         country:
           type: string
+    CustomPerson:
+      type: object
+      properties:
+        person_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        deceased:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        deceased_date:
+          type: string
+          format: date-time
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        marital_status:
+          type: string
+        language:
+          type: string
+        language_preferred:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        managing_organization_id:
+          type: string
+        link_target:
+          type: string
+        link_assurance:
+          type: string
     CustomLocation:
       type: object
       properties:
@@ -5739,6 +5823,12 @@ components:
         - $ref: '#/components/schemas/CustomJsonInput'
         - type: object
           required: [related_person]
+    CustomJsonPersonOnly:
+      title: Person
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [person]
     CustomJsonLocationOnly:
       title: Location
       allOf:

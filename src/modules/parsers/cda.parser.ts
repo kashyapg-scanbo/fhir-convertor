@@ -8,6 +8,7 @@ import {
   CanonicalMedicationAdministration,
   CanonicalMedicationDispense,
   CanonicalOrganizationAffiliation,
+  CanonicalPerson,
   CanonicalProcedure,
   CanonicalCondition,
   CanonicalAppointment,
@@ -117,6 +118,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
     practitionerData.authorIds[0]
   );
   const organizationAffiliations = extractOrganizationAffiliations(clinicalDocument);
+  const persons = extractPersons(clinicalDocument);
   const procedures = extractProcedures(clinicalDocument, patient.id, encounter?.id);
   const conditions = extractConditions(clinicalDocument, patient.id, encounter?.id);
   const appointments = extractAppointments(clinicalDocument, patient.id);
@@ -193,6 +195,7 @@ export function parseCDA(cdaXml: string): CanonicalModel {
   if (medicationAdministrations.length) canonical.medicationAdministrations = medicationAdministrations;
   if (medicationDispenses.length) canonical.medicationDispenses = medicationDispenses;
   if (organizationAffiliations.length) canonical.organizationAffiliations = organizationAffiliations;
+  if (persons.length) canonical.persons = persons;
   if (procedures.length) canonical.procedures = procedures;
   if (conditions.length) canonical.conditions = conditions;
   if (appointments.length) canonical.appointments = appointments;
@@ -852,6 +855,55 @@ function extractOrganizationAffiliations(
   });
 
   return affiliations;
+}
+
+function extractPersons(
+  clinicalDocument: any
+): CanonicalPerson[] {
+  const persons: CanonicalPerson[] = [];
+
+  iterateSectionEntries(clinicalDocument, (entry, section) => {
+    const sectionCode = section?.code || section?.['cda:code'];
+    const sectionCodeValue = extractAttribute(sectionCode, '@_code');
+    const isPersonSection = sectionCodeValue === 'PERSON';
+    if (!isPersonSection) return;
+
+    const personNode = entry.person || entry['cda:person'] || entry.assignedPerson || entry['cda:assignedPerson'];
+    const personNodes = Array.isArray(personNode) ? personNode : personNode ? [personNode] : [];
+
+    for (const person of personNodes) {
+      const id = extractId(person.id || person['cda:id']);
+      const nameNode = person.name || person['cda:name'];
+      const nameObj = Array.isArray(nameNode) ? nameNode[0] : nameNode;
+      const family = extractText(nameObj?.family || nameObj?.['cda:family']);
+      const given = extractTextArray(nameObj?.given || nameObj?.['cda:given']);
+      const telecom = person.telecom || person['cda:telecom'];
+      const telecomList = Array.isArray(telecom) ? telecom : telecom ? [telecom] : [];
+      const telecomValues = telecomList.map((t: any) => ({
+        system: t?.['@_use'] === 'MC' ? 'phone' : 'email',
+        value: t?.['@_value']?.replace(/^tel:|^mailto:/, '')
+      })).filter(t => t.value);
+
+      const gender = extractAttribute(person.administrativeGenderCode || person['cda:administrativeGenderCode'], '@_code');
+      const birthDate = formatCDADateTime(extractAttribute(person.birthTime || person['cda:birthTime'], '@_value'));
+
+      if (!id && !family && !given?.length) continue;
+
+      persons.push({
+        id: id || `PERSON-${persons.length + 1}`,
+        identifier: id,
+        name: (family || (given && given.length)) ? {
+          family,
+          given
+        } : undefined,
+        telecom: telecomValues.length ? telecomValues : undefined,
+        gender,
+        birthDate
+      });
+    }
+  });
+
+  return persons;
 }
 
 function extractImmunizations(

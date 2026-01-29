@@ -36,6 +36,7 @@ import {
     CanonicalSlot,
     CanonicalDiagnosticReport,
     CanonicalRelatedPerson,
+    CanonicalPerson,
     CanonicalLocation,
     CanonicalEpisodeOfCare,
     CanonicalSpecimen,
@@ -138,6 +139,7 @@ export function parseR4(input: string): CanonicalModel {
         slots: [],
         diagnosticReports: [],
         relatedPersons: [],
+        persons: [],
         locations: [],
         episodesOfCare: [],
         specimens: [],
@@ -342,6 +344,10 @@ export function parseR4(input: string): CanonicalModel {
             case 'RelatedPerson':
                 const related = mapR4RelatedPerson(res);
                 if (related) model.relatedPersons?.push(related);
+                break;
+            case 'Person':
+                const person = mapR4Person(res);
+                if (person) model.persons?.push(person);
                 break;
             case 'Location':
                 const location = mapR4Location(res);
@@ -4253,6 +4259,55 @@ function mapR4RelatedPerson(rp: any): CanonicalRelatedPerson {
             postalCode: a.postalCode,
             country: a.country,
             use: a.use
+        }))
+    };
+}
+
+function mapR4Person(person: any): CanonicalPerson {
+    const name = person.name?.[0];
+    return {
+        id: person.id,
+        identifier: person.identifier?.[0]?.value,
+        active: person.active,
+        name: name ? {
+            family: name.family,
+            given: name.given,
+            prefix: name.prefix,
+            suffix: name.suffix
+        } : undefined,
+        telecom: person.telecom?.map((t: any) => ({
+            system: t.system,
+            value: t.value,
+            use: t.use
+        })),
+        gender: person.gender,
+        birthDate: person.birthDate,
+        deceasedBoolean: person.deceasedBoolean,
+        deceasedDateTime: person.deceasedDateTime,
+        address: person.address?.map((a: any) => ({
+            line: a.line,
+            city: a.city,
+            state: a.state,
+            postalCode: a.postalCode,
+            country: a.country
+        })),
+        maritalStatus: person.maritalStatus?.coding?.[0] ? {
+            system: person.maritalStatus.coding[0].system,
+            code: person.maritalStatus.coding[0].code,
+            display: person.maritalStatus.coding[0].display
+        } : undefined,
+        communication: person.communication?.map((c: any) => ({
+            language: c.language?.coding?.[0] ? {
+                system: c.language.coding[0].system,
+                code: c.language.coding[0].code,
+                display: c.language.coding[0].display
+            } : undefined,
+            preferred: c.preferred
+        })),
+        managingOrganization: person.managingOrganization?.reference?.replace('Organization/', ''),
+        link: person.link?.map((link: any) => ({
+            target: link.target?.reference,
+            assurance: link.assurance
         }))
     };
 }

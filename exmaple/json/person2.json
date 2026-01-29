@@ -1,0 +1,25 @@
+{
+  "person": {
+    "person_id": "PER-2",
+    "active": false,
+    "first_name": "Jane2",
+    "last_name": "Smith2",
+    "phone": "5550102",
+    "email": "jane2@example.com",
+    "gender": "female",
+    "birth_date": "1975-05-05",
+    "deceased": true,
+    "deceased_date": "2020-01-01T00:00:00Z",
+    "address_line1": "456 Oak Ave",
+    "city": "Springfield",
+    "state": "TX",
+    "postal_code": "73301",
+    "country": "US",
+    "marital_status": "S",
+    "language": "es",
+    "language_preferred": false,
+    "managing_organization_id": "ORG-2",
+    "link_target": "Patient/PAT-2",
+    "link_assurance": "level1"
+  }
+}

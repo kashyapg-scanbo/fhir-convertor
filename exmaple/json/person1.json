@@ -1,0 +1,23 @@
+{
+  "person": {
+    "person_id": "PER-1",
+    "active": true,
+    "first_name": "John1",
+    "last_name": "Doe1",
+    "phone": "5550101",
+    "email": "john1@example.com",
+    "gender": "male",
+    "birth_date": "1980-01-01",
+    "address_line1": "123 Main St",
+    "city": "Metro",
+    "state": "CA",
+    "postal_code": "90210",
+    "country": "US",
+    "marital_status": "M",
+    "language": "en",
+    "language_preferred": true,
+    "managing_organization_id": "ORG-1",
+    "link_target": "Patient/PAT-1",
+    "link_assurance": "level2"
+  }
+}
