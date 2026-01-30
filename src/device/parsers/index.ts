@@ -7,7 +7,7 @@
 export { parseWhoop } from './whoop.parser.js';
 export { parseDexcom } from './dexcom.parser.js';
 export { parseAppleHealthKit } from './apple_healthkit.parser.js';
-export { parseAndroidHealthConnect } from './android_health_connect.parser.js';
+export { parseOura } from './oura.parser.js';
 export { parseStrava } from './strava.parser.js';
 
 export type { 
@@ -36,8 +36,8 @@ export type {
 } from '../types/apple_healthkit.types.js';
 
 export type {
-  AndroidHealthConnectData
-} from '../types/android_health_connect.types.js';
+  OuraData
+} from '../types/oura.types.js';
 
 export type {
   StravaData,

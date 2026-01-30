@@ -1,27 +1,27 @@
 import { CanonicalModel, CanonicalObservation, CanonicalPatient } from '../../shared/types/canonical.types.js';
-import type { AndroidHealthConnectData } from '../types/android_health_connect.types.js';
+import type { OuraData } from '../types/oura.types.js';
 
 /**
- * Android Health Connect Data Parser
+ * Oura Data Parser
  *
- * Converts Android Health Connect JSON data to Canonical Model
+ * Converts Oura JSON data to Canonical Model
  */
-export function parseAndroidHealthConnect(input: string): CanonicalModel {
-  let data: AndroidHealthConnectData;
+export function parseOura(input: string): CanonicalModel {
+  let data: OuraData;
 
   try {
     data = JSON.parse(input);
   } catch (e) {
-    throw new Error('Invalid JSON input for Android Health Connect parser');
+    throw new Error('Invalid JSON input for Oura parser');
   }
 
   const observations: CanonicalObservation[] = [];
   const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
   const patient: CanonicalPatient = {
     name: {},
-    identifier: 'android-health-connect-user'
+    identifier: 'oura-user'
   };
-  const defaultDeviceUid = 'android-health-connect';
+  const defaultDeviceUid = 'oura';
 
   const toArray = <T>(value?: T | T[]): T[] => {
     if (!value) return [];
@@ -254,7 +254,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-daily-activity', display: 'Daily activity summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-daily-activity', display: 'Daily activity summary' },
         date: day,
         status: 'final',
         category: [{
@@ -335,7 +335,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-readiness', display: 'Readiness summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-readiness', display: 'Readiness summary' },
         date: toDateOnly((entry as any).day || (entry as any).timestamp),
         status: 'final',
         category: [{
@@ -372,7 +372,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-resilience', display: 'Resilience summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-resilience', display: 'Resilience summary' },
         date: toDateOnly((entry as any).day),
         status: 'final',
         category: [{
@@ -410,7 +410,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-sleep', display: 'Sleep summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-sleep', display: 'Sleep summary' },
         date: toDateOnly((entry as any).day || (entry as any).timestamp),
         status: 'final',
         category: [{
@@ -575,7 +575,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-sleep-detailed', display: 'Sleep detailed summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-sleep-detailed', display: 'Sleep detailed summary' },
         date: toDateOnly((entry as any).day),
         effectivePeriod: {
           start: (entry as any).bedtime_start,
@@ -631,7 +631,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
     }
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-stress', display: 'Stress summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-stress', display: 'Stress summary' },
         date: toDateOnly((entry as any).day),
         status: 'final',
         category: [{
@@ -724,7 +724,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-workout', display: 'Workout summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-workout', display: 'Workout summary' },
         status: 'final',
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
@@ -767,7 +767,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     for (const [date, components] of grouped.entries()) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-daily-heart-rate', display: 'Daily heart rate samples' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-daily-heart-rate', display: 'Daily heart rate samples' },
         date,
         status: 'final',
         category: [{
@@ -851,7 +851,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
 
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-session', display: 'Session summary' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-session', display: 'Session summary' },
         status: 'final',
         category: [{
           system: 'http://terminology.hl7.org/CodeSystem/observation-category',
@@ -885,7 +885,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
     }
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-sleep-time', display: 'Sleep time recommendation' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-sleep-time', display: 'Sleep time recommendation' },
         status: 'final',
         date: toDateOnly((entry as any).day),
         category: [{
@@ -915,7 +915,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
     }
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-tag', display: 'Tag' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-tag', display: 'Tag' },
         status: 'final',
         date: toDateOnly((entry as any).day || (entry as any).timestamp),
         category: [{
@@ -945,7 +945,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
     }
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-enhanced-tag', display: 'Enhanced tag' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-enhanced-tag', display: 'Enhanced tag' },
         status: 'final',
         effectivePeriod: {
           start: (entry as any).start_time,
@@ -979,7 +979,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
     }
     if (components.length > 0) {
       pushObservation({
-        code: { system: 'urn:hl7-org:local', code: 'android-health-connect-rest-mode', display: 'Rest mode period' },
+        code: { system: 'urn:hl7-org:local', code: 'oura-rest-mode', display: 'Rest mode period' },
         status: 'final',
         effectivePeriod: {
           start: (entry as any).start_time,
@@ -1055,7 +1055,7 @@ export function parseAndroidHealthConnect(input: string): CanonicalModel {
         attachment: {
           contentType: 'application/json',
           data: originalDataBase64,
-          title: 'Android Health Connect Original Request Data',
+          title: 'Oura Original Request Data',
           format: 'json'
         }
       }]

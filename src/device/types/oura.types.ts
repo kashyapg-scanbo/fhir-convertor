@@ -1,8 +1,8 @@
 /**
- * Android Health Connect (Oura-style) Data Types
+ * Oura Device Data Types
  */
 
-export interface AndroidHealthConnectDailyActivity {
+export interface OuraDailyActivity {
   id?: string;
   day?: string;
   timestamp?: string;
@@ -14,14 +14,14 @@ export interface AndroidHealthConnectDailyActivity {
   score?: number;
 }
 
-export interface AndroidHealthConnectSpo2 {
+export interface OuraSpo2 {
   id?: string;
   day?: string;
   breathing_disturbance_index?: number;
   spo2_percentage?: { average?: number };
 }
 
-export interface AndroidHealthConnectSleep {
+export interface OuraSleep {
   id?: string;
   day?: string;
   score?: number;
@@ -29,7 +29,7 @@ export interface AndroidHealthConnectSleep {
   contributors?: Record<string, number | null>;
 }
 
-export interface AndroidHealthConnectSleepDetailed {
+export interface OuraSleepDetailed {
   id?: string;
   day?: string;
   bedtime_start?: string;
@@ -49,14 +49,14 @@ export interface AndroidHealthConnectSleepDetailed {
   type?: string;
 }
 
-export interface AndroidHealthConnectVo2 {
+export interface OuraVo2 {
   id?: string;
   day?: string;
   timestamp?: string;
   vo2_max?: number;
 }
 
-export interface AndroidHealthConnectWorkout {
+export interface OuraWorkout {
   id?: string;
   day?: string;
   activity?: string;
@@ -69,13 +69,13 @@ export interface AndroidHealthConnectWorkout {
   source?: string;
 }
 
-export interface AndroidHealthConnectHeartRate {
+export interface OuraHeartRate {
   timestamp?: string;
   bpm?: number;
   source?: string;
 }
 
-export interface AndroidHealthConnectPersonalInfo {
+export interface OuraPersonalInfo {
   id?: string;
   age?: number;
   weight?: number;
@@ -84,21 +84,21 @@ export interface AndroidHealthConnectPersonalInfo {
   email?: string;
 }
 
-export interface AndroidHealthConnectData {
-  'Daily Activity'?: AndroidHealthConnectDailyActivity | AndroidHealthConnectDailyActivity[];
+export interface OuraData {
+  'Daily Activity'?: OuraDailyActivity | OuraDailyActivity[];
   'Cardiovascular age'?: { day?: string; vascular_age?: number };
   'Readiness'?: { day?: string; score?: number; timestamp?: string; temperature_deviation?: number; temperature_trend_deviation?: number; contributors?: Record<string, number | null> };
   'Resilience'?: { day?: string; level?: string; contributors?: Record<string, number | null> };
-  'Sleep'?: AndroidHealthConnectSleep | AndroidHealthConnectSleep[];
-  'Sleep Detailed'?: AndroidHealthConnectSleepDetailed | AndroidHealthConnectSleepDetailed[];
-  'Spo2'?: AndroidHealthConnectSpo2 | AndroidHealthConnectSpo2[];
+  'Sleep'?: OuraSleep | OuraSleep[];
+  'Sleep Detailed'?: OuraSleepDetailed | OuraSleepDetailed[];
+  'Spo2'?: OuraSpo2 | OuraSpo2[];
   'Stress'?: { day?: string; day_summary?: string; stress_high?: number; recovery_high?: number };
   'Enhanced Tag'?: { start_time?: string; end_time?: string; comment?: string; tag_type_code?: string };
   'Tag'?: { day?: string; text?: string; timestamp?: string; tags?: string[] };
   'Rest Mode Period'?: { start_time?: string; end_time?: string; episodes?: Array<{ timestamp?: string; tags?: string[] }> };
   'Sleep Time'?: { day?: string; recommendation?: string; status?: string };
-  'Vo2'?: AndroidHealthConnectVo2 | AndroidHealthConnectVo2[];
-  'Workout'?: AndroidHealthConnectWorkout | AndroidHealthConnectWorkout[];
-  'Heart Rate'?: AndroidHealthConnectHeartRate | AndroidHealthConnectHeartRate[];
-  'Personal Info'?: AndroidHealthConnectPersonalInfo;
+  'Vo2'?: OuraVo2 | OuraVo2[];
+  'Workout'?: OuraWorkout | OuraWorkout[];
+  'Heart Rate'?: OuraHeartRate | OuraHeartRate[];
+  'Personal Info'?: OuraPersonalInfo;
 }
