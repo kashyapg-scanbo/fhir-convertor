@@ -1,0 +1,2 @@
+nutrition_order_id,nutrition_order_status,nutrition_order_intent,nutrition_order_patient_id,nutrition_order_datetime,nutrition_order_orderer_id,nutrition_order_oral_diet_type,nutrition_order_oral_diet_schedule,nutrition_order_oral_diet_caloric_density_value,nutrition_order_oral_diet_caloric_density_unit,nutrition_order_note
+NO-2,active,order,PAT-22,2025-02-19T14:00:00Z,PRAC-9,cardiac,BID,1800,kcal/day,Low sodium cardiac diet

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-15"/>
+      <patient>
+        <name><family>Nguyen</family><given>Luca</given></name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="46265-8" codeSystem="2.16.840.1.113883.6.1" displayName="Device Usage"/>
+          <title>Device Usage</title>
+          <entry>
+            <deviceUsage classCode="DEV" moodCode="EVN">
+              <id extension="DU-1"/>
+              <statusCode code="completed"/>
+              <code code="714-8" displayName="Glucose meter use" codeSystem="2.16.840.1.113883.6.96"/>
+              <effectiveTime>
+                <low value="20250201100000"/>
+                <high value="20250201103000"/>
+              </effectiveTime>
+            </deviceUsage>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

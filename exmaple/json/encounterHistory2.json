@@ -1,0 +1,18 @@
+{
+  "encounter_history": {
+    "encounter_history_id": "EH-2",
+    "encounter_history_encounter_id": "ENC-4",
+    "status": "planned",
+    "class": "IMP",
+    "type": "inpatient",
+    "subject_id": "PAT-5",
+    "actual_start": "2025-01-20T14:00:00Z",
+    "actual_end": "2025-01-22T10:15:00Z",
+    "planned_start_date": "2025-01-20T12:00:00Z",
+    "planned_end_date": "2025-01-22T12:00:00Z",
+    "length_value": 42,
+    "length_unit": "hour",
+    "location_id": "LOC-15",
+    "location_form": "ward"
+  }
+}

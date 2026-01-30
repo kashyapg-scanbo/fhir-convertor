@@ -1,0 +1,5 @@
+MSH|^~\&|EHR|HOSP|EHR|HOSP|202502201000||OMN^O07|NOMSG2|P|2.5
+PID|1||PAT-22^^^HOSP^MR||Brooks^Elena||19901111|F
+ORC|NW|NO-2|||active
+OBR|1|NO-2||399165000^High-protein diet
+NTE|1|L|Protein 120 g/day, carbs 150 g/day

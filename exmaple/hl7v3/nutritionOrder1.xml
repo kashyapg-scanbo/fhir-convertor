@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-nutritionOrder-1"/>
+  <creationTime value="20250219140000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="RQO">
+    <subject>
+      <observation classCode="OBS" moodCode="RQO">
+        <id extension="NO-1"/>
+        <code code="228055009" codeSystem="2.16.840.1.113883.6.96" displayName="Cardiac diet"/>
+        <statusCode code="active"/>
+        <effectiveTime value="20250219140000"/>
+        <text>Low sodium 1800 kcal/day</text>
+      </observation>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

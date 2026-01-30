@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <component><structuredBody><component><section>
+    <code code="69972-1" codeSystem="2.16.840.1.113883.6.1" displayName="Charge item definition"/>
+    <entry>
+      <observation classCode="OBS" moodCode="DEF">
+        <id extension="CHID-2"/>
+        <statusCode code="draft"/>
+        <code code="71045" displayName="Portable chest x-ray" codeSystem="2.16.840.1.113883.6.12"/>
+        <text>Portable chest x-ray charge</text>
+      </observation>
+    </entry>
+  </section></component></structuredBody></component>
+</ClinicalDocument>

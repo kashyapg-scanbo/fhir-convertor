@@ -1,0 +1,5 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202502271015||Z99^CLAIMRESPONSE|MSG-ClaimResponse-4|P|2.5
+PID|1||PAT-9^^^HOSP^MR||Fields^Marcus||19930304|M
+PV1|1|O|OP^1^1^HOSP||||PRAC3
+OBX|1|TX|CLAIMRESPONSE^ClaimResponse^L||CR-4|ClaimResponse cancelled because duplicate submission detected|F
+NTE|1|L|Insurer matched prior claim on same date

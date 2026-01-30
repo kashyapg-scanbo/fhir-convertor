@@ -1,0 +1,127 @@
+{
+  "resourceType": "EpisodeOfCare",
+  "id": "EOC-001",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "http://example.org/episode",
+      "value": "EOC-001",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/episodeofcare-episode-type",
+            "code": "long-term",
+            "display": "Long Term Care"
+          }
+        ]
+      }
+    }
+  ],
+  "status": "active",
+  "statusHistory": [
+    {
+      "status": "planned",
+      "period": {
+        "start": "2025-01-05T08:00:00Z",
+        "end": "2025-01-10T12:00:00Z"
+      }
+    },
+    {
+      "status": "active",
+      "period": {
+        "start": "2025-01-11T08:00:00Z"
+      }
+    }
+  ],
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/episodeofcare-type",
+          "code": "ep-support",
+          "display": "Support"
+        }
+      ],
+      "text": "Chronic condition support"
+    }
+  ],
+  "patient": {
+    "reference": "Patient/Patient-001",
+    "display": "Maria Lopez"
+  },
+  "period": {
+    "start": "2025-01-05T08:00:00Z"
+  },
+  "referralRequest": [
+    {
+      "reference": "ReferralRequest/RR-001",
+      "display": "Referral for diabetes management"
+    }
+  ],
+  "careManager": {
+    "reference": "Practitioner/Practitioner-001",
+    "display": "Dr. Alice Nguyen"
+  },
+  "team": [
+    {
+      "reference": "CareTeam/CareTeam-002",
+      "display": "Community Support Team"
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/Org-001",
+    "display": "Metro Health Network"
+  },
+  "diagnosis": [
+    {
+      "condition": {
+        "reference": "Condition/Condition-001",
+        "display": "Type 2 Diabetes Mellitus"
+      },
+      "role": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/diagnosis-role",
+            "code": "CC",
+            "display": "Chief complaint"
+          }
+        ]
+      },
+      "rank": 1
+    }
+  ],
+  "careTeam": [
+    {
+      "reference": "CareTeam/CareTeam-002",
+      "display": "Community Support Team"
+    },
+    {
+      "reference": "CareTeam/CareTeam-003",
+      "display": "Nutrition Coaching"
+    }
+  ],
+  "linkedEncounter": [
+    {
+      "reference": "Encounter/Encounter-001",
+      "display": "Outpatient visit"
+    }
+  ],
+  "account": [
+    {
+      "reference": "Account/ACC-01"
+    }
+  ],
+  "note": [
+    {
+      "authorReference": {
+        "reference": "Practitioner/Practitioner-001"
+      },
+      "time": "2025-01-07T15:30:00Z",
+      "text": "Patient enrolled in enhanced monitoring program."
+    }
+  ]
+}

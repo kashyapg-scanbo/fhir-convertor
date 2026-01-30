@@ -1,0 +1,4 @@
+MSH|^~\&|EHR|HOSP|EHR|HOSP|202502011030||ORU^R01|DUMSG1|P|2.5
+PID|1||PAT-15^^^HOSP^MR||Nguyen^Luca||20040101|M
+OBX|1|TX|DEVICEUSAGE^Device usage^L||DU-1|Glucose meter used during outpatient visit|F
+NTE|1|L|Used to track glucose after discharge

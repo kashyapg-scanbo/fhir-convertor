@@ -1,0 +1,2 @@
+charge_item_id,charge_item_status,charge_item_code,charge_item_display,charge_item_subject_id,charge_item_encounter_id,charge_item_quantity,charge_item_price_component_amount,charge_item_price_component_currency,charge_item_note
+CHI-2,aborted,71010,Chest x-ray,Patient/PAT-41,Encounter/ENC-11,1,-20,USD,Cancelled before imaging

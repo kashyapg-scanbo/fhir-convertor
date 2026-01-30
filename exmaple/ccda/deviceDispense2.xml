@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-12"/>
+      <patient>
+        <name><family>Chen</family><given>Lei</given></name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="46264-1" codeSystem="2.16.840.1.113883.6.1" displayName="Supplies"/>
+          <title>Device Dispense</title>
+          <entry>
+            <supply classCode="SPLY" moodCode="EVN">
+              <id extension="DD-2"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20250210120000"/>
+                <high value="20250210140000"/>
+              </effectiveTime>
+              <product>
+                <manufacturedProduct classCode="MANU">
+                  <manufacturedMaterial>
+                    <code code="389.000" codeSystem="2.16.840.1.113883.6.88" displayName="Continuous glucose sensor"/>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </product>
+              <participant typeCode="DEV">
+                <participantRole classCode="MANU">
+                  <playingDevice>
+                    <code code="CGS-300" displayName="Tendex Sensor" codeSystem="1.2.840.114350"/>
+                  </playingDevice>
+                </participantRole>
+              </participant>
+             <note>Dispensed for weekly wear.</note>
+            </supply>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

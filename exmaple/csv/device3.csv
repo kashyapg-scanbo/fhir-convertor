@@ -1,0 +1,2 @@
+device_id,device_status,device_type_code,device_type_display,device_manufacturer,device_model,device_serial,device_patient_id,device_note
+DEV-3,active,86184003,Infusion pump,Acme Medical,ACM-1000,SN-ACM-1000-01,PAT-50,Assigned to inpatient room 4B

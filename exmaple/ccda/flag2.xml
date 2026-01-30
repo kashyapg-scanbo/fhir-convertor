@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-4"/>
+      <patient>
+        <name>
+          <family>Singh</family>
+          <given>Asha</given>
+        </name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="48765-2" codeSystem="2.16.840.1.113883.6.1" displayName="Alerts and notifications"/>
+          <title>Flag Section</title>
+          <text>Penicillin allergy reconciled; no longer active.</text>
+          <entry>
+            <flag classCode="OBS" moodCode="EVN">
+              <id extension="FLAG-2"/>
+              <statusCode code="completed"/>
+              <code code="ALLERGY_PEN" displayName="Penicillin allergy" codeSystem="2.16.840.1.113883.6.96"/>
+              <effectiveTime>
+                <low value="20240101000000"/>
+                <high value="20241101120000"/>
+              </effectiveTime>
+              <value xsi:type="CD" code="RESOLVED" displayName="Resolved allergy" codeSystem="2.16.840.1.113883.6.96"/>
+            </flag>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

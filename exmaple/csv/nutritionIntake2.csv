@@ -1,0 +1,2 @@
+nutrition_intake_id,nutrition_intake_status,nutrition_intake_code,nutrition_intake_patient_id,nutrition_intake_occurrence_datetime,nutrition_intake_recorded,nutrition_intake_consumed_item_code,nutrition_intake_consumed_item_display,nutrition_intake_consumed_item_amount_value,nutrition_intake_consumed_item_amount_unit,nutrition_intake_note
+NI-2,completed,dietary-supp,PAT-21,2025-02-20T08:00:00Z,2025-02-20T08:15:00Z,258987005,Protein supplement,30,g,Taken after morning exercise

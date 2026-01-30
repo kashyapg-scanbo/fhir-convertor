@@ -1,0 +1,55 @@
+{
+  "patient": {
+    "patient_id": "PAT-9",
+    "name": {
+      "first_name": "Marcus",
+      "last_name": "Fields"
+    }
+  },
+  "claim_response": {
+    "claim_response_id": "CR-4",
+    "status": "cancelled",
+    "type": {
+      "code": "vision",
+      "display": "Vision"
+    },
+    "use": "claim",
+    "patient_id": "PAT-9",
+    "created": "2025-02-27T10:15:00Z",
+    "insurer_id": "ORG-9",
+    "requestor_id": "ORG-4",
+    "request_id": "CLM-4",
+    "outcome": "rejected",
+    "disposition": "Duplicate claim",
+    "total": [
+      {
+        "category": {
+          "code": "benefit",
+          "display": "Benefit"
+        },
+        "amount": {
+          "value": 0,
+          "currency": "USD"
+        }
+      }
+    ],
+    "item": [
+      {
+        "item_sequence": 1,
+        "adjudication": [
+          {
+            "category": {
+              "code": "eligible",
+              "display": "Eligible"
+            },
+            "amount": {
+              "value": 0,
+              "currency": "USD"
+            }
+          }
+        ]
+      }
+    ],
+    "note": "Claim cancelled because duplicate submission detected by insurer."
+  }
+}

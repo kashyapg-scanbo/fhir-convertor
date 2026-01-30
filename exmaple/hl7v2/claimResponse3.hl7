@@ -1,0 +1,5 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202502251630||Z99^CLAIMRESPONSE|MSG-ClaimResponse-3|P|2.5
+PID|1||PAT-8^^^HOSP^MR||Brooks^Elena||19910812|F
+PV1|1|I|WARD^2^2^HOSP||||PRAC2
+OBX|1|TX|CLAIMRESPONSE^ClaimResponse^L||CR-3|ClaimResponse partial payment for institutional stay|F
+NTE|1|L|Patient owes $300 of total $780

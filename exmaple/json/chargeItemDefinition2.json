@@ -1,0 +1,10 @@
+{
+  "charge_item_definition": {
+    "charge_item_definition_id": "CHID-2",
+    "url": "http://example.org/ChargeItemDefinition/CHID-2",
+    "status": "draft",
+    "description": "Portable chest x-ray charge",
+    "code": { "code": "71045", "display": "Portable chest x-ray" },
+    "instance": ["ChargeItem/CHI-2"]
+  }
+}

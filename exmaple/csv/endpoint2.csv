@@ -1,0 +1,2 @@
+endpoint_id,endpoint_status,endpoint_connection_type_system,endpoint_connection_type_code,endpoint_name,endpoint_managing_organization,endpoint_payload_type_text,endpoint_address,endpoint_header,endpoint_note
+EP-2,suspended,http://terminology.hl7.org/CodeSystem/endpoint-connection-type,ihe-xdr,CCD upload test,Organization/ORG-11,C-CDA,https://test.example.org/xdr,X-Test: true,Paused during maintenance

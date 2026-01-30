@@ -1,0 +1,13 @@
+{
+  "device_metric": {
+    "device_metric_id": "DM-2",
+    "type": { "code": "150455", "display": "SpO2" },
+    "unit": { "code": "%", "display": "percent" },
+    "status": "inactive",
+    "category": "setting",
+    "measurement_period_start": "2025-02-24T09:00:00Z",
+    "measurement_period_end": "2025-02-24T09:30:00Z",
+    "source_device_id": "DEV-4",
+    "note": "Device retired"
+  }
+}

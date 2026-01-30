@@ -1,0 +1,4 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202503010900||Z99^CLAIM|MSG-Claim-3|P|2.5
+PID|1||PAT-6^^^HOSP^MR||Rivera^Noah||19921212|M
+OBX|1|TX|CLAIM^Claim details^L||CLM-3|Active institutional claim covering day hospital visit|F
+NTE|1|L|Inpatient stay from Jan 15 to Jan 18

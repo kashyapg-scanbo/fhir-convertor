@@ -1,0 +1,2 @@
+list_id,list_status,list_mode,list_title,list_code,list_subject_ids,list_encounter_id,list_date,list_source_id,list_ordered_by,list_note,list_entry_flag,list_entry_deleted,list_entry_date,list_entry_item_id,list_empty_reason
+LIST-2,retired,snapshot,Completed care team tasks,clinical-list,PAT-6,,2025-01-30T11:45:00Z,PRAC-5,clinical,Daily care tasks completed,completed,false,2025-01-30T10:00:00Z,Task/TASK-21,not-empty

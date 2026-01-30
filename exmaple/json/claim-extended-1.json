@@ -1,0 +1,84 @@
+{
+  "patient": {
+    "patient_id": "PAT-6",
+    "name": {
+      "first_name": "Noah",
+      "last_name": "Rivera"
+    }
+  },
+  "claim": {
+    "claim_id": "CLM-3",
+    "status": "active",
+    "type": {
+      "code": "institutional",
+      "display": "Institutional"
+    },
+    "use": "claim",
+    "patient_id": "PAT-6",
+    "created": "2025-02-02T08:15:00Z",
+    "provider_id": "ORG-3",
+    "insurer_id": "ORG-5",
+    "billable_start": "2025-01-15",
+    "billable_end": "2025-01-18",
+    "total": {
+      "value": 980.0,
+      "currency": "USD"
+    },
+    "item": [
+      {
+        "sequence": 1,
+        "product_or_service": {
+          "code": "99214",
+          "display": "Level 4 visit"
+        },
+        "quantity": {
+          "value": 1
+        },
+        "unit_price": {
+          "value": 300.0,
+          "currency": "USD"
+        },
+        "net": {
+          "value": 300.0,
+          "currency": "USD"
+        }
+      },
+      {
+        "sequence": 2,
+        "product_or_service": {
+          "code": "90471",
+          "display": "Immunization"
+        },
+        "quantity": {
+          "value": 1
+        },
+        "unit_price": {
+          "value": 80.0,
+          "currency": "USD"
+        },
+        "net": {
+          "value": 80.0,
+          "currency": "USD"
+        }
+      },
+      {
+        "sequence": 3,
+        "product_or_service": {
+          "code": "99223",
+          "display": "Initial hospital care"
+        },
+        "quantity": {
+          "value": 1
+        },
+        "unit_price": {
+          "value": 600.0,
+          "currency": "USD"
+        },
+        "net": {
+          "value": 600.0,
+          "currency": "USD"
+        }
+      }
+    ]
+  }
+}

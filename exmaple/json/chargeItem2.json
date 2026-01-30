@@ -1,0 +1,12 @@
+{
+  "charge_item": {
+    "charge_item_id": "CHI-2",
+    "status": "aborted",
+    "code": { "code": "71010", "display": "Chest x-ray" },
+    "subject_id": "Patient/PAT-41",
+    "encounter_id": "Encounter/ENC-11",
+    "quantity": { "value": 1 },
+    "price_component": [{"type": "deduction", "amount": {"value": -20, "currency": "USD"}}],
+    "note": "Cancelled before imaging"
+  }
+}

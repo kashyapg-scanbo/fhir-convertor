@@ -1,0 +1,2 @@
+encounter_history_id,encounter_history_encounter_id,encounter_history_status,encounter_history_class,encounter_history_type,encounter_history_subject_id,encounter_history_actual_start,encounter_history_actual_end,encounter_history_planned_start_date,encounter_history_planned_end_date,encounter_history_length_value,encounter_history_length_unit,encounter_history_location_id,encounter_history_location_form
+EH-2,ENC-4,planned,IMP,inpatient,PAT-5,2025-01-20T14:00:00Z,2025-01-22T10:15:00Z,2025-01-20T12:00:00Z,2025-01-22T12:00:00Z,42,hour,LOC-15,ward
