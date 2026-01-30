@@ -1,0 +1,2 @@
+supply_delivery_id,supply_delivery_status,supply_delivery_type_code,supply_delivery_type_display,supply_delivery_patient_id,supply_delivery_occurrence_datetime,supply_delivery_item_code,supply_delivery_item_display,supply_delivery_item_quantity_value,supply_delivery_item_quantity_unit,supply_delivery_note
+SD-2,in-progress,consumable,Wound care kit,PAT-81,2025-02-24T15:30:00Z,736271009,Wound dressing pack,5,pack,Awaiting confirmation at ward desk

@@ -1,0 +1,14 @@
+{
+  "supply_request": {
+    "supply_request_id": "SR-1",
+    "status": "active",
+    "intent": "order",
+    "category": { "code": "medsupply", "display": "Medication supply" },
+    "item": { "code": "463956003", "display": "Insulin pen" },
+    "quantity": { "value": 2, "unit": "box" },
+    "requester_id": "PRAC-20",
+    "patient_id": "PAT-80",
+    "authored_on": "2025-02-22T14:00:00Z",
+    "note": "Refill for inpatient"
+  }
+}

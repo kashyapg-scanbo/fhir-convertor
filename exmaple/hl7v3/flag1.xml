@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-flag-1"/>
+  <creationTime value="20250115090000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <flag classCode="OBS" moodCode="EVN">
+        <id extension="FLAGV3-1"/>
+        <code code="FALL_RISK" codeSystem="2.16.840.1.113883.6.96" displayName="Fall risk"/>
+        <statusCode code="active"/>
+        <effectiveTime>
+          <low value="20250115090000"/>
+        </effectiveTime>
+        <value xsi:type="CD" code="HIGH" codeSystem="2.16.840.1.113883.6.96" displayName="High fall risk"/>
+      </flag>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

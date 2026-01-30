@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-goal-3"/>
+  <creationTime value="20250215110000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <goal>
+        <id extension="GOAL-3"/>
+        <code code="8480-6" displayName="Systolic BP" codeSystem="2.16.840.1.113883.6.1"/>
+        <statusCode code="active"/>
+        <description>
+          <text>Reduce systolic blood pressure below 130 mmHg.</text>
+        </description>
+      </goal>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

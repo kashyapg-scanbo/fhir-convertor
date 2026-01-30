@@ -1,0 +1,2 @@
+imaging_study_id,imaging_study_status,imaging_study_modality,imaging_study_subject_id,imaging_study_encounter_id,imaging_study_started,imaging_study_description,imaging_study_series_uid,imaging_study_series_number,imaging_study_series_description
+IMG-2,available,MR,PAT-61,,2025-02-19T14:30:00Z,Brain MRI with contrast,1.3.12.2.1107.5.4.3.55123.2025.219.143000,1,T1 post-contrast

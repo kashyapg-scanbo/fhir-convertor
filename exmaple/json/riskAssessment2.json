@@ -1,0 +1,27 @@
+{
+  "risk_assessment": {
+    "risk_assessment_id": "RA-2",
+    "status": "final",
+    "method": {
+      "code": "glm",
+      "display": "Generalized linear model"
+    },
+    "code": {
+      "code": "coronary-risk",
+      "display": "Coronary heart disease risk"
+    },
+    "subject_id": "PAT-23",
+    "occurrence_datetime": "2025-02-24T09:30:00Z",
+    "condition_id": "Condition/COND-9",
+    "basis": ["Observation/OBS-100", "Observation/OBS-101"],
+    "prediction": [
+      {
+        "outcome": { "code": "CHD", "display": "Coronary heart disease" },
+        "probabilityDecimal": 0.18,
+        "whenRange": { "low": "2025-02-24", "high": "2030-02-24" },
+        "rationale": "Framingham risk score with smoking history"
+      }
+    ],
+    "note": "Advise lipid panel and lifestyle counseling"
+  }
+}

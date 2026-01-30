@@ -1,0 +1,10 @@
+{
+  "charge_item_definition": {
+    "charge_item_definition_id": "CHID-1",
+    "url": "http://example.org/ChargeItemDefinition/CHID-1",
+    "status": "active",
+    "description": "Standard office visit charge",
+    "code": { "code": "99213", "display": "Office visit" },
+    "instance": ["ChargeItem/CHI-1"]
+  }
+}

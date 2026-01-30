@@ -1,0 +1,2 @@
+claim_id,claim_status,claim_type,claim_use,claim_patient_id,claim_created,claim_provider_id,claim_insurer_id,claim_total_value,claim_total_currency,claim_item_sequence,claim_item_product_or_service,claim_item_quantity,claim_item_unit_price,claim_item_net
+CLM-3,active,institutional,claim,PAT-6,2025-02-02T08:15:00Z,ORG-3,ORG-5,980.0,USD,1,99214,1,300.0,300.0

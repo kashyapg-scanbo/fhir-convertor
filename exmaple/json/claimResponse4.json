@@ -1,0 +1,69 @@
+{
+  "patient": {
+    "patient_id": "PAT-8",
+    "name": {
+      "first_name": "Elena",
+      "last_name": "Brooks"
+    }
+  },
+  "claim_response": {
+    "claim_response_id": "CR-3",
+    "status": "completed",
+    "type": {
+      "code": "institutional",
+      "display": "Institutional"
+    },
+    "use": "claim",
+    "patient_id": "PAT-8",
+    "created": "2025-02-25T16:30:00Z",
+    "insurer_id": "ORG-7",
+    "requestor_id": "ORG-8",
+    "request_id": "CLM-3",
+    "outcome": "partial",
+    "disposition": "Paid with patient responsibility",
+    "total": [
+      {
+        "category": {
+          "code": "benefit",
+          "display": "Benefit"
+        },
+        "amount": {
+          "value": 780,
+          "currency": "USD"
+        }
+      }
+    ],
+    "item": [
+      {
+        "item_sequence": 1,
+        "adjudication": [
+          {
+            "category": {
+              "code": "eligible",
+              "display": "Eligible"
+            },
+            "amount": {
+              "value": 480,
+              "currency": "USD"
+            }
+          }
+        ]
+      },
+      {
+        "item_sequence": 2,
+        "adjudication": [
+          {
+            "category": {
+              "code": "patient-resp",
+              "display": "Patient Responsibility"
+            },
+            "amount": {
+              "value": 300,
+              "currency": "USD"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "device": {
+    "device_id": "DEV-4",
+    "status": "inactive",
+    "manufacturer": "HealthTech",
+    "model_number": "HT-CPAP-200",
+    "serial_number": "SN-HT-200-77",
+    "type": { "code": "704142003", "display": "Continuous positive airway pressure device" },
+    "patient_id": "PAT-51",
+    "note": "Retired after upgrade"
+  }
+}

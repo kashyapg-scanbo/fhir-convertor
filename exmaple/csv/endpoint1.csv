@@ -1,0 +1,2 @@
+endpoint_id,endpoint_status,endpoint_connection_type_system,endpoint_connection_type_code,endpoint_name,endpoint_managing_organization,endpoint_payload_type_text,endpoint_address,endpoint_header,endpoint_note
+EP-1,active,http://terminology.hl7.org/CodeSystem/endpoint-connection-type,hl7-fhir-rest,FHIR R5 ingest,Organization/ORG-10,Any FHIR Resource,https://api.example.org/fhir,Authorization: Bearer TOKEN,Prod endpoint

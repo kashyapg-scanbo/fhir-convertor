@@ -1,0 +1,2 @@
+claim_id,claim_status,claim_type,claim_use,claim_patient_id,claim_created,claim_provider_id,claim_insurer_id,claim_total_value,claim_total_currency,claim_item_sequence,claim_item_product_or_service,claim_item_quantity,claim_item_unit_price,claim_item_net
+CLM-4,cancelled,vision,claim,PAT-7,2025-02-05T11:20:00Z,ORG-4,ORG-6,180.5,USD,1,92015,1,85.0,85.0

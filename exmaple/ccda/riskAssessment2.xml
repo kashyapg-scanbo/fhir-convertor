@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-23"/>
+      <patient><name><family>Smith</family><given>Liam</given></name></patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="75492-9" codeSystem="2.16.840.1.113883.6.1" displayName="Risk assessment"/>
+          <title>Risk Assessment</title>
+          <entry>
+            <observation classCode="OBS" moodCode="EVN">
+              <id extension="RA-2"/>
+              <code code="stroke-risk" displayName="Stroke risk" codeSystem="2.16.840.1.113883.6.96"/>
+              <statusCode code="final"/>
+              <effectiveTime value="20250224093000"/>
+              <value xsi:type="PQ" value="0.18" unit="1"/>
+              <text>18% 5-year stroke risk</text>
+            </observation>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

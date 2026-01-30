@@ -1,0 +1,12 @@
+{
+  "imaging_study": {
+    "imaging_study_id": "IMG-1",
+    "status": "available",
+    "modality": [{"code": "CT", "display": "Computed Tomography"}],
+    "subject_id": "PAT-60",
+    "encounter_id": "ENC-20",
+    "started": "2025-02-20T09:00:00Z",
+    "description": "CT chest without contrast",
+    "series": [{"uid": "1.2.840.113619.2.55.3.604688433.123", "number": 1, "description": "Axial chest"}]
+  }
+}

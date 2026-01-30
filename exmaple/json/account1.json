@@ -1,0 +1,14 @@
+{
+  "account": {
+    "account_id": "ACC-1",
+    "status": "active",
+    "type": { "code": "PBILLACCT", "display": "Patient billing account" },
+    "name": "Inpatient stay Feb",
+    "subject_ids": ["Patient/PAT-30"],
+    "service_period_start": "2025-02-10",
+    "service_period_end": "2025-02-15",
+    "balance": { "value": 1250.00, "currency": "USD" },
+    "coverage_ids": ["Coverage/COV-10"],
+    "note": "Deposit received"
+  }
+}

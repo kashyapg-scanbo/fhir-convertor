@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-20"/>
+      <patient>
+        <name><family>Nguyen</family><given>Arlen</given></name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="48765-2" codeSystem="2.16.840.1.113883.6.1" displayName="Alerts"/>
+          <title>Completed tasks list</title>
+          <entry>
+            <list classCode="LIST" moodCode="EVN">
+              <id extension="LIST-2"/>
+              <statusCode code="completed"/>
+              <code code="82549-5" codeSystem="2.16.840.1.113883.6.1" displayName="Task list"/>
+              <title>Discharge tasks</title>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <code code="385763009" codeSystem="2.16.840.1.113883.6.96" displayName="Discharge teaching"/>
+                  <value xsi:type="CD" code="385763009" codeSystem="2.16.840.1.113883.6.96" displayName="Education"/>
+                </observation>
+              </entryRelationship>
+            </list>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

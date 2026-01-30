@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-device-4"/>
+  <creationTime value="20250212130000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <device classCode="DEV" determinerCode="INSTANCE">
+        <id extension="DEV-4"/>
+        <code code="704142003" codeSystem="2.16.840.1.113883.6.96" displayName="CPAP device"/>
+        <manufacturerModelName>HT-CPAP-200</manufacturerModelName>
+        <softwareName>HT Firmware 2.3</softwareName>
+        <asMaintainedEntity>
+          <maintainedEntity>
+            <id extension="SN-HT-200-77"/>
+          </maintainedEntity>
+        </asMaintainedEntity>
+      </device>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

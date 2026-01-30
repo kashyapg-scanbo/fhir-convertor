@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget><patientRole><id extension="PAT-51"/><patient><name><family>Nguyen</family><given>Ben</given></name></patient></patientRole></recordTarget>
+  <component><structuredBody><component><section>
+    <code code="46264-1" codeSystem="2.16.840.1.113883.6.1" displayName="Devices"/>
+    <entry>
+      <manufacturedProduct classCode="MANU">
+        <id extension="DEV-4"/>
+        <manufacturerOrganization><name>HealthTech</name></manufacturerOrganization>
+        <manufacturedMaterial>
+          <code code="704142003" codeSystem="2.16.840.1.113883.6.96" displayName="CPAP device"/>
+        </manufacturedMaterial>
+      </manufacturedProduct>
+    </entry>
+  </section></component></structuredBody></component>
+</ClinicalDocument>

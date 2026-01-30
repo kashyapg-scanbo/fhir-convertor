@@ -1,0 +1,2 @@
+account_id,account_status,account_type_code,account_name,account_subject_ids,account_service_period_start,account_service_period_end,account_balance_value,account_balance_currency,account_coverage_ids,account_note
+ACC-2,inactive,PBILLACCT,Outpatient Feb,Patient/PAT-31,2025-02-05,2025-02-05,0.00,USD,Coverage/COV-11,Closed after payment

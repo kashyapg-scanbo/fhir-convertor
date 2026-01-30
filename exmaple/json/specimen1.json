@@ -1,0 +1,11 @@
+{
+  "specimen": {
+    "specimen_id": "SPEC-1",
+    "status": "available",
+    "type": { "code": "122555007", "display": "Venous blood specimen" },
+    "subject_id": "PAT-70",
+    "received_time": "2025-02-22T09:15:00Z",
+    "collection": { "collected_datetime": "2025-02-22T09:00:00Z" },
+    "note": "Fasting sample"
+  }
+}

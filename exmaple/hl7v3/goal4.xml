@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-goal-4"/>
+  <creationTime value="20250215120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <goal>
+        <id extension="GOAL-4"/>
+        <code code="41950-7" displayName="Daily steps" codeSystem="2.16.840.1.113883.6.1"/>
+        <statusCode code="completed"/>
+        <description>
+          <text>Walk 10,000 steps daily for 30 days.</text>
+        </description>
+      </goal>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

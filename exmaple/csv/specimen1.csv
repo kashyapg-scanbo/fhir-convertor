@@ -1,0 +1,2 @@
+specimen_id,specimen_status,specimen_type_code,specimen_type_display,specimen_subject_id,specimen_received_time,specimen_collected_datetime,specimen_note
+SPEC-1,available,122555007,Venous blood specimen,PAT-70,2025-02-22T09:15:00Z,2025-02-22T09:00:00Z,Fasting sample

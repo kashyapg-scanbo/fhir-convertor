@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <id extension="DOC-CHI-2"/>
+  <recordTarget><patientRole><id extension="PAT-41"/><patient><name><family>Choi</family><given>Daniel</given></name></patient></patientRole></recordTarget>
+  <component><structuredBody><component><section>
+    <code code="69969-7" codeSystem="2.16.840.1.113883.6.1"/>
+    <entry>
+      <observation classCode="OBS" moodCode="EVN">
+        <id extension="CHI-2"/>
+        <statusCode code="aborted"/>
+        <code code="71010" displayName="Chest x-ray" codeSystem="2.16.840.1.113883.6.12"/>
+        <value xsi:type="PQ" value="-20" unit="USD"/>
+      </observation>
+    </entry>
+  </section></component></structuredBody></component>
+</ClinicalDocument>

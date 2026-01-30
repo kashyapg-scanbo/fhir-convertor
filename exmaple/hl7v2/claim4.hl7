@@ -1,0 +1,4 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202502051200||Z99^CLAIM|MSG-Claim-4|P|2.5
+PID|1||PAT-7^^^HOSP^MR||Park^Lena||19950530|F
+OBX|1|TX|CLAIM^Claim details^L||CLM-4|Vision claim cancelled after duplicate submission|F
+NTE|1|L|Refund requested and claim voided

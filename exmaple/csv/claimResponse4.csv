@@ -1,0 +1,2 @@
+claim_response_id,claim_response_status,claim_response_type,claim_response_use,claim_response_patient_id,claim_response_created,claim_response_insurer_id,claim_response_requestor_id,claim_response_request_id,claim_response_outcome,claim_response_total_value,claim_response_total_currency,claim_response_item_sequence,claim_response_item_category,claim_response_item_amount
+CR-3,completed,institutional,claim,PAT-8,2025-02-25T16:30:00Z,ORG-7,ORG-8,CLM-3,partial,780,USD,1,eligible,480
