@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-supplyDelivery-2"/>
+  <creationTime value="20250224153000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <supply classCode="SPLY" moodCode="EVN">
+        <id extension="SD-2"/>
+        <statusCode code="in-progress"/>
+        <effectiveTime value="20250224153000"/>
+        <product><manufacturedProduct><manufacturedMaterial><code code="736271009" codeSystem="2.16.840.1.113883.6.96" displayName="Wound dressing pack"/></manufacturedMaterial></manufacturedProduct></product>
+      </supply>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-imagingStudy-2"/>
+  <creationTime value="20250219143000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <imagingStudy>
+        <id extension="IMG-2"/>
+        <statusCode code="available"/>
+        <code code="MR" displayName="Magnetic Resonance" codeSystem="2.16.840.1.113883.6.1"/>
+        <effectiveTime value="20250219143000"/>
+        <text>Brain MRI with contrast</text>
+      </imagingStudy>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

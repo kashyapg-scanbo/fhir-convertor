@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-imagingStudy-1"/>
+  <creationTime value="20250220090000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <imagingStudy>
+        <id extension="IMG-1"/>
+        <statusCode code="available"/>
+        <code code="CT" displayName="Computed Tomography" codeSystem="2.16.840.1.113883.6.1"/>
+        <effectiveTime value="20250220090000"/>
+        <text>CT chest without contrast</text>
+      </imagingStudy>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

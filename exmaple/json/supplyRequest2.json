@@ -1,0 +1,14 @@
+{
+  "supply_request": {
+    "supply_request_id": "SR-2",
+    "status": "completed",
+    "intent": "order",
+    "category": { "code": "consumable", "display": "Wound care" },
+    "item": { "code": "736271009", "display": "Wound dressing pack" },
+    "quantity": { "value": 5, "unit": "pack" },
+    "requester_id": "PRAC-21",
+    "patient_id": "PAT-81",
+    "authored_on": "2025-02-24T12:30:00Z",
+    "note": "Daily dressing changes"
+  }
+}

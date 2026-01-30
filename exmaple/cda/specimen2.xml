@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <id extension="DOC-SPEC-2"/>
+  <recordTarget><patientRole><id extension="PAT-71"/><patient><name><family>Price</family><given>Noah</given></name></patient></patientRole></recordTarget>
+  <component><structuredBody><component><section>
+    <code code="10210-3" codeSystem="2.16.840.1.113883.6.1"/>
+    <entry>
+      <specimen>
+        <specimenRole>
+          <id extension="SPEC-2"/>
+          <specimenPlayingEntity>
+            <code code="119365002" codeSystem="2.16.840.1.113883.6.96" displayName="Throat swab"/>
+          </specimenPlayingEntity>
+        </specimenRole>
+      </specimen>
+    </entry>
+  </section></component></structuredBody></component>
+</ClinicalDocument>

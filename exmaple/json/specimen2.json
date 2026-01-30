@@ -1,0 +1,11 @@
+{
+  "specimen": {
+    "specimen_id": "SPEC-2",
+    "status": "unavailable",
+    "type": { "code": "119365002", "display": "Throat swab" },
+    "subject_id": "PAT-71",
+    "received_time": "2025-02-21T13:20:00Z",
+    "collection": { "collected_datetime": "2025-02-21T13:00:00Z" },
+    "note": "Insufficient quantity"
+  }
+}
