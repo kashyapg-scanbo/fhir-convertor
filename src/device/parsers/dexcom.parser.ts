@@ -26,10 +26,35 @@ export function parseDexcom(input: string): CanonicalModel {
     throw new Error('Invalid JSON input for Dexcom parser');
   }
 
+  const originalDataBase64 = Buffer.from(input, 'utf8').toString('base64');
+
+  const recordType = (data as any).recordType;
+  const records = (data as any).records;
+  if (recordType && Array.isArray(records)) {
+    const normalizedType = String(recordType).toLowerCase();
+    if (normalizedType === 'egv' || normalizedType === 'egvs') {
+      data.egvs = records;
+    } else if (normalizedType === 'calibration' || normalizedType === 'calibrations') {
+      data.calibrations = records;
+    } else if (normalizedType === 'event' || normalizedType === 'events') {
+      data.events = records;
+    } else if (normalizedType === 'device' || normalizedType === 'devices') {
+      data.devices = records;
+    }
+    if (!data.user && (data as any).userId) {
+      data.user = { id: (data as any).userId };
+    }
+  }
+
   const observations: CanonicalObservation[] = [];
-  const defaultDeviceUid = data.device?.transmitter_id
-    ? `dexcom-${data.device.transmitter_id}`
-    : 'dexcom';
+  const deviceInfo = data.device || data.devices?.[0];
+  const defaultDeviceUid = deviceInfo?.transmitter_id
+    ? `dexcom-${deviceInfo.transmitter_id}`
+    : deviceInfo?.transmitterGeneration
+      ? `dexcom-${deviceInfo.transmitterGeneration}`
+      : deviceInfo?.model
+        ? `dexcom-${deviceInfo.model}`
+        : 'dexcom';
   const patient: CanonicalPatient = {
     name: {},
     identifier: data.user?.id
@@ -51,22 +76,50 @@ export function parseDexcom(input: string): CanonicalModel {
     }
   }
 
+  const normalizeTimestamp = (value?: string): string | undefined => {
+    if (!value) return undefined;
+    if (/[zZ]|[+-]\d{2}:\d{2}$/.test(value)) return value;
+    return `${value}Z`;
+  };
+
+  const toDateOnly = (value?: string): string | undefined => {
+    if (!value) return value;
+    const tIndex = value.indexOf('T');
+    return tIndex === -1 ? value : value.slice(0, tIndex);
+  };
+
+  const addSampleTimestampComponent = (components: CanonicalObservation['components'], timestamp?: string) => {
+    if (!timestamp) return;
+    components?.push({
+      code: {
+        system: 'urn:hl7-org:local',
+        code: 'sample-timestamp',
+        display: 'Sample timestamp'
+      },
+      valueString: timestamp
+    });
+  };
+
   // Parse EGV (Estimated Glucose Value) data
   if (data.egvs && Array.isArray(data.egvs)) {
+    const grouped = new Map<string, CanonicalObservation['components']>();
+
     for (const egv of data.egvs) {
-      if (egv.value !== undefined) {
+      const value = egv.value ?? egv.smoothed_value ?? egv.smoothedValue ?? egv.realtime_value ?? egv.realtimeValue;
+      if (value !== undefined) {
+        const timestamp = normalizeTimestamp(egv.timestamp || egv.systemTime || egv.display_time || egv.displayTime);
         // Main glucose observation
         const glucoseObs: CanonicalObservation = {
           code: {
             system: 'http://loinc.org',
-            code: '14745-4',
-            display: 'Glucose [Mass/volume] in Serum or Plasma'
+            code: '2339-0',
+            display: 'Glucose [Mass/volume] in Blood'
           },
-          value: egv.value,
-          unit: 'mg/dL',
+          value,
+          unit: egv.unit || 'mg/dL',
           unitSystem: 'http://unitsofmeasure.org',
-          unitCode: 'mg/dL',
-          date: egv.timestamp || egv.display_time,
+          unitCode: egv.unit || 'mg/dL',
+          date: timestamp,
           category: [{
             system: 'http://terminology.hl7.org/CodeSystem/observation-category',
             code: 'laboratory',
@@ -79,17 +132,11 @@ export function parseDexcom(input: string): CanonicalModel {
         if (egv.trend) {
           glucoseObs.components = [{
             code: {
-              system: 'http://loinc.org',
-              code: '8861-0',
+              system: 'urn:hl7-org:local',
+              code: 'glucose-trend',
               display: 'Glucose trend'
             },
-            valueCodeableConcept: {
-              coding: [{
-                system: 'http://snomed.info/sct',
-                code: mapTrendToSNOMED(egv.trend),
-                display: egv.trend
-              }]
-            }
+            valueString: egv.trend
           }];
         }
 
@@ -101,18 +148,19 @@ export function parseDexcom(input: string): CanonicalModel {
         observations.push(glucoseObs);
 
         // If smoothed value is different, add as separate observation
-        if (egv.smoothed_value !== undefined && egv.smoothed_value !== egv.value) {
+        const smoothed = egv.smoothed_value ?? egv.smoothedValue;
+        if (smoothed !== undefined && smoothed !== null && smoothed !== value) {
           observations.push({
             code: {
               system: 'http://loinc.org',
-              code: '14745-4',
-              display: 'Glucose [Mass/volume] in Serum or Plasma (smoothed)'
+              code: '2339-0',
+              display: 'Glucose [Mass/volume] in Blood (smoothed)'
             },
-            value: egv.smoothed_value,
-            unit: 'mg/dL',
+            value: smoothed,
+            unit: egv.unit || 'mg/dL',
             unitSystem: 'http://unitsofmeasure.org',
-            unitCode: 'mg/dL',
-            date: egv.timestamp || egv.display_time,
+            unitCode: egv.unit || 'mg/dL',
+            date: timestamp,
             category: [{
               system: 'http://terminology.hl7.org/CodeSystem/observation-category',
               code: 'laboratory',
@@ -121,7 +169,38 @@ export function parseDexcom(input: string): CanonicalModel {
             status: 'final'
           });
         }
+
+        const dateOnly = toDateOnly(timestamp);
+        if (dateOnly) {
+          const components = grouped.get(dateOnly) || [];
+          components.push({
+            code: { system: 'http://loinc.org', code: '2339-0', display: 'Glucose [Mass/volume] in Blood' },
+            valueQuantity: {
+              value,
+              unit: egv.unit || 'mg/dL',
+              system: 'http://unitsofmeasure.org',
+              code: egv.unit || 'mg/dL'
+            }
+          });
+          addSampleTimestampComponent(components, timestamp);
+          grouped.set(dateOnly, components);
+        }
       }
+    }
+
+    for (const [date, components] of grouped.entries()) {
+      if (!components?.length) continue;
+      observations.push({
+        code: { system: 'urn:hl7-org:local', code: 'dexcom-daily-glucose', display: 'Daily glucose samples' },
+        date,
+        status: 'final',
+        category: [{
+          system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+          code: 'laboratory',
+          display: 'Laboratory'
+        }],
+        components
+      });
     }
   }
 
@@ -129,17 +208,18 @@ export function parseDexcom(input: string): CanonicalModel {
   if (data.calibrations && Array.isArray(data.calibrations)) {
     for (const cal of data.calibrations) {
       if (cal.value !== undefined) {
+        const timestamp = normalizeTimestamp(cal.timestamp || cal.systemTime || cal.displayTime);
         observations.push({
           code: {
             system: 'http://loinc.org',
-            code: '14745-4',
-            display: 'Glucose [Mass/volume] in Serum or Plasma'
+            code: '2339-0',
+            display: 'Glucose [Mass/volume] in Blood'
           },
           value: cal.value,
           unit: cal.unit || 'mg/dL',
           unitSystem: 'http://unitsofmeasure.org',
           unitCode: cal.unit || 'mg/dL',
-          date: cal.timestamp,
+          date: timestamp,
           category: [{
             system: 'http://terminology.hl7.org/CodeSystem/observation-category',
             code: 'laboratory',
@@ -158,14 +238,16 @@ export function parseDexcom(input: string): CanonicalModel {
   // Parse Events (alarms, alerts)
   if (data.events && Array.isArray(data.events)) {
     for (const event of data.events) {
-      if (event.event_type === 'alarm' || event.event_type === 'alert') {
+      const eventType = event.event_type || event.eventType;
+      const timestamp = normalizeTimestamp(event.timestamp || event.systemTime || event.displayTime);
+      if (eventType === 'alarm' || eventType === 'alert') {
         observations.push({
           code: {
             system: 'http://loinc.org',
             code: '2339-0',
             display: 'Glucose [Mass/volume] in Blood'
           },
-          date: event.timestamp,
+          date: timestamp,
           category: [{
             system: 'http://terminology.hl7.org/CodeSystem/observation-category',
             code: 'laboratory',
@@ -186,7 +268,26 @@ export function parseDexcom(input: string): CanonicalModel {
 
   const result: CanonicalModel = {
     patient: Object.keys(patient).length > 1 ? patient : undefined,
-    observations: observations.length > 0 ? observations : undefined
+    observations: observations.length > 0 ? observations : undefined,
+    documentReferences: [{
+      status: 'current',
+      type: {
+        coding: [{
+          system: 'http://loinc.org',
+          code: '34133-9',
+          display: 'Summary of episode note'
+        }]
+      },
+      date: new Date().toISOString(),
+      content: [{
+        attachment: {
+          contentType: 'application/json',
+          data: originalDataBase64,
+          title: 'Dexcom API Original Request Data',
+          format: 'json'
+        }
+      }]
+    }]
   };
 
   return result;
@@ -214,12 +315,20 @@ function mapTrendToSNOMED(trend?: string): string {
   if (!trend) return '260385009'; // No change
   const normalized = trend.toLowerCase();
   switch (normalized) {
+    case 'doubleup':
+    case 'singleup':
+    case 'fortyfiveup':
     case 'rising':
     case 'risingquickly':
       return '260410001'; // Increasing
+    case 'doubledown':
+    case 'singledown':
+    case 'fortyfivedown':
     case 'falling':
     case 'fallingquickly':
       return '260412009'; // Decreasing
+    case 'rateoutofrange':
+    case 'notcomputable':
     case 'flat':
       return '260385009'; // No change
     default:
