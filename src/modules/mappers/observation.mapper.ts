@@ -183,6 +183,29 @@ function resolveUnitCode(unit?: string, unitCode?: string) {
   return ucumUnitMap[key] || unitCode || unit;
 }
 
+/** FHIR R5 Observation status value set: registered, preliminary, final, amended, corrected, cancelled, entered-in-error, unknown, etc. Maps common synonyms to valid codes. */
+const FHIR_OBSERVATION_STATUSES = new Set([
+  'registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown',
+  'specimen-in-process', 'appended', 'not-performed'
+]);
+function toFhirObservationStatus(status?: string): string {
+  if (!status) return 'final';
+  const lower = status.toLowerCase().trim();
+  if (FHIR_OBSERVATION_STATUSES.has(lower)) return lower;
+  if (['completed', 'complete', 'done'].includes(lower)) return 'final';
+  return 'final';
+}
+
+/** Ensure dateTime is in a format FHIR validators accept (ISO 8601 with optional milliseconds). */
+function normalizeFhirDateTime(dateStr?: string): string | undefined {
+  if (!dateStr || typeof dateStr !== 'string') return undefined;
+  const s = dateStr.trim();
+  if (!s) return undefined;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/i.test(s)) return s.replace(/Z$/i, '.000Z');
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})$/i.test(s)) return s.replace(/([+-]\d{2}:\d{2})$/i, '.000$1');
+  return s;
+}
+
 function buildQuantity(value: string | number, unit?: string, unitCode?: string) {
   const num = Number(value);
   if (!Number.isFinite(num)) return undefined;
@@ -224,10 +247,11 @@ export function mapObservations({
     if (!group.systolic || !group.diastolic) return;
     const bpResource = structuredClone(observationTemplate) as any;
     bpResource.id = crypto.randomUUID();
-    bpResource.status = group.systolic.status || group.diastolic.status || 'final';
+    bpResource.status = toFhirObservationStatus(group.systolic.status || group.diastolic.status);
     bpResource.subject = patientFullUrl ? { reference: patientFullUrl } : undefined;
     bpResource.encounter = encounterFullUrl ? { reference: encounterFullUrl } : undefined;
-    bpResource.effectiveDateTime = group.systolic.date || group.diastolic.date || new Date().toISOString();
+    const bpDate = group.systolic.date || group.diastolic.date;
+    bpResource.effectiveDateTime = normalizeFhirDateTime(bpDate) || new Date().toISOString();
     bpResource.category = [{
       coding: [{
         system: 'http://terminology.hl7.org/CodeSystem/observation-category',
@@ -353,17 +377,17 @@ export function mapObservations({
     const obsSummary = primaryCode?.code || primaryCode?.display || '';
     if (obsSummary) resource.text = makeNarrative('Observation', String(obsSummary));
 
-    resource.status = obs.status || 'final';
-    
+    resource.status = toFhirObservationStatus(obs.status);
+
     // Handle effectivePeriod if provided, otherwise use effectiveDateTime
     if (obs.effectivePeriod?.start || obs.effectivePeriod?.end) {
       resource.effectivePeriod = {
-        start: obs.effectivePeriod.start,
-        end: obs.effectivePeriod.end
+        start: normalizeFhirDateTime(obs.effectivePeriod.start) ?? obs.effectivePeriod.start,
+        end: normalizeFhirDateTime(obs.effectivePeriod.end) ?? obs.effectivePeriod.end
       };
       resource.effectiveDateTime = undefined;
     } else {
-      resource.effectiveDateTime = obs.date || new Date().toISOString();
+      resource.effectiveDateTime = normalizeFhirDateTime(obs.date) || new Date().toISOString();
       resource.effectivePeriod = undefined;
     }
 

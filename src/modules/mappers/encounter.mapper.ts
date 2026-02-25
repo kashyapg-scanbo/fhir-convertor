@@ -17,26 +17,45 @@ export interface EncounterMappingResult {
   encounterFullUrl?: string;
 }
 
-function mapEncounterClass(code: string) {
-  if (!code) return undefined;
-  const normalized = code.toUpperCase();
-  switch (normalized) {
-    case 'IMP':
-      return 'inpatient encounter';
-    case 'AMB':
-      return 'ambulatory';
-    case 'SS':
-      return 'short stay';
-    case 'EMER':
-    case 'EMERGENCY':
-      return 'emergency';
-    case 'OBS':
-      return 'observation';
-    case 'VR':
-      return 'virtual';
-    default:
-      return normalized.toLowerCase();
-  }
+/** FHIR R5 Encounter status value set: planned, in-progress, on-hold, discharged, completed, cancelled, discontinued, entered-in-error, unknown. */
+const FHIR_ENCOUNTER_STATUSES = new Set([
+  'planned', 'in-progress', 'on-hold', 'discharged', 'completed', 'cancelled', 'discontinued', 'entered-in-error', 'unknown'
+]);
+function toFhirEncounterStatus(status?: string): string {
+  if (!status) return 'in-progress';
+  const lower = status.toLowerCase().trim();
+  if (FHIR_ENCOUNTER_STATUSES.has(lower)) return lower;
+  if (['finished', 'done', 'complete', 'final'].includes(lower)) return 'completed';
+  return 'in-progress';
+}
+
+/** v3-ActCode encounter class: use official codes (AMB, IMP, etc.); map display names to code. */
+function toFhirEncounterClassCode(input: string): { code: string; display: string } {
+  if (!input) return { code: 'IMP', display: 'inpatient encounter' };
+  const normalized = input.trim().toUpperCase();
+  const map: Record<string, { code: string; display: string }> = {
+    'AMB': { code: 'AMB', display: 'ambulatory' },
+    'AMBULATORY': { code: 'AMB', display: 'ambulatory' },
+    'IMP': { code: 'IMP', display: 'inpatient encounter' },
+    'INPATIENT': { code: 'IMP', display: 'inpatient encounter' },
+    'SS': { code: 'SS', display: 'short stay' },
+    'EMER': { code: 'EMER', display: 'emergency' },
+    'EMERGENCY': { code: 'EMER', display: 'emergency' },
+    'OBS': { code: 'OBSENC', display: 'observation' },
+    'OBSERVATION': { code: 'OBSENC', display: 'observation' },
+    'VR': { code: 'VR', display: 'virtual' },
+    'VIRTUAL': { code: 'VR', display: 'virtual' },
+    'HH': { code: 'HH', display: 'home health' },
+    'FLD': { code: 'FLD', display: 'field' }
+  };
+  if (map[normalized]) return map[normalized];
+  const lower = input.trim().toLowerCase();
+  if (lower === 'ambulatory') return { code: 'AMB', display: 'ambulatory' };
+  if (lower === 'inpatient') return { code: 'IMP', display: 'inpatient encounter' };
+  if (lower === 'emergency') return { code: 'EMER', display: 'emergency' };
+  if (lower === 'observation') return { code: 'OBSENC', display: 'observation' };
+  if (lower === 'virtual') return { code: 'VR', display: 'virtual' };
+  return { code: normalized || 'IMP', display: input.trim() };
 }
 
 export function mapEncounter({
@@ -55,7 +74,7 @@ export function mapEncounter({
   const identifierSystem = 'urn:hl7-org:v2';
 
   encounterResource.id = crypto.randomUUID();
-  encounterResource.status = canonicalEncounter.status || 'in-progress';
+  encounterResource.status = toFhirEncounterStatus(canonicalEncounter.status);
   const encounterFullUrl = `urn:uuid:${encounterResource.id}`;
 
   encounterResource.identifier = encounterIdentifier ? [{
@@ -74,24 +93,27 @@ export function mapEncounter({
 
   encounterResource.subject = patientFullUrl ? { reference: patientFullUrl } : undefined;
   if (canonicalEncounter.class) {
-    const classCode = String(canonicalEncounter.class);
-    const mappedClass = mapEncounterClass(classCode) || 'inpatient';
+    const classInput = String(canonicalEncounter.class);
+    const { code: classCode, display: classDisplay } = toFhirEncounterClassCode(classInput);
     encounterResource.class = [{
       coding: [
         {
           system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
           code: classCode,
-          display: mappedClass
+          display: classDisplay
         }
       ]
     }];
-    encounterResource.text = makeNarrative('Encounter', `class ${classCode}`);
+    encounterResource.text = makeNarrative('Encounter', `class ${classDisplay}`);
   } else {
     encounterResource.class = undefined;
   }
 
-  if (canonicalEncounter.start) {
-    encounterResource.actualPeriod = { start: canonicalEncounter.start };
+  if (canonicalEncounter.start || canonicalEncounter.end) {
+    encounterResource.actualPeriod = {
+      ...(canonicalEncounter.start && { start: canonicalEncounter.start }),
+      ...(canonicalEncounter.end && { end: canonicalEncounter.end })
+    };
   } else {
     encounterResource.actualPeriod = undefined;
   }
@@ -104,20 +126,23 @@ export function mapEncounter({
     encounterResource.location = undefined;
   }
 
-  if (canonicalEncounter.serviceProviderOrganizationId) {
-    encounterResource.serviceProvider = {
-      reference: resolveRef('Organization', canonicalEncounter.serviceProviderOrganizationId)
-    };
+  const serviceProviderRef = canonicalEncounter.serviceProviderOrganizationId
+    ? resolveRef('Organization', canonicalEncounter.serviceProviderOrganizationId)
+    : undefined;
+  if (serviceProviderRef) {
+    encounterResource.serviceProvider = { reference: serviceProviderRef };
   } else {
     encounterResource.serviceProvider = undefined;
   }
 
   if (canonicalEncounter.participantPractitionerIds?.length) {
-    encounterResource.participant = canonicalEncounter.participantPractitionerIds.map(practitionerId => ({
-      actor: {
-        reference: resolveRef('Practitioner', practitionerId)
-      }
-    }));
+    encounterResource.participant = canonicalEncounter.participantPractitionerIds
+      .map(practitionerId => {
+        const ref = resolveRef('Practitioner', practitionerId);
+        return ref ? { actor: { reference: ref } } : null;
+      })
+      .filter((p): p is { actor: { reference: string } } => p !== null);
+    if (encounterResource.participant.length === 0) encounterResource.participant = undefined;
   } else {
     encounterResource.participant = undefined;
   }

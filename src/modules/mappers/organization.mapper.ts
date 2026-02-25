@@ -36,9 +36,10 @@ export function mapOrganizations({
     organization.name = source.name || undefined;
     organization.alias = source.alias?.length ? source.alias : undefined;
     if ((source.telecom && source.telecom.length > 0) || (source.address && source.address.length > 0)) {
+      const firstAddress = source.address?.[0];
       organization.contact = [{
         telecom: source.telecom || [],
-        address: source.address || []
+        address: firstAddress ?? undefined
       }];
     } else {
       organization.contact = undefined;

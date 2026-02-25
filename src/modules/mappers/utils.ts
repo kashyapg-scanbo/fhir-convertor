@@ -1,3 +1,17 @@
+/**
+ * FHIR Patient.birthDate (and similar) must be type "date" (YYYY-MM-DD), not dateTime.
+ * Converts dateTime strings to date-only so validators accept them.
+ */
+export function toFhirDate(value?: string): string | undefined {
+  if (!value || typeof value !== 'string') return undefined;
+  const s = value.trim();
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/;
+  if (dateOnly.test(s)) return s;
+  const dateTimeMatch = /^(\d{4}-\d{2}-\d{2})T/.exec(s);
+  if (dateTimeMatch) return dateTimeMatch[1];
+  return s;
+}
+
 export function cleanResource<T>(obj: T): T | undefined {
   if (obj === null || obj === undefined) return undefined;
   if (Array.isArray(obj)) {

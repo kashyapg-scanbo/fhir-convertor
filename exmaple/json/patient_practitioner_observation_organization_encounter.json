@@ -1,0 +1,124 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "patient_first_name": "Jane",
+    "patient_middle_name": "M.",
+    "patient_last_name": "Doe",
+    "patient_name": "Jane M. Doe",
+    "patient_gender": "female",
+    "patient_birth_date": "1985-03-15",
+    "patient_phone": "555-0101",
+    "patient_email": "jane.doe@example.org",
+    "patient_address_line1": "101 Main St",
+    "patient_address_line2": "Suite 101",
+    "patient_city": "Metropolis",
+    "patient_state": "CA",
+    "patient_postal_code": "12345",
+    "patient_country": "USA"
+  },
+  "practitioner": {
+    "practitioner_id": "PRAC-1",
+    "name": {
+      "first_name": "John",
+      "middle_name": "R.",
+      "last_name": "Smith",
+      "prefix": "Dr",
+      "suffix": "MD"
+    },
+    "gender": "male",
+    "contact_info": {
+      "phone": "555-0202",
+      "email": "dr.smith@clinic.example.org",
+      "address": {
+        "street": "200 Clinic Ave",
+        "city": "Metropolis",
+        "state": "CA",
+        "postal_code": "12346",
+        "country": "USA"
+      }
+    },
+    "license": {
+      "license_number": "MD-12345",
+      "state_issued": "CA",
+      "issue_date": "2010-06-01",
+      "expiry_date": "2026-06-01"
+    },
+    "specialization": "Internal Medicine"
+  },
+  "organization": {
+    "organization_id": "ORG-1",
+    "name": "Metropolis General Clinic",
+    "type": "provider",
+    "contact_info": {
+      "phone": "555-0300",
+      "email": "info@metropolis-clinic.org",
+      "address": {
+        "street": "300 Health Campus Dr",
+        "city": "Metropolis",
+        "state": "CA",
+        "postal_code": "12347",
+        "country": "USA"
+      },
+      "website": "https://metropolis-clinic.org"
+    },
+    "departments": [
+      { "name": "Outpatient Care", "contact_phone": "555-0301" }
+    ],
+    "services_offered": ["Primary care", "Lab", "Vital signs"]
+  },
+  "encounter": {
+    "encounter_id": "ENC-1",
+    "patient_id": "PAT-1",
+    "practitioner_id": "PRAC-1",
+    "organization_id": "ORG-1",
+    "encounter_type": "ambulatory",
+    "reason_for_visit": "Annual checkup and vital signs",
+    "start_date": "2024-05-12T09:00:00.000Z",
+    "end_date": "2024-05-12T09:30:00.000Z",
+    "location": {
+      "facility_name": "Metropolis General Clinic",
+      "room": "Exam 3",
+      "address": {
+        "street": "300 Health Campus Dr",
+        "city": "Metropolis",
+        "state": "CA",
+        "postal_code": "12347",
+        "country": "USA"
+      }
+    },
+    "status": "finished",
+    "note": "Patient seen by Dr. Smith for routine vitals."
+  },
+  "observation": [
+    {
+      "observation_id": "OBS-1",
+      "observation_code": "8867-4",
+      "observation_code_system": "http://loinc.org",
+      "observation_display": "Heart rate",
+      "observation_value": 72,
+      "observation_unit": "beats/min",
+      "observation_date": "2024-05-12T09:15:00.000Z",
+      "observation_status": "final"
+    },
+    {
+      "observation_id": "OBS-2",
+      "observation_code": "8310-5",
+      "observation_code_system": "http://loinc.org",
+      "observation_display": "Body temperature",
+      "observation_value": 36.6,
+      "observation_unit": "Cel",
+      "observation_date": "2024-05-12T09:16:00.000Z",
+      "observation_status": "final"
+    },
+    {
+      "observation_id": "OBS-3",
+      "observation_code": "29463-7",
+      "observation_code_system": "http://loinc.org",
+      "observation_display": "Body weight",
+      "observation_value": 68,
+      "observation_unit": "kg",
+      "observation_date": "2024-05-12T09:10:00.000Z",
+      "observation_status": "final"
+    }
+  ]
+}

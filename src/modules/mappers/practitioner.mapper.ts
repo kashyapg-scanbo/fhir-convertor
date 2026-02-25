@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import practitionerTemplate from '../../shared/templates/practitioner.json' with { type: 'json' };
 import type { CanonicalPractitioner, OperationType } from '../../shared/types/canonical.types.js';
 import { FullUrlRegistry } from './fullUrlRegistry.js';
-import { makeNarrative } from './utils.js';
+import { makeNarrative, toFhirDate } from './utils.js';
 
 interface PractitionerMapperArgs {
   practitioners?: CanonicalPractitioner[];
@@ -37,7 +37,8 @@ export function mapPractitioners({
       'Practitioner',
       {
         identifier: identifierValue,
-        id: practitioner.id
+        id: practitioner.id,
+        additionalKeys: practitionerSource.id && practitionerSource.id !== identifierValue ? [practitionerSource.id] : undefined
       },
       fullUrl
     );
@@ -59,7 +60,7 @@ export function mapPractitioners({
     }] : undefined;
 
     practitioner.gender = practitionerSource.gender || undefined;
-    practitioner.birthDate = practitionerSource.birthDate || undefined;
+    practitioner.birthDate = toFhirDate(practitionerSource.birthDate) || undefined;
     practitioner.address = practitionerSource.address?.length ? practitionerSource.address : undefined;
     practitioner.telecom = practitionerSource.telecom?.length ? practitionerSource.telecom : undefined;
     practitioner.deceasedBoolean = undefined;

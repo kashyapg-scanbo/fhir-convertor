@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import personTemplate from '../../shared/templates/person.json' with { type: 'json' };
 import type { CanonicalPerson, OperationType } from '../../shared/types/canonical.types.js';
 import { FullUrlRegistry } from './fullUrlRegistry.js';
-import { makeNarrative } from './utils.js';
+import { makeNarrative, toFhirDate } from './utils.js';
 
 interface PersonMapperArgs {
   persons?: CanonicalPerson[];
@@ -54,7 +54,7 @@ export function mapPersons({
       use: t.use
     }));
     person.gender = source.gender || undefined;
-    person.birthDate = source.birthDate || undefined;
+    person.birthDate = toFhirDate(source.birthDate) || undefined;
     person.deceasedBoolean = source.deceasedBoolean ?? undefined;
     person.deceasedDateTime = source.deceasedDateTime || undefined;
     person.address = source.address?.map(addr => ({

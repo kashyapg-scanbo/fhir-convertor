@@ -148,6 +148,7 @@ const GlobalEncounterSchema = z.object({
   encounter_id: GlobalIdSchema.optional(),
   patient_id: GlobalIdSchema.optional(),
   practitioner_id: GlobalIdSchema.optional(),
+  organization_id: GlobalIdSchema.optional(),
   encounter_type: z.string().optional(),
   reason_for_visit: z.string().optional(),
   start_date: z.string().optional(),
@@ -1027,6 +1028,17 @@ const GlobalFlagSchema = z.object({
   period_end: z.string().optional(),
   encounter_id: GlobalIdSchema.optional(),
   author_id: GlobalIdSchema.optional()
+});
+
+const GlobalObservationSchema = z.object({
+  observation_id: GlobalIdSchema.optional(),
+  observation_code: z.string().optional(),
+  observation_code_system: z.string().optional(),
+  observation_display: z.string().optional(),
+  observation_value: z.union([z.string(), z.number()]).optional(),
+  observation_unit: z.string().optional(),
+  observation_date: z.string().optional(),
+  observation_status: z.string().optional()
 });
 
 const GlobalListEntrySchema = z.object({
@@ -2730,6 +2742,8 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   device_usage: z.union([GlobalDeviceUsageSchema, z.array(GlobalDeviceUsageSchema)]).optional(),
   encounter_history: z.union([GlobalEncounterHistorySchema, z.array(GlobalEncounterHistorySchema)]).optional(),
   flag: z.union([GlobalFlagSchema, z.array(GlobalFlagSchema)]).optional(),
+  observation: z.union([GlobalObservationSchema, z.array(GlobalObservationSchema)]).optional(),
+  observations: z.union([GlobalObservationSchema, z.array(GlobalObservationSchema)]).optional(),
   list: z.union([GlobalListSchema, z.array(GlobalListSchema)]).optional(),
   group: z.union([GlobalGroupSchema, z.array(GlobalGroupSchema)]).optional(),
   healthcare_service: z.union([GlobalHealthcareServiceSchema, z.array(GlobalHealthcareServiceSchema)]).optional(),
@@ -2804,6 +2818,8 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.device_usage ||
     value.encounter_history ||
     value.flag ||
+    value.observation ||
+    value.observations ||
     value.list ||
     value.group ||
     value.healthcare_service ||
@@ -2865,7 +2881,7 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.organization
   );
 }, {
-  message: 'At least one resource section is required (patient, encounter, medication, medication_knowledge, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, group, healthcare_service, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, insurance_plan, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
+  message: 'At least one resource section is required (patient, encounter, observation, medication, medication_knowledge, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, group, healthcare_service, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, consent, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, insurance_plan, account, charge_item, charge_item_definition, device, device_metric, endpoint, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).',
   path: []
 });
 
@@ -8630,6 +8646,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const deviceUsages = normalizeArray(validated.device_usage);
   const encounterHistories = normalizeArray(validated.encounter_history);
   const flags = normalizeArray(validated.flag);
+  const observations = normalizeArray(validated.observation ?? validated.observations);
   const lists = normalizeArray(validated.list);
   const groups = normalizeArray(validated.group);
   const healthcareServices = normalizeArray(validated.healthcare_service);
@@ -8732,6 +8749,9 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   }
   if (flags.length) {
     canonical.flags = flags.map(buildCanonicalFlagGlobal);
+  }
+  if (observations.length) {
+    canonical.observations = observations.map(buildCanonicalObservationGlobal);
   }
   if (lists.length) {
     canonical.lists = lists.map(buildCanonicalListGlobal);
@@ -9055,7 +9075,7 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'verification_result', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'observation', 'observations', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'verification_result', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
     const candidates = [
@@ -9072,6 +9092,8 @@ function wrapGlobalPayload(value: any) {
       value.device_usage,
       value.encounter_history,
       value.flag,
+      value.observation,
+      value.observations,
       value.list,
       value.nutrition_intake,
       value.nutrition_order,
@@ -9138,6 +9160,9 @@ function wrapGlobalPayload(value: any) {
     }
     if ('encounter_id' in value || 'encounter_type' in value) {
       return { encounter: value };
+    }
+    if ('observation_id' in value || 'observation_code' in value) {
+      return { observation: value };
     }
     if ('medication_request_id' in value || 'dosage_instruction' in value) {
       return { medication_request: value };
@@ -9392,6 +9417,8 @@ function looksLikeGlobalResource(value: any) {
     'flag_id' in value ||
     'flag_status' in value ||
     'flag_code' in value ||
+    'observation_id' in value ||
+    'observation_code' in value ||
     'list_id' in value ||
     'list_status' in value ||
     'list_mode' in value ||
@@ -9594,9 +9621,11 @@ function buildCanonicalEncounterGlobal(encounter: z.infer<typeof GlobalEncounter
     id: encounter.encounter_id,
     class: encounter.encounter_type,
     start: encounter.start_date,
+    end: encounter.end_date,
     location: locationParts || undefined,
     status: encounter.status,
-    participantPractitionerIds: encounter.practitioner_id ? [encounter.practitioner_id] : undefined
+    participantPractitionerIds: encounter.practitioner_id ? [encounter.practitioner_id] : undefined,
+    serviceProviderOrganizationId: encounter.organization_id
   };
 }
 
@@ -11862,6 +11891,22 @@ function buildCanonicalFlagGlobal(flag: z.infer<typeof GlobalFlagSchema>) {
     period: mapPeriod(flag.period_start, flag.period_end),
     encounter: flag.encounter_id,
     author: flag.author_id
+  };
+}
+
+function buildCanonicalObservationGlobal(obs: z.infer<typeof GlobalObservationSchema>) {
+  const code = {
+    system: obs.observation_code_system,
+    code: obs.observation_code,
+    display: obs.observation_display
+  };
+  return {
+    setId: obs.observation_id,
+    code,
+    value: obs.observation_value,
+    unit: obs.observation_unit,
+    date: obs.observation_date,
+    status: obs.observation_status || 'final'
   };
 }
 

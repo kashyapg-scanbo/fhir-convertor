@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import relatedPersonTemplate from '../../shared/templates/relatedPerson.json' with { type: 'json' };
 import type { CanonicalRelatedPerson, OperationType } from '../../shared/types/canonical.types.js';
 import { FullUrlRegistry } from './fullUrlRegistry.js';
-import { makeNarrative } from './utils.js';
+import { makeNarrative, toFhirDate } from './utils.js';
 
 interface RelatedPersonMapperArgs {
   relatedPersons?: CanonicalRelatedPerson[];
@@ -85,7 +85,7 @@ export function mapRelatedPersons({
       : undefined;
 
     relatedPerson.gender = source.gender || undefined;
-    relatedPerson.birthDate = source.birthDate || undefined;
+    relatedPerson.birthDate = toFhirDate(source.birthDate) || undefined;
     relatedPerson.address = source.address?.length ? source.address : undefined;
     relatedPerson.period = source.period ? { start: source.period.start, end: source.period.end } : undefined;
 

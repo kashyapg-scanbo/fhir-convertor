@@ -32,6 +32,7 @@ export type CanonicalEncounter = {
   class?: string;
   id?: string;
   start?: string;
+  end?: string;
   location?: string;
   status?: string;
   participantPractitionerIds?: string[];

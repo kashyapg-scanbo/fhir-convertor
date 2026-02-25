@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import patientTemplate from '../../shared/templates/patient.json' with { type: 'json' };
 import type { CanonicalPatient, OperationType } from '../../shared/types/canonical.types.js';
 import { FullUrlRegistry } from './fullUrlRegistry.js';
-import { makeNarrative } from './utils.js';
+import { makeNarrative, toFhirDate } from './utils.js';
 
 export interface PatientMappingResult {
   entry: any;
@@ -39,7 +39,7 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   }] : undefined;
 
   patient.gender = canonicalPatient?.gender || undefined;
-  patient.birthDate = canonicalPatient?.birthDate || undefined;
+  patient.birthDate = toFhirDate(canonicalPatient?.birthDate) || undefined;
   patient.address = canonicalPatient?.address?.length
     ? canonicalPatient.address.map(address => ({
         ...address,
