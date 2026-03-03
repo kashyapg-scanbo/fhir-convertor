@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-medicationDispense-2"/>
+  <creationTime value="20240305100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <substanceAdministration>
+        <statusCode code="completed"/>
+        <effectiveTime value="202403051000"/>
+        <doseQuantity value="20" unit="tablet"/>
+        <consumable>
+          <manufacturedProduct>
+            <manufacturedMaterial>
+              <code code="MED2" displayName="Ibuprofen" codeSystem="2.16.840.1.113883.6.88"/>
+            </manufacturedMaterial>
+          </manufacturedProduct>
+        </consumable>
+      </substanceAdministration>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

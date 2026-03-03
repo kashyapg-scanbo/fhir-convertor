@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-2"/>
+      <patient>
+        <name>
+          <family>Doe2</family>
+          <given>John2</given>
+        </name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19800102"/>
+      </patient>
+      
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="34133-9" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <coverage><id extension="COV2"/><code code="COVE2" displayName="Coverage Example 2" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="20240512090000"/></coverage>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

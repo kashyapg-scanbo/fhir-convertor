@@ -1,0 +1,21 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
+  "goal": {
+    "goal_id": "GOAL-1",
+    "lifecycle_status": "active",
+    "description": "Lower HbA1c to 7.0",
+    "subject_id": "PAT-1",
+    "start_date": "2024-01-01",
+    "target_measure": "HbA1c",
+    "target_detail": "7.0",
+    "target_due_date": "2024-06-30",
+    "priority": "high-priority",
+    "note": "Track labs quarterly"
+  }
+}

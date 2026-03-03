@@ -1,0 +1,2 @@
+value_set_id,value_set_url,value_set_name,value_set_title,value_set_status,value_set_include_system,value_set_include_code,value_set_include_display,value_set_expansion_system,value_set_expansion_code,value_set_expansion_display
+VS-2,https://example.org/valuesets/labs,,Lab Value Set,active,https://example.org/codesystems/labs,LAB001,Complete blood count,https://example.org/codesystems/labs,LAB001,Complete blood count

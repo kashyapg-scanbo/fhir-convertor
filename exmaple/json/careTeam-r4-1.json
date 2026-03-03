@@ -1,0 +1,19 @@
+{
+  "resourceType": "CareTeam",
+  "id": "CT-R4-1",
+  "status": "active",
+  "name": "Diabetes Care Team",
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "participant": [
+    {
+      "role": {
+        "text": "primary"
+      },
+      "member": {
+        "reference": "Practitioner/PRAC-1"
+      }
+    }
+  ]
+}

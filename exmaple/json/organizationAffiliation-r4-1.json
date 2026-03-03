@@ -1,0 +1,25 @@
+{
+  "resourceType": "OrganizationAffiliation",
+  "id": "orgaff-r4-1",
+  "active": true,
+  "organization": {
+    "reference": "Organization/ORG-1"
+  },
+  "participatingOrganization": {
+    "reference": "Organization/ORG-2"
+  },
+  "code": [
+    {
+      "text": "member"
+    }
+  ],
+  "specialty": [
+    {
+      "text": "cardiology"
+    }
+  ],
+  "period": {
+    "start": "2024-01-01",
+    "end": "2024-12-31"
+  }
+}

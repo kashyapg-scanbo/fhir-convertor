@@ -1,0 +1,24 @@
+{
+  "list": {
+    "list_id": "LIST-1",
+    "status": "current",
+    "mode": "working",
+    "title": "Allergies",
+    "code": "problem-list",
+    "subject_ids": ["PAT-5"],
+    "encounter_id": "ENC-3",
+    "date": "2024-05-01T09:00:00Z",
+    "source_id": "PRAC-3",
+    "ordered_by": "priority",
+    "note": "Initial list",
+    "entry": [
+      {
+        "flag": { "code": "active", "display": "active" },
+        "deleted": false,
+        "date": "2024-05-01T09:00:00Z",
+        "item_id": "Condition/COND-1"
+      }
+    ],
+    "empty_reason": { "code": "none", "display": "none" }
+  }
+}

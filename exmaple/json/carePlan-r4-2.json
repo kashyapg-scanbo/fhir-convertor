@@ -1,0 +1,33 @@
+{
+  "resourceType": "CarePlan",
+  "id": "CP-R4-2",
+  "status": "active",
+  "intent": "plan",
+  "title": "Hypertension Follow-up",
+  "description": "Blood pressure monitoring and lifestyle counseling",
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "basedOn": [
+    {
+      "reference": "CarePlan/CP-R4-1"
+    }
+  ],
+  "careTeam": [
+    {
+      "reference": "CareTeam/CARETEAM-1"
+    }
+  ],
+  "addresses": [
+    {
+      "concept": {
+        "text": "Hypertension"
+      }
+    }
+  ],
+  "goal": [
+    {
+      "reference": "Goal/GOAL-1"
+    }
+  ]
+}

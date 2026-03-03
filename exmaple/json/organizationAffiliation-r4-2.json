@@ -1,0 +1,26 @@
+{
+  "resourceType": "OrganizationAffiliation",
+  "id": "orgaff-r4-2",
+  "active": false,
+  "organization": {
+    "reference": "Organization/ORG-3"
+  },
+  "participatingOrganization": {
+    "reference": "Organization/ORG-4"
+  },
+  "network": [
+    {
+      "reference": "Organization/ORG-NET-1"
+    }
+  ],
+  "location": [
+    {
+      "reference": "Location/LOC-1"
+    }
+  ],
+  "endpoint": [
+    {
+      "reference": "Endpoint/END-1"
+    }
+  ]
+}

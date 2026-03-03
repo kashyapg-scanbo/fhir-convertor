@@ -1,0 +1,17 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "QNR-R4-1",
+  "url": "https://example.org/qnr/health-check",
+  "title": "Health Check",
+  "status": "active",
+  "date": "2024-03-01T00:00:00Z",
+  "publisher": "Example Health",
+  "subjectType": ["Patient"],
+  "item": [
+    {
+      "linkId": "q1",
+      "text": "Do you smoke?",
+      "type": "boolean"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-med-admin-2"/>
+  <creationTime value="20240310090000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <substanceAdministration>
+        <consumable>
+          <manufacturedProduct>
+            <manufacturedMaterial>
+              <code code="MED2" displayName="Ceftriaxone" codeSystem="2.16.840.1.113883.6.88"/>
+            </manufacturedMaterial>
+          </manufacturedProduct>
+        </consumable>
+        <effectiveTime>
+          <low value="202403100900"/>
+          <high value="202403100915"/>
+        </effectiveTime>
+        <doseQuantity value="1" unit="g"/>
+        <routeCode code="IM" displayName="Intramuscular"/>
+      </substanceAdministration>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

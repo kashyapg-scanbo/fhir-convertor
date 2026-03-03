@@ -1,0 +1,2 @@
+goal_id,goal_lifecycle_status,goal_description,goal_subject_id,goal_start_date,goal_target_measure,goal_target_detail,goal_target_due_date,goal_status_reason,goal_source_id,goal_addresses,goal_outcome
+GOAL-2,active,Reduce systolic BP below 130,PAT-2,2024-02-01,Systolic BP,<130,2024-08-01,New treatment plan,PRAC-2,Hypertension,Observation/OBS-1

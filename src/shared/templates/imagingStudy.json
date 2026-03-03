@@ -1,0 +1,21 @@
+{
+  "resourceType": "ImagingStudy",
+  "identifier": [],
+  "status": "",
+  "modality": [],
+  "subject": {},
+  "encounter": {},
+  "started": "",
+  "basedOn": [],
+  "partOf": [],
+  "referrer": {},
+  "endpoint": [],
+  "numberOfSeries": 0,
+  "numberOfInstances": 0,
+  "procedure": [],
+  "location": {},
+  "reason": [],
+  "note": [],
+  "description": "",
+  "series": []
+}

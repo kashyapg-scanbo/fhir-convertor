@@ -1,0 +1,5 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202405111200||Z99^EXPLANATIONOFBENEFIT|MSG-ExplanationOfBenefit-1|P|2.5
+PID|1||PAT1||LAST1^FIRST1||19800101|M|||1 Main St^^City^ST^12341||555-1001
+PV1|1|O|ER^1^1^HOSP||||PRAC1
+OBX|1|TX|EXPLANATIONOFBENEFIT^ExplanationOfBenefit^L||Example ExplanationOfBenefit data 1| | | | |F
+NTE|1|L|Note for ExplanationOfBenefit example 1

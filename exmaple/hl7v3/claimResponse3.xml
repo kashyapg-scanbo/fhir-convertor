@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-claimResponse-3"/>
+  <creationTime value="20250225163000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <claimResponse>
+        <id extension="CR-3"/>
+        <code code="CR3" displayName="ClaimResponse Example 3" codeSystem="2.16.840.1.113883.6.96"/>
+        <effectiveTime value="20250225163000"/>
+        <statusCode code="completed"/>
+      </claimResponse>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "patient_first_name": "Example patient 1",
+    "patient_middle_name": "Example patient 1",
+    "patient_last_name": "Example patient 1",
+    "patient_name": "Example patient 1",
+    "patient_gender": "male",
+    "patient_birth_date": "2024-05-11T10:01:00Z",
+    "patient_phone": "555-0101",
+    "patient_email": "user1@example.org",
+    "patient_address_line1": "101 Main St",
+    "patient_address_line2": "Suite 101",
+    "patient_city": "Metropolis",
+    "patient_state": "CA",
+    "patient_postal_code": "CODE-1",
+    "patient_country": 11
+  }
+}

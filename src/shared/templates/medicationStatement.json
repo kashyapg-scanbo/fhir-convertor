@@ -1,0 +1,25 @@
+{
+  "resourceType": "MedicationStatement",
+  "identifier": [],
+  "partOf": [],
+  "status": "",
+  "category": [],
+  "medication": {},
+  "subject": {},
+  "encounter": {},
+  "effectiveDateTime": "",
+  "effectivePeriod": {},
+  "effectiveTiming": {},
+  "dateAsserted": "",
+  "author": {},
+  "informationSource": [],
+  "derivedFrom": [],
+  "reason": [],
+  "note": [],
+  "relatedClinicalInformation": [],
+  "dosage": [],
+  "adherence": {
+    "code": {},
+    "reason": {}
+  }
+}

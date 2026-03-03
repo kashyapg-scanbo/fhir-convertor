@@ -1,0 +1,13 @@
+{
+  "operation_outcome": {
+    "operation_outcome_id": "OO-1",
+    "severity": "error",
+    "code": "invalid",
+    "details_system": "http://hl7.org/fhir/issue-type",
+    "details_code": "invalid",
+    "details_display": "Invalid input",
+    "diagnostics": "Missing required field",
+    "location": ["Patient.name"],
+    "expression": ["Patient.name"]
+  }
+}

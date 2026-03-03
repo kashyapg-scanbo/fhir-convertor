@@ -1,0 +1,2 @@
+appointment_response_id,appointment_response_appointment_id,appointment_response_proposed_new_time,appointment_response_start,appointment_response_end,appointment_response_participant_type,appointment_response_actor_id,appointment_response_participant_status,appointment_response_comment,appointment_response_recurring,appointment_response_occurrence_date,appointment_response_recurrence_id
+APR-2,APR-2,Example 2,2024-05-12T09:00:00Z,2024-05-12T10:30:00Z,Example 2,APR-2,completed,Example note 2,Example 2,2024-05-12T10:02:00Z,APR-2

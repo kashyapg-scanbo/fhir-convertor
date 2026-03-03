@@ -1,0 +1,31 @@
+{
+  "resourceType": "ServiceRequest",
+  "id": "SR-R4-2",
+  "status": "active",
+  "intent": "order",
+  "code": {
+    "concept": {
+      "text": "Chest X-Ray"
+    }
+  },
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "encounter": {
+    "reference": "Encounter/ENC-2"
+  },
+  "occurrencePeriod": {
+    "start": "2024-04-01T08:00:00Z",
+    "end": "2024-04-01T08:30:00Z"
+  },
+  "requester": {
+    "reference": "Practitioner/PRAC-2"
+  },
+  "reason": [
+    {
+      "concept": {
+        "text": "Cough"
+      }
+    }
+  ]
+}

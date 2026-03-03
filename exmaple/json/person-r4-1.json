@@ -1,0 +1,40 @@
+{
+  "resourceType": "Person",
+  "id": "PER-R4-1",
+  "active": true,
+  "name": [
+    {
+      "family": "Doe",
+      "given": ["Jamie"]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "5550101",
+      "use": "mobile"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01",
+  "address": [
+    {
+      "line": ["123 Main St"],
+      "city": "Metro",
+      "state": "CA",
+      "postalCode": "90210",
+      "country": "US"
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/ORG-1"
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/PAT-1"
+      },
+      "assurance": "level2"
+    }
+  ]
+}

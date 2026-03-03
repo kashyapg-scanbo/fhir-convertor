@@ -1,0 +1,41 @@
+{
+  "resourceType": "Bundle",
+  "identifier": {},
+  "type": "",
+  "timestamp": "",
+  "total": "",
+  "link": [
+    {
+      "relation": "",
+      "url": ""
+    }
+  ],
+  "entry": [
+    {
+      "link": [],
+      "fullUrl": "",
+      "resource": {},
+      "search": {
+        "mode": "",
+        "score": 0
+      },
+      "request": {
+        "method": "",
+        "url": "",
+        "ifNoneMatch": "",
+        "ifModifiedSince": "",
+        "ifMatch": "",
+        "ifNoneExist": ""
+      },
+      "response": {
+        "status": "",
+        "location": "",
+        "etag": "",
+        "lastModified": "",
+        "outcome": {}
+      }
+    }
+  ],
+  "signature": {},
+  "issues": {}
+}

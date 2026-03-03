@@ -1,0 +1,53 @@
+{
+  "resourceType": "Task",
+  "id": "TASK-R4-2",
+  "status": "in-progress",
+  "statusReason": {
+    "concept": {
+      "text": "Awaiting lab"
+    }
+  },
+  "businessStatus": {
+    "text": "Specimen collected"
+  },
+  "intent": "order",
+  "priority": "urgent",
+  "code": {
+    "coding": [
+      {
+        "code": "PROC",
+        "display": "Prepare IV"
+      }
+    ],
+    "text": "Prepare IV"
+  },
+  "focus": {
+    "reference": "Procedure/PROC-1"
+  },
+  "for": {
+    "reference": "Patient/PAT-2"
+  },
+  "executionPeriod": {
+    "start": "2024-03-02T09:15:00Z",
+    "end": "2024-03-02T09:45:00Z"
+  },
+  "requester": {
+    "reference": "Organization/ORG-1"
+  },
+  "requestedPerformer": [
+    {
+      "reference": "Practitioner/PRAC-3"
+    }
+  ],
+  "owner": {
+    "reference": "Practitioner/PRAC-3"
+  },
+  "location": {
+    "reference": "Location/LOC-1"
+  },
+  "note": [
+    {
+      "text": "Monitor vitals"
+    }
+  ]
+}

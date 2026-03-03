@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-2"/>
+      <patient>
+        <name>
+          <family>Smith2</family>
+          <given>Jane2</given>
+        </name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19750505"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="SUBSTANCE" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <substance>
+              <id extension="SUB-2"/>
+              <statusCode code="inactive"/>
+              <code code="B00002" displayName="Insulin" codeSystem="http://example.org/substances"/>
+              <quantity value="10" unit="mL"/>
+            </substance>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

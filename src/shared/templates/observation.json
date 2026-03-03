@@ -1,0 +1,82 @@
+{
+  "resourceType": "Observation",
+  "identifier": [],
+  "instantiatesCanonical": "",
+  "instantiatesReference": {},
+  "basedOn": [],
+  "triggeredBy": [
+    {
+      "observation": {},
+      "type": "",
+      "reason": ""
+    }
+  ],
+  "partOf": [],
+  "status": "",
+  "category": [],
+  "code": {},
+  "subject": {},
+  "focus": [],
+  "encounter": {},
+  "effectiveDateTime": "",
+  "effectivePeriod": {},
+  "effectiveTiming": {},
+  "effectiveInstant": "",
+  "issued": "",
+  "performer": [],
+  "valueQuantity": {},
+  "valueCodeableConcept": {},
+  "valueString": "",
+  "valueBoolean": false,
+  "valueInteger": 0,
+  "valueRange": {},
+  "valueRatio": {},
+  "valueSampledData": {},
+  "valueTime": "",
+  "valueDateTime": "",
+  "valuePeriod": {},
+  "valueAttachment": {},
+  "valueReference": {},
+  "dataAbsentReason": {},
+  "interpretation": [],
+  "note": [],
+  "bodySite": {},
+  "bodyStructure": {},
+  "method": {},
+  "specimen": {},
+  "device": {},
+  "referenceRange": [
+    {
+      "low": {},
+      "high": {},
+      "normalValue": {},
+      "type": {},
+      "appliesTo": [],
+      "age": {},
+      "text": ""
+    }
+  ],
+  "hasMember": [],
+  "derivedFrom": [],
+  "component": [
+    {
+      "code": {},
+      "valueQuantity": {},
+      "valueCodeableConcept": {},
+      "valueString": "",
+      "valueBoolean": false,
+      "valueInteger": 0,
+      "valueRange": {},
+      "valueRatio": {},
+      "valueSampledData": {},
+      "valueTime": "",
+      "valueDateTime": "",
+      "valuePeriod": {},
+      "valueAttachment": {},
+      "valueReference": {},
+      "dataAbsentReason": {},
+      "interpretation": [],
+      "referenceRange": []
+    }
+  ]
+}

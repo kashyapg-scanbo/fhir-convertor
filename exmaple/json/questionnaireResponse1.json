@@ -1,0 +1,16 @@
+{
+  "questionnaire_response": {
+    "questionnaire_response_id": "QNRRESP-1",
+    "questionnaire": "https://example.org/qnr/health-check",
+    "status": "completed",
+    "subject_id": "PAT-1",
+    "authored": "2024-03-02T09:30:00Z",
+    "item": [
+      {
+        "link_id": "q1",
+        "text": "Do you smoke?",
+        "answer": ["false"]
+      }
+    ]
+  }
+}

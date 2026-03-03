@@ -1,0 +1,11 @@
+{
+  "resourceType": "Consent",
+  "id": "CONS-R4-2",
+  "status": "active",
+  "category": [{"text": "treatment"}],
+  "subject": {"reference": "Patient/PAT-2"},
+  "date": "2024-03-17",
+  "decision": "deny",
+  "grantor": [{"reference": "Patient/PAT-2"}],
+  "grantee": [{"reference": "Organization/ORG-2"}]
+}

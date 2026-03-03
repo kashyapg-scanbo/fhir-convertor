@@ -1,0 +1,2 @@
+immunization_id,immunization_status,immunization_vaccine_code,immunization_vaccine_display,immunization_patient_id,immunization_occurrence_date,immunization_lot_number,immunization_dose_value,immunization_dose_unit,immunization_route
+IMM-2,completed,140,"Influenza, seasonal",PAT-2,2024-03-15T09:30:00Z,LOT-456,0.3,mL,IM

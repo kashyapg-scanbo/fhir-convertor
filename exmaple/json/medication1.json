@@ -1,0 +1,8 @@
+{
+  "medication": {
+    "medication_id": "MED-1",
+    "medication_code": "CODE-1",
+    "medication_code_system": "http://example.org/system/medication",
+    "medication_display": "Display 1"
+  }
+}

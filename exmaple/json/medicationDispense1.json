@@ -1,0 +1,15 @@
+{
+  "medication_dispense": {
+    "medication_dispense_id": "MEDDISP-1",
+    "status": "completed",
+    "medication": {
+      "medication_id": "MED-1",
+      "name": "Amoxicillin"
+    },
+    "patient_id": "PAT-1",
+    "quantity_value": 30,
+    "quantity_unit": "tablet",
+    "when_handed_over": "2024-03-01T10:00:00Z",
+    "authorizing_prescription_ids": ["MEDREQ-1"]
+  }
+}

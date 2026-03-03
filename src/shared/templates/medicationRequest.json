@@ -1,0 +1,53 @@
+{
+  "resourceType": "MedicationRequest",
+  "identifier": [],
+  "basedOn": [],
+  "priorPrescription": {},
+  "groupIdentifier": {},
+  "status": "",
+  "statusReason": {},
+  "statusChanged": "",
+  "intent": "",
+  "category": [],
+  "priority": "",
+  "doNotPerform": false,
+  "medication": {},
+  "subject": {},
+  "informationSource": [],
+  "encounter": {},
+  "supportingInformation": [],
+  "authoredOn": "",
+  "requester": {},
+  "reported": false,
+  "performerType": {},
+  "performer": [],
+  "device": [],
+  "recorder": {},
+  "reason": [],
+  "courseOfTherapyType": {},
+  "insurance": [],
+  "note": [],
+  "renderedDosageInstruction": "",
+  "effectiveDosePeriod": {},
+  "dosageInstruction": [],
+  "dispenseRequest": {
+    "initialFill": {
+      "quantity": {},
+      "duration": {}
+    },
+    "dispenseInterval": {},
+    "validityPeriod": {},
+    "numberOfRepeatsAllowed": "",
+    "quantity": {},
+    "expectedSupplyDuration": {},
+    "dispenser": {},
+    "dispenserInstruction": [],
+    "doseAdministrationAid": {}
+  },
+  "substitution": {
+    "allowedBoolean": false,
+    "allowedCodeableConcept": {},
+    "reason": {}
+  },
+  "eventHistory": []
+}

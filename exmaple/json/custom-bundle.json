@@ -1,0 +1,90 @@
+{
+  "operation": "create",
+  "messageType": "ORU^R01",
+  "patient": {
+    "patient_id": "P-10001",
+    "ihi": "1234098753",
+    "name": {
+      "first_name": "John",
+      "middle_name": "A.",
+      "last_name": "Doe"
+    },
+    "date_of_birth": "1980-05-15",
+    "gender": "male",
+    "contact_info": {
+      "phone": "+1-555-555-5555",
+      "email": "john.doe@example.com",
+      "address": {
+        "street": "123 Main St",
+        "city": "Springfield",
+        "state": "IL",
+        "postal_code": "62701",
+        "country": "USA"
+      }
+    }
+  },
+  "encounter": {
+    "encounter_id": "ENC345678",
+    "patient_id": "P-10001",
+    "practitioner_id": "PRAC-98765",
+    "encounter_type": "Outpatient",
+    "reason_for_visit": "Routine check-up",
+    "start_date": "2024-08-15T09:00:00Z",
+    "end_date": "2024-08-15T09:30:00Z",
+    "status": "completed"
+  },
+  "medication": {
+    "medication_id": "MED987654",
+    "name": "Atorvastatin",
+    "strength": "20 mg"
+  },
+  "medication_request": {
+    "medication_request_id": "MRQ123456",
+    "patient_id": "P-10001",
+    "practitioner_id": "PRAC-98765",
+    "status": "active",
+    "authored_on": "2024-08-15T09:05:00Z",
+    "dosage_instruction": {
+      "dose": "1",
+      "route": "oral",
+      "frequency": "daily",
+      "duration": "30 days"
+    },
+    "medication": {
+      "medication_id": "MED987654",
+      "name": "Atorvastatin",
+      "strength": "20 mg",
+      "form": "tablet"
+    }
+  },
+  "practitioner": {
+    "practitioner_id": "PRAC-98765",
+    "name": {
+      "first_name": "Emily",
+      "last_name": "Smith"
+    }
+  },
+  "practitioner_role": {
+    "practitioner_role_id": "PR123456",
+    "practitioner_id": "PRAC-98765",
+    "organization_id": "ORG001",
+    "role": "Cardiologist",
+    "specialty": "Cardiology"
+  },
+  "organization": {
+    "organization_id": "ORG001",
+    "name": "Healthy Heart Clinic",
+    "type": "clinic",
+    "contact_info": {
+      "phone": "+1-555-555-0100",
+      "email": "contact@healthyheartclinic.example",
+      "address": {
+        "street": "500 Wellness Ave",
+        "city": "Springfield",
+        "state": "IL",
+        "postal_code": "62702",
+        "country": "USA"
+      }
+    }
+  }
+}

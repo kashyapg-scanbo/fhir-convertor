@@ -1,0 +1,2 @@
+operation_outcome_id,operation_outcome_severity,operation_outcome_code,operation_outcome_details_system,operation_outcome_details_code,operation_outcome_details_display,operation_outcome_diagnostics,operation_outcome_location,operation_outcome_expression
+OO-1,error,invalid,http://hl7.org/fhir/issue-type,invalid,Invalid input,Missing required field,"Patient.name","Patient.name"

@@ -1,0 +1,12 @@
+{
+  "device": {
+    "device_id": "DEV-3",
+    "status": "active",
+    "manufacturer": "Acme Medical",
+    "model_number": "ACM-1000",
+    "serial_number": "SN-ACM-1000-01",
+    "type": { "code": "86184003", "display": "Infusion pump" },
+    "patient_id": "PAT-50",
+    "note": "Assigned to inpatient room 4B"
+  }
+}

@@ -1,0 +1,2 @@
+encounter_id,encounter_class,encounter_start,encounter_location,encounter_status,encounter_practitioner_id,encounter_service_provider_id
+ENC-1,11,2024-05-11T09:00:00Z,11,active,ENC-1,ENC-1

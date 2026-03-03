@@ -1,0 +1,4 @@
+MSH|^~\&|EHR|HOSP|EHR|HOSP|202502011400||ORU^R01|DUMSG2|P|2.5
+PID|1||PAT-16^^^HOSP^MR||Reyes^Mia||19991230|F
+OBX|1|TX|DEVICEUSAGE^Device usage^L||DU-2|Insulin pump used for basal bolus today|F
+NTE|1|L|New infusion set applied

@@ -1,0 +1,25 @@
+{
+  "nutrition_intake": {
+    "nutrition_intake_id": "NI-2",
+    "status": "completed",
+    "code": {
+      "code": "dietary-supp",
+      "display": "Dietary supplement"
+    },
+    "patient_id": "PAT-21",
+    "occurrence_datetime": "2025-02-20T08:00:00Z",
+    "recorded": "2025-02-20T08:15:00Z",
+    "consumed_item": {
+      "code": {
+        "code": "258987005",
+        "display": "Protein supplement"
+      },
+      "amount": {
+        "value": 30,
+        "unit": "g"
+      }
+    },
+    "ingredient_label": "Whey protein shake",
+    "note": "Taken after morning exercise"
+  }
+}

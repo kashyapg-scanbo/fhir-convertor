@@ -1,0 +1,13 @@
+{
+  "flag": {
+    "flag_id": "FLAG-1",
+    "status": "active",
+    "category": "clinical",
+    "code": "Fall risk",
+    "subject_id": "PAT-4",
+    "period_start": "2024-01-01T00:00:00Z",
+    "period_end": "2024-06-30T00:00:00Z",
+    "encounter_id": "ENC-2",
+    "author_id": "PRAC-2"
+  }
+}

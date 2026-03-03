@@ -1,0 +1,2 @@
+claim_response_id,claim_response_status,claim_response_type,claim_response_use,claim_response_patient_id,claim_response_created,claim_response_insurer_id,claim_response_requestor_id,claim_response_request_id,claim_response_outcome,claim_response_total_value,claim_response_total_currency,claim_response_item_sequence,claim_response_item_category,claim_response_item_amount
+CR-4,cancelled,vision,claim,PAT-9,2025-02-27T10:15:00Z,ORG-9,ORG-4,CLM-4,rejected,0,USD,1,eligible,0

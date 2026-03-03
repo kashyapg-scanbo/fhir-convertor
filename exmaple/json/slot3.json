@@ -1,0 +1,15 @@
+{
+  "slot": {
+    "slot_id": "SLT-3",
+    "slot_status": "active",
+    "slot_start": "2024-05-13T09:00:00Z",
+    "slot_end": "2024-05-13T10:30:00Z",
+    "slot_schedule_id": "SCH-3",
+    "slot_overbooked": "Example 3",
+    "slot_comment": "Example note 3",
+    "slot_service_category": "Example 3",
+    "slot_service_type": "Example 3",
+    "slot_specialty": "Example 3",
+    "slot_appointment_type": "Example 3"
+  }
+}

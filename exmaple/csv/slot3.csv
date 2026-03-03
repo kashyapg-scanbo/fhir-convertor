@@ -1,0 +1,2 @@
+slot_id,slot_status,slot_start,slot_end,slot_schedule_id,slot_overbooked,slot_comment,slot_service_category,slot_service_type,slot_specialty,slot_appointment_type
+SLT-3,active,2024-05-13T09:00:00Z,2024-05-13T10:30:00Z,SCH-3,Example 3,Example note 3,Example 3,Example 3,Example 3,Example 3

@@ -1,0 +1,25 @@
+{
+  "condition": {
+    "condition_id": "COND-3",
+    "condition_clinical_status": "active",
+    "condition_verification_status": "active",
+    "condition_category": "Example 3",
+    "condition_severity": "Example 3",
+    "condition_code": "CODE-3",
+    "condition_code_system": "http://example.org/system/condition",
+    "condition_display": "Display 3",
+    "condition_body_site": "Example 3",
+    "condition_subject_id": "COND-3",
+    "condition_encounter_id": "ENC-3",
+    "condition_onset_date": "2024-05-13T10:03:00Z",
+    "condition_onset_start": "2024-05-13T09:00:00Z",
+    "condition_onset_end": "2024-05-13T10:30:00Z",
+    "condition_onset_text": "Example text 3",
+    "condition_abatement_date": "2024-05-13T10:03:00Z",
+    "condition_abatement_start": "2024-05-13T09:00:00Z",
+    "condition_abatement_end": "2024-05-13T10:30:00Z",
+    "condition_abatement_text": "Example text 3",
+    "condition_recorded_date": "2024-05-13T10:03:00Z",
+    "condition_note": "Example note 3"
+  }
+}

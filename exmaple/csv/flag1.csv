@@ -1,0 +1,2 @@
+flag_id,flag_status,flag_category,flag_code,flag_subject_id,flag_period_start,flag_period_end,flag_encounter_id,flag_author_id
+FLAG-1,active,clinical,Fall risk,PAT-4,2024-01-01T00:00:00Z,2024-06-30T00:00:00Z,ENC-2,PRAC-2

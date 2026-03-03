@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-NS-1"/>
+  <creationTime value="20240308100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <namingSystem>
+        <id extension="NS-V3-1"/>
+        <name>ExampleNamingSystem</name>
+        <statusCode code="active"/>
+        <effectiveTime value="20240308"/>
+        <code code="NS1" displayName="ExampleNamingSystem" codeSystem="identifier"/>
+        <text>Example naming system</text>
+      </namingSystem>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

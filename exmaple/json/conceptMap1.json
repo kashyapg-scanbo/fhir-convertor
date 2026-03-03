@@ -1,0 +1,15 @@
+{
+  "concept_map": {
+    "concept_map_id": "CM-1",
+    "url": "https://example.org/conceptmaps/example",
+    "name": "ExampleConceptMap",
+    "status": "active",
+    "group_source": "https://example.org/codesystems/example",
+    "group_target": "https://example.org/codesystems/target",
+    "element_code": "EX001",
+    "element_display": "Example concept",
+    "target_code": "T001",
+    "target_display": "Target concept",
+    "target_relationship": "equivalent"
+  }
+}

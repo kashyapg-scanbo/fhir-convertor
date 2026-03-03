@@ -1,0 +1,2 @@
+observation_id,observation_code,observation_code_system,observation_display,observation_value,observation_unit,observation_date,observation_status
+OBS-1,CODE-1,http://example.org/system/observation,Display 1,11,mg,2024-05-11T10:01:00Z,active

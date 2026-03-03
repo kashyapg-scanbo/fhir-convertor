@@ -1,0 +1,41 @@
+{
+  "resourceType": "Patient",
+  "identifier": [],
+  "active": false,
+  "name": [],
+  "telecom": [],
+  "gender": "",
+  "birthDate": "",
+  "deceasedBoolean": false,
+  "deceasedDateTime": "",
+  "address": [],
+  "maritalStatus": {},
+  "multipleBirthBoolean": false,
+  "multipleBirthInteger": 0,
+  "photo": [],
+  "contact": [
+    {
+      "relationship": [],
+      "name": {},
+      "telecom": [],
+      "address": {},
+      "gender": "",
+      "organization": {},
+      "period": {}
+    }
+  ],
+  "communication": [
+    {
+      "language": {},
+      "preferred": false
+    }
+  ],
+  "generalPractitioner": [],
+  "managingOrganization": {},
+  "link": [
+    {
+      "other": {},
+      "type": ""
+    }
+  ]
+}

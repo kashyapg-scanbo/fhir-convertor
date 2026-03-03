@@ -1,0 +1,2 @@
+patient_id,patient_first_name,patient_middle_name,patient_last_name,patient_name,patient_gender,patient_birth_date,patient_phone,patient_email,patient_address_line1,patient_address_line2,patient_city,patient_state,patient_postal_code,patient_country
+PAT-2,Example patient 2,Example patient 2,Example patient 2,Example patient 2,female,2024-05-12T10:02:00Z,555-0102,user2@example.org,102 Main St,Suite 102,Metropolis,CA,CODE-2,21

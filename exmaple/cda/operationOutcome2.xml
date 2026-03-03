@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <title>OperationOutcome</title>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <title>OperationOutcome</title>
+          <text>Warnings detected</text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

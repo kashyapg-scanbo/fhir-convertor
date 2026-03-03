@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-task-1"/>
+  <creationTime value="20240301120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <task>
+        <id extension="TASKV3-1"/>
+        <code displayName="Collect specimen"/>
+        <statusCode code="requested"/>
+        <effectiveTime value="20240301"/>
+        <text>Collect fasting specimen</text>
+      </task>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

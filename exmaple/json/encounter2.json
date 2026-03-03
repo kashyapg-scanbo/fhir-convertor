@@ -1,0 +1,11 @@
+{
+  "encounter": {
+    "encounter_id": "ENC-2",
+    "encounter_class": 21,
+    "encounter_start": "2024-05-12T09:00:00Z",
+    "encounter_location": 21,
+    "encounter_status": "completed",
+    "encounter_practitioner_id": "ENC-2",
+    "encounter_service_provider_id": "ENC-2"
+  }
+}

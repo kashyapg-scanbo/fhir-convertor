@@ -1,0 +1,40 @@
+{
+  "immunization": {
+    "immunization_id": "IMM-3",
+    "immunization_status": "active",
+    "immunization_status_reason": "active",
+    "immunization_vaccine_code": "CODE-3",
+    "immunization_vaccine_system": "http://example.org/system/immunization",
+    "immunization_vaccine_display": "Display 3",
+    "immunization_based_on_ids": [
+      "IMM-3-A",
+      "IMM-3-B"
+    ],
+    "immunization_administered_product_id": "IMM-3",
+    "immunization_manufacturer_id": "IMM-3",
+    "immunization_lot_number": 31,
+    "immunization_expiration_date": "2024-05-13T10:03:00Z",
+    "immunization_patient_id": "PAT-3",
+    "immunization_encounter_id": "ENC-3",
+    "immunization_supporting_info_ids": [
+      "IMM-3-A",
+      "IMM-3-B"
+    ],
+    "immunization_occurrence_date": "2024-05-13T10:03:00Z",
+    "immunization_occurrence_string": "Example 3",
+    "immunization_primary_source": false,
+    "immunization_information_source_id": "IMM-3",
+    "immunization_location_id": "LOC-3",
+    "immunization_site": "Example 3",
+    "immunization_route": "Example 3",
+    "immunization_dose_value": 31,
+    "immunization_dose_unit": "mg",
+    "immunization_performer_actor_id": "IMM-3",
+    "immunization_performer_function": "Example 3",
+    "immunization_note": "Example note 3",
+    "immunization_reason": "Example 3",
+    "immunization_is_subpotent": "Example 3",
+    "immunization_subpotent_reason": "Example 3",
+    "immunization_program_eligibility_program": "Example 3"
+  }
+}

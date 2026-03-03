@@ -1,0 +1,2 @@
+questionnaire_response_id,questionnaire_response_questionnaire,questionnaire_response_status,questionnaire_response_subject_id,questionnaire_response_authored,questionnaire_response_item_link_id,questionnaire_response_item_text,questionnaire_response_item_answer
+QNRRESP-1,https://example.org/qnr/health-check,completed,PAT-1,2024-03-02T09:30:00Z,q1,Do you smoke?,false

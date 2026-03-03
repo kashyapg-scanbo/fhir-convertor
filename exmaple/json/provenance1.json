@@ -1,0 +1,10 @@
+{
+  "provenance": {
+    "provenance_id": "PROV-1",
+    "target_ids": ["Observation/OBS-1"],
+    "recorded": "2024-03-12T10:00:00Z",
+    "activity": "Observation recorded",
+    "agent_who": "Practitioner/PRAC-1",
+    "agent_role": "author"
+  }
+}

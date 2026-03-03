@@ -1,0 +1,2 @@
+device_metric_id,device_metric_type_code,device_metric_type_display,device_metric_unit_code,device_metric_unit_display,device_metric_status,device_metric_category,device_metric_period_start,device_metric_period_end,device_metric_source_device_id,device_metric_note
+DM-2,150455,SpO2,%,percent,inactive,setting,2025-02-24T09:00:00Z,2025-02-24T09:30:00Z,DEV-4,Device retired

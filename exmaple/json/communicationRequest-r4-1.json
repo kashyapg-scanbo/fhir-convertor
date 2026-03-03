@@ -1,0 +1,23 @@
+{
+  "resourceType": "CommunicationRequest",
+  "id": "COMREQ-R4-1",
+  "status": "active",
+  "intent": "order",
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "occurrenceDateTime": "2024-03-02T09:00:00Z",
+  "requester": {
+    "reference": "Practitioner/PRAC-1"
+  },
+  "recipient": [
+    {
+      "reference": "Patient/PAT-1"
+    }
+  ],
+  "payload": [
+    {
+      "contentString": "Send follow-up instructions"
+    }
+  ]
+}

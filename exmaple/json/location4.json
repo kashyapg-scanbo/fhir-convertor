@@ -1,0 +1,19 @@
+{
+  "location": {
+    "location_id": "LOC-4",
+    "location_status": "completed",
+    "location_name": "Example location 4",
+    "location_alias": "Example 4",
+    "location_description": "Example description 4",
+    "location_mode": "Example 4",
+    "location_type": "Example 4",
+    "location_address_line1": "104 Main St",
+    "location_address_line2": "Suite 104",
+    "location_city": "Metropolis",
+    "location_state": "CA",
+    "location_postal_code": "CODE-4",
+    "location_country": 41,
+    "location_managing_org_id": "LOC-4",
+    "location_part_of_id": "LOC-4"
+  }
+}

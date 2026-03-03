@@ -1,0 +1,14 @@
+{
+  "resourceType": "Slot",
+  "identifier": [],
+  "serviceCategory": [],
+  "serviceType": [],
+  "specialty": [],
+  "appointmentType": [],
+  "schedule": {},
+  "status": "",
+  "start": "",
+  "end": "",
+  "overbooked": false,
+  "comment": ""
+}

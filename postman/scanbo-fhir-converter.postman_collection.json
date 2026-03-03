@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "Scanbo FHIR Converter",
+    "description": "Sample requests for the Scanbo FHIR converter API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001"
+    }
+  ],
+  "item": [
+    {
+      "name": "Convert Custom JSON to FHIR Bundle",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "json"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patient\": {\n    \"patient_id\": \"P-10001\",\n    \"ihi\": \"1234098753\",\n    \"name\": {\n      \"first_name\": \"John\",\n      \"middle_name\": \"A.\",\n      \"last_name\": \"Doe\"\n    },\n    \"date_of_birth\": \"1980-05-15\",\n    \"gender\": \"male\",\n    \"contact_info\": {\n      \"phone\": \"+1-555-555-5555\",\n      \"email\": \"john.doe@example.com\",\n      \"address\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"Springfield\",\n        \"state\": \"IL\",\n        \"postal_code\": \"62701\",\n        \"country\": \"USA\"\n      }\n    }\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "Convert Mixed Input (Auto-detect)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/convert",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "convert"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": \"{\\\"patient\\\":{\\\"patient_id\\\":\\\"P-10001\\\",\\\"name\\\":{\\\"first_name\\\":\\\"John\\\",\\\"last_name\\\":\\\"Doe\\\"},\\\"date_of_birth\\\":\\\"1980-05-15\\\"}}\",\n  \"format\": \"json\",\n  \"fhirVersion\": \"r5\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Upload File (CSV/XLSX/HL7/CDA)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/convert/upload",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "convert",
+            "upload"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            },
+            {
+              "key": "format",
+              "type": "text",
+              "value": "json"
+            },
+            {
+              "key": "fhirVersion",
+              "type": "text",
+              "value": "r5"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

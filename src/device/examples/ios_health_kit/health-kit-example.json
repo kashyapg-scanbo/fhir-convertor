@@ -1,0 +1,4759 @@
+
+{
+  "heart" : {
+    "available" : true,
+    "data" : [
+      {
+        "type" : "heartRate",
+        "value" : 80,
+        "unit" : "bpm",
+        "timestamp" : "2026-01-02T18:30:00Z",
+        "source" : "Health"
+      },
+      {
+        "timestamp" : "2026-01-02T10:28:00Z",
+        "value" : 96,
+        "unit" : "bpm",
+        "type" : "heartRate",
+        "source" : "Health"
+      },
+      {
+        "unit" : "bpm",
+        "type" : "heartRate",
+        "value" : 97,
+        "source" : "Health",
+        "timestamp" : "2026-01-02T05:19:00Z"
+      },
+      {
+        "value" : 87,
+        "unit" : "bpm",
+        "type" : "heartRate",
+        "source" : "Health",
+        "timestamp" : "2026-01-01T07:18:00Z"
+      },
+      {
+        "source" : "Health",
+        "type" : "heartRate",
+        "value" : 78,
+        "unit" : "bpm",
+        "timestamp" : "2025-12-30T11:12:00Z"
+      },
+      {
+        "source" : "Health",
+        "timestamp" : "2025-12-30T08:05:00Z",
+        "value" : 100,
+        "type" : "heartRate",
+        "unit" : "bpm"
+      },
+      {
+        "timestamp" : "2025-12-30T05:05:00Z",
+        "source" : "Health",
+        "type" : "heartRate",
+        "value" : 88,
+        "unit" : "bpm"
+      },
+      {
+        "source" : "Health",
+        "value" : 99,
+        "unit" : "bpm",
+        "timestamp" : "2025-12-29T12:13:00Z",
+        "type" : "heartRate"
+      },
+      {
+        "source" : "Health",
+        "value" : 87,
+        "timestamp" : "2025-12-29T12:10:00Z",
+        "type" : "heartRate",
+        "unit" : "bpm"
+      },
+      {
+        "source" : "Health",
+        "type" : "heartRate",
+        "timestamp" : "2025-12-29T05:50:00Z",
+        "unit" : "bpm",
+        "value" : 88
+      },
+      {
+        "unit" : "bpm",
+        "value" : 80,
+        "source" : "Health",
+        "timestamp" : "2025-12-29T05:50:00Z",
+        "type" : "heartRate"
+      },
+      {
+        "unit" : "bpm",
+        "type" : "heartRate",
+        "source" : "NoiseFit",
+        "value" : 90,
+        "timestamp" : "2025-12-26T15:10:51Z"
+      },
+      {
+        "value" : 77,
+        "timestamp" : "2025-12-26T15:00:49Z",
+        "source" : "NoiseFit",
+        "type" : "heartRate",
+        "unit" : "bpm"
+      },
+      {
+        "type" : "heartRate",
+        "unit" : "bpm",
+        "value" : 84,
+        "timestamp" : "2025-12-26T14:50:50Z",
+        "source" : "NoiseFit"
+      },
+      {
+        "timestamp" : "2025-12-26T14:15:48Z",
+        "source" : "NoiseFit",
+        "type" : "heartRate",
+        "value" : 87,
+        "unit" : "bpm"
+      },
+      {
+        "unit" : "bpm",
+        "type" : "heartRate",
+        "value" : 89,
+        "timestamp" : "2025-12-26T10:20:44Z",
+        "source" : "NoiseFit"
+      },
+      {
+        "unit" : "bpm",
+        "value" : 96,
+        "source" : "NoiseFit",
+        "timestamp" : "2025-12-26T10:00:25Z",
+        "type" : "heartRate"
+      },
+      {
+        "type" : "heartRate",
+        "unit" : "bpm",
+        "value" : 86,
+        "timestamp" : "2025-12-26T08:10:49Z",
+        "source" : "NoiseFit"
+      },
+      {
+        "timestamp" : "2025-12-26T07:05:50Z",
+        "source" : "NoiseFit",
+        "type" : "heartRate",
+        "unit" : "bpm",
+        "value" : 84
+      },
+      {
+        "timestamp" : "2025-12-26T06:44:39Z",
+        "value" : 86,
+        "source" : "NoiseFit",
+        "type" : "heartRate",
+        "unit" : "bpm"
+      },
+      {
+        "type" : "heartRate",
+        "source" : "NoiseFit",
+        "value" : 86,
+        "unit" : "bpm",
+        "timestamp" : "2025-12-19T12:02:15Z"
+      },
+      {
+        "timestamp" : "2025-12-16T04:40:31Z",
+        "type" : "heartRate",
+        "unit" : "bpm",
+        "source" : "NoiseFit",
+        "value" : 86
+      },
+      {
+        "type" : "heartRate",
+        "value" : 80,
+        "unit" : "bpm",
+        "source" : "NoiseFit",
+        "timestamp" : "2025-12-15T03:25:40Z"
+      },
+      {
+        "timestamp" : "2025-12-11T06:13:45Z",
+        "type" : "heartRate",
+        "value" : 74,
+        "unit" : "bpm",
+        "source" : "NoiseFit"
+      },
+      {
+        "timestamp" : "2025-12-10T18:20:48Z",
+        "value" : 94,
+        "type" : "heartRate",
+        "unit" : "bpm",
+        "source" : "NoiseFit"
+      },
+      {
+        "timestamp" : "2025-12-10T10:10:47Z",
+        "source" : "NoiseFit",
+        "value" : 87,
+        "type" : "heartRate",
+        "unit" : "bpm"
+      },
+      {
+        "unit" : "bpm",
+        "source" : "NoiseFit",
+        "type" : "heartRate",
+        "timestamp" : "2025-12-10T08:41:33Z",
+        "value" : 101
+      },
+      {
+        "unit" : "bpm",
+        "source" : "NoiseFit",
+        "timestamp" : "2025-12-09T13:02:17Z",
+        "type" : "heartRate",
+        "value" : 79
+      },
+      {
+        "type" : "heartRate",
+        "unit" : "bpm",
+        "timestamp" : "2025-12-09T10:28:00Z",
+        "source" : "Health",
+        "value" : 91
+      },
+      {
+        "unit" : "bpm",
+        "source" : "NoiseFit",
+        "type" : "heartRate",
+        "timestamp" : "2025-12-04T04:49:00Z",
+        "value" : 94
+      },
+      {
+        "source" : "Health",
+        "timestamp" : "2025-12-02T10:28:00Z",
+        "type" : "heartRate",
+        "value" : 98,
+        "unit" : "bpm"
+      },
+      {
+        "source" : "Health",
+        "type" : "bloodPressureSystolic",
+        "timestamp" : "2025-12-26T11:07:33Z",
+        "unit" : "mmHg",
+        "value" : 120
+      },
+      {
+        "unit" : "mmHg",
+        "source" : "Health",
+        "timestamp" : "2025-12-26T07:04:00Z",
+        "value" : 124,
+        "type" : "bloodPressureSystolic"
+      },
+      {
+        "type" : "bloodPressureSystolic",
+        "value" : 134,
+        "unit" : "mmHg",
+        "source" : "Health",
+        "timestamp" : "2025-12-25T08:09:00Z"
+      },
+      {
+        "type" : "bloodPressureSystolic",
+        "source" : "Health",
+        "value" : 129,
+        "unit" : "mmHg",
+        "timestamp" : "2025-12-22T04:04:00Z"
+      },
+      {
+        "value" : 87,
+        "source" : "Health",
+        "type" : "bloodPressureDiastolic",
+        "timestamp" : "2025-12-26T11:07:33Z",
+        "unit" : "mmHg"
+      },
+      {
+        "type" : "bloodPressureDiastolic",
+        "value" : 83,
+        "unit" : "mmHg",
+        "timestamp" : "2025-12-26T07:04:00Z",
+        "source" : "Health"
+      },
+      {
+        "type" : "bloodPressureDiastolic",
+        "timestamp" : "2025-12-25T08:09:00Z",
+        "value" : 88,
+        "unit" : "mmHg",
+        "source" : "Health"
+      },
+      {
+        "timestamp" : "2025-12-22T04:04:00Z",
+        "value" : 84,
+        "source" : "Health",
+        "type" : "bloodPressureDiastolic",
+        "unit" : "mmHg"
+      }
+    ]
+  },
+  "mindfulness" : {
+    "available" : false
+  },
+  "symptoms" : {
+    "available" : false
+  },
+  "body" : {
+    "data" : [
+      {
+
+        "type" : "height",
+        "timestamp" : "2025-12-04T04:47:55Z",
+        "unit" : "m",
+        "source" : "Health",
+        "value" : 1.7018000000000002
+      },
+      {
+        "value" : 67900.001525878906,
+        "unit" : "g",
+        "type" : "weight",
+        "timestamp" : "2025-12-29T07:22:57Z",
+        "source" : "Fitdays"
+      },
+      {
+        "unit" : "g",
+        "type" : "weight",
+        "value" : 68038.799999999988,
+        "timestamp" : "2025-12-04T04:47:55Z",
+        "source" : "Health"
+      },
+      {
+        "value" : 24.899999618530273,
+        "source" : "Fitdays",
+        "type" : "bmi",
+        "unit" : "count(fallback)",
+        "timestamp" : "2025-12-29T07:22:57Z"
+      },
+      {
+        "unit" : "%",
+        "type" : "bodyFatPercentage",
+        "source" : "Fitdays",
+        "value" : 0.31600001454353333,
+        "timestamp" : "2025-12-29T07:22:57Z"
+      },
+      {
+        "value" : 46443.599700927734,
+        "type" : "leanBodyMass",
+        "timestamp" : "2025-12-29T07:22:57Z",
+        "source" : "Fitdays",
+        "unit" : "g"
+      }
+    ],
+    "available" : true
+  },
+  "workouts" : {
+    "available" : true,
+    "data" : [
+      {
+        "endDate" : "2025-12-25T06:48:00Z",
+        "type" : "workout",
+        "distance" : 0,
+        "calories" : 0,
+        "activityType" : 37,
+        "duration" : 0,
+        "startDate" : "2025-12-25T06:48:00Z"
+      },
+      {
+        "endDate" : "2025-12-25T06:44:00Z",
+        "activityType" : 37,
+        "calories" : 120,
+        "startDate" : "2025-12-25T06:44:00Z",
+        "distance" : 254276.35200000001,
+        "type" : "workout",
+        "duration" : 0
+      },
+      {
+        "type" : "workout",
+        "activityType" : 37,
+        "endDate" : "2025-12-25T06:45:00Z",
+        "calories" : 10,
+        "startDate" : "2025-12-25T05:45:00Z",
+        "distance" : 193121.28,
+        "duration" : 3600
+      },
+      {
+        "type" : "workout",
+        "distance" : 193121.28,
+        "calories" : 20,
+        "duration" : 7200,
+        "activityType" : 41,
+        "endDate" : "2025-12-25T06:45:00Z",
+        "startDate" : "2025-12-25T04:45:00Z"
+      },
+      {
+        "duration" : 7200,
+        "type" : "workout",
+        "distance" : 225308.16,
+        "startDate" : "2025-12-25T02:46:00Z",
+        "calories" : 20,
+        "activityType" : 42,
+        "endDate" : "2025-12-25T04:46:00Z"
+      },
+      {
+        "distance" : 28968.192000000003,
+        "type" : "workout",
+        "duration" : 3600,
+        "activityType" : 37,
+        "endDate" : "2025-12-24T23:48:00Z",
+        "startDate" : "2025-12-24T22:48:00Z",
+        "calories" : 26
+      },
+      {
+        "calories" : 10,
+        "startDate" : "2025-12-24T06:50:00Z",
+        "endDate" : "2025-12-24T11:51:00Z",
+        "distance" : 24140.16,
+        "type" : "workout",
+        "activityType" : 13,
+        "duration" : 18060
+      },
+      {
+        "type" : "workout",
+        "activityType" : 37,
+        "duration" : 10800,
+        "startDate" : "2025-12-23T06:03:00Z",
+        "endDate" : "2025-12-23T09:03:00Z",
+        "calories" : 10,
+        "distance" : 32186.880000000001
+      },
+      {
+        "duration" : 14400,
+        "startDate" : "2025-12-22T07:18:00Z",
+        "type" : "workout",
+        "calories" : 20,
+        "distance" : 32186.880000000001,
+        "activityType" : 36,
+        "endDate" : "2025-12-22T11:18:00Z"
+      },
+      {
+        "duration" : 14400,
+        "calories" : 10,
+        "endDate" : "2025-12-21T07:04:00Z",
+        "distance" : 321868.79999999999,
+        "startDate" : "2025-12-21T03:04:00Z",
+        "activityType" : 37,
+        "type" : "workout"
+      }
+    ]
+  },
+  "activity" : {
+    "available" : true,
+    "data" : [
+      {
+        "type" : "stepCount",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-22T04:59:12Z",
+        "value" : 50
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-22T04:45:14Z",
+        "type" : "stepCount",
+        "value" : 4,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "unit" : "count",
+        "value" : 14,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-22T04:45:07Z"
+      },
+      {
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "value" : 2,
+        "timestamp" : "2026-01-22T04:29:49Z"
+      },
+      {
+        "value" : 33,
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-22T04:26:47Z"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-22T03:44:17Z",
+        "type" : "stepCount",
+        "value" : 217,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "timestamp" : "2026-01-22T03:33:27Z",
+        "value" : 163,
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-22T03:22:10Z",
+        "unit" : "count",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "value" : 11
+      },
+      {
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "value" : 14,
+        "type" : "stepCount",
+        "timestamp" : "2026-01-21T17:27:13Z"
+      },
+      {
+        "value" : 16,
+        "type" : "stepCount",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T14:27:48Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-21T14:08:31Z",
+        "value" : 32,
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "value" : 32,
+        "type" : "stepCount",
+        "timestamp" : "2026-01-21T13:55:37Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 8,
+        "unit" : "count",
+        "type" : "stepCount",
+        "timestamp" : "2026-01-21T13:41:56Z"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 15,
+        "timestamp" : "2026-01-21T13:28:14Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "value" : 167,
+        "type" : "stepCount",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T12:47:38Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-21T12:18:36Z",
+        "value" : 11,
+        "unit" : "count",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T12:08:42Z",
+        "source" : "Poorav Lukhi",
+        "value" : 70
+      },
+      {
+        "timestamp" : "2026-01-21T11:56:50Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "value" : 95,
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 8,
+        "timestamp" : "2026-01-21T11:54:54Z",
+        "type" : "stepCount",
+        "unit" : "count"
+      },
+      {
+        "value" : 130,
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T11:44:47Z"
+      },
+      {
+        "timestamp" : "2026-01-21T11:32:27Z",
+        "value" : 120,
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T11:22:25Z",
+        "type" : "stepCount",
+        "value" : 77
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T11:02:34Z",
+        "type" : "stepCount",
+        "value" : 87,
+        "unit" : "count"
+      },
+      {
+        "value" : 233,
+        "unit" : "count",
+        "timestamp" : "2026-01-21T10:52:47Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "timestamp" : "2026-01-21T08:30:32Z",
+        "type" : "stepCount",
+        "unit" : "count",
+        "value" : 82,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 64,
+        "timestamp" : "2026-01-21T08:10:18Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "value" : 8,
+        "type" : "stepCount",
+        "timestamp" : "2026-01-21T07:51:33Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 123,
+        "timestamp" : "2026-01-21T07:50:03Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T07:39:22Z",
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 55
+      },
+      {
+        "unit" : "count",
+        "value" : 18,
+        "timestamp" : "2026-01-21T07:38:38Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "type" : "stepCount",
+        "timestamp" : "2026-01-21T07:19:25Z",
+        "source" : "Poorav Lukhi",
+        "value" : 24,
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 86,
+        "timestamp" : "2026-01-21T07:08:47Z"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 43,
+        "timestamp" : "2026-01-21T06:57:20Z",
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-21T06:53:32Z",
+        "source" : "Poorav Lukhi",
+        "value" : 18,
+        "type" : "stepCount"
+      },
+      {
+        "value" : 15,
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T06:41:04Z",
+        "type" : "stepCount"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 15,
+        "timestamp" : "2026-01-21T06:41:04Z",
+        "type" : "stepCount"
+      },
+      {
+        "unit" : "count",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "value" : 13,
+        "timestamp" : "2026-01-21T06:40:59Z"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-21T06:19:00Z",
+        "type" : "stepCount",
+        "value" : 258,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 72,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T06:06:26Z",
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T05:56:29Z",
+        "value" : 74,
+        "type" : "stepCount"
+      },
+      {
+        "value" : 177,
+        "type" : "stepCount",
+        "timestamp" : "2026-01-21T05:45:57Z",
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T05:33:52Z",
+        "type" : "stepCount",
+        "value" : 30,
+        "unit" : "count"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-21T05:15:11Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "value" : 46
+      },
+      {
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T05:03:06Z",
+        "unit" : "count",
+        "value" : 67
+      },
+      {
+        "type" : "stepCount",
+        "unit" : "count",
+        "timestamp" : "2026-01-21T04:49:57Z",
+        "value" : 62,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 96,
+        "unit" : "count",
+        "timestamp" : "2026-01-21T04:29:04Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "timestamp" : "2026-01-21T03:44:46Z",
+        "value" : 301,
+        "unit" : "count",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-21T03:12:25Z",
+        "type" : "stepCount",
+        "value" : 98,
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 79,
+        "timestamp" : "2026-01-21T03:02:28Z",
+        "type" : "stepCount",
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 8,
+        "timestamp" : "2026-01-20T17:53:49Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 4,
+        "timestamp" : "2026-01-20T17:22:17Z"
+      },
+      {
+        "timestamp" : "2026-01-20T17:06:47Z",
+        "value" : 2,
+        "type" : "stepCount",
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-20T17:06:27Z",
+        "type" : "stepCount",
+        "value" : 25,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-20T17:04:01Z",
+        "value" : 17
+      },
+      {
+        "type" : "stepCount",
+        "value" : 73,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T16:44:00Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 17,
+        "type" : "stepCount",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T16:29:10Z"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-20T16:18:53Z",
+        "value" : 117,
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-20T16:08:48Z",
+        "type" : "stepCount",
+        "value" : 105,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-20T16:01:15Z",
+        "value" : 22,
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "type" : "stepCount"
+      },
+      {
+        "unit" : "count",
+        "value" : 97,
+        "timestamp" : "2026-01-20T15:50:04Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "timestamp" : "2026-01-20T15:45:17Z",
+        "type" : "stepCount",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "value" : 23
+      },
+      {
+        "type" : "stepCount",
+        "value" : 40,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T15:34:08Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "timestamp" : "2026-01-20T15:18:10Z",
+        "source" : "Poorav Lukhi",
+        "value" : 34,
+        "unit" : "count"
+      },
+      {
+        "value" : 16,
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "timestamp" : "2026-01-20T14:59:03Z",
+        "unit" : "count"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 17,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T14:30:31Z"
+      },
+      {
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "value" : 19,
+        "timestamp" : "2026-01-20T13:58:27Z",
+        "unit" : "count"
+      },
+      {
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "value" : 14,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T13:57:23Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T13:46:11Z",
+        "type" : "stepCount",
+        "value" : 55,
+        "unit" : "count"
+      },
+      {
+        "type" : "stepCount",
+        "unit" : "count",
+        "value" : 63,
+        "timestamp" : "2026-01-20T13:36:04Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "value" : 32,
+        "timestamp" : "2026-01-20T13:18:11Z",
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-20T13:07:56Z",
+        "type" : "stepCount",
+        "value" : 123
+      },
+      {
+        "timestamp" : "2026-01-20T12:57:48Z",
+        "value" : 88,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "value" : 115,
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "unit" : "count",
+        "timestamp" : "2026-01-20T12:44:11Z"
+      },
+      {
+        "type" : "stepCount",
+        "timestamp" : "2026-01-20T12:34:09Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 148
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-20T12:24:09Z",
+        "type" : "stepCount",
+        "value" : 14
+      },
+      {
+        "timestamp" : "2026-01-20T12:18:18Z",
+        "type" : "stepCount",
+        "value" : 60,
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 246,
+        "timestamp" : "2026-01-20T12:07:53Z",
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-20T12:03:44Z",
+        "source" : "Poorav Lukhi",
+        "value" : 183,
+        "type" : "stepCount"
+      },
+      {
+        "type" : "stepCount",
+        "unit" : "count",
+        "value" : 208,
+        "timestamp" : "2026-01-20T11:52:02Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 194,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T11:40:38Z",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "value" : 311,
+        "timestamp" : "2026-01-20T11:32:47Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "timestamp" : "2026-01-20T11:10:35Z",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "value" : 67,
+        "unit" : "count"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-20T11:10:33Z",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "value" : 8
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 32,
+        "unit" : "count",
+        "type" : "stepCount",
+        "timestamp" : "2026-01-20T10:59:13Z"
+      },
+      {
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 112,
+        "timestamp" : "2026-01-20T10:47:03Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 96,
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-20T10:30:35Z"
+      },
+      {
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T10:22:08Z",
+        "value" : 132,
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "unit" : "count",
+        "value" : 33,
+        "timestamp" : "2026-01-20T10:07:18Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "type" : "stepCount",
+        "value" : 219,
+        "timestamp" : "2026-01-20T09:57:21Z"
+      },
+      {
+        "timestamp" : "2026-01-20T09:55:52Z",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount",
+        "value" : 118
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T09:41:35Z",
+        "type" : "stepCount",
+        "value" : 160,
+        "unit" : "count"
+      },
+      {
+        "type" : "stepCount",
+        "value" : 64,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T09:27:24Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "stepCount",
+        "timestamp" : "2026-01-20T09:21:38Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 75
+      },
+      {
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "value" : 1,
+        "timestamp" : "2026-01-20T08:52:15Z",
+        "type" : "stepCount"
+      },
+      {
+        "timestamp" : "2026-01-20T08:52:07Z",
+        "value" : 16,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "stepCount"
+      },
+      {
+        "value" : 45,
+        "timestamp" : "2026-01-20T08:36:30Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "type" : "stepCount"
+      },
+      {
+        "value" : 134,
+        "unit" : "count",
+        "type" : "stepCount",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T08:23:31Z"
+      },
+      {
+        "timestamp" : "2026-01-20T07:22:53Z",
+        "value" : 20,
+        "type" : "stepCount",
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 64,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T07:12:56Z",
+        "type" : "stepCount"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 310,
+        "unit" : "count",
+        "type" : "stepCount",
+        "timestamp" : "2026-01-20T07:03:48Z"
+      },
+      {
+        "timestamp" : "2026-01-22T04:59:12Z",
+        "value" : 31.479999999923166,
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "value" : 2.7999999999883585,
+        "timestamp" : "2026-01-22T04:45:14Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-22T04:45:07Z",
+        "value" : 10.489999999990687,
+        "unit" : "m",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-22T04:29:49Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 1.3800000000046566,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 20.46999999997206,
+        "timestamp" : "2026-01-22T04:26:47Z",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-22T03:44:17Z",
+        "value" : 141.18000000010943,
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "value" : 109.47000000020489,
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-22T03:33:27Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "value" : 7.9600000000209548,
+        "unit" : "m",
+        "timestamp" : "2026-01-22T03:22:10Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T17:27:13Z",
+        "value" : 10.909999999974389
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 11.200000000011642,
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "timestamp" : "2026-01-21T14:27:48Z"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "value" : 22.560000000055879,
+        "unit" : "m",
+        "timestamp" : "2026-01-21T14:08:31Z"
+      },
+      {
+        "value" : 21.960000000020955,
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T13:55:37Z"
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "value" : 3.7600000000093132,
+        "timestamp" : "2026-01-21T13:41:56Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 9.25,
+        "timestamp" : "2026-01-21T13:28:14Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 90.669999999983702,
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "timestamp" : "2026-01-21T12:47:38Z"
+      },
+      {
+        "timestamp" : "2026-01-21T12:18:36Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 7.6699999999837019,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "value" : 49.849999999976717,
+        "timestamp" : "2026-01-21T12:08:42Z",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 48.450000000011642,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T11:56:50Z"
+      },
+      {
+        "value" : 4.2399999999906868,
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T11:54:54Z",
+        "unit" : "m"
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "value" : 75.440000000118744,
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T11:44:47Z"
+      },
+      {
+        "value" : 77.489999999990687,
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T11:32:27Z"
+      },
+      {
+        "timestamp" : "2026-01-21T11:22:25Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "value" : 53.279999999911524
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 67.430000000051223,
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "timestamp" : "2026-01-21T11:02:34Z"
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 137.94000000011874,
+        "timestamp" : "2026-01-21T10:52:47Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T08:30:32Z",
+        "value" : 56.179999999993015,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "value" : 45.739999999990687,
+        "unit" : "m",
+        "timestamp" : "2026-01-21T08:10:18Z"
+      },
+      {
+        "unit" : "m",
+        "value" : 5.8400000000256114,
+        "timestamp" : "2026-01-21T07:51:33Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-21T07:50:03Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 69.589999999909196
+      },
+      {
+        "unit" : "m",
+        "timestamp" : "2026-01-21T07:39:22Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "value" : 36.239999999990687
+      },
+      {
+        "timestamp" : "2026-01-21T07:38:38Z",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "value" : 8.4400000000023283,
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "value" : 10.989999999990687,
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T07:19:25Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 43.410000000032596,
+        "timestamp" : "2026-01-21T07:08:47Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T06:57:20Z",
+        "value" : 29.399999999906868,
+        "unit" : "m",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 10.080000000016298,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T06:53:32Z"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 11.100000000034925,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T06:41:04Z"
+      },
+      {
+        "timestamp" : "2026-01-21T06:41:04Z",
+        "value" : 11.100000000034925,
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T06:40:59Z",
+        "value" : 9.75,
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-21T06:19:00Z",
+        "value" : 175.51000000012573,
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "timestamp" : "2026-01-21T06:06:26Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 47.890000000072177
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-21T05:56:29Z",
+        "value" : 50.359999999869615
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T05:45:57Z",
+        "value" : 110.22000000003027,
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "value" : 18.82999999995809,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T05:33:52Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T05:15:11Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 34.450000000069849
+      },
+      {
+        "value" : 43.239999999932479,
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "timestamp" : "2026-01-21T05:03:06Z"
+      },
+      {
+        "timestamp" : "2026-01-21T04:49:57Z",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 33.690000000118744,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 62.89000000001397,
+        "unit" : "m",
+        "timestamp" : "2026-01-21T04:29:04Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 180.26999999990221,
+        "timestamp" : "2026-01-21T03:44:46Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-21T03:12:25Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 75.800000000046566
+      },
+      {
+        "timestamp" : "2026-01-21T03:02:28Z",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 49.409999999916181,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "m",
+        "value" : 3.5999999999767169,
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T17:53:49Z"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 2.8800000000046566,
+        "timestamp" : "2026-01-20T17:22:17Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 1.3400000000256114,
+        "unit" : "m",
+        "timestamp" : "2026-01-20T17:06:47Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 17.669999999983702,
+        "timestamp" : "2026-01-20T17:06:27Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "value" : 37.420000000100117,
+        "unit" : "m",
+        "timestamp" : "2026-01-20T16:54:14Z"
+      },
+      {
+        "timestamp" : "2026-01-20T16:44:00Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "value" : 44.549999999988358
+      },
+      {
+        "timestamp" : "2026-01-20T16:29:10Z",
+        "value" : 7.9899999999906868,
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-20T16:18:53Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "value" : 77.449999999895226
+      },
+      {
+        "unit" : "m",
+        "timestamp" : "2026-01-20T16:08:48Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "value" : 59.610000000044238
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T16:01:15Z",
+        "value" : 15.459999999962747,
+        "unit" : "m",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 64.39000000001397,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T15:50:04Z"
+      },
+      {
+        "unit" : "m",
+        "timestamp" : "2026-01-20T15:45:17Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "value" : 14.700000000011642
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T15:34:08Z",
+        "value" : 23.189999999944121,
+        "type" : "distanceWalkingRunning",
+        "unit" : "m"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T15:18:10Z",
+        "unit" : "m",
+        "value" : 24.919999999983702
+      },
+      {
+        "timestamp" : "2026-01-20T14:59:03Z",
+        "value" : 11.200000000011642,
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "unit" : "m",
+        "timestamp" : "2026-01-20T14:30:31Z",
+        "type" : "distanceWalkingRunning",
+        "value" : 7.8200000000069849,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 13.940000000002328,
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T13:58:27Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "value" : 11.300000000046566,
+        "unit" : "m",
+        "timestamp" : "2026-01-20T13:47:38Z"
+      },
+      {
+        "timestamp" : "2026-01-20T13:46:11Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "value" : 30.110000000102445
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T13:36:04Z",
+        "source" : "Poorav Lukhi",
+        "value" : 37.869999999995343
+      },
+      {
+        "value" : 22.199999999953434,
+        "timestamp" : "2026-01-20T13:18:11Z",
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 85.169999999867287,
+        "unit" : "m",
+        "timestamp" : "2026-01-20T13:07:56Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T12:57:48Z",
+        "value" : 61.830000000190921,
+        "unit" : "m",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 76.729999999981374,
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T12:44:11Z"
+      },
+      {
+        "timestamp" : "2026-01-20T12:34:09Z",
+        "type" : "distanceWalkingRunning",
+        "value" : 103.26000000000931,
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T12:24:09Z",
+        "value" : 10.380000000004657,
+        "unit" : "m",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "value" : 22.320000000006985,
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T12:18:38Z"
+      },
+      {
+        "value" : 150.07000000023982,
+        "timestamp" : "2026-01-20T12:08:39Z",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-20T12:03:44Z",
+        "source" : "Poorav Lukhi",
+        "value" : 162.06000000011409,
+        "unit" : "m",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-20T11:52:02Z",
+        "value" : 140.94000000011874,
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "value" : 137.68000000016764,
+        "timestamp" : "2026-01-20T11:40:38Z",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "unit" : "m",
+        "timestamp" : "2026-01-20T11:32:47Z",
+        "value" : 205.41999999986729,
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-20T11:10:35Z",
+        "unit" : "m",
+        "value" : 45.229999999981374,
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "value" : 5.7600000000093132,
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T11:10:33Z",
+        "unit" : "m",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 19.900000000081491,
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "timestamp" : "2026-01-20T10:59:13Z"
+      },
+      {
+        "timestamp" : "2026-01-20T10:47:03Z",
+        "type" : "distanceWalkingRunning",
+        "value" : 77.439999999944121,
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T10:30:35Z",
+        "value" : 56.919999999983702
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T10:22:08Z",
+        "source" : "Poorav Lukhi",
+        "value" : 93.569999999977881
+      },
+      {
+        "value" : 18.739999999990687,
+        "unit" : "m",
+        "timestamp" : "2026-01-20T10:07:18Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "value" : 122.30999999993946,
+        "timestamp" : "2026-01-20T09:57:21Z",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T09:55:52Z",
+        "source" : "Poorav Lukhi",
+        "value" : 78.540000000066357,
+        "unit" : "m"
+      },
+      {
+        "timestamp" : "2026-01-20T09:41:35Z",
+        "type" : "distanceWalkingRunning",
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "value" : 105.56000000005588
+      },
+      {
+        "value" : 40.839999999996508,
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "timestamp" : "2026-01-20T09:27:24Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 49.269999999989523,
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T09:21:38Z"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "source" : "Poorav Lukhi",
+        "value" : 0.45999999999185093,
+        "timestamp" : "2026-01-20T08:52:15Z"
+      },
+      {
+        "value" : 11.200000000011642,
+        "unit" : "m",
+        "timestamp" : "2026-01-20T08:52:07Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning"
+      },
+      {
+        "timestamp" : "2026-01-20T08:36:30Z",
+        "source" : "Poorav Lukhi",
+        "type" : "distanceWalkingRunning",
+        "value" : 27.549999999988358,
+        "unit" : "m"
+      },
+      {
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "timestamp" : "2026-01-20T08:23:31Z",
+        "source" : "Poorav Lukhi",
+        "value" : 97.199999999982538
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "unit" : "m",
+        "value" : 14.320000000006985,
+        "timestamp" : "2026-01-20T07:22:53Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "distanceWalkingRunning",
+        "value" : 40.679999999993015,
+        "timestamp" : "2026-01-20T07:12:56Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "m"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "m",
+        "type" : "distanceWalkingRunning",
+        "value" : 200.1799999998766,
+        "timestamp" : "2026-01-20T07:03:48Z"
+      },
+      {
+        "value" : 4,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-22T03:48:46Z",
+        "unit" : "count",
+        "type" : "flightsClimbed"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "unit" : "count",
+        "timestamp" : "2026-01-21T05:53:02Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 2,
+        "timestamp" : "2026-01-21T03:47:07Z",
+        "type" : "flightsClimbed"
+      },
+      {
+        "timestamp" : "2026-01-20T10:07:31Z",
+        "source" : "Poorav Lukhi",
+        "value" : 2,
+        "type" : "flightsClimbed",
+        "unit" : "count"
+      },
+      {
+        "value" : 2,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T07:12:38Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-20T05:34:02Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "value" : 1,
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "unit" : "count",
+        "timestamp" : "2026-01-20T04:26:47Z"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 3,
+        "unit" : "count",
+        "timestamp" : "2026-01-19T07:54:43Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "value" : 3,
+        "timestamp" : "2026-01-16T07:45:01Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "value" : 5,
+        "timestamp" : "2026-01-16T03:44:50Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2026-01-15T12:48:00Z",
+        "value" : 2,
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2026-01-15T12:31:19Z",
+        "source" : "Poorav Lukhi",
+        "value" : 3,
+        "unit" : "count"
+      },
+      {
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2026-01-15T11:16:00Z",
+        "source" : "Poorav Lukhi",
+        "value" : 1
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "timestamp" : "2026-01-15T03:47:39Z",
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2026-01-14T12:24:35Z",
+        "value" : 2
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 2,
+        "unit" : "count",
+        "timestamp" : "2026-01-14T11:37:58Z",
+        "type" : "flightsClimbed"
+      },
+      {
+        "timestamp" : "2026-01-14T10:06:20Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "unit" : "count"
+      },
+      {
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2026-01-14T04:50:53Z",
+        "value" : 2,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-13T03:39:15Z",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "value" : 4,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 2,
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2026-01-13T03:29:03Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2026-01-12T14:01:21Z",
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-12T03:44:19Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "value" : 5
+      },
+      {
+        "value" : 3,
+        "type" : "flightsClimbed",
+        "timestamp" : "2026-01-11T07:25:18Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2026-01-11T06:57:25Z",
+        "type" : "flightsClimbed",
+        "value" : 3,
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2026-01-11T05:43:15Z",
+        "value" : 1
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2026-01-11T05:25:50Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 2
+      },
+      {
+        "timestamp" : "2026-01-11T05:20:04Z",
+        "source" : "Poorav Lukhi",
+        "value" : 1,
+        "unit" : "count",
+        "type" : "flightsClimbed"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "timestamp" : "2026-01-11T04:16:50Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2026-01-10T05:40:27Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2026-01-10T05:35:25Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-10T05:00:50Z",
+        "value" : 2,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "unit" : "count",
+        "timestamp" : "2026-01-09T03:41:11Z"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2026-01-08T08:25:30Z",
+        "value" : 3,
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2026-01-08T03:15:38Z",
+        "value" : 5,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed"
+      },
+      {
+        "timestamp" : "2026-01-07T03:44:00Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 5
+      },
+      {
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2026-01-06T03:42:42Z",
+        "source" : "Poorav Lukhi",
+        "value" : 5
+      },
+      {
+        "timestamp" : "2026-01-05T03:35:45Z",
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2026-01-03T11:01:08Z",
+        "type" : "flightsClimbed"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2026-01-03T05:37:23Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 3
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 3,
+        "unit" : "count",
+        "timestamp" : "2026-01-02T13:25:57Z"
+      },
+      {
+        "value" : 5,
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2026-01-02T03:46:31Z"
+      },
+      {
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-12-31T15:21:15Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed"
+      },
+      {
+        "timestamp" : "2025-12-31T13:50:43Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "value" : 2
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-31T03:37:56Z",
+        "source" : "Poorav Lukhi",
+        "value" : 5,
+        "unit" : "count"
+      },
+      {
+        "value" : 5,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-30T03:40:22Z"
+      },
+      {
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2025-12-29T03:43:36Z",
+        "value" : 5
+      },
+      {
+        "value" : 1,
+        "timestamp" : "2025-12-28T11:22:10Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-12-27T06:49:46Z",
+        "source" : "Poorav Lukhi",
+        "value" : 2,
+        "unit" : "count",
+        "type" : "flightsClimbed"
+      },
+      {
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "value" : 2,
+        "unit" : "count",
+        "timestamp" : "2025-12-27T05:24:30Z"
+      },
+      {
+        "value" : 5,
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-26T03:43:20Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 5,
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-25T03:37:31Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-24T15:44:33Z",
+        "value" : 3
+      },
+      {
+        "timestamp" : "2025-12-24T08:11:55Z",
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-12-24T03:43:29Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "unit" : "count"
+      },
+      {
+        "value" : 5,
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2025-12-23T08:38:23Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 5,
+        "timestamp" : "2025-12-23T03:40:03Z",
+        "type" : "flightsClimbed"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 5,
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-22T03:51:21Z",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-12-18T03:53:50Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "value" : 1
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "unit" : "count",
+        "timestamp" : "2025-12-17T03:40:14Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 5,
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "timestamp" : "2025-12-15T03:38:17Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-14T05:34:05Z",
+        "value" : 2,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "timestamp" : "2025-12-14T05:22:23Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-12-13T11:13:17Z",
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2025-12-12T03:46:59Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5
+      },
+      {
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "value" : 1,
+        "timestamp" : "2025-12-11T13:11:53Z"
+      },
+      {
+        "value" : 2,
+        "unit" : "count",
+        "timestamp" : "2025-12-11T07:56:58Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed"
+      },
+      {
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-11T07:56:47Z",
+        "value" : 1,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-12-11T07:44:45Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 5,
+        "timestamp" : "2025-12-11T03:40:48Z"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-10T17:23:16Z",
+        "unit" : "count",
+        "value" : 1,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-12-10T07:39:50Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2025-12-10T03:42:25Z",
+        "value" : 5,
+        "unit" : "count",
+        "type" : "flightsClimbed"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-09T13:21:58Z",
+        "value" : 3,
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-12-09T07:46:31Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 5,
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2025-12-09T03:41:36Z"
+      },
+      {
+        "timestamp" : "2025-12-08T14:04:33Z",
+        "source" : "Poorav Lukhi",
+        "value" : 1,
+        "type" : "flightsClimbed",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-12-08T07:48:35Z",
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "value" : 3,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-12-08T07:37:19Z"
+      },
+      {
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2025-12-08T03:39:04Z",
+        "value" : 5
+      },
+      {
+        "timestamp" : "2025-12-07T13:37:59Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 1
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-07T11:57:41Z",
+        "source" : "Poorav Lukhi",
+        "value" : 2,
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-12-07T07:30:26Z"
+      },
+      {
+        "value" : 5,
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "timestamp" : "2025-12-05T03:37:19Z"
+      },
+      {
+        "timestamp" : "2025-12-04T03:41:40Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "unit" : "count"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 1,
+        "timestamp" : "2025-12-03T08:08:03Z",
+        "type" : "flightsClimbed"
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-12-03T03:38:14Z",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "value" : 5
+      },
+      {
+        "timestamp" : "2025-12-02T03:39:21Z",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "unit" : "count",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 1,
+        "timestamp" : "2025-12-01T07:41:03Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-12-01T03:41:29Z",
+        "value" : 5,
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "timestamp" : "2025-11-30T15:57:56Z",
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 3
+      },
+      {
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2025-11-29T14:06:33Z",
+        "type" : "flightsClimbed",
+        "value" : 1
+      },
+      {
+        "unit" : "count",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2025-11-29T12:11:08Z",
+        "value" : 2
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2025-11-29T06:48:22Z",
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "flightsClimbed",
+        "unit" : "count",
+        "value" : 2,
+        "timestamp" : "2025-11-29T05:32:04Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "count",
+        "timestamp" : "2025-11-28T03:38:59Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5
+      },
+      {
+        "type" : "flightsClimbed",
+        "timestamp" : "2025-11-27T08:09:32Z",
+        "value" : 2,
+        "source" : "Poorav Lukhi",
+        "unit" : "count"
+      },
+      {
+        "type" : "flightsClimbed",
+        "value" : 2,
+        "unit" : "count",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2025-11-26T15:20:39Z"
+      },
+      {
+        "timestamp" : "2025-11-26T13:33:11Z",
+        "type" : "flightsClimbed",
+        "source" : "Poorav Lukhi",
+        "unit" : "count",
+        "value" : 2
+      },
+      {
+        "value" : 1,
+        "unit" : "count",
+        "timestamp" : "2025-11-26T04:13:48Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed"
+      },
+      {
+        "timestamp" : "2025-11-26T03:39:54Z",
+        "source" : "Poorav Lukhi",
+        "type" : "flightsClimbed",
+        "value" : 5,
+        "unit" : "count"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 0.45899999999999996,
+        "timestamp" : "2026-01-22T05:03:31Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 0.27699999999999997,
+        "timestamp" : "2026-01-22T04:26:44Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 21.006999999999998,
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-22T03:48:13Z"
+      },
+      {
+        "value" : 0.215,
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-22T03:44:15Z"
+      },
+      {
+        "value" : 2.3109999999999999,
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-22T03:33:24Z",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 0.189,
+        "timestamp" : "2026-01-21T17:27:08Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 0.14799999999999999,
+        "timestamp" : "2026-01-21T14:08:36Z",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T14:08:25Z",
+        "value" : 0.22800000000000001,
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 0.47400000000000003,
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T13:55:29Z"
+      },
+      {
+        "value" : 0.51800000000000002,
+        "timestamp" : "2026-01-21T12:53:24Z",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T12:50:37Z",
+        "source" : "Poorav Lukhi",
+        "value" : 1.3029999999999999
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 0.35199999999999998,
+        "timestamp" : "2026-01-21T12:39:47Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 0.28400000000000003,
+        "timestamp" : "2026-01-21T12:29:22Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 0.75800000000000012,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T12:18:26Z",
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 0.89000000000000001,
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T12:08:42Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 1.736,
+        "timestamp" : "2026-01-21T11:51:58Z",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 2.6150000000000002,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T11:41:19Z",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T11:30:21Z",
+        "type" : "activeEnergyBurned",
+        "value" : 1.7960000000000003,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 0.52700000000000002,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T11:20:04Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 2.7559999999999993,
+        "timestamp" : "2026-01-21T11:02:29Z"
+      },
+      {
+        "timestamp" : "2026-01-21T10:52:45Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 3.5640000000000001
+      },
+      {
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T08:26:14Z",
+        "source" : "Poorav Lukhi",
+        "value" : 1.022
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 1.2110000000000001,
+        "timestamp" : "2026-01-21T08:10:41Z"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T07:50:03Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 2.423
+      },
+      {
+        "timestamp" : "2026-01-21T07:23:28Z",
+        "value" : 0.13500000000000001,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 0.317,
+        "timestamp" : "2026-01-21T07:18:42Z"
+      },
+      {
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 0.65700000000000003,
+        "timestamp" : "2026-01-21T07:08:42Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 0.37,
+        "timestamp" : "2026-01-21T06:57:17Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T06:37:49Z",
+        "unit" : "kcal",
+        "value" : 0.58199999999999996
+      },
+      {
+        "timestamp" : "2026-01-21T06:19:25Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 6.056
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 0.44999999999999996,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T06:12:25Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 3.5129999999999995,
+        "timestamp" : "2026-01-21T05:57:28Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-21T05:56:47Z",
+        "value" : 0.28799999999999998,
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T05:45:57Z",
+        "value" : 5.8549999999999986
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 0.496,
+        "timestamp" : "2026-01-21T05:33:46Z"
+      },
+      {
+        "timestamp" : "2026-01-21T05:15:06Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "value" : 0.65300000000000002,
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 1.232,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T04:59:52Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T04:49:52Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 0.9820000000000001
+      },
+      {
+        "timestamp" : "2026-01-21T04:30:49Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 1.569,
+        "unit" : "kcal"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 1.6940000000000002,
+        "timestamp" : "2026-01-21T03:47:53Z",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 10.575999999999999,
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T03:39:42Z"
+      },
+      {
+        "timestamp" : "2026-01-21T03:23:28Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "value" : 0.080000000000000002,
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 2.6840000000000002,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-21T03:12:33Z"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 1.113,
+        "timestamp" : "2026-01-21T03:02:28Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-20T17:04:04Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 0.14000000000000001,
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 0.0040000000000000001,
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T16:54:30Z"
+      },
+      {
+        "timestamp" : "2026-01-20T16:43:57Z",
+        "value" : 0.73999999999999999,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T16:29:10Z",
+        "source" : "Poorav Lukhi",
+        "value" : 0.11799999999999999,
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-20T16:15:28Z",
+        "value" : 2.8850000000000002,
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T16:00:27Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 0.80699999999999994
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 2.004,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T15:49:56Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-20T15:45:09Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 0.52500000000000002
+      },
+      {
+        "timestamp" : "2026-01-20T15:34:03Z",
+        "value" : 0.34999999999999998,
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 0.073999999999999996,
+        "timestamp" : "2026-01-20T13:58:27Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 0.45899999999999996,
+        "timestamp" : "2026-01-20T13:48:27Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 0.91800000000000004,
+        "timestamp" : "2026-01-20T13:46:04Z",
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 0.92999999999999994,
+        "timestamp" : "2026-01-20T13:35:57Z"
+      },
+      {
+        "value" : 1.6739999999999999,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T13:09:05Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 1.5699999999999998,
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T12:57:48Z",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T12:41:48Z",
+        "value" : 1.5360000000000003,
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 2.1520000000000001,
+
+        "timestamp" : "2026-01-20T12:34:07Z",
+        "unit" : "kcal"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 2.206,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T12:17:01Z"
+      },
+      {
+        "value" : 1.6950000000000001,
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T12:09:55Z"
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T11:59:20Z",
+        "value" : 8.0370000000000008
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 4.6050000000000004,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T11:44:08Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 7.1880000000000006,
+        "timestamp" : "2026-01-20T11:32:59Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 1.2209999999999999,
+        "timestamp" : "2026-01-20T11:10:30Z",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T11:00:25Z",
+        "source" : "Poorav Lukhi",
+        "value" : 0.20999999999999999
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T10:49:54Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 1.2349999999999999
+      },
+      {
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "value" : 0.76800000000000002,
+        "timestamp" : "2026-01-20T10:47:00Z"
+      },
+      {
+        "value" : 0.878,
+        "timestamp" : "2026-01-20T10:35:02Z",
+        "type" : "activeEnergyBurned",
+
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T10:22:05Z",
+        "value" : 1.9790000000000001
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T10:03:43Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 8.038000000000002
+      },
+      {
+        "value" : 4.6179999999999994,
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T09:55:52Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-20T09:41:56Z",
+        "source" : "Poorav Lukhi",
+        "value" : 2.262,
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T09:32:01Z",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 2.1830000000000003
+      },
+      {
+        "unit" : "kcal",
+        "value" : 0.97900000000000009,
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T09:21:36Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 0.70099999999999996,
+        "timestamp" : "2026-01-20T08:36:24Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "timestamp" : "2026-01-20T08:23:26Z",
+        "value" : 1.4500000000000002,
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-20T07:17:25Z",
+        "value" : 1.4490000000000001,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 12.062999999999999,
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T07:04:16Z"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 0.56200000000000006,
+        "timestamp" : "2026-01-20T06:29:23Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "value" : 1.9880000000000002,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T05:31:44Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 0.45000000000000001,
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T05:15:12Z"
+      },
+      {
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-20T04:24:05Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "value" : 4.9890000000000008
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 0.12,
+        "timestamp" : "2026-01-20T04:14:11Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T04:00:41Z",
+        "value" : 0.042999999999999997,
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 2.8219999999999996,
+        "timestamp" : "2026-01-20T03:46:00Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "value" : 0.14500000000000002,
+        "timestamp" : "2026-01-19T18:30:10Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-19T15:58:19Z",
+        "value" : 2.6930000000000001,
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 0.308,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-19T15:56:26Z",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "value" : 2.6169999999999995,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-19T15:43:43Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "timestamp" : "2026-01-19T15:31:56Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "unit" : "kcal",
+        "value" : 1.4120000000000001
+      },
+      {
+        "unit" : "kcal",
+        "value" : 0.29799999999999999,
+        "timestamp" : "2026-01-19T13:18:53Z",
+        "type" : "activeEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 0.60000000000000009,
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-19T11:29:25Z",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 1.8420000000000001,
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-19T08:36:45Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-19T08:26:38Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 2.117,
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "type" : "activeEnergyBurned",
+        "timestamp" : "2026-01-19T07:53:54Z",
+        "value" : 8.7140000000000004,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned",
+        "value" : 5.2929999999999993,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-19T07:40:02Z"
+      },
+      {
+        "value" : 1.407,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-19T05:35:47Z",
+        "source" : "Poorav Lukhi",
+        "type" : "activeEnergyBurned"
+      },
+      {
+        "timestamp" : "2026-01-22T05:03:31Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 2.8709999999999996,
+        "unit" : "kcal"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 37.808999999999997,
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-22T04:29:51Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-22T04:26:44Z",
+        "value" : 3.4999999999999996
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-22T03:52:19Z",
+        "value" : 38.673000000000002
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 5.0569999999999986,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-22T03:48:23Z"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 17.006,
+        "timestamp" : "2026-01-22T03:33:24Z"
+      },
+      {
+        "timestamp" : "2026-01-22T03:08:34Z",
+        "value" : 27.902000000000001,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 67.408000000000001,
+        "timestamp" : "2026-01-22T02:08:34Z",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-22T01:08:34Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 67.408000000000001,
+        "unit" : "kcal"
+      },
+      {
+        "value" : 67.408000000000001,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-22T00:08:34Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T23:08:34Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 67.408000000000001
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T22:08:34Z",
+        "value" : 67.408000000000001,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "value" : 67.408000000000001,
+        "timestamp" : "2026-01-21T21:08:34Z"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 67.408000000000001,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T20:08:34Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 67.408000000000001,
+        "timestamp" : "2026-01-21T19:08:34Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T19:08:24Z",
+        "value" : 0.191,
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "value" : 27.289000000000001,
+        "timestamp" : "2026-01-21T18:44:06Z",
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "value" : 0.191,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T18:43:56Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "value" : 63.106999999999999,
+        "timestamp" : "2026-01-21T17:47:46Z"
+      },
+      {
+        "value" : 0.191,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T17:47:36Z",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-21T17:27:18Z",
+        "unit" : "kcal",
+        "value" : 22.792999999999999,
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 0.191,
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T17:27:08Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "value" : 20.637,
+        "timestamp" : "2026-01-21T17:08:46Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T16:08:46Z",
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001
+      },
+      {
+        "timestamp" : "2026-01-21T15:08:46Z",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001,
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 67.408000000000001,
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T14:08:46Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 14.910000000000002,
+        "timestamp" : "2026-01-21T13:55:29Z",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 66.5,
+        "timestamp" : "2026-01-21T12:56:18Z",
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 1.7250000000000001,
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T12:54:46Z",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 16.744000000000003,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T12:39:57Z",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 14.570000000000004,
+        "timestamp" : "2026-01-21T12:26:58Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "value" : 15.235000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T12:13:34Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 14.388000000000002,
+        "timestamp" : "2026-01-21T12:00:45Z",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T11:53:22Z",
+        "value" : 8.5890000000000022
+      },
+      {
+        "value" : 17.323,
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T11:38:15Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 15.918000000000001,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T11:24:20Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-21T11:11:11Z",
+        "value" : 14.766000000000004,
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 6.5209999999999999,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T11:05:23Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 15.007999999999996,
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T10:52:45Z",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T10:33:24Z",
+        "type" : "basalEnergyBurned",
+        "value" : 21.73
+      },
+      {
+        "value" : 67.408000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T09:33:24Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001,
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T08:33:24Z",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 2.9339999999999997,
+        "timestamp" : "2026-01-21T08:30:50Z",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 16.684999999999999,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T08:15:59Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 6.1230000000000002,
+        "timestamp" : "2026-01-21T08:10:41Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-21T07:52:47Z",
+        "value" : 20.114000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 3.4849999999999994,
+        "timestamp" : "2026-01-21T07:50:03Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "timestamp" : "2026-01-21T07:23:28Z",
+        "value" : 29.855,
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 6.3049999999999997,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T07:17:58Z",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-21T07:12:30Z",
+        "value" : 6.1390000000000002,
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "value" : 17.082999999999998,
+        "timestamp" : "2026-01-21T06:57:17Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 20.702999999999999,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T06:38:55Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 14.510999999999999,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T06:26:00Z"
+      },
+      {
+        "timestamp" : "2026-01-21T06:12:25Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 15.956999999999995,
+        "unit" : "kcal"
+      },
+      {
+        "value" : 13.334,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T06:00:33Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 14.090000000000005,
+        "timestamp" : "2026-01-21T05:48:41Z",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 16.796000000000003,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T05:33:46Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-21T05:17:22Z",
+        "value" : 18.431999999999999
+      },
+      {
+        "timestamp" : "2026-01-21T05:09:23Z",
+        "source" : "Poorav Lukhi",
+        "value" : 9.1469999999999967,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T05:08:21Z",
+        "value" : 1.1479999999999999,
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 18.802000000000007,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T04:51:46Z",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T04:38:40Z",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "value" : 14.775
+      },
+      {
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-21T04:25:31Z",
+        "source" : "Poorav Lukhi",
+        "value" : 14.885000000000002
+      },
+      {
+        "timestamp" : "2026-01-21T03:54:15Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 35.127000000000002,
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 7.3890000000000002,
+        "timestamp" : "2026-01-21T03:47:43Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 17.392000000000003,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T03:32:52Z",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 10.357000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T03:23:39Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T03:17:20Z",
+        "type" : "basalEnergyBurned",
+        "value" : 7.0910000000000002,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "value" : 16.922000000000001,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T03:02:28Z"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-21T02:06:58Z",
+        "source" : "Poorav Lukhi",
+        "value" : 62.359000000000002,
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "timestamp" : "2026-01-21T01:06:58Z",
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-21T00:06:58Z",
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-20T23:06:58Z",
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T22:06:58Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 67.408000000000001
+      },
+      {
+        "timestamp" : "2026-01-20T21:06:58Z",
+        "value" : 67.408000000000001,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T20:06:58Z",
+        "source" : "Poorav Lukhi",
+        "value" : 67.408000000000001
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 67.408000000000001,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T19:06:58Z"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T18:06:58Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "value" : 67.408000000000001
+      },
+      {
+        "value" : 67.408000000000001,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T17:06:58Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 3.2579999999999996,
+        "timestamp" : "2026-01-20T17:04:04Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "value" : 10.550000000000001,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T16:54:40Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 12.154000000000002,
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T16:43:57Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 22.740000000000002,
+        "timestamp" : "2026-01-20T16:23:42Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "value" : 15.600999999999999,
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T16:10:08Z"
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "value" : 13.289,
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T15:58:21Z"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "value" : 13.343000000000002,
+        "timestamp" : "2026-01-20T15:46:31Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T15:34:03Z",
+        "source" : "Poorav Lukhi",
+        "value" : 14.061,
+        "unit" : "kcal"
+      },
+      {
+        "value" : 39.814,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T14:58:37Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T13:58:37Z",
+        "value" : 67.408000000000001,
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal"
+      },
+      {
+        "timestamp" : "2026-01-20T13:47:46Z",
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi",
+        "value" : 12.181000000000003
+      },
+      {
+        "unit" : "kcal",
+        "value" : 13.336,
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T13:35:57Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 19.527000000000001,
+        "timestamp" : "2026-01-20T13:18:34Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 15.600000000000003,
+        "timestamp" : "2026-01-20T13:04:46Z",
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "value" : 18.852000000000004,
+        "timestamp" : "2026-01-20T12:47:59Z",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "type" : "basalEnergyBurned",
+        "unit" : "kcal",
+        "value" : 15.811000000000005,
+        "timestamp" : "2026-01-20T12:34:07Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "kcal",
+        "value" : 18.093,
+        "timestamp" : "2026-01-20T12:18:13Z",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "unit" : "kcal",
+        "value" : 17.756999999999998,
+        "timestamp" : "2026-01-20T12:03:04Z",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      },
+      {
+        "value" : 17.391000000000005,
+        "unit" : "kcal",
+        "type" : "basalEnergyBurned",
+        "timestamp" : "2026-01-20T11:48:06Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "kcal",
+        "timestamp" : "2026-01-20T11:33:10Z",
+        "value" : 17.793000000000003,
+        "type" : "basalEnergyBurned",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-20T11:18:14Z",
+        "value" : 16.825000000000003,
+        "unit" : "kcal",
+        "source" : "Poorav Lukhi",
+        "type" : "basalEnergyBurned"
+      }
+    ]
+  },
+  "sleep" : {
+    "summary" : {
+      "totalSleepMinutes" : 1202
+    },
+    "available" : true,
+    "data" : [
+      {
+        "value" : 4,
+        "endDate" : "2025-12-25T07:24:00Z",
+        "type" : "sleepAnalysis",
+        "startDate" : "2025-12-25T06:24:00Z",
+        "source" : "Health"
+      },
+      {
+        "value" : 1,
+        "startDate" : "2025-12-24T10:24:00Z",
+        "type" : "sleepAnalysis",
+        "source" : "Health",
+        "endDate" : "2025-12-24T16:24:00Z"
+      },
+      {
+        "value" : 3,
+        "endDate" : "2025-12-22T15:24:00Z",
+        "startDate" : "2025-12-22T08:24:00Z",
+        "source" : "Health",
+        "type" : "sleepAnalysis"
+      },
+      {
+        "value" : 2,
+        "source" : "Health",
+        "type" : "sleepAnalysis",
+        "startDate" : "2025-12-21T10:41:00Z",
+        "endDate" : "2025-12-21T14:41:00Z"
+      },
+      {
+        "source" : "Health",
+        "type" : "sleepAnalysis",
+        "value" : 0,
+        "startDate" : "2025-12-02T08:30:00Z",
+        "endDate" : "2025-12-02T10:32:00Z"
+      }
+    ]
+  },
+  "respiratory" : {
+    "data" : [
+      {
+        "source" : "Health",
+        "unit" : "bpm",
+        "value" : 27,
+        "type" : "respiratoryRate",
+        "timestamp" : "2025-12-26T11:18:00Z"
+      },
+      {
+        "unit" : "bpm",
+        "timestamp" : "2025-12-26T05:16:00Z",
+        "value" : 22,
+        "type" : "respiratoryRate",
+        "source" : "Health"
+      },
+      {
+        "timestamp" : "2025-12-25T15:21:00Z",
+        "source" : "Health",
+        "type" : "respiratoryRate",
+        "unit" : "bpm",
+        "value" : 29
+      },
+      {
+        "value" : 22,
+        "timestamp" : "2025-12-24T04:15:00Z",
+        "unit" : "bpm",
+        "type" : "respiratoryRate",
+        "source" : "Health"
+      },
+      {
+        "source" : "Health",
+        "timestamp" : "2025-12-26T11:17:00Z",
+        "value" : 0.97999999999999998,
+        "unit" : "%",
+        "type" : "oxygenSaturation"
+      },
+      {
+        "value" : 0.98999999999999999,
+        "unit" : "%",
+        "source" : "Health",
+        "timestamp" : "2025-12-25T14:19:00Z",
+        "type" : "oxygenSaturation"
+      },
+      {
+        "value" : 0.96999999999999997,
+        "timestamp" : "2025-12-24T10:15:00Z",
+        "type" : "oxygenSaturation",
+        "unit" : "%",
+        "source" : "Health"
+      }
+    ],
+    "available" : true
+  },
+  "hearing" : {
+    "data" : [
+      {
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "value" : 61.471529881651833,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-20T18:01:21Z"
+      },
+      {
+        "timestamp" : "2026-01-20T18:01:18Z",
+        "type" : "headphoneAudio",
+        "value" : 80.805015563964844,
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL"
+      },
+      {
+        "value" : 65.395713806152344,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-20T17:52:24Z",
+        "unit" : "dBASPL"
+      },
+      {
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-19T19:46:49Z",
+        "value" : 64.303413391113281
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 64.177177696954274,
+        "timestamp" : "2026-01-19T19:44:52Z",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T18:55:42Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "value" : 63.300827026367188
+      },
+      {
+        "timestamp" : "2026-01-19T18:53:42Z",
+        "value" : 65.359559624796603,
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "value" : 71.544536646009092,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T12:32:26Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "value" : 64.462570293496341,
+        "timestamp" : "2026-01-19T12:28:44Z",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-19T10:03:28Z",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "value" : 70.530203681903885,
+        "type" : "headphoneAudio"
+      },
+      {
+        "timestamp" : "2026-01-19T10:01:02Z",
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "value" : 73.206871032714844,
+        "unit" : "dBASPL"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T09:45:10Z",
+        "type" : "headphoneAudio",
+        "value" : 74.027850025648036,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-19T09:45:07Z",
+        "type" : "headphoneAudio",
+        "value" : 72.017181396484375
+      },
+      {
+        "value" : 73.196444966371658,
+        "timestamp" : "2026-01-19T09:37:12Z",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 61.85528564453125,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-19T09:37:09Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-19T09:13:49Z",
+        "value" : 65.509534056500229,
+        "unit" : "dBASPL"
+      },
+      {
+        "value" : 65.447944641113281,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T09:13:46Z"
+      },
+      {
+        "timestamp" : "2026-01-19T09:13:37Z",
+        "value" : 61.006895189303478,
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL"
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-19T09:13:34Z",
+        "value" : 58.329574584960938,
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "value" : 66.62081204112792,
+        "timestamp" : "2026-01-19T09:12:24Z"
+      },
+      {
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-19T07:36:29Z",
+        "type" : "headphoneAudio",
+        "value" : 62.950817108154297
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 66.325878295613421,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T07:17:30Z",
+        "type" : "headphoneAudio"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "value" : 69.728592096297916,
+        "timestamp" : "2026-01-19T07:15:54Z"
+      },
+      {
+        "timestamp" : "2026-01-19T07:15:32Z",
+        "value" : 42.335716247558594,
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-19T07:13:53Z",
+        "value" : 68.580795310102317
+      },
+      {
+        "value" : 66.820863031744807,
+        "timestamp" : "2026-01-19T07:13:39Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-19T07:04:33Z",
+        "value" : 67.430475289618613
+      },
+      {
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "value" : 62.950817108154297,
+        "timestamp" : "2026-01-19T06:59:17Z",
+        "type" : "headphoneAudio"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T06:29:51Z",
+        "value" : 71.814058750811085,
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 76.217155456542969,
+        "source" : "Poorav Lukhi",
+
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T06:29:41Z"
+      },
+      {
+        "value" : 44.817123413085938,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-19T06:29:29Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 71.866692818964509,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-19T06:28:58Z"
+      },
+      {
+        "value" : 63.479293900652422,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-19T06:22:55Z"
+      },
+      {
+        "unit" : "dBASPL",
+        "value" : 71.44998502856393,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T22:05:59Z",
+        "type" : "headphoneAudio"
+      },
+      {
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "value" : 65.628101357020128,
+        "timestamp" : "2026-01-17T22:01:03Z",
+        "unit" : "dBASPL"
+      },
+      {
+        "timestamp" : "2026-01-17T21:56:13Z",
+        "value" : 39.305644989013672,
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T21:46:02Z",
+        "value" : 66.332737826078585,
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:55:49Z",
+        "value" : 63.615154266357422,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "value" : 64.754972792310724,
+        "timestamp" : "2026-01-17T13:40:45Z"
+      },
+      {
+        "value" : 62.476291656494141,
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:40:42Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "value" : 62.103396426388606,
+        "timestamp" : "2026-01-17T13:40:16Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T13:40:13Z",
+        "source" : "Poorav Lukhi",
+        "value" : 63.462902069091797,
+        "unit" : "dBASPL"
+      },
+      {
+        "timestamp" : "2026-01-17T13:40:10Z",
+        "unit" : "dBASPL",
+        "value" : 67.050247192382812,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "value" : 61.618877578010739,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:40:01Z"
+      },
+      {
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "value" : 60.311326602635724,
+        "timestamp" : "2026-01-17T13:39:43Z",
+        "type" : "headphoneAudio"
+      },
+      {
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:39:31Z",
+        "source" : "Poorav Lukhi",
+        "value" : 58.716539253977295
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 63.969637622128353,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:30:57Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 62.430103302001953,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:29:03Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 62.950817108154297,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:28:22Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 64.132486064850582,
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T13:25:31Z"
+      },
+      {
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T13:25:28Z",
+        "value" : 58.828109741210938,
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T13:23:28Z",
+        "value" : 63.879402527121776,
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 72.136839080500181,
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T10:36:51Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T10:36:44Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "value" : 35.43621826171875
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T10:36:35Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "value" : 77.767128090649564
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 84.681351959354203,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T10:35:19Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "value" : 74.678618244227991,
+        "timestamp" : "2026-01-17T10:19:57Z"
+      },
+      {
+        "value" : 53.470123604839898,
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T09:59:47Z",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "timestamp" : "2026-01-17T09:56:08Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "value" : 63.237270355224609
+      },
+      {
+        "value" : 19.812871932983398,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T09:55:06Z"
+      },
+      {
+        "timestamp" : "2026-01-17T09:52:23Z",
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "value" : 53.486612175182614
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T09:46:23Z",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "value" : 51.054901673929436
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 69.617317095676739,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T09:39:22Z"
+      },
+      {
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "value" : 44.922191619873047,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T09:38:34Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 48.908149719238281,
+        "timestamp" : "2026-01-17T09:38:31Z",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio"
+      },
+      {
+        "value" : 69.395283921861093,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T09:37:56Z",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL"
+      },
+      {
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "value" : 50.664402008056641,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T09:37:53Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T07:50:10Z",
+        "type" : "headphoneAudio",
+        "value" : 66.876618738780977
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T07:49:13Z",
+        "value" : 64.575167671712734,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T07:47:31Z",
+        "value" : 64.043288216962267,
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 64.77448896417836,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T07:42:30Z"
+      },
+      {
+        "timestamp" : "2026-01-17T07:42:24Z",
+        "value" : 58.372675854248264,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL"
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 61.926287270003193,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T07:37:35Z",
+        "unit" : "dBASPL"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T07:22:47Z",
+        "value" : 67.031830620562459,
+        "unit" : "dBASPL"
+      },
+      {
+        "unit" : "dBASPL",
+        "value" : 58.918830871582031,
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T07:22:44Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T07:22:38Z",
+        "value" : 65.662749160217345,
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "value" : 61.584766435030794,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T07:22:32Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "value" : 66.038895422503685,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T07:20:05Z",
+        "type" : "headphoneAudio"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T07:19:59Z",
+        "value" : 63.137875612165473
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T07:13:49Z",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "value" : 66.764510220205267
+      },
+      {
+        "value" : 59.322500847032615,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T07:13:43Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "value" : 67.431284195679936,
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T06:59:36Z"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T06:59:30Z",
+        "value" : 64.973682255632625
+      },
+      {
+        "timestamp" : "2026-01-17T06:48:42Z",
+        "value" : 74.101493835449219,
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "unit" : "dBASPL",
+        "value" : 77.006327829673523,
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T06:48:27Z"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:44:01Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "value" : 62.430103302001953
+      },
+      {
+        "value" : 58.080485248752254,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T06:43:43Z",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio"
+      },
+      {
+        "value" : 67.565890348140726,
+        "timestamp" : "2026-01-17T06:35:16Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL"
+      },
+      {
+        "value" : 70.777847804575032,
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:35:10Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "timestamp" : "2026-01-17T06:29:09Z",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi",
+        "value" : 74.588237876089323
+      },
+      {
+        "timestamp" : "2026-01-17T06:28:07Z",
+        "value" : 67.046064108001701,
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:26:27Z",
+        "value" : 66.610777916457351,
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "value" : 58.47373256585378,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:26:21Z"
+      },
+      {
+        "value" : 67.131929853175592,
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:22:57Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:15:16Z",
+        "source" : "Poorav Lukhi",
+        "type" : "headphoneAudio",
+        "value" : 66.287920682355889
+      },
+      {
+        "value" : 34.946839359875284,
+        "source" : "Poorav Lukhi",
+        "timestamp" : "2026-01-17T06:15:04Z",
+        "unit" : "dBASPL",
+        "type" : "headphoneAudio"
+      },
+      {
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:04:20Z",
+        "type" : "headphoneAudio",
+        "source" : "Poorav Lukhi",
+        "value" : 40.567959361782009
+      },
+      {
+        "type" : "headphoneAudio",
+        "value" : 31.317525833345357,
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:04:14Z",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "value" : 33.53174414011275,
+        "timestamp" : "2026-01-17T06:00:37Z",
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "source" : "Poorav Lukhi"
+      },
+      {
+        "type" : "headphoneAudio",
+        "unit" : "dBASPL",
+        "timestamp" : "2026-01-17T06:00:31Z",
+        "value" : 27.645219612573946,
+        "source" : "Poorav Lukhi"
+      }
+    ],
+    "available" : true
+  },
+  "nutrition" : {
+    "available" : false,
+    "reason" : "No data or permission denied"
+  },
+  "reproductive" : {
+    "available" : true,
+    "data" : [
+      {
+        "timestamp" : "2025-12-26T08:15:00Z",
+        "type" : "menstrualFlow",
+        "value" : 3
+      },
+      {
+        "type" : "menstrualFlow",
+        "value" : 4,
+        "timestamp" : "2025-12-25T11:17:00Z"
+      }
+    ]
+  }
+}

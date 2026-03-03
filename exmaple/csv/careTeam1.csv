@@ -1,0 +1,2 @@
+care_team_id,care_team_status,care_team_name,care_team_subject_id,care_team_participant_member_id,care_team_participant_role,care_team_managing_org_ids,care_team_phone,care_team_note
+CT-1,active,Diabetes Care Team,PAT-1,PRAC-1,primary,ORG-1,+1-555-0101,Coordinate quarterly reviews

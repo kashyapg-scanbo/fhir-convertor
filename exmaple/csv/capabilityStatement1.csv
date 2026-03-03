@@ -1,0 +1,2 @@
+capability_statement_id,capability_statement_url,capability_statement_version,capability_statement_name,capability_statement_title,capability_statement_status,capability_statement_date,capability_statement_publisher,capability_statement_kind,capability_statement_fhir_version,capability_statement_format
+CAP-1,https://example.org/fhir/CapabilityStatement/example1,1.0.0,ExampleCapabilityOne,Example Capability Statement One,active,2024-02-01T00:00:00Z,Example Publisher,instance,5.0.0,"json,xml"

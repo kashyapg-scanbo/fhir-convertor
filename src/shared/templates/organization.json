@@ -1,0 +1,22 @@
+{
+  "resourceType": "Organization",
+  "identifier": [],
+  "active": false,
+  "type": [],
+  "name": "",
+  "alias": [
+    ""
+  ],
+  "description": "",
+  "contact": [],
+  "partOf": {},
+  "endpoint": [],
+  "qualification": [
+    {
+      "identifier": [],
+      "code": {},
+      "period": {},
+      "issuer": {}
+    }
+  ]
+}

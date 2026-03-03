@@ -1,0 +1,28 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Alice",
+      "last_name": "Smith"
+    }
+  },
+  "communication_request": {
+    "communication_request_id": "COMREQ-2",
+    "status": "on-hold",
+    "status_reason": "Awaiting authorization",
+    "intent": "order",
+    "category": ["care-coordination"],
+    "priority": "urgent",
+    "medium": ["phone"],
+    "subject_id": "PAT-2",
+    "encounter_id": "ENC-2",
+    "occurrence_start": "2024-03-03T09:00:00Z",
+    "occurrence_end": "2024-03-03T11:00:00Z",
+    "requester_id": "ORG-1",
+    "recipient_ids": ["PRAC-2", "PAT-2"],
+    "information_provider_ids": ["PRAC-2"],
+    "reason": ["Medication reconciliation"],
+    "payload": ["Call patient to review meds"],
+    "note": "Schedule after lab results"
+  }
+}

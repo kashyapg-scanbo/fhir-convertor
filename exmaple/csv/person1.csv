@@ -1,0 +1,2 @@
+person_id,person_active,person_first_name,person_last_name,person_phone,person_email,person_gender,person_birth_date,person_deceased,person_deceased_date,person_address_line1,person_address_line2,person_city,person_state,person_postal_code,person_country,person_marital_status,person_language,person_language_preferred,person_managing_organization_id,person_link_target,person_link_assurance
+PER-1,true,John1,Doe1,5550101,john1@example.com,male,1980-01-01,,,123 Main St,,Metro,CA,90210,US,M,en,true,ORG-1,Patient/PAT-1,level2

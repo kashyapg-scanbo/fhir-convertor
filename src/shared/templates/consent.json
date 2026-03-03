@@ -1,0 +1,13 @@
+{
+  "resourceType": "Consent",
+  "identifier": [],
+  "status": "",
+  "category": [],
+  "subject": {
+    "reference": ""
+  },
+  "date": "",
+  "decision": "",
+  "grantor": [],
+  "grantee": []
+}

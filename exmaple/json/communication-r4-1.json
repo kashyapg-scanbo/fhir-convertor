@@ -1,0 +1,25 @@
+{
+  "resourceType": "Communication",
+  "id": "COMM-R4-1",
+  "status": "completed",
+  "topic": {
+    "text": "Follow-up note"
+  },
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "sent": "2024-03-01T09:15:00Z",
+  "sender": {
+    "reference": "Practitioner/PRAC-1"
+  },
+  "recipient": [
+    {
+      "reference": "Patient/PAT-1"
+    }
+  ],
+  "payload": [
+    {
+      "contentString": "Patient notified of lab results"
+    }
+  ]
+}

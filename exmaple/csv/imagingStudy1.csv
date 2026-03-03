@@ -1,0 +1,2 @@
+imaging_study_id,imaging_study_status,imaging_study_modality,imaging_study_subject_id,imaging_study_encounter_id,imaging_study_started,imaging_study_description,imaging_study_series_uid,imaging_study_series_number,imaging_study_series_description
+IMG-1,available,CT,PAT-60,ENC-20,2025-02-20T09:00:00Z,CT chest without contrast,1.2.840.113619.2.55.3.604688433.123,1,Axial chest

@@ -1,0 +1,69 @@
+{
+  "resourceType": "VerificationResult",
+  "id": "VER-R4-1",
+  "status": "validated",
+  "statusDate": "2024-01-15T10:00:00Z",
+  "need": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/verificationresult-need",
+        "code": "initial",
+        "display": "Initial"
+      }
+    ]
+  },
+  "validationType": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/verificationresult-validation-type",
+        "code": "primary",
+        "display": "Primary"
+      }
+    ]
+  },
+  "validationProcess": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/verificationresult-validation-process",
+          "code": "primary-source",
+          "display": "Primary Source"
+        }
+      ]
+    }
+  ],
+  "target": [
+    {
+      "reference": "Practitioner/PRAC-1"
+    }
+  ],
+  "targetLocation": ["Practitioner.qualification"],
+  "frequency": {
+    "text": "annual"
+  },
+  "lastPerformed": "2024-01-15T10:00:00Z",
+  "nextScheduled": "2025-01-15",
+  "failureAction": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/verificationresult-failure-action",
+        "code": "warn",
+        "display": "Warn"
+      }
+    ]
+  },
+  "primarySource": [
+    {
+      "who": { "reference": "Organization/ORG-1" },
+      "validationStatus": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/verificationresult-validation-status",
+            "code": "successful",
+            "display": "Successful"
+          }
+        ]
+      }
+    }
+  ]
+}

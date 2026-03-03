@@ -1,0 +1,14 @@
+{
+  "account": {
+    "account_id": "ACC-2",
+    "status": "inactive",
+    "type": { "code": "PBILLACCT", "display": "Patient billing account" },
+    "name": "Outpatient Feb",
+    "subject_ids": ["Patient/PAT-31"],
+    "service_period_start": "2025-02-05",
+    "service_period_end": "2025-02-05",
+    "balance": { "value": 0.00, "currency": "USD" },
+    "coverage_ids": ["Coverage/COV-11"],
+    "note": "Closed after payment"
+  }
+}

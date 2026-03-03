@@ -1,0 +1,2 @@
+person_id,person_active,person_first_name,person_last_name,person_phone,person_email,person_gender,person_birth_date,person_deceased,person_deceased_date,person_address_line1,person_address_line2,person_city,person_state,person_postal_code,person_country,person_marital_status,person_language,person_language_preferred,person_managing_organization_id,person_link_target,person_link_assurance
+PER-2,false,Jane2,Smith2,5550102,jane2@example.com,female,1975-05-05,true,2020-01-01T00:00:00Z,456 Oak Ave,,Springfield,TX,73301,US,S,es,false,ORG-2,Patient/PAT-2,level1

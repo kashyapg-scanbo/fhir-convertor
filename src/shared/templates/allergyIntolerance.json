@@ -1,0 +1,22 @@
+{
+  "resourceType": "AllergyIntolerance",
+  "identifier": [],
+  "clinicalStatus": {},
+  "verificationStatus": {},
+  "type": {},
+  "category": [],
+  "criticality": "",
+  "code": {},
+  "patient": {},
+  "encounter": {},
+  "onsetDateTime": "",
+  "onsetAge": {},
+  "onsetPeriod": {},
+  "onsetRange": {},
+  "onsetString": "",
+  "recordedDate": "",
+  "participant": [],
+  "lastOccurrence": "",
+  "note": [],
+  "reaction": []
+}

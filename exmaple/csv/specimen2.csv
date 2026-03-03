@@ -1,0 +1,2 @@
+specimen_id,specimen_status,specimen_type_code,specimen_type_display,specimen_subject_id,specimen_received_time,specimen_collected_datetime,specimen_note
+SPEC-2,unavailable,119365002,Throat swab,PAT-71,2025-02-21T13:20:00Z,2025-02-21T13:00:00Z,Insufficient quantity

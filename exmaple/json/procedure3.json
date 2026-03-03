@@ -1,0 +1,21 @@
+{
+  "procedure": {
+    "procedure_id": "PROC-3",
+    "procedure_status": "active",
+    "procedure_category": "Example 3",
+    "procedure_code": "CODE-3",
+    "procedure_code_system": "http://example.org/system/procedure",
+    "procedure_display": "Display 3",
+    "procedure_subject_id": "PROC-3",
+    "procedure_encounter_id": "ENC-3",
+    "procedure_occurrence_date": "2024-05-13T10:03:00Z",
+    "procedure_occurrence_start": "2024-05-13T09:00:00Z",
+    "procedure_occurrence_end": "2024-05-13T10:30:00Z",
+    "procedure_recorded": "Example 3",
+    "procedure_performer_id": "PROC-3",
+    "procedure_location": "Example 3",
+    "procedure_reason": "Example 3",
+    "procedure_body_site": "Example 3",
+    "procedure_note": "Example note 3"
+  }
+}

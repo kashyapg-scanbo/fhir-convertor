@@ -1,0 +1,12 @@
+{
+  "audit_event": {
+    "audit_event_id": "AUD-2",
+    "category": "rest",
+    "code": "update",
+    "action": "U",
+    "severity": "warning",
+    "recorded": "2024-03-15T09:30:00Z",
+    "agent_who": "Organization/ORG-1",
+    "agent_role": "source"
+  }
+}

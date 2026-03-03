@@ -1,0 +1,2 @@
+supply_delivery_id,supply_delivery_status,supply_delivery_type_code,supply_delivery_type_display,supply_delivery_patient_id,supply_delivery_occurrence_datetime,supply_delivery_item_code,supply_delivery_item_display,supply_delivery_item_quantity_value,supply_delivery_item_quantity_unit,supply_delivery_note
+SD-1,completed,medsupply,Medication supply,PAT-80,2025-02-23T10:00:00Z,463956003,Insulin pen,2,box,Delivered to bedside

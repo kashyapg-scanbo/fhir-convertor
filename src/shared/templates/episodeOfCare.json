@@ -1,0 +1,16 @@
+{
+  "resourceType": "EpisodeOfCare",
+  "identifier": [],
+  "status": "",
+  "statusHistory": [],
+  "type": [],
+  "reason": [],
+  "diagnosis": [],
+  "patient": {},
+  "managingOrganization": {},
+  "period": {},
+  "referralRequest": [],
+  "careManager": {},
+  "careTeam": [],
+  "account": []
+}

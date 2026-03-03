@@ -1,0 +1,14 @@
+{
+  "supply_delivery": {
+    "supply_delivery_id": "SD-1",
+    "status": "completed",
+    "type": { "code": "medsupply", "display": "Medication supply" },
+    "patient_id": "PAT-80",
+    "occurrence_datetime": "2025-02-23T10:00:00Z",
+    "supplied_item": {
+      "item": { "code": "463956003", "display": "Insulin pen" },
+      "quantity": { "value": 2, "unit": "box" }
+    },
+    "note": "Delivered to bedside"
+  }
+}

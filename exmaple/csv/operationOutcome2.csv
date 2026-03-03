@@ -1,0 +1,2 @@
+operation_outcome_id,operation_outcome_severity,operation_outcome_code,operation_outcome_details_display,operation_outcome_diagnostics
+OO-2,warning,processing,Partial success,Some optional fields were skipped

@@ -1,0 +1,21 @@
+{
+  "procedure": {
+    "procedure_id": "PROC-4",
+    "procedure_status": "completed",
+    "procedure_category": "Example 4",
+    "procedure_code": "CODE-4",
+    "procedure_code_system": "http://example.org/system/procedure",
+    "procedure_display": "Display 4",
+    "procedure_subject_id": "PROC-4",
+    "procedure_encounter_id": "ENC-4",
+    "procedure_occurrence_date": "2024-05-14T10:04:00Z",
+    "procedure_occurrence_start": "2024-05-14T09:00:00Z",
+    "procedure_occurrence_end": "2024-05-14T10:30:00Z",
+    "procedure_recorded": "Example 4",
+    "procedure_performer_id": "PROC-4",
+    "procedure_location": "Example 4",
+    "procedure_reason": "Example 4",
+    "procedure_body_site": "Example 4",
+    "procedure_note": "Example note 4"
+  }
+}

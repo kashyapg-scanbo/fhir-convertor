@@ -1,0 +1,55 @@
+{
+  "resourceType": "Substance",
+  "id": "SUB-R4-2",
+  "status": "inactive",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://example.org/substance-category",
+          "code": "biologic",
+          "display": "Biologic"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://example.org/substances",
+        "code": "B00002",
+        "display": "Insulin"
+      }
+    ],
+    "text": "Insulin"
+  },
+  "description": "Insulin Regular",
+  "instance": false,
+  "quantity": {
+    "value": 10,
+    "unit": "mL"
+  },
+  "ingredient": [
+    {
+      "quantity": {
+        "numerator": {
+          "value": 100,
+          "unit": "IU"
+        },
+        "denominator": {
+          "value": 1,
+          "unit": "mL"
+        }
+      },
+      "substanceCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://example.org/substances",
+            "code": "INS",
+            "display": "Insulin"
+          }
+        ]
+      }
+    }
+  ]
+}

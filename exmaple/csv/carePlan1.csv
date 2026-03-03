@@ -1,0 +1,2 @@
+care_plan_id,care_plan_status,care_plan_intent,care_plan_title,care_plan_description,care_plan_subject_id,care_plan_period_start,care_plan_period_end,care_plan_care_team_ids,care_plan_goal_ids,care_plan_addresses,care_plan_note
+CP-1,active,plan,Diabetes Care Plan,Routine diabetes management plan,PAT-1,2024-01-01,2024-06-30,CARETEAM-1,GOAL-1,Diabetes mellitus,Monitor HbA1c quarterly

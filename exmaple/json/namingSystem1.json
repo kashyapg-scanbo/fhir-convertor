@@ -1,0 +1,12 @@
+{
+  "naming_system": {
+    "naming_system_id": "NS-1",
+    "url": "https://example.org/namingsystems/example",
+    "name": "ExampleNamingSystem",
+    "status": "active",
+    "kind": "identifier",
+    "unique_id_type": "uri",
+    "unique_id_value": "https://example.org/namingsystems/example",
+    "unique_id_preferred": true
+  }
+}

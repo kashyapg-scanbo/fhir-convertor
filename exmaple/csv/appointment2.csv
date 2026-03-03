@@ -1,0 +1,2 @@
+appointment_id,appointment_status,appointment_start,appointment_end,appointment_subject_id,appointment_participant_id
+APT-2,booked,2024-01-02T13:00:00Z,2024-01-02T13:30:00Z,PAT-2,PRAC-2

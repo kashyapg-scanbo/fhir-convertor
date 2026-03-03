@@ -1,0 +1,2 @@
+nutrition_intake_id,nutrition_intake_status,nutrition_intake_code,nutrition_intake_subject_id,nutrition_intake_encounter_id,nutrition_intake_occurrence_date_time,nutrition_intake_recorded,nutrition_intake_consumed_type,nutrition_intake_consumed_product_code,nutrition_intake_consumed_amount_value,nutrition_intake_consumed_amount_unit,nutrition_intake_note
+NI-1,completed,meal,PAT-6,ENC-4,2024-05-10T12:30:00Z,2024-05-10T13:00:00Z,food,NP-1,1,serving,Lunch recorded

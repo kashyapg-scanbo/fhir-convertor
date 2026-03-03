@@ -1,0 +1,42 @@
+{
+  "resourceType": "CapabilityStatement",
+  "url": "",
+  "identifier": [],
+  "version": "",
+  "versionAlgorithmString": "",
+  "versionAlgorithmCoding": {},
+  "name": "",
+  "title": "",
+  "status": "",
+  "experimental": false,
+  "date": "",
+  "publisher": "",
+  "contact": [],
+  "description": "",
+  "useContext": [],
+  "jurisdiction": [],
+  "purpose": "",
+  "copyright": "",
+  "copyrightLabel": "",
+  "kind": "",
+  "instantiates": [],
+  "imports": [],
+  "software": {
+    "name": "",
+    "version": "",
+    "releaseDate": ""
+  },
+  "implementation": {
+    "description": "",
+    "url": "",
+    "custodian": {}
+  },
+  "fhirVersion": "",
+  "format": [],
+  "patchFormat": [],
+  "acceptLanguage": [],
+  "implementationGuide": [],
+  "rest": [],
+  "messaging": [],
+  "document": []
+}

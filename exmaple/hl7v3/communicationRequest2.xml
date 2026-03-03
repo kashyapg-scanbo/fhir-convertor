@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-comreq-2"/>
+  <creationTime value="20240303100000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <communicationRequest>
+        <id extension="COMREQ-V3-2"/>
+        <code displayName="Call patient to review meds"/>
+        <statusCode code="on-hold"/>
+        <effectiveTime value="20240303"/>
+        <text>Call patient to review meds</text>
+      </communicationRequest>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -1,0 +1,115 @@
+import crypto from 'crypto';
+import organizationTemplate from '../../shared/templates/organization.json' with { type: 'json' };
+import type { CanonicalOrganization, OperationType } from '../../shared/types/canonical.types.js';
+import { FullUrlRegistry } from './fullUrlRegistry.js';
+import { makeNarrative } from './utils.js';
+
+interface OrganizationMapperArgs {
+  organizations?: CanonicalOrganization[];
+  operation?: OperationType;
+  registry: FullUrlRegistry;
+  resolveRef: (resourceType: string, idOrIdentifier?: string) => string | undefined;
+}
+
+export function mapOrganizations({
+  organizations,
+  operation,
+  registry,
+  resolveRef
+}: OrganizationMapperArgs) {
+  if (!organizations || organizations.length === 0) {
+    return [];
+  }
+
+  const entries: any[] = [];
+  for (let index = 0; index < organizations.length; index++) {
+    const source = organizations[index];
+    const organization = structuredClone(organizationTemplate) as any;
+    const identifierSystem = 'urn:hl7-org:v2';
+
+    organization.id = crypto.randomUUID();
+    const identifierValue = source.identifier || source.id || organization.id;
+    organization.identifier = identifierValue ? [{
+      system: identifierSystem,
+      value: identifierValue
+    }] : undefined;
+    organization.name = source.name || undefined;
+    organization.alias = source.alias?.length ? source.alias : undefined;
+    if ((source.telecom && source.telecom.length > 0) || (source.address && source.address.length > 0)) {
+      const firstAddress = source.address?.[0];
+      organization.contact = [{
+        telecom: source.telecom || [],
+        address: firstAddress ?? undefined
+      }];
+    } else {
+      organization.contact = undefined;
+    }
+
+    const fullUrl = `urn:uuid:${organization.id}`;
+    registry.register(
+      'Organization',
+      {
+        identifier: identifierValue,
+        id: organization.id
+      },
+      fullUrl
+    );
+
+    if (organization.name) {
+      organization.text = makeNarrative('Organization', organization.name);
+    }
+
+    if (source.type) {
+      organization.type = source.type.map((t: any) => ({
+        coding: [{
+          system: t.system,
+          code: t.code,
+          display: t.display
+        }]
+      }));
+    } else {
+      organization.type = undefined;
+    }
+
+    if (source.partOf) {
+      organization.partOf = {
+        reference: resolveRef('Organization', source.partOf) || `Organization/${source.partOf}`
+      };
+    } else {
+      organization.partOf = undefined;
+    }
+
+    if (operation === 'delete' || source.active === false) {
+      organization.active = false;
+    } else if (source.active === true) {
+      organization.active = true;
+    } else {
+      organization.active = undefined;
+    }
+
+    organization.description = undefined;
+    organization.endpoint = undefined;
+    organization.qualification = undefined;
+
+    const entry: any = {
+      resource: organization,
+      fullUrl
+    };
+
+    if (operation === 'create') {
+      entry.request = {
+        method: 'PUT',
+        url: `Organization?identifier=${identifierSystem}|${identifierValue}`
+      };
+    } else if (operation === 'update' || operation === 'delete') {
+      entry.request = {
+        method: 'PUT',
+        url: `Organization/${organization.id}`
+      };
+    }
+
+    entries.push(entry);
+  }
+
+  return entries;
+}

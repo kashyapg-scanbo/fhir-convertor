@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-1"/>
+      <patient>
+        <name>
+          <family>Doe1</family>
+          <given>John1</given>
+        </name>
+        <administrativeGenderCode code="M"/>
+        <birthTime value="19800101"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="PERSON" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <person>
+              <id extension="PER-1"/>
+              <name>
+                <family>Doe1</family>
+                <given>John1</given>
+              </name>
+              <telecom value="tel:5550101" use="MC"/>
+              <administrativeGenderCode code="M"/>
+              <birthTime value="19800101"/>
+            </person>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

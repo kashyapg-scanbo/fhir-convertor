@@ -1,0 +1,12 @@
+{
+  "organization_affiliation": {
+    "organization_affiliation_id": "ORGAFF-1",
+    "active": true,
+    "organization_id": "ORG-1",
+    "participating_organization_id": "ORG-2",
+    "code": "member",
+    "specialty": "cardiology",
+    "period_start": "2024-01-01",
+    "period_end": "2024-12-31"
+  }
+}

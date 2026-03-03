@@ -1,0 +1,14 @@
+{
+  "supply_delivery": {
+    "supply_delivery_id": "SD-2",
+    "status": "in-progress",
+    "type": { "code": "consumable", "display": "Wound care kit" },
+    "patient_id": "PAT-81",
+    "occurrence_datetime": "2025-02-24T15:30:00Z",
+    "supplied_item": {
+      "item": { "code": "736271009", "display": "Wound dressing pack" },
+      "quantity": { "value": 5, "unit": "pack" }
+    },
+    "note": "Awaiting confirmation at ward desk"
+  }
+}

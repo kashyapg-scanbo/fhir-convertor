@@ -1,0 +1,15 @@
+{
+  "resourceType": "AppointmentResponse",
+  "identifier": [],
+  "appointment": {},
+  "proposedNewTime": false,
+  "start": "",
+  "end": "",
+  "participantType": [],
+  "actor": {},
+  "participantStatus": "",
+  "comment": "",
+  "recurring": false,
+  "occurrenceDate": "",
+  "recurrenceId": 0
+}

@@ -1,0 +1,20 @@
+{
+  "resourceType": "RiskAssessment",
+  "identifier": [],
+  "basedOn": {},
+  "parent": {},
+  "status": "",
+  "method": {},
+  "code": {},
+  "subject": {},
+  "encounter": {},
+  "occurrenceDateTime": "",
+  "occurrencePeriod": {},
+  "condition": {},
+  "performer": {},
+  "reason": [],
+  "basis": [],
+  "prediction": [],
+  "mitigation": "",
+  "note": []
+}

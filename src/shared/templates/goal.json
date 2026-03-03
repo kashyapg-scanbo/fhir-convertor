@@ -1,0 +1,20 @@
+{
+  "resourceType": "Goal",
+  "identifier": [],
+  "lifecycleStatus": "",
+  "achievementStatus": {},
+  "category": [],
+  "continuous": false,
+  "priority": {},
+  "description": {},
+  "subject": {},
+  "startDate": "",
+  "startCodeableConcept": {},
+  "target": [],
+  "statusDate": "",
+  "statusReason": "",
+  "source": {},
+  "addresses": [],
+  "note": [],
+  "outcome": []
+}

@@ -1,0 +1,48 @@
+{
+  "resourceType": "DocumentReference",
+  "identifier": [],
+  "version": "",
+  "basedOn": [],
+  "status": "",
+  "docStatus": "",
+  "modality": [],
+  "type": {},
+  "category": [],
+  "subject": {},
+  "context": [],
+  "event": [],
+  "bodySite": [],
+  "facilityType": {},
+  "practiceSetting": {},
+  "period": {},
+  "date": "",
+  "author": [],
+  "attester": [
+    {
+      "mode": {},
+      "time": "",
+      "party": {}
+    }
+  ],
+  "custodian": {},
+  "relatesTo": [
+    {
+      "code": {},
+      "target": {}
+    }
+  ],
+  "description": "",
+  "securityLabel": [],
+  "content": [
+    {
+      "attachment": {},
+      "profile": [
+        {
+          "valueCoding": {},
+          "valueUri": "",
+          "valueCanonical": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <component><structuredBody><component><section>
+    <code code="69972-1" codeSystem="2.16.840.1.113883.6.1" displayName="Charge item definition"/>
+    <entry>
+      <observation classCode="OBS" moodCode="DEF">
+        <id extension="CHID-1"/>
+        <statusCode code="active"/>
+        <code code="99213" displayName="Office visit" codeSystem="2.16.840.1.113883.6.12"/>
+        <text>Standard office visit charge</text>
+      </observation>
+    </entry>
+  </section></component></structuredBody></component>
+</ClinicalDocument>

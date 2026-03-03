@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "John",
+      "last_name": "Doe"
+    }
+  },
+  "communication_request": {
+    "communication_request_id": "COMREQ-1",
+    "status": "active",
+    "intent": "order",
+    "subject_id": "PAT-1",
+    "occurrence_date": "2024-03-02T09:00:00Z",
+    "requester_id": "PRAC-1",
+    "recipient_ids": ["PAT-1"],
+    "payload": ["Send follow-up instructions"]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "resourceType": "Encounter",
+  "identifier": [],
+  "status": "",
+  "class": [],
+  "priority": {},
+  "type": [],
+  "serviceType": [],
+  "subject": {},
+  "subjectStatus": {},
+  "episodeOfCare": [],
+  "basedOn": [],
+  "careTeam": [],
+  "partOf": {},
+  "serviceProvider": {},
+  "participant": [
+    {
+      "type": [],
+      "period": {},
+      "actor": {}
+    }
+  ],
+  "appointment": [],
+  "virtualService": [],
+  "actualPeriod": {},
+  "plannedStartDate": "",
+  "plannedEndDate": "",
+  "length": {},
+  "reason": [
+    {
+      "use": [],
+      "value": []
+    }
+  ],
+  "diagnosis": [
+    {
+      "condition": [],
+      "use": []
+    }
+  ],
+  "account": [],
+  "dietPreference": [],
+  "specialArrangement": [],
+  "specialCourtesy": [],
+  "admission": {
+    "preAdmissionIdentifier": {},
+    "origin": {},
+    "admitSource": {},
+    "reAdmission": {},
+    "destination": {},
+    "dischargeDisposition": {}
+  },
+  "location": [
+    {
+      "location": {},
+      "status": "",
+      "form": {},
+      "period": {}
+    }
+  ]
+}

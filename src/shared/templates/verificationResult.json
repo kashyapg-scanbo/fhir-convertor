@@ -1,0 +1,17 @@
+{
+  "resourceType": "VerificationResult",
+  "target": [],
+  "targetLocation": [],
+  "need": {},
+  "status": "",
+  "statusDate": "",
+  "validationType": {},
+  "validationProcess": [],
+  "frequency": {},
+  "lastPerformed": "",
+  "nextScheduled": "",
+  "failureAction": {},
+  "primarySource": [],
+  "attestation": {},
+  "validator": []
+}

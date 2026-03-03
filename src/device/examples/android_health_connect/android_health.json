@@ -1,0 +1,397 @@
+{
+    "Activity Intensity": {
+        "activityIntensityType": 1,
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "d152a3b2-6fc8-4712-b741-412e817b2ba1",
+            "lastModifiedTime": {},
+            "recordingMethod": 0
+        },
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Distance": {
+        "distance": {
+            "type": "METERS",
+            "value": 534.75439453125
+        },
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "f2bf4e15-4ce1-43ca-9a0f-7966f6632382",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Exercise": {
+        "endTime": {},
+        "endZoneOffset": {},
+        "exerciseRouteResult": {},
+        "exerciseType": 79,
+        "laps": [],
+        "metadata": {
+            "clientRecordId": "c0688dd4-ecd6-4142-8841-8e3b5b9c96d6",
+            "clientRecordVersion": 1767779331860,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "48878742-308f-318f-b9db-d7bb39400b2c",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "notes": "Its funn",
+        "segments": [],
+        "startTime": {},
+        "startZoneOffset": {},
+        "title": "HelHelloHEllo"
+    },
+    "Speed": {
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "13c1f068-c2d1-49b2-bcd4-6ecd3894dd25",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "samples": [
+            {
+                "speed": {
+                    "type": "METERS_PER_SECOND",
+                    "value": 0.2970857620239258
+                },
+                "time": {}
+            }
+        ],
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Steps": {
+        "count": 852,
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "81d47648-f978-4812-9b0f-a3e19c0692de",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Total Calories Burned": {
+        "endTime": {},
+        "endZoneOffset": {},
+        "energy": {
+            "type": "CALORIES",
+            "value": 138699.9969482422
+        },
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "099121fa-f7b9-495f-8312-d4edf8fad55a",
+            "lastModifiedTime": {},
+            "recordingMethod": 0
+        },
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Basal Metabolic Rate": {
+        "basalMetabolicRate": {
+            "type": "WATTS",
+            "value": 71.2042707952125
+        },
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "7cb011d8-db6c-460e-984a-e623ffd950bf",
+            "lastModifiedTime": {},
+            "recordingMethod": 0
+        },
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Body Fat": {
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "c626c64a-2039-46d8-8ebf-e9c9447140cc",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "percentage": {
+            "value": 23.0
+        },
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Height": {
+        "height": {
+            "type": "METERS",
+            "value": 1.549399971961975
+        },
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "7f3d146f-2416-4984-9b07-5f5a42e99f3d",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Weight": {
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "87bc582e-84ff-4f34-8efe-c91e911a9a80",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "time": {},
+        "weight": {
+            "type": "GRAMS",
+            "value": 72982.94830322266
+        },
+        "zoneOffset": {}
+    },
+    "Hydration": {
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "9209129b-7f1c-4350-a392-79c34bd93c60",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "startTime": {},
+        "startZoneOffset": {},
+        "volume": {
+            "type": "LITERS",
+            "value": 0.08500000089406967
+        }
+    },
+    "Nutrition": {
+        "cholesterol": {
+            "type": "GRAMS",
+            "value": 0.052000000000000005
+        },
+        "dietaryFiber": {
+            "type": "GRAMS",
+            "value": 63.0
+        },
+        "endTime": {},
+        "endZoneOffset": {},
+        "energy": {
+            "type": "CALORIES",
+            "value": 951000.0
+        },
+        "mealType": 3,
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "18791b27-e3fb-44c4-b36c-f2fe48c7b959",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "monounsaturatedFat": {
+            "type": "GRAMS",
+            "value": 74.0
+        },
+        "name": "Chiken",
+        "polyunsaturatedFat": {
+            "type": "GRAMS",
+            "value": 41.0
+        },
+        "potassium": {
+            "type": "GRAMS",
+            "value": 0.063
+        },
+        "protein": {
+            "type": "GRAMS",
+            "value": 258.0
+        },
+        "saturatedFat": {
+            "type": "GRAMS",
+            "value": 85.0
+        },
+        "sodium": {
+            "type": "GRAMS",
+            "value": 0.096
+        },
+        "startTime": {},
+        "startZoneOffset": {},
+        "sugar": {
+            "type": "GRAMS",
+            "value": 65.0
+        },
+        "totalCarbohydrate": {
+            "type": "GRAMS",
+            "value": 753.0
+        },
+        "totalFat": {
+            "type": "GRAMS",
+            "value": 89.0
+        },
+        "transFat": {
+            "type": "GRAMS",
+            "value": 85.0
+        },
+        "unsaturatedFat": {
+            "type": "GRAMS",
+            "value": 74.0
+        }
+    },
+    "Sleep Session": {
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordId": "4de3c464-9f7c-4a96-be46-31e49a689463",
+            "clientRecordVersion": 1767783159746,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "1dff28e9-6828-3008-9b9d-088e07be017a",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "stages": [],
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Blood Glucose": {
+        "level": {
+            "type": "MILLIMOLES_PER_LITER",
+            "value": 50.0
+        },
+        "mealType": 3,
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "99c3a851-acde-45e4-a8ee-37a5f9627cb6",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "relationToMeal": 1,
+        "specimenSource": 3,
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Body Temperature": {
+        "measurementLocation": 0,
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "39fc4de1-eb0a-4126-956f-c2c3be5148a5",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "temperature": {
+            "type": "CELSIUS",
+            "value": 36.66666793823242
+        },
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Heart Rate": {
+        "endTime": {},
+        "endZoneOffset": {},
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "be07da41-8675-4b8c-a91e-4d4b0a3515ca",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "samples": [
+            {
+                "beatsPerMinute": 70,
+                "time": {}
+            }
+        ],
+        "startTime": {},
+        "startZoneOffset": {}
+    },
+    "Oxygen Saturation": {
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "38eb5606-8d93-4363-b0cf-1b82c7eb011d",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "percentage": {
+            "value": 75.0
+        },
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Respiratory Rate": {
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "ad2b1ccf-1516-4cc8-969a-c5231c6db488",
+            "lastModifiedTime": {},
+            "recordingMethod": 3
+        },
+        "rate": 15.0,
+        "time": {},
+        "zoneOffset": {}
+    },
+    "Resting Heart Rate": {
+        "beatsPerMinute": 68,
+        "metadata": {
+            "clientRecordVersion": 0,
+            "dataOrigin": {
+                "packageName": "com.google.android.apps.fitness"
+            },
+            "id": "ffabeac4-7a29-4401-899b-88f62de19283",
+            "lastModifiedTime": {},
+            "recordingMethod": 0
+        },
+        "time": {},
+        "zoneOffset": {}
+    }
+}

@@ -1,0 +1,18 @@
+{
+  "resourceType": "ServiceRequest",
+  "id": "SR-R4-1",
+  "status": "active",
+  "intent": "order",
+  "code": {
+    "concept": {
+      "text": "Basic Metabolic Panel"
+    }
+  },
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "occurrenceDateTime": "2024-03-01T09:00:00Z",
+  "requester": {
+    "reference": "Practitioner/PRAC-1"
+  }
+}

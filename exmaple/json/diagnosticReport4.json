@@ -1,0 +1,23 @@
+{
+  "diagnostic_report": {
+    "diagnostic_report_id": "DR-4",
+    "diagnostic_report_status": "completed",
+    "diagnostic_report_code": "CODE-4",
+    "diagnostic_report_code_system": "http://example.org/system/diagnosticReport",
+    "diagnostic_report_display": "Display 4",
+    "diagnostic_report_category": "Example 4",
+    "diagnostic_report_subject_id": "DR-4",
+    "diagnostic_report_encounter_id": "ENC-4",
+    "diagnostic_report_effective_date": "2024-05-14T10:04:00Z",
+    "diagnostic_report_effective_start": "2024-05-14T09:00:00Z",
+    "diagnostic_report_effective_end": "2024-05-14T10:30:00Z",
+    "diagnostic_report_issued": "Example 4",
+    "diagnostic_report_performer_id": "DR-4",
+    "diagnostic_report_result_ids": [
+      "DR-4-A",
+      "DR-4-B"
+    ],
+    "diagnostic_report_conclusion": "Example 4",
+    "diagnostic_report_note": "Example note 4"
+  }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-7"/>
+      <patient>
+        <name>
+          <family>Park</family>
+          <given>Lena</given>
+        </name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="34133-9" codeSystem="2.16.840.1.113883.6.1" displayName="Claim"/>
+          <entry>
+            <claim>
+              <id extension="CLA4"/>
+              <code code="CLM4" displayName="Claim Example 4" codeSystem="2.16.840.1.113883.6.96"/>
+              <effectiveTime value="20250205112000"/>
+            </claim>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

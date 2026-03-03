@@ -1,0 +1,20 @@
+{
+  "resourceType": "Account",
+  "identifier": [],
+  "status": "",
+  "billingStatus": {},
+  "type": {},
+  "name": "",
+  "subject": [],
+  "servicePeriod": {},
+  "coverage": [],
+  "owner": {},
+  "description": "",
+  "guarantor": [],
+  "diagnosis": [],
+  "procedure": [],
+  "relatedAccount": [],
+  "currency": {},
+  "balance": [],
+  "calculatedAt": ""
+}

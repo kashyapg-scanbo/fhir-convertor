@@ -1,0 +1,12 @@
+{
+  "observation": {
+    "observation_id": "OBS-2",
+    "observation_code": "CODE-2",
+    "observation_code_system": "http://example.org/system/observation",
+    "observation_display": "Display 2",
+    "observation_value": 21,
+    "observation_unit": "mg",
+    "observation_date": "2024-05-12T10:02:00Z",
+    "observation_status": "completed"
+  }
+}

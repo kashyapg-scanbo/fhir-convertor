@@ -1,0 +1,12 @@
+{
+  "code_system": {
+    "code_system_id": "CS-2",
+    "url": "https://example.org/codesystems/labs",
+    "title": "Lab Codes",
+    "status": "active",
+    "content": "fragment",
+    "concept_code": "LAB001",
+    "concept_display": "Complete blood count",
+    "concept_definition": "CBC panel"
+  }
+}

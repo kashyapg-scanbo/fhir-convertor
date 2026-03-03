@@ -1,0 +1,12 @@
+{
+  "resourceType": "DeviceMetric",
+  "identifier": [],
+  "type": {},
+  "unit": {},
+  "device": {},
+  "operationalStatus": "",
+  "color": "",
+  "category": "",
+  "measurementFrequency": {},
+  "calibration": []
+}

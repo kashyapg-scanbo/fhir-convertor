@@ -1,0 +1,17 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "John2",
+      "last_name": "Doe2"
+    }
+  },
+  "appointment": {
+    "appointment_id": "APT-2",
+    "status": "booked",
+    "subject_id": "PAT-2",
+    "start": "2024-01-02T13:00:00Z",
+    "end": "2024-01-02T13:30:00Z",
+    "participant_id": "PRAC-2"
+  }
+}

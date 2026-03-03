@@ -1,0 +1,2 @@
+claim_id,claim_status,claim_type,claim_use,claim_patient_id,claim_created,claim_provider_id,claim_insurer_id,claim_total_value,claim_total_currency,claim_item_sequence,claim_item_product_or_service,claim_item_quantity,claim_item_unit_price,claim_item_net
+CLM-1,active,professional,claim,PAT-1,2024-01-15T12:00:00Z,ORG-1,ORG-2,150.25,USD,1,99213,1,150.25,150.25

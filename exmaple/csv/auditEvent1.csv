@@ -1,0 +1,2 @@
+audit_event_id,audit_event_category,audit_event_code,audit_event_action,audit_event_severity,audit_event_recorded,audit_event_agent_who,audit_event_agent_role,audit_event_agent_requestor
+AUD-1,rest,read,R,informational,2024-03-14T10:00:00Z,Practitioner/PRAC-1,author,true

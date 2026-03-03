@@ -1,0 +1,59 @@
+{
+  "user": {
+    "id": "5b329ebcfbf2f0ba7e49d4c5eb57775468f5ee657ac16fcde07e1fd08197b4c7",
+    "name": "Jamie Doe",
+    "date_of_birth": "1985-04-12",
+    "gender": "female"
+  },
+  "egvs": [
+    {
+      "recordId": "2cab70ee-d3b4-5a34-9aa9-767513ab72bd",
+      "systemTime": "2025-01-30T23:49:55Z",
+      "displayTime": "2025-01-30T15:49:55-08:00",
+      "transmitterId": "cdb4f8eea4392295413c64d5bc7a9e0e0ee9b215fb43c5a6d71d4431e540046b",
+      "transmitterTicks": 85273,
+      "value": 39,
+      "status": "low",
+      "trend": "flat",
+      "trendRate": 0,
+      "unit": "mg/dL",
+      "rateUnit": "mg/dL/min",
+      "displayDevice": "iOS",
+      "transmitterGeneration": "g7",
+      "displayApp": "G7"
+    }
+  ],
+  "calibrations": [
+    {
+      "recordId": "763923b7-5424-451e-b37d-fd8ff635b308",
+      "systemTime": "2025-05-17T03:59:11",
+      "displayTime": "2025-05-16T19:59:11",
+      "unit": "mg/dL",
+      "value": 124,
+      "displayDevice": "android",
+      "transmitterId": "d55d01d0341ed0ba2cd99b322e8c5b609254f47d10c7cd12b99b4922effeba44",
+      "transmitterTicks": 72364324786,
+      "transmitterGeneration": "g7"
+    }
+  ],
+  "events": [
+    {
+      "recordId": "763923b7-5424-451e-b37d-fd8ff635b308",
+      "systemTime": "2025-02-06T09:12:35+00:00",
+      "displayTime": "2025-02-06T01:12:35-08:00",
+      "eventStatus": "created",
+      "eventType": "insulin",
+      "eventSubType": "longActing",
+      "value": 400,
+      "unit": "units",
+      "transmitterId": "d55d01d0341ed0ba2cd99b322e8c5b609254f47d10c7cd12b99b4922effeba44",
+      "transmitterGeneration": "g7",
+      "displayDevice": "android"
+    }
+  ],
+  "device": {
+    "transmitterGeneration": "g7",
+    "displayDevice": "android",
+    "lastUploadDate": "2025-01-30T23:49:55Z"
+  }
+}

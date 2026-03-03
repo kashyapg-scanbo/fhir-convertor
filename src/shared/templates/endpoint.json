@@ -1,0 +1,15 @@
+{
+  "resourceType": "Endpoint",
+  "identifier": [],
+  "status": "",
+  "connectionType": [],
+  "name": "",
+  "description": "",
+  "environmentType": [],
+  "managingOrganization": {},
+  "contact": [],
+  "period": {},
+  "payload": [],
+  "address": "",
+  "header": []
+}

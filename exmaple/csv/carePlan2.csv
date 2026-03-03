@@ -1,0 +1,2 @@
+care_plan_id,care_plan_status,care_plan_intent,care_plan_title,care_plan_description,care_plan_subject_id,care_plan_period_start,care_plan_period_end,care_plan_supporting_info_ids,care_plan_based_on_ids,care_plan_activity_reference,care_plan_activity_progress,care_plan_activity_performed
+CP-2,active,plan,Hypertension Follow-up,Blood pressure monitoring and lifestyle counseling,PAT-2,2024-02-01,2024-08-01,OBS-1,CP-1,Appointment/APPT-1,Initial counseling completed,Blood pressure check

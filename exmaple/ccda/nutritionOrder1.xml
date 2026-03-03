@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-22"/>
+      <patient><name><family>Brooks</family><given>Elena</given></name></patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="69764-9" codeSystem="2.16.840.1.113883.6.1" displayName="Nutrition order"/>
+          <title>Nutrition Order</title>
+          <entry>
+            <observation classCode="OBS" moodCode="RQO">
+              <id extension="NO-1"/>
+              <code code="228055009" displayName="Cardiac diet" codeSystem="2.16.840.1.113883.6.96"/>
+              <statusCode code="active"/>
+              <effectiveTime value="20250219140000"/>
+              <value xsi:type="ST">Low sodium diet, 1800 kcal/day</value>
+            </observation>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

@@ -1,0 +1,2 @@
+naming_system_id,naming_system_url,naming_system_name,naming_system_title,naming_system_status,naming_system_kind,naming_system_unique_id_type,naming_system_unique_id_value
+NS-2,https://example.org/namingsystems/labs,,Lab Naming System,active,codesystem,uri,https://example.org/namingsystems/labs

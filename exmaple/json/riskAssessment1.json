@@ -1,0 +1,21 @@
+{
+  "risk_assessment": {
+    "risk_assessment_id": "RA-1",
+    "status": "final",
+    "code": { "code": "fall-risk", "display": "Fall risk" },
+    "subject_id": "PAT-6",
+    "encounter_id": "ENC-4",
+    "occurrence_date_time": "2024-05-12T09:00:00Z",
+    "performer_id": "PRAC-9",
+    "prediction": [
+      {
+        "outcome": { "code": "fall", "display": "Fall" },
+        "probability_decimal": 0.2,
+        "qualitative_risk": { "code": "low", "display": "Low" },
+        "rationale": "No prior falls"
+      }
+    ],
+    "mitigation": "Assist with ambulation",
+    "note": "Monitor weekly"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "fhir-converter",
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "validate:r5": "node ./scripts/validate-r5.mjs",
+    "validate:r5:remote": "node ./scripts/validate-r5-remote.mjs",
+    "test:convert": "node ./scripts/test-converter.mjs",
+    "test:example:hl7": "node ./scripts/test-converter.mjs --example=hl7v2 --validate",
+    "test:example:json": "node ./scripts/test-converter.mjs --example=json --validate",
+    "test:example:cda": "node ./scripts/test-converter.mjs --example=cda --validate",
+    "regression:baseline": "tsx scripts/run-regression.ts --out=golden",
+    "regression:run": "tsx scripts/run-regression.ts --out=tmp/regression",
+    "regression:compare": "tsx scripts/compare-regression.ts --baseline=golden --current=tmp/regression",
+    "regression": "npm run regression:run && npm run regression:compare"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "fast-xml-parser": "^5.3.3",
+    "form-data": "^4.0.5",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "swagger-ui-express": "^5.0.1",
+    "xlsx": "^0.18.5",
+    "yaml": "^2.5.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^20.0.0",
+    "@types/swagger-ui-express": "^4.1.6",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

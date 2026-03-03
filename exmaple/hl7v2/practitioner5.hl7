@@ -1,0 +1,5 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202405151200||Z99^PRACTITIONER|MSG-Practitioner-5|P|2.5
+PID|1||PAT5||LAST5^FIRST5||19800105|M|||5 Main St^^City^ST^12345||555-1005
+PV1|1|O|ER^5^1^HOSP||||PRAC5
+OBX|1|TX|PRACTITIONER^Practitioner^L||Example Practitioner data 5| | | | |F
+NTE|1|L|Note for Practitioner example 5

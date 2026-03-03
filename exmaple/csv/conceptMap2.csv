@@ -1,0 +1,2 @@
+concept_map_id,concept_map_url,concept_map_name,concept_map_title,concept_map_status,concept_map_group_source,concept_map_group_target,concept_map_element_code,concept_map_element_display,concept_map_target_code,concept_map_target_display,concept_map_target_relationship
+CM-2,https://example.org/conceptmaps/labs,,Lab Concept Map,active,https://example.org/codesystems/labs,https://example.org/codesystems/target,LAB001,Complete blood count,T100,CBC target,equivalent

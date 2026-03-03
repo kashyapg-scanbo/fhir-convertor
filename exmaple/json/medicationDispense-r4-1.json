@@ -1,0 +1,23 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "meddisp-r4-1",
+  "status": "completed",
+  "medicationCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "code": "1049502",
+        "display": "Amoxicillin 500 MG Oral Capsule"
+      }
+    ],
+    "text": "Amoxicillin"
+  },
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "quantity": {
+    "value": 30,
+    "unit": "capsule"
+  },
+  "whenHandedOver": "2024-03-01T10:00:00Z"
+}

@@ -1,0 +1,26 @@
+{
+  "nutrition_order": {
+    "nutrition_order_id": "NO-2",
+    "status": "active",
+    "intent": "order",
+    "patient_id": "PAT-22",
+    "date_time": "2025-02-19T14:00:00Z",
+    "orderer_id": "PRAC-9",
+    "oral_diet": {
+      "type": {
+        "code": "228055009",
+        "display": "Cardiac diet"
+      },
+      "schedule": "BID",
+      "caloric_density": {
+        "value": 1800,
+        "unit": "kcal/day"
+      },
+      "nutrient": [
+        { "modifier": { "code": "2331003", "display": "Sodium" }, "amount": { "value": 2, "unit": "g" } },
+        { "modifier": { "code": "226355009", "display": "Fat" }, "amount": { "value": 60, "unit": "g" } }
+      ]
+    },
+    "note": "Low sodium cardiac diet"
+  }
+}

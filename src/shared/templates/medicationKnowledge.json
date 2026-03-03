@@ -1,0 +1,34 @@
+{
+  "resourceType": "MedicationKnowledge",
+  "identifier": [],
+  "code": {
+    "coding": [
+      {
+        "system": "",
+        "code": "",
+        "display": ""
+      }
+    ],
+    "text": ""
+  },
+  "status": "active",
+  "author": {
+    "reference": ""
+  },
+  "intendedJurisdiction": [],
+  "name": [],
+  "relatedMedicationKnowledge": [],
+  "associatedMedication": [],
+  "productType": [],
+  "monograph": [],
+  "preparationInstruction": "",
+  "cost": [],
+  "monitoringProgram": [],
+  "indicationGuideline": [],
+  "medicineClassification": [],
+  "packaging": [],
+  "clinicalUseIssue": [],
+  "storageGuideline": [],
+  "regulatory": [],
+  "definitional": {}
+}

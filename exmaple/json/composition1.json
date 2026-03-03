@@ -1,0 +1,22 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Stone"
+    }
+  },
+  "composition": {
+    "composition_id": "COMP-1",
+    "status": "final",
+    "type": {
+      "code": "34133-9",
+      "display": "Summary of episode note"
+    },
+    "title": "Discharge Summary",
+    "subject_ids": ["PAT-1"],
+    "encounter_id": "ENC-1",
+    "author_ids": ["PRAC-1"],
+    "date": "2024-01-25T10:00:00Z"
+  }
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="AUDITEVENT"/>
+          <entry>
+            <act>
+              <id extension="AUD-CDA-2"/>
+              <statusCode code="U"/>
+              <effectiveTime value="20240315"/>
+              <code code="warning" displayName="update"/>
+              <text>update</text>
+            </act>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

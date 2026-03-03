@@ -1,0 +1,2 @@
+medication_id,medication_code,medication_code_system,medication_display
+MED-2,CODE-2,http://example.org/system/medication,Display 2

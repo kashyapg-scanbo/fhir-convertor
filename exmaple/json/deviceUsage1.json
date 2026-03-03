@@ -1,0 +1,21 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Ravi",
+      "last_name": "Khan"
+    }
+  },
+  "device_usage": {
+    "device_usage_id": "DU-1",
+    "status": "active",
+    "device_code": "DVC-300",
+    "patient_id": "PAT-2",
+    "timing_date_time": "2024-04-05T08:30:00Z",
+    "date_asserted": "2024-04-06T10:00:00Z",
+    "usage_status": "sometimes",
+    "adherence_code": "sometimes",
+    "reason_ids": ["OBS-2"],
+    "note": "Used intermittently"
+  }
+}

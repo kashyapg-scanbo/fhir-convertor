@@ -1,0 +1,14 @@
+{
+  "schedule": {
+    "schedule_id": "SCH-4",
+    "schedule_active": "Example 4",
+    "schedule_name": "Example schedule 4",
+    "schedule_actor_id": "SCH-4",
+    "schedule_start": "2024-05-14T09:00:00Z",
+    "schedule_end": "2024-05-14T10:30:00Z",
+    "schedule_comment": "Example note 4",
+    "schedule_service_category": "Example 4",
+    "schedule_service_type": "Example 4",
+    "schedule_specialty": "Example 4"
+  }
+}

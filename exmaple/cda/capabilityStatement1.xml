@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <title>Capability Statement Example 1</title>
+  <effectiveTime value="20240201100000"/>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <name>Example Publisher</name>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+</ClinicalDocument>

@@ -1,0 +1,16 @@
+{
+  "resourceType": "EncounterHistory",
+  "encounter": {},
+  "identifier": [],
+  "status": "",
+  "class": {},
+  "type": [],
+  "serviceType": [],
+  "subject": {},
+  "subjectStatus": {},
+  "actualPeriod": {},
+  "plannedStartDate": "",
+  "plannedEndDate": "",
+  "length": {},
+  "location": []
+}

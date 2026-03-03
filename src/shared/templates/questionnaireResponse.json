@@ -1,0 +1,14 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "identifier": [],
+  "basedOn": [],
+  "partOf": [],
+  "questionnaire": "",
+  "status": "",
+  "subject": {},
+  "encounter": {},
+  "authored": "",
+  "author": {},
+  "source": {},
+  "item": []
+}

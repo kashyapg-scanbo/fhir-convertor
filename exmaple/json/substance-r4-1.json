@@ -1,0 +1,55 @@
+{
+  "resourceType": "Substance",
+  "id": "SUB-R4-1",
+  "status": "active",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://example.org/substance-category",
+          "code": "chemical",
+          "display": "Chemical"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://example.org/substances",
+        "code": "C00001",
+        "display": "Sodium Chloride"
+      }
+    ],
+    "text": "Sodium Chloride"
+  },
+  "description": "Sodium Chloride 0.9%",
+  "instance": true,
+  "quantity": {
+    "value": 500,
+    "unit": "mL"
+  },
+  "ingredient": [
+    {
+      "quantity": {
+        "numerator": {
+          "value": 9,
+          "unit": "g"
+        },
+        "denominator": {
+          "value": 1000,
+          "unit": "mL"
+        }
+      },
+      "substanceCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://example.org/substances",
+            "code": "NaCl",
+            "display": "Sodium Chloride"
+          }
+        ]
+      }
+    }
+  ]
+}

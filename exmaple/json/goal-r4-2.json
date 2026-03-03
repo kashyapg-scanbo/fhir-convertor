@@ -1,0 +1,25 @@
+{
+  "resourceType": "Goal",
+  "id": "GOAL-R4-2",
+  "lifecycleStatus": "active",
+  "description": {
+    "text": "Reduce systolic BP below 130"
+  },
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "startDate": "2024-02-01",
+  "target": [
+    {
+      "measure": {
+        "text": "Systolic BP"
+      },
+      "detailString": "<130",
+      "dueDate": "2024-08-01"
+    }
+  ],
+  "statusReason": "New treatment plan",
+  "source": {
+    "reference": "Practitioner/PRAC-2"
+  }
+}

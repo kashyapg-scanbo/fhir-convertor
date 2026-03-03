@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id root="2.16.840.1.113883.3.72.5.9.1" extension="MSG-V3-LOC-2"/>
+  <creationTime value="20240102120000"/>
+  <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <registrationEvent>
+        <subject1>
+          <patient>
+            <id extension="PAT-LOC2"/>
+            <patientPerson>
+              <name><family>Doe2</family><given>Jane2</given></name>
+            </patientPerson>
+          </patient>
+        </subject1>
+      </registrationEvent>
+      <encounterEvent>
+        <id extension="ENCV3-LOC-2"/>
+        <code code="AMB"/>
+        <effectiveTime value="20240102120000"/>
+        <statusCode code="active"/>
+        <location>
+          <healthCareFacility>
+            <id extension="LOC-2"/>
+            <location>
+              <name>Imaging Center</name>
+              <addr>
+                <streetAddressLine>456 Elm Ave</streetAddressLine>
+                <city>Springfield</city>
+                <state>IL</state>
+                <postalCode>62702</postalCode>
+                <country>USA</country>
+              </addr>
+              <pointOfCare>IMG</pointOfCare>
+              <room>202</room>
+              <bed>B</bed>
+            </location>
+          </healthCareFacility>
+        </location>
+      </encounterEvent>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -1,0 +1,13 @@
+{
+  "device_metric": {
+    "device_metric_id": "DM-1",
+    "type": { "code": "150456", "display": "Heart rate" },
+    "unit": { "code": "{beats}/min", "display": "beats/min" },
+    "status": "active",
+    "category": "measurement",
+    "measurement_period_start": "2025-02-24T10:00:00Z",
+    "measurement_period_end": "2025-02-24T10:05:00Z",
+    "source_device_id": "DEV-3",
+    "note": "Bedside monitor"
+  }
+}

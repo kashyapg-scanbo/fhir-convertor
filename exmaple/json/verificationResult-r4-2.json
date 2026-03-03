@@ -1,0 +1,43 @@
+{
+  "resourceType": "VerificationResult",
+  "id": "VER-R4-2",
+  "status": "in-process",
+  "statusDate": "2024-02-20T09:00:00Z",
+  "need": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/verificationresult-need",
+        "code": "periodic",
+        "display": "Periodic"
+      }
+    ]
+  },
+  "validationType": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/verificationresult-validation-type",
+        "code": "multiple",
+        "display": "Multiple"
+      }
+    ]
+  },
+  "target": [
+    {
+      "reference": "Organization/ORG-2"
+    }
+  ],
+  "frequency": {
+    "text": "quarterly"
+  },
+  "lastPerformed": "2024-02-01T09:00:00Z",
+  "nextScheduled": "2024-05-01",
+  "failureAction": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/verificationresult-failure-action",
+        "code": "rec-only",
+        "display": "Record Only"
+      }
+    ]
+  }
+}

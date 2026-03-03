@@ -1,0 +1,2 @@
+code_system_id,code_system_url,code_system_name,code_system_title,code_system_status,code_system_content,code_system_concept_code,code_system_concept_display,code_system_concept_definition
+CS-2,https://example.org/codesystems/labs,,Lab Codes,active,fragment,LAB001,Complete blood count,CBC panel

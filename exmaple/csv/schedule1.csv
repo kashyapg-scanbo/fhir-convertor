@@ -1,0 +1,2 @@
+schedule_id,schedule_active,schedule_name,schedule_actor_id,schedule_start,schedule_end
+SCH-1,true,Clinic Schedule 1,PRAC-1,2024-01-01T08:00:00Z,2024-01-01T12:00:00Z

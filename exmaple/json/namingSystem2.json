@@ -1,0 +1,11 @@
+{
+  "naming_system": {
+    "naming_system_id": "NS-2",
+    "url": "https://example.org/namingsystems/labs",
+    "title": "Lab Naming System",
+    "status": "active",
+    "kind": "codesystem",
+    "unique_id_type": "uri",
+    "unique_id_value": "https://example.org/namingsystems/labs"
+  }
+}

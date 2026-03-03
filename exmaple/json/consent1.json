@@ -1,0 +1,12 @@
+{
+  "consent": {
+    "consent_id": "CONS-1",
+    "status": "active",
+    "category": "privacy",
+    "subject_id": "Patient/PAT-1",
+    "date": "2024-03-16",
+    "decision": "permit",
+    "grantor_ids": ["Patient/PAT-1"],
+    "grantee_ids": ["Organization/ORG-1"]
+  }
+}

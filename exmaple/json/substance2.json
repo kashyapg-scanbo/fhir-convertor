@@ -1,0 +1,24 @@
+{
+  "substance": {
+    "substance_id": "SUB-2",
+    "instance": false,
+    "status": "inactive",
+    "category": "biologic",
+    "code": {
+      "code": "B00002",
+      "code_system": "http://example.org/substances",
+      "display": "Insulin"
+    },
+    "description": "Insulin Regular",
+    "expiry": "2024-08-01T00:00:00Z",
+    "quantity_value": 10,
+    "quantity_unit": "mL",
+    "ingredient_substance": "INS",
+    "ingredient_substance_system": "http://example.org/substances",
+    "ingredient_substance_display": "Insulin",
+    "ingredient_quantity_numerator_value": 100,
+    "ingredient_quantity_numerator_unit": "IU",
+    "ingredient_quantity_denominator_value": 1,
+    "ingredient_quantity_denominator_unit": "mL"
+  }
+}

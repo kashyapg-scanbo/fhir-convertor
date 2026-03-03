@@ -1,0 +1,11 @@
+{
+  "resourceType": "AuditEvent",
+  "category": [],
+  "code": {
+    "text": ""
+  },
+  "action": "",
+  "severity": "",
+  "recorded": "",
+  "agent": []
+}

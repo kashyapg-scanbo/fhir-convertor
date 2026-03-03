@@ -1,0 +1,2 @@
+questionnaire_response_id,questionnaire_response_questionnaire,questionnaire_response_status,questionnaire_response_subject_id,questionnaire_response_encounter_id,questionnaire_response_authored,questionnaire_response_author_id,questionnaire_response_source_id,questionnaire_response_item_link_id,questionnaire_response_item_text,questionnaire_response_item_answer
+QNRRESP-2,https://example.org/qnr/intake,in-progress,PAT-2,ENC-2,2024-03-05T10:15:00Z,PRAC-2,PAT-2,q2,Primary complaint,Headache

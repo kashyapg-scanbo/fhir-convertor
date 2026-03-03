@@ -1,0 +1,5 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202405141200||Z99^PROCEDURE|MSG-Procedure-4|P|2.5
+PID|1||PAT4||LAST4^FIRST4||19800104|F|||4 Main St^^City^ST^12344||555-1004
+PV1|1|I|ER^4^1^HOSP||||PRAC4
+OBX|1|TX|PROCEDURE^Procedure^L||Example Procedure data 4| | | | |F
+NTE|1|L|Note for Procedure example 4

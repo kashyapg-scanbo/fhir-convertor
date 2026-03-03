@@ -1,0 +1,15 @@
+{
+  "resourceType": "OrganizationAffiliation",
+  "identifier": [],
+  "active": false,
+  "period": {},
+  "organization": {},
+  "participatingOrganization": {},
+  "network": [],
+  "code": [],
+  "specialty": [],
+  "location": [],
+  "healthcareService": [],
+  "contact": [],
+  "endpoint": []
+}

@@ -1,0 +1,38 @@
+{
+  "resourceType": "CareTeam",
+  "id": "CT-R4-2",
+  "status": "active",
+  "name": "Hypertension Follow-up Team",
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "participant": [
+    {
+      "role": {
+        "text": "care-manager"
+      },
+      "member": {
+        "reference": "Practitioner/PRAC-2"
+      },
+      "onBehalfOf": {
+        "reference": "Organization/ORG-2"
+      },
+      "coveragePeriod": {
+        "start": "2024-02-01",
+        "end": "2024-08-01"
+      }
+    }
+  ],
+  "managingOrganization": [
+    {
+      "reference": "Organization/ORG-2"
+    }
+  ],
+  "reason": [
+    {
+      "concept": {
+        "text": "Hypertension"
+      }
+    }
+  ]
+}

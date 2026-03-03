@@ -1,0 +1,2 @@
+charge_item_definition_id,charge_item_definition_status,charge_item_definition_url,charge_item_definition_code,charge_item_definition_display,charge_item_definition_instance_ids,charge_item_definition_description
+CHID-1,active,http://example.org/ChargeItemDefinition/CHID-1,99213,Office visit,ChargeItem/CHI-1,Standard office visit charge

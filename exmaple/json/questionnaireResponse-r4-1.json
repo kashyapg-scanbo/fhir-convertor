@@ -1,0 +1,21 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "id": "QNRRESP-R4-1",
+  "questionnaire": "https://example.org/qnr/health-check",
+  "status": "completed",
+  "subject": {
+    "reference": "Patient/PAT-1"
+  },
+  "authored": "2024-03-02T09:30:00Z",
+  "item": [
+    {
+      "linkId": "q1",
+      "text": "Do you smoke?",
+      "answer": [
+        {
+          "valueBoolean": false
+        }
+      ]
+    }
+  ]
+}

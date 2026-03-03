@@ -1,0 +1,2 @@
+risk_assessment_id,risk_assessment_status,risk_assessment_code,risk_assessment_subject_id,risk_assessment_encounter_id,risk_assessment_occurrence_date_time,risk_assessment_performer_id,risk_assessment_prediction_outcome,risk_assessment_prediction_probability_decimal,risk_assessment_prediction_qualitative_risk,risk_assessment_prediction_rationale,risk_assessment_mitigation,risk_assessment_note
+RA-1,final,fall-risk,PAT-6,ENC-4,2024-05-12T09:00:00Z,PRAC-9,fall,0.2,low,No prior falls,Assist with ambulation,Monitor weekly

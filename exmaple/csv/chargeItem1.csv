@@ -1,0 +1,2 @@
+charge_item_id,charge_item_status,charge_item_code,charge_item_display,charge_item_subject_id,charge_item_encounter_id,charge_item_quantity,charge_item_price_component_amount,charge_item_price_component_currency,charge_item_note
+CHI-1,billable,99213,Office visit,Patient/PAT-40,Encounter/ENC-10,1,150,USD,Standard outpatient visit

@@ -1,0 +1,2 @@
+device_request_id,device_request_status,device_request_intent,device_request_device_code,device_request_subject_id,device_request_quantity_value,device_request_occurrence_date_time,device_request_authored_on,device_request_requester_id,device_request_reason_ids,device_request_supporting_info_ids,device_request_as_needed
+DR-1,active,order,DVC-200,PAT-1,1,2024-03-12T09:00:00Z,2024-03-01T10:00:00Z,PRAC-1,OBS-1,DOC-1,false

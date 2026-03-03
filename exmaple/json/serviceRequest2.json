@@ -1,0 +1,26 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Nguyen"
+    }
+  },
+  "service_request": {
+    "service_request_id": "SR-2",
+    "status": "active",
+    "intent": "order",
+    "code": {
+      "code": "IMG",
+      "display": "Chest X-Ray"
+    },
+    "subject_id": "PAT-2",
+    "encounter_id": "ENC-2",
+    "occurrence_start": "2024-04-01T08:00:00Z",
+    "occurrence_end": "2024-04-01T08:30:00Z",
+    "requester_id": "PRAC-2",
+    "performer_ids": ["ORG-2"],
+    "reason": ["Cough"],
+    "supporting_info_ids": ["OBS-1"]
+  }
+}

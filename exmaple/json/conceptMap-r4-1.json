@@ -1,0 +1,26 @@
+{
+  "resourceType": "ConceptMap",
+  "id": "CM-R4-1",
+  "url": "https://example.org/conceptmaps/example",
+  "name": "ExampleConceptMap",
+  "status": "active",
+  "group": [
+    {
+      "source": "https://example.org/codesystems/example",
+      "target": "https://example.org/codesystems/target",
+      "element": [
+        {
+          "code": "EX001",
+          "display": "Example concept",
+          "target": [
+            {
+              "code": "T001",
+              "display": "Target concept",
+              "relationship": "equivalent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

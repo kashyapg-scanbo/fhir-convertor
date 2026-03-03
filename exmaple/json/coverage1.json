@@ -1,0 +1,38 @@
+{
+  "patient": {
+    "patient_id": "PAT-1",
+    "name": {
+      "first_name": "Ava",
+      "last_name": "Stone"
+    }
+  },
+  "coverage": {
+    "coverage_id": "COV-1",
+    "status": "active",
+    "kind": "insurance",
+    "type": {
+      "code": "medical",
+      "display": "Medical"
+    },
+    "policy_holder_id": "PAT-1",
+    "subscriber_id": "PAT-1",
+    "beneficiary_id": "PAT-1",
+    "insurer_id": "ORG-1",
+    "period_start": "2024-01-01",
+    "period_end": "2024-12-31",
+    "network": "HMO-1",
+    "order": 1,
+    "cost_to_beneficiary": [
+      {
+        "type": {
+          "code": "copay",
+          "display": "Copay"
+        },
+        "value_money": {
+          "value": 25,
+          "currency": "USD"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parameters": [
+    {
+      "parameter_name": "input",
+      "value_string": "example"
+    },
+    {
+      "parameter_name": "count",
+      "value_integer": 2
+    }
+  ]
+}

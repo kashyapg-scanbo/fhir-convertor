@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-11"/>
+      <patient>
+        <name><family>Garcia</family><given>Sofia</given></name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="46264-1" codeSystem="2.16.840.1.113883.6.1" displayName="Supplies"/>
+          <title>Device Dispense</title>
+          <entry>
+            <supply classCode="SPLY" moodCode="EVN">
+              <id extension="DD-1"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20250201100000"/>
+              </effectiveTime>
+              <product>
+                <manufacturedProduct classCode="MANU">
+                  <manufacturedMaterial>
+                    <code code="352.000" codeSystem="2.16.840.1.113883.6.88" displayName="Glucose meter"/>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </product>
+              <participant typeCode="DEV">
+                <participantRole classCode="MANU">
+                  <playingDevice>
+                    <code code="GM-101" displayName="AccuCare Meter" codeSystem="1.2.840.114350"/>
+                  </playingDevice>
+                </participantRole>
+              </participant>
+            </supply>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

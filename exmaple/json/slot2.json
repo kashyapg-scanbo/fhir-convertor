@@ -1,0 +1,16 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "John2",
+      "last_name": "Doe2"
+    }
+  },
+  "slot": {
+    "slot_id": "SLOT-2",
+    "schedule_id": "SCH-2",
+    "status": "free",
+    "start": "2024-01-02T09:00:00Z",
+    "end": "2024-01-02T09:30:00Z"
+  }
+}

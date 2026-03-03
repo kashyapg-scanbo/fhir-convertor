@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-1"/>
+      <patient>
+        <name>
+          <family>Doe1</family>
+          <given>John1</given>
+        </name>
+        <administrativeGenderCode code="M"/>
+        <birthTime value="19800101"/>
+      </patient>
+      <guardian>
+        <code code="SPO" displayName="Spouse"/>
+        <guardianPerson>
+          <name>
+            <family>Relative1</family>
+            <given>Rita1</given>
+          </name>
+        </guardianPerson>
+        <telecom value="tel:5550001"/>
+      </guardian>
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="46240-8" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <encounter><id extension="REL1"/><code code="AMB" displayName="Related Person 1"/></encounter>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

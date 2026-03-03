@@ -1,0 +1,2 @@
+consent_id,consent_status,consent_category,consent_subject_id,consent_date,consent_decision,consent_grantor_ids,consent_grantee_ids
+CONS-2,active,treatment,Patient/PAT-2,2024-03-17,deny,Patient/PAT-2,Organization/ORG-2

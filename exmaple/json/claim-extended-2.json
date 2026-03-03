@@ -1,0 +1,66 @@
+{
+  "patient": {
+    "patient_id": "PAT-7",
+    "name": {
+      "first_name": "Lena",
+      "last_name": "Park"
+    }
+  },
+  "claim": {
+    "claim_id": "CLM-4",
+    "status": "cancelled",
+    "type": {
+      "code": "vision",
+      "display": "Vision"
+    },
+    "use": "claim",
+    "patient_id": "PAT-7",
+    "created": "2025-02-05T11:20:00Z",
+    "provider_id": "ORG-4",
+    "insurer_id": "ORG-6",
+    "billable_start": "2025-02-04",
+    "billable_end": "2025-02-05",
+    "total": {
+      "value": 180.5,
+      "currency": "USD"
+    },
+    "item": [
+      {
+        "sequence": 1,
+        "product_or_service": {
+          "code": "92015",
+          "display": "Refraction"
+        },
+        "quantity": {
+          "value": 1
+        },
+        "unit_price": {
+          "value": 85.0,
+          "currency": "USD"
+        },
+        "net": {
+          "value": 85.0,
+          "currency": "USD"
+        }
+      },
+      {
+        "sequence": 2,
+        "product_or_service": {
+          "code": "92310",
+          "display": "Prescription glasses"
+        },
+        "quantity": {
+          "value": 1
+        },
+        "unit_price": {
+          "value": 95.5,
+          "currency": "USD"
+        },
+        "net": {
+          "value": 95.5,
+          "currency": "USD"
+        }
+      }
+    ]
+  }
+}

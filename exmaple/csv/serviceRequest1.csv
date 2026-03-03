@@ -1,0 +1,2 @@
+service_request_id,service_request_status,service_request_intent,service_request_code,service_request_code_display,service_request_subject_id,service_request_occurrence_date,service_request_requester_id,service_request_priority,service_request_note
+SR-1,active,order,LAB,Basic Metabolic Panel,PAT-1,2024-03-01T09:00:00Z,PRAC-1,routine,Fasting required

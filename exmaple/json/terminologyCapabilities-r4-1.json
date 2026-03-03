@@ -1,0 +1,9 @@
+{
+  "resourceType": "TerminologyCapabilities",
+  "id": "TC-R4-1",
+  "url": "https://example.org/terminology/capabilities",
+  "name": "ExampleTermCaps",
+  "status": "active",
+  "kind": "instance",
+  "codeSearch": "in-compose"
+}

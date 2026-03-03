@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PRPA_IN101001 xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0">
+  <id extension="MSG-V3-diagnosticReport-4"/>
+  <creationTime value="20240514120000"/>
+  <interactionId extension="PRPA_IN101001"/>
+  <processingCode code="P"/>
+  <processingModeCode code="T"/>
+  <acceptAckCode code="AL"/>
+  <controlActProcess classCode="CACT" moodCode="EVN">
+    <subject>
+      <diagnosticReport><id extension="DIA4"/><code code="DIAG4" displayName="DiagnosticReport Example 4" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="20240514090000"/></diagnosticReport>
+    </subject>
+  </controlActProcess>
+</PRPA_IN101001>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-LOC2"/>
+      <patient>
+        <name>
+          <family>Doe2</family>
+          <given>Jane2</given>
+        </name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19751212"/>
+      </patient>
+      
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="46240-8" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <encounter><id extension="ENC-LOC2"/><code code="AMB" displayName="Imaging Visit" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime><low value="202401021200"/></effectiveTime><location><healthCareFacility><id extension="LOC-2"/><location><name>Imaging Center</name><addr><streetAddressLine>456 Elm Ave</streetAddressLine><city>Springfield</city><state>IL</state><postalCode>62702</postalCode><country>USA</country></addr></location></healthCareFacility></location></encounter>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

@@ -1,0 +1,12 @@
+{
+  "charge_item": {
+    "charge_item_id": "CHI-1",
+    "status": "billable",
+    "code": { "code": "99213", "display": "Office visit" },
+    "subject_id": "Patient/PAT-40",
+    "encounter_id": "Encounter/ENC-10",
+    "quantity": { "value": 1 },
+    "price_component": [{"type": "base", "amount": {"value": 150, "currency": "USD"}}],
+    "note": "Standard outpatient visit"
+  }
+}

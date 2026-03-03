@@ -1,0 +1,6127 @@
+openapi: 3.0.3
+info:
+  title: Scanbo FHIR Converter API
+  version: 1.1.0
+  description: |
+    Convert custom JSON, HL7v2, CDA, CSV, and Excel into FHIR R5 Bundles.
+servers:
+  - url: http://localhost:3000
+    description: Local
+tags:
+  - name: Custom JSON
+  - name: Convert
+  - name: Upload
+paths:
+  /json:
+    post:
+      tags: [Custom JSON]
+      summary: Convert custom JSON to FHIR R5 Bundle
+      description: |
+        Accepts global custom JSON (snake_case).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CustomJsonPatientOnly'
+                - $ref: '#/components/schemas/CustomJsonEncounterOnly'
+                - $ref: '#/components/schemas/CustomJsonMedicationOnly'
+                - $ref: '#/components/schemas/CustomJsonMedicationRequestOnly'
+                - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
+                - $ref: '#/components/schemas/CustomJsonMedicationDispenseOnly'
+                - $ref: '#/components/schemas/CustomJsonOrganizationAffiliationOnly'
+                - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
+                - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
+                - $ref: '#/components/schemas/CustomJsonParametersOnly'
+                - $ref: '#/components/schemas/CustomJsonCarePlanOnly'
+                - $ref: '#/components/schemas/CustomJsonCareTeamOnly'
+                - $ref: '#/components/schemas/CustomJsonGoalOnly'
+                - $ref: '#/components/schemas/CustomJsonServiceRequestOnly'
+                - $ref: '#/components/schemas/CustomJsonTaskOnly'
+                - $ref: '#/components/schemas/CustomJsonCommunicationOnly'
+                - $ref: '#/components/schemas/CustomJsonCommunicationRequestOnly'
+                - $ref: '#/components/schemas/CustomJsonQuestionnaireOnly'
+                - $ref: '#/components/schemas/CustomJsonQuestionnaireResponseOnly'
+                - $ref: '#/components/schemas/CustomJsonCodeSystemOnly'
+                - $ref: '#/components/schemas/CustomJsonValueSetOnly'
+                - $ref: '#/components/schemas/CustomJsonConceptMapOnly'
+                - $ref: '#/components/schemas/CustomJsonNamingSystemOnly'
+                - $ref: '#/components/schemas/CustomJsonTerminologyCapabilitiesOnly'
+                - $ref: '#/components/schemas/CustomJsonProvenanceOnly'
+                - $ref: '#/components/schemas/CustomJsonAuditEventOnly'
+                - $ref: '#/components/schemas/CustomJsonConsentOnly'
+                - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
+                - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
+                - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
+                - $ref: '#/components/schemas/CustomJsonPersonOnly'
+                - $ref: '#/components/schemas/CustomJsonLocationOnly'
+                - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
+                - $ref: '#/components/schemas/CustomJsonVerificationResultOnly'
+                - $ref: '#/components/schemas/CustomJsonSubstanceOnly'
+                - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
+                - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
+                - $ref: '#/components/schemas/CustomJsonAllergyIntoleranceOnly'
+                - $ref: '#/components/schemas/CustomJsonImmunizationOnly'
+                - $ref: '#/components/schemas/CustomJsonFull'
+            examples:
+              patient:
+                summary: Patient
+                value:
+                  patient:
+                    patient_id: P-10001
+                    ihi: "1234098753"
+                    name:
+                      first_name: John
+                      middle_name: A.
+                      last_name: Doe
+                    date_of_birth: 1980-05-15
+                    gender: male
+                    contact_info:
+                      phone: "+1-555-555-5555"
+                      email: john.doe@example.com
+                      address:
+                        street: 123 Main St
+                        city: Springfield
+                        state: IL
+                        postal_code: 62701
+                        country: USA
+                    marital_status: married
+                    language: English
+                    ethnicity: Caucasian
+                    emergency_contact:
+                      name: Jane Doe
+                      relationship: spouse
+                      phone: "+1-555-555-5556"
+                    insurance:
+                      provider: Good Health Insurance
+                      policy_number: GH123456789
+                      coverage_start_date: 2020-01-01
+                      coverage_end_date: 2025-01-01
+                    medical_history:
+                      allergies:
+                        - Penicillin
+                        - Peanuts
+                      current_medications:
+                        - Lisinopril
+                        - Atorvastatin
+                      past_illnesses:
+                        - Hypertension
+                        - Asthma
+                      surgeries:
+                        - surgery_name: Appendectomy
+                          surgery_date: 2000-06-15
+                        - surgery_name: Knee Replacement
+                          surgery_date: 2015-08-20
+              encounter:
+                summary: Encounter
+                value:
+                  encounter:
+                    encounter_id: ENC345678
+                    patient_id: 12345
+                    practitioner_id: 98765
+                    encounter_type: Outpatient
+                    reason_for_visit: Routine check-up
+                    start_date: 2024-08-15T09:00:00Z
+                    end_date: 2024-08-15T09:30:00Z
+                    location:
+                      facility_name: Healthy Heart Clinic
+                      room: Room 101
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                    status: completed
+                    diagnoses:
+                      - condition_id: COND789012
+                        condition_name: Hypertension
+                    services_provided:
+                      - Blood pressure measurement
+                      - Physical examination
+                    billing_info:
+                      insurance_provider: Good Health Insurance
+                      policy_number: GH123456789
+                      total_cost: 150
+                      patient_responsibility: 30
+                    follow_up:
+                      recommended: true
+                      next_appointment_date: 2024-09-15T09:00:00Z
+                    note: Patient advised to continue current medication and follow-up in one month.
+              medication:
+                summary: Medication
+                value:
+                  medication:
+                    medication_id: MED987654
+                    name: Atorvastatin
+                    brand_name: Lipitor
+                    form: Tablet
+                    strength: 20 mg
+                    manufacturer:
+                      name: Pfizer Inc.
+                      address:
+                        street: 235 East 42nd Street
+                        city: New York
+                        state: NY
+                        postal_code: 10017
+                        country: USA
+                    ingredients:
+                      - name: Atorvastatin Calcium
+                        strength: 20 mg
+                      - name: Lactose Monohydrate
+                        strength: Inactive Ingredient
+                    package:
+                      description: Bottle of 30 tablets
+                      quantity: 30
+                    status: active
+                    expiration_date: 2025-12-31
+                    lot_number: AB123456
+              medication_request:
+                summary: MedicationRequest
+                value:
+                  medication_request:
+                    medication_request_id: MRQ123456
+                    patient_id: 12345
+                    practitioner_id: 98765
+                    medication:
+                      medication_id: MED987654
+                      name: Atorvastatin
+                      strength: 20 mg
+                      form: Tablet
+                    dosage_instruction:
+                      dose: 20 mg
+                      route: Oral
+                      frequency: Once daily
+                      duration: 30 days
+                    dispense_request:
+                      quantity: 30
+                      refills: 2
+                      expected_supply_duration: 30 days
+                      dispense_as_written: false
+                    substitution_allowed: true
+                    reason_for_prescription: Hyperlipidemia
+                    status: active
+                    authored_on: 2024-08-01
+                    note: Patient advised to take medication in the evening.
+              medication_administration:
+                summary: MedicationAdministration
+                value:
+                  medication_administration:
+                    medication_administration_id: MEDADMIN-100
+                    status: completed
+                    medication:
+                      medication_id: MED-100
+                      name: Morphine
+                    patient_id: P-10001
+                    occurrence_date: 2024-02-01T10:00:00Z
+                    dose_value: 2
+                    dose_unit: mg
+              medication_dispense:
+                summary: MedicationDispense
+                value:
+                  medication_dispense:
+                    medication_dispense_id: MEDDISP-100
+                    status: completed
+                    medication:
+                      medication_id: MED-200
+                      name: Amoxicillin
+                    patient_id: P-10001
+                    quantity_value: 30
+                    quantity_unit: tablet
+                    when_handed_over: 2024-02-03T10:00:00Z
+              organization_affiliation:
+                summary: OrganizationAffiliation
+                value:
+                  organization_affiliation:
+                    organization_affiliation_id: ORGAFF-100
+                    active: true
+                    organization_id: ORG-1
+                    participating_organization_id: ORG-2
+                    code: member
+                    specialty: cardiology
+                    period_start: 2024-01-01
+                    period_end: 2024-12-31
+              capability_statement:
+                summary: CapabilityStatement
+                value:
+                  capability_statement:
+                    capability_statement_id: CAP-100
+                    url: https://example.org/fhir/CapabilityStatement/example
+                    version: 1.0.0
+                    name: ExampleCapability
+                    title: Example Capability Statement
+                    status: active
+                    date: 2024-02-01T00:00:00Z
+                    publisher: Example Publisher
+                    kind: instance
+                    fhir_version: 5.0.0
+                    format:
+                      - json
+                      - xml
+              operation_outcome:
+                summary: OperationOutcome
+                value:
+                  operation_outcome:
+                    operation_outcome_id: OO-100
+                    severity: error
+                    code: invalid
+                    details_system: http://hl7.org/fhir/issue-type
+                    details_code: invalid
+                    details_display: Invalid input
+                    diagnostics: Missing required field
+              parameters:
+                summary: Parameters
+                value:
+                  parameters:
+                    - parameter_name: input
+                      value_string: example
+                    - parameter_name: count
+                      value_integer: 2
+              care_plan:
+                summary: CarePlan
+                value:
+                  care_plan:
+                    care_plan_id: CP-100
+                    status: active
+                    intent: plan
+                    title: Diabetes Care Plan
+                    description: Routine diabetes management plan
+                    subject_id: P-10001
+                    period_start: 2024-01-01
+                    period_end: 2024-06-30
+                    care_team_ids:
+                      - CARETEAM-1
+                    goal_ids:
+                      - GOAL-1
+              care_team:
+                summary: CareTeam
+                value:
+                  care_team:
+                    care_team_id: CT-100
+                    status: active
+                    name: Diabetes Care Team
+                    subject_id: P-10001
+                    participant_member_id: PRAC-1
+                    participant_role: primary
+                    managing_org_ids:
+                      - ORG-1
+              goal:
+                summary: Goal
+                value:
+                  goal:
+                    goal_id: GOAL-100
+                    lifecycle_status: active
+                    description: Lower HbA1c to 7.0
+                    subject_id: P-10001
+                    start_date: 2024-01-01
+                    target_measure: HbA1c
+                    target_detail: 7.0
+                    target_due_date: 2024-06-30
+              service_request:
+                summary: ServiceRequest
+                value:
+                  service_request:
+                    service_request_id: SR-100
+                    status: active
+                    intent: order
+                    code:
+                      code: LAB
+                      display: Basic Metabolic Panel
+                    subject_id: P-10001
+                    occurrence_date: 2024-03-01T09:00:00Z
+                    requester_id: PRAC-1
+              task:
+                summary: Task
+                value:
+                  task:
+                    task_id: TASK-100
+                    status: requested
+                    intent: order
+                    code:
+                      code: LAB
+                      display: Collect specimen
+                    for_id: P-10001
+                    authored_on: 2024-03-01T08:30:00Z
+                    requester_id: PRAC-1
+              communication:
+                summary: Communication
+                value:
+                  communication:
+                    communication_id: COMM-100
+                    status: completed
+                    topic: Follow-up note
+                    subject_id: P-10001
+                    sent: 2024-03-01T09:15:00Z
+                    sender_id: PRAC-1
+                    recipient_ids:
+                      - PAT-1
+                    payload:
+                      - Patient notified of lab results
+              communication_request:
+                summary: CommunicationRequest
+                value:
+                  communication_request:
+                    communication_request_id: COMREQ-100
+                    status: active
+                    intent: order
+                    subject_id: P-10001
+                    occurrence_date: 2024-03-02T09:00:00Z
+                    requester_id: PRAC-1
+                    recipient_ids:
+                      - PAT-1
+                    payload:
+                      - Send follow-up instructions
+              questionnaire:
+                summary: Questionnaire
+                value:
+                  questionnaire:
+                    questionnaire_id: QNR-100
+                    url: https://example.org/qnr/health-check
+                    title: Health Check
+                    status: active
+                    date: 2024-03-01T00:00:00Z
+                    publisher: Example Health
+                    subject_type:
+                      - Patient
+                    item:
+                      - link_id: q1
+                        text: Do you smoke?
+                        type: boolean
+              questionnaire_response:
+                summary: QuestionnaireResponse
+                value:
+                  questionnaire_response:
+                    questionnaire_response_id: QNRRESP-100
+                    questionnaire: https://example.org/qnr/health-check
+                    status: completed
+                    subject_id: PAT-1
+                    authored: 2024-03-02T09:30:00Z
+                    item:
+                      - link_id: q1
+                        text: Do you smoke?
+                        answer:
+                          - "false"
+              code_system:
+                summary: CodeSystem
+                value:
+                  code_system:
+                    code_system_id: CS-100
+                    url: https://example.org/codesystems/example
+                    name: ExampleCodes
+                    status: active
+                    content: complete
+                    concept:
+                      - code: EX001
+                        display: Example concept
+              value_set:
+                summary: ValueSet
+                value:
+                  value_set:
+                    value_set_id: VS-100
+                    url: https://example.org/valuesets/example
+                    name: ExampleValueSet
+                    status: active
+                    include_system: https://example.org/codesystems/example
+                    include_code: EX001
+                    include_display: Example concept
+              concept_map:
+                summary: ConceptMap
+                value:
+                  concept_map:
+                    concept_map_id: CM-100
+                    url: https://example.org/conceptmaps/example
+                    name: ExampleConceptMap
+                    status: active
+                    group_source: https://example.org/codesystems/example
+                    group_target: https://example.org/codesystems/target
+                    element_code: EX001
+                    element_display: Example concept
+                    target_code: T001
+                    target_display: Target concept
+                    target_relationship: equivalent
+              naming_system:
+                summary: NamingSystem
+                value:
+                  naming_system:
+                    naming_system_id: NS-100
+                    url: https://example.org/namingsystems/example
+                    name: ExampleNamingSystem
+                    status: active
+                    kind: identifier
+                    unique_id_type: uri
+                    unique_id_value: https://example.org/namingsystems/example
+              terminology_capabilities:
+                summary: TerminologyCapabilities
+                value:
+                  terminology_capabilities:
+                    terminology_capabilities_id: TC-100
+                    url: https://example.org/terminology/capabilities
+                    name: ExampleTermCaps
+                    status: active
+                    kind: instance
+                    code_search: in-compose
+              provenance:
+                summary: Provenance
+                value:
+                  provenance:
+                    provenance_id: PROV-100
+                    provenance_target_ids:
+                      - Observation/OBS-1
+                    provenance_recorded: 2024-03-12T10:00:00Z
+                    provenance_activity: Observation recorded
+                    provenance_agent_who: Practitioner/PRAC-1
+                    provenance_agent_role: author
+              audit_event:
+                summary: AuditEvent
+                value:
+                  audit_event:
+                    audit_event_id: AUD-100
+                    audit_event_category: rest
+                    audit_event_code: read
+                    audit_event_action: R
+                    audit_event_severity: informational
+                    audit_event_recorded: 2024-03-14T10:00:00Z
+                    audit_event_agent_who: Practitioner/PRAC-1
+                    audit_event_agent_role: author
+                    audit_event_agent_requestor: true
+              consent:
+                summary: Consent
+                value:
+                  consent:
+                    consent_id: CONS-100
+                    consent_status: active
+                    consent_category: privacy
+                    consent_subject_id: Patient/PAT-1
+                    consent_date: 2024-03-16
+                    consent_decision: permit
+                    consent_grantor_ids:
+                      - Patient/PAT-1
+                    consent_grantee_ids:
+                      - Organization/ORG-1
+              practitioner:
+                summary: Practitioner
+                value:
+                  practitioner:
+                    practitioner_id: 98765
+                    name:
+                      first_name: Emily
+                      middle_name: R.
+                      last_name: Smith
+                    date_of_birth: 1975-10-12
+                    gender: female
+                    contact_info:
+                      phone: "+1-555-555-7777"
+                      email: emily.smith@healthcare.com
+                      address:
+                        street: 456 Health St
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90210
+                        country: USA
+                    license:
+                      license_number: MD123456
+                      state_issued: CA
+                      issue_date: 2000-05-20
+                      expiry_date: 2025-05-20
+                    specialization: Cardiology
+                    years_of_experience: 20
+                    languages_spoken:
+                      - English
+                      - Spanish
+                    practice_location:
+                      name: Healthy Heart Clinic
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                      phone: "+1-555-555-8888"
+                    qualifications:
+                      - degree: MD
+                        institution: Harvard Medical School
+                        year: 2000
+                      - degree: Fellowship in Cardiology
+                        institution: Johns Hopkins Hospital
+                        year: 2004
+              practitioner_role:
+                summary: PractitionerRole
+                value:
+                  practitioner_role:
+                    practitioner_role_id: PR123456
+                    practitioner_id: 98765
+                    organization_id: ORG001
+                    role: Cardiologist
+                    specialty: Cardiology
+                    location:
+                      location_id: LOC123456
+                      name: Healthy Heart Clinic
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                    telecom:
+                      phone: "+1-555-555-7777"
+                      email: emily.smith@healthyheartclinic.com
+                    available_hours:
+                      weekdays: 8:00 AM - 5:00 PM
+                      weekends: 9:00 AM - 2:00 PM
+                    service_period:
+                      start_date: 2020-01-01
+                      end_date: null
+              organization:
+                summary: Organization
+                value:
+                  organization:
+                    organization_id: ORG001
+                    name: Healthy Heart Clinic
+                    type: Healthcare Provider
+                    contact_info:
+                      phone: "+1-555-555-8888"
+                      email: contact@healthyheartclinic.com
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                      fax: "+1-555-555-9999"
+                      website: https://www.healthyheartclinic.com
+                    departments:
+                      - name: Cardiology
+                        contact_phone: "+1-555-555-1234"
+                      - name: Radiology
+                        contact_phone: "+1-555-555-5678"
+                    affiliations:
+                      - name: American Heart Association
+                        type: Professional Association
+                      - name: National Institutes of Health
+                        type: Research Partner
+                    services_offered:
+                      - Cardiac Consultation
+                      - Echocardiography
+                      - Stress Testing
+                      - Cardiac Surgery
+                    operating_hours:
+                      weekdays: 8:00 AM - 5:00 PM
+                      weekends: 9:00 AM - 2:00 PM
+              person:
+                summary: Person
+                value:
+                  person:
+                    person_id: PER001
+                    person_first_name: Jane
+                    person_last_name: Smith
+                    person_gender: female
+                    person_birth_date: 1985-07-20
+                    person_phone: "+1-555-555-1212"
+                    person_email: jane.smith@example.com
+                    person_address_line1: 123 Main St
+                    person_city: Springfield
+                    person_state: IL
+                    person_postal_code: 62701
+                    person_country: USA
+                    person_language: English
+                    person_language_preferred: true
+                    person_managing_organization_id: ORG001
+              verification_result:
+                summary: VerificationResult
+                value:
+                  verification_result:
+                    verification_result_id: VER001
+                    target_ids:
+                      - Practitioner/PRAC001
+                    target_location:
+                      - Practitioner.qualification
+                    need: initial
+                    status: validated
+                    status_date: 2024-01-15T10:00:00Z
+                    validation_type: primary
+                    validation_process:
+                      - primary-source
+                    frequency: annual
+                    last_performed: 2024-01-15T10:00:00Z
+                    next_scheduled: 2025-01-15
+                    failure_action: warn
+                    primary_source_who_id: ORG001
+                    primary_source_type:
+                      - License Board
+                    primary_source_communication_method:
+                      - email
+                    primary_source_validation_status: successful
+                    primary_source_validation_date: 2024-01-15T10:00:00Z
+                    primary_source_can_push_updates: yes
+                    primary_source_push_type_available:
+                      - specific
+                    attestation_who_id: PRAC001
+                    attestation_on_behalf_of_id: ORG001
+                    attestation_communication_method: email
+                    attestation_date: 2024-01-15
+                    attestation_source_identity_certificate: CERT-123
+                    validator_organization_id: ORG001
+                    validator_identity_certificate: CERT-456
+              substance:
+                summary: Substance
+                value:
+                  substance:
+                    substance_id: SUB001
+                    instance: true
+                    status: active
+                    category: chemical
+                    code:
+                      code: C00001
+                      code_system: http://example.org/substances
+                      display: Sodium Chloride
+                    description: Sodium Chloride 0.9%
+                    expiry: 2025-12-31T00:00:00Z
+                    quantity_value: 500
+                    quantity_unit: mL
+                    ingredient_substance: NaCl
+                    ingredient_substance_system: http://example.org/substances
+                    ingredient_substance_display: Sodium Chloride
+                    ingredient_quantity_numerator_value: 9
+                    ingredient_quantity_numerator_unit: g
+                    ingredient_quantity_denominator_value: 1000
+                    ingredient_quantity_denominator_unit: mL
+              location:
+                summary: Location
+                value:
+                  location:
+                    location_id: LOC123456
+                    status: active
+                    name: Healthy Heart Clinic
+                    alias:
+                      - Main Clinic
+                    description: Outpatient clinic location
+                    mode: instance
+                    type: clinic
+                    address_line1: 789 Clinic Blvd
+                    address_line2: Suite 100
+                    city: Healthyville
+                    state: CA
+                    postal_code: 90211
+                    country: USA
+                    managing_org_id: ORG001
+                    part_of_id: LOC-PARENT
+              episode_of_care:
+                summary: EpisodeOfCare
+                value:
+                  episode_of_care:
+                    episode_of_care_id: EOC123456
+                    status: active
+                    type: disease-management
+                    reason:
+                      - Diabetes
+                    diagnosis:
+                      - Type 2 diabetes mellitus
+                    patient_id: P-10001
+                    managing_org_id: ORG001
+                    period_start: 2024-01-01T00:00:00Z
+                    period_end: 2024-06-30T00:00:00Z
+                    referral_request_ids:
+                      - SR-100
+                    care_manager_id: 98765
+                    care_team_ids:
+                      - CT-10
+                    account_ids:
+                      - ACC-55
+              specimen:
+                summary: Specimen
+                value:
+                  specimen:
+                    specimen_id: SPEC-100
+                    accession_identifier: ACC-456
+                    status: available
+                    type: blood
+                    subject_id: P-10001
+                    received_time: 2024-02-01T10:00:00Z
+                    collection_collected_date: 2024-02-01T09:30:00Z
+                    collection_method: venipuncture
+                    container_device_id: DEV-12
+                    condition:
+                      - refrigerated
+                    note:
+                      - Sample kept at 4C
+              imaging_study:
+                summary: ImagingStudy
+                value:
+                  imaging_study:
+                    imaging_study_id: IMG-100
+                    status: available
+                    modality:
+                      - CT
+                    subject_id: P-10001
+                    encounter_id: ENC345678
+                    started: 2024-02-01T08:30:00Z
+                    description: CT Chest
+                    series_uid: 1.2.3.4.5.1
+                    series_modality: CT
+                    series_number_of_instances: 25
+              allergy_intolerance:
+                summary: AllergyIntolerance
+                value:
+                  allergy_intolerance:
+                    allergy_id: ALG-100
+                    clinical_status: active
+                    verification_status: confirmed
+                    type: allergy
+                    category:
+                      - food
+                    criticality: high
+                    code:
+                      code: 227493005
+                      display: Cashew nut
+                    patient_id: P-10001
+                    recorded_date: 2024-02-01T00:00:00Z
+                    reaction_manifestation:
+                      - Hives
+              immunization:
+                summary: Immunization
+                value:
+                  immunization:
+                    immunization_id: IMM-100
+                    status: completed
+                    vaccine_code:
+                      code: 207
+                      display: COVID-19 mRNA
+                    patient_id: P-10001
+                    occurrence_date: 2024-02-15T10:00:00Z
+                    lot_number: LOT-7788
+                    dose_value: 0.5
+                    dose_unit: mL
+              fullBundle:
+                summary: Full bundle
+                value:
+                  operation: create
+                  patient:
+                    patient_id: P-10001
+                    name:
+                      first_name: John
+                      last_name: Doe
+                    date_of_birth: 1980-05-15
+                  encounter:
+                    encounter_id: ENC345678
+                    encounter_type: Outpatient
+                    start_date: 2024-08-15T09:00:00Z
+                    status: completed
+                  medication:
+                    medication_id: MED987654
+                    name: Atorvastatin
+                    strength: 20 mg
+                  medication_request:
+                    medication_request_id: MRQ123456
+                    medication:
+                      medication_id: MED987654
+                      name: Atorvastatin
+                  practitioner:
+                    practitioner_id: 98765
+                    name:
+                      first_name: Emily
+                      last_name: Smith
+                  practitioner_role:
+                    practitioner_role_id: PR123456
+                    practitioner_id: 98765
+                    role: Cardiologist
+                  organization:
+                    organization_id: ORG001
+                    name: Healthy Heart Clinic
+                  location:
+                    location_id: LOC123456
+                    status: active
+                    name: Healthy Heart Clinic
+                    address_line1: 789 Clinic Blvd
+                    city: Healthyville
+                    state: CA
+                    postal_code: 90211
+                    country: USA
+                  episode_of_care:
+                    episode_of_care_id: EOC123456
+                    status: active
+                    patient_id: P-10001
+                    period_start: 2024-01-01T00:00:00Z
+                    period_end: 2024-06-30T00:00:00Z
+                  specimen:
+                    specimen_id: SPEC-100
+                    status: available
+                    subject_id: P-10001
+                    received_time: 2024-02-01T10:00:00Z
+                  imaging_study:
+                    imaging_study_id: IMG-100
+                    status: available
+                    subject_id: P-10001
+                    started: 2024-02-01T08:30:00Z
+                  allergy_intolerance:
+                    allergy_id: ALG-100
+                    clinical_status: active
+                    verification_status: confirmed
+                    patient_id: P-10001
+                  immunization:
+                    immunization_id: IMM-100
+                    status: completed
+                    patient_id: P-10001
+      responses:
+        '200':
+          description: FHIR R5 Bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirBundle'
+        '400':
+          description: Validation or conversion error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  summary: Schema validation error
+                  value:
+                    error: "JSON validation failed: <field>: <message>"
+                emptyPayload:
+                  summary: Empty payload error
+                  value:
+                    error: "JSON validation failed: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization)."
+  /convert:
+    post:
+      tags: [Convert]
+      summary: Convert mixed input (auto-detect)
+      description: |
+        Accepts JSON body with an input string, or raw text/XML body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertRequest'
+          text/plain:
+            schema:
+              type: string
+          application/xml:
+            schema:
+              type: string
+      parameters:
+        - in: query
+          name: format
+          schema:
+            type: string
+          description: Optional input format override
+        - in: query
+          name: fhirVersion
+          schema:
+            type: string
+            enum: [r5]
+          description: FHIR output version (default r5)
+      responses:
+        '200':
+          description: FHIR R5 Bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirBundle'
+        '400':
+          description: Validation or conversion error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /convert/upload:
+    post:
+      tags: [Upload]
+      summary: Upload file for conversion
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                format:
+                  type: string
+                  description: Optional file format override
+                fhirVersion:
+                  type: string
+                  enum: [r5]
+      responses:
+        '200':
+          description: FHIR R5 Bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirBundle'
+        '400':
+          description: Validation or conversion error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /convert/hl7:
+    post:
+      tags: [Convert]
+      summary: Convert HL7 input to FHIR R5 Bundle
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertRequest'
+      parameters:
+        - in: query
+          name: format
+          schema:
+            type: string
+          description: Optional input format override
+        - in: query
+          name: fhirVersion
+          schema:
+            type: string
+            enum: [r5]
+          description: FHIR output version (default r5)
+      responses:
+        '200':
+          description: FHIR R5 Bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirBundle'
+        '400':
+          description: Validation or conversion error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ConvertRequest:
+      type: object
+      properties:
+        input:
+          type: string
+        format:
+          type: string
+        fhirVersion:
+          type: string
+          enum: [r5]
+      required: [input]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    CustomJsonInput:
+      type: object
+      description: At least one resource section is required (patient, encounter, medication, medication_request, medication_statement, medication_administration, medication_dispense, organization_affiliation, device_dispense, device_request, device_usage, encounter_history, flag, list, nutrition_intake, nutrition_order, risk_assessment, capability_statement, operation_outcome, parameters, care_plan, care_team, goal, service_request, task, communication, communication_request, questionnaire, questionnaire_response, code_system, value_set, concept_map, naming_system, terminology_capabilities, provenance, audit_event, procedure, condition, appointment, appointment_response, claim, claim_response, composition, explanation_of_benefit, coverage, binary, schedule, slot, diagnostic_report, related_person, person, location, episode_of_care, verification_result, substance, specimen, imaging_study, allergy_intolerance, immunization, practitioner, practitioner_role, organization).
+      properties:
+        operation:
+          type: string
+          enum: [create, update, delete]
+        messageType:
+          type: string
+        patient:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPatient'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPatient'
+        encounter:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEncounter'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEncounter'
+        medication:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedication'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedication'
+        medication_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationRequest'
+        medication_statement:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationStatement'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationStatement'
+        medication_administration:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationAdministration'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationAdministration'
+        medication_dispense:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationDispense'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationDispense'
+        organization_affiliation:
+          oneOf:
+            - $ref: '#/components/schemas/CustomOrganizationAffiliation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomOrganizationAffiliation'
+        device_dispense:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceDispense'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceDispense'
+        device_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceRequest'
+        device_usage:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceUsage'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceUsage'
+        encounter_history:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEncounterHistory'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEncounterHistory'
+        flag:
+          oneOf:
+            - $ref: '#/components/schemas/CustomFlag'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomFlag'
+        list:
+          oneOf:
+            - $ref: '#/components/schemas/CustomList'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomList'
+        nutrition_intake:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNutritionIntake'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNutritionIntake'
+        nutrition_order:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNutritionOrder'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNutritionOrder'
+        risk_assessment:
+          oneOf:
+            - $ref: '#/components/schemas/CustomRiskAssessment'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomRiskAssessment'
+        capability_statement:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCapabilityStatement'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCapabilityStatement'
+        operation_outcome:
+          oneOf:
+            - $ref: '#/components/schemas/CustomOperationOutcome'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomOperationOutcome'
+        parameters:
+          oneOf:
+            - $ref: '#/components/schemas/CustomParameters'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomParameters'
+        care_plan:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCarePlan'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCarePlan'
+        care_team:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCareTeam'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCareTeam'
+        goal:
+          oneOf:
+            - $ref: '#/components/schemas/CustomGoal'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomGoal'
+        service_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomServiceRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomServiceRequest'
+        task:
+          oneOf:
+            - $ref: '#/components/schemas/CustomTask'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomTask'
+        communication:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCommunication'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCommunication'
+        communication_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCommunicationRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCommunicationRequest'
+        questionnaire:
+          oneOf:
+            - $ref: '#/components/schemas/CustomQuestionnaire'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomQuestionnaire'
+        questionnaire_response:
+          oneOf:
+            - $ref: '#/components/schemas/CustomQuestionnaireResponse'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomQuestionnaireResponse'
+        code_system:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCodeSystem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCodeSystem'
+        value_set:
+          oneOf:
+            - $ref: '#/components/schemas/CustomValueSet'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomValueSet'
+        concept_map:
+          oneOf:
+            - $ref: '#/components/schemas/CustomConceptMap'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomConceptMap'
+        naming_system:
+          oneOf:
+            - $ref: '#/components/schemas/CustomNamingSystem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomNamingSystem'
+        terminology_capabilities:
+          oneOf:
+            - $ref: '#/components/schemas/CustomTerminologyCapabilities'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomTerminologyCapabilities'
+        provenance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomProvenance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomProvenance'
+        audit_event:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAuditEvent'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAuditEvent'
+        consent:
+          oneOf:
+            - $ref: '#/components/schemas/CustomConsent'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomConsent'
+        procedure:
+          oneOf:
+            - $ref: '#/components/schemas/CustomProcedure'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomProcedure'
+        condition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCondition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCondition'
+        appointment:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAppointment'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAppointment'
+        appointment_response:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAppointmentResponse'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAppointmentResponse'
+        claim:
+          oneOf:
+            - $ref: '#/components/schemas/CustomClaim'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomClaim'
+        claim_response:
+          oneOf:
+            - $ref: '#/components/schemas/CustomClaimResponse'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomClaimResponse'
+        composition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomComposition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomComposition'
+        explanation_of_benefit:
+          oneOf:
+            - $ref: '#/components/schemas/CustomExplanationOfBenefit'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomExplanationOfBenefit'
+        coverage:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCoverage'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCoverage'
+        account:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAccount'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAccount'
+        charge_item:
+          oneOf:
+            - $ref: '#/components/schemas/CustomChargeItem'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomChargeItem'
+        charge_item_definition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomChargeItemDefinition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomChargeItemDefinition'
+        device:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDevice'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDevice'
+        device_metric:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDeviceMetric'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDeviceMetric'
+        endpoint:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEndpoint'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEndpoint'
+        binary:
+          oneOf:
+            - $ref: '#/components/schemas/CustomBinary'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomBinary'
+        schedule:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSchedule'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSchedule'
+        slot:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSlot'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSlot'
+        diagnostic_report:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDiagnosticReport'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDiagnosticReport'
+        related_person:
+          oneOf:
+            - $ref: '#/components/schemas/CustomRelatedPerson'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomRelatedPerson'
+        person:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPerson'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPerson'
+        location:
+          oneOf:
+            - $ref: '#/components/schemas/CustomLocation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomLocation'
+        episode_of_care:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEpisodeOfCare'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEpisodeOfCare'
+        verification_result:
+          oneOf:
+            - $ref: '#/components/schemas/CustomVerificationResult'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomVerificationResult'
+        substance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSubstance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSubstance'
+        specimen:
+          oneOf:
+            - $ref: '#/components/schemas/CustomSpecimen'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomSpecimen'
+        imaging_study:
+          oneOf:
+            - $ref: '#/components/schemas/CustomImagingStudy'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomImagingStudy'
+        allergy_intolerance:
+          oneOf:
+            - $ref: '#/components/schemas/CustomAllergyIntolerance'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomAllergyIntolerance'
+        immunization:
+          oneOf:
+            - $ref: '#/components/schemas/CustomImmunization'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomImmunization'
+        practitioner:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPractitioner'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPractitioner'
+        practitioner_role:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPractitionerRole'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPractitionerRole'
+        organization:
+          oneOf:
+            - $ref: '#/components/schemas/CustomOrganization'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomOrganization'
+    CustomAddress:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+    CustomPatient:
+      type: object
+      properties:
+        patient_id:
+          type: string
+          description: "Aliases: patient_identifier, patient_mrn, mrn, medical_record_number, patientid."
+        ihi:
+          type: string
+        name:
+          allOf:
+            - $ref: '#/components/schemas/CustomPatientName'
+          description: "Aliases: name, patientname, full_name, patient_full_name, pt_name (parsed into first/last when possible)."
+        date_of_birth:
+          type: string
+          format: date
+          description: "Aliases: dob, birth_date, birthdate."
+        gender:
+          type: string
+          description: "Aliases: sex, gndr."
+        contact_info:
+          $ref: '#/components/schemas/CustomPatientContactInfo'
+        marital_status:
+          type: string
+        language:
+          type: string
+        ethnicity:
+          type: string
+        emergency_contact:
+          $ref: '#/components/schemas/CustomPatientEmergencyContact'
+        insurance:
+          $ref: '#/components/schemas/CustomPatientInsurance'
+        medical_history:
+          $ref: '#/components/schemas/CustomPatientMedicalHistory'
+    CustomPatientName:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: "Aliases: first_name, firstname, given_name, given, patient_given_name."
+        middle_name:
+          type: string
+          description: "Aliases: middle_name, middlename."
+        last_name:
+          type: string
+          description: "Aliases: last_name, lastname, family_name, surname, patient_family_name."
+    CustomPatientContactInfo:
+      type: object
+      properties:
+        phone:
+          type: string
+          description: "Aliases: phone, phone_number, mobile, cell, cell_phone, patient_phone_number."
+        email:
+          type: string
+          description: "Aliases: email, email_address."
+        address:
+          allOf:
+            - $ref: '#/components/schemas/CustomAddress'
+          description: "Aliases for patient address fields - street: address, address1, address_line1, street, street_address; city: city, town; state: state, province, region; postal_code: zip, zipcode, postal, postal_code; country: country."
+    CustomPatientEmergencyContact:
+      type: object
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        phone:
+          type: string
+    CustomPatientInsurance:
+      type: object
+      properties:
+        provider:
+          type: string
+        policy_number:
+          type: string
+        coverage_start_date:
+          type: string
+          format: date
+        coverage_end_date:
+          type: string
+          format: date
+    CustomPatientMedicalHistory:
+      type: object
+      properties:
+        allergies:
+          type: array
+          items:
+            type: string
+        current_medications:
+          type: array
+          items:
+            type: string
+        past_illnesses:
+          type: array
+          items:
+            type: string
+        surgeries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomPatientSurgery'
+    CustomPatientSurgery:
+      type: object
+      properties:
+        surgery_name:
+          type: string
+        surgery_date:
+          type: string
+          format: date
+    CustomEncounter:
+      type: object
+      properties:
+        encounter_id:
+          type: string
+        patient_id:
+          type: string
+        practitioner_id:
+          type: string
+        encounter_type:
+          type: string
+        reason_for_visit:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/CustomEncounterLocation'
+        status:
+          type: string
+        diagnoses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomEncounterDiagnosis'
+        services_provided:
+          type: array
+          items:
+            type: string
+        billing_info:
+          $ref: '#/components/schemas/CustomEncounterBillingInfo'
+        follow_up:
+          $ref: '#/components/schemas/CustomEncounterFollowUp'
+        note:
+          type: string
+    CustomEncounterLocation:
+      type: object
+      properties:
+        facility_name:
+          type: string
+        room:
+          type: string
+        address:
+          $ref: '#/components/schemas/CustomAddress'
+    CustomEncounterDiagnosis:
+      type: object
+      properties:
+        condition_id:
+          type: string
+        condition_name:
+          type: string
+    CustomEncounterBillingInfo:
+      type: object
+      properties:
+        insurance_provider:
+          type: string
+        policy_number:
+          type: string
+        total_cost:
+          type: number
+        patient_responsibility:
+          type: number
+    CustomEncounterFollowUp:
+      type: object
+      properties:
+        recommended:
+          type: boolean
+        next_appointment_date:
+          type: string
+          format: date-time
+    CustomMedication:
+      type: object
+      properties:
+        medication_id:
+          type: string
+        name:
+          type: string
+        brand_name:
+          type: string
+        form:
+          type: string
+        strength:
+          type: string
+        manufacturer:
+          $ref: '#/components/schemas/CustomMedicationManufacturer'
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomMedicationIngredient'
+        package:
+          $ref: '#/components/schemas/CustomMedicationPackage'
+        status:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+        lot_number:
+          type: string
+    CustomMedicationManufacturer:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/CustomAddress'
+    CustomMedicationIngredient:
+      type: object
+      properties:
+        name:
+          type: string
+        strength:
+          type: string
+    CustomMedicationPackage:
+      type: object
+      properties:
+        description:
+          type: string
+        quantity:
+          type: number
+    CustomMedicationRequest:
+      type: object
+      properties:
+        medication_request_id:
+          type: number
+        patient_id:
+          type: string
+        practitioner_id:
+          type: string
+        medication:
+          $ref: '#/components/schemas/CustomMedicationRequestMedication'
+        dosage_instruction:
+          $ref: '#/components/schemas/CustomMedicationRequestDosage'
+        dispense_request:
+          $ref: '#/components/schemas/CustomMedicationRequestDispenseRequest'
+        substitution_allowed:
+          type: boolean
+        reason_for_prescription:
+          type: string
+        status:
+          type: string
+        authored_on:
+          type: string
+          format: date
+        note:
+          type: string
+    CustomMedicationRequestMedication:
+      type: object
+      properties:
+        medication_id:
+          type: string
+        name:
+          type: string
+        strength:
+          type: string
+        form:
+          type: string
+    CustomMedicationRequestDosage:
+      type: object
+      properties:
+        dose:
+          type: string
+        route:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+    CustomMedicationRequestDispenseRequest:
+      type: object
+      properties:
+        quantity:
+          type: number
+        refills:
+          type: number
+        expected_supply_duration:
+          type: string
+        dispense_as_written:
+          type: boolean
+    CustomMedicationStatement:
+      type: object
+      properties:
+        medication_statement_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        medication:
+          $ref: '#/components/schemas/CustomMedicationStatementMedication'
+        effective_date:
+          type: string
+          format: date-time
+        effective_start:
+          type: string
+          format: date-time
+        effective_end:
+          type: string
+          format: date-time
+        date_asserted:
+          type: string
+          format: date-time
+        author_id:
+          type: string
+        information_source:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          type: string
+        dosage:
+          $ref: '#/components/schemas/CustomMedicationStatementDosage'
+    CustomMedicationStatementMedication:
+      type: object
+      properties:
+        medication_id:
+          type: string
+        code_system:
+          type: string
+        name:
+          type: string
+        strength:
+          type: string
+        form:
+          type: string
+    CustomMedicationStatementDosage:
+      type: object
+      properties:
+        dose:
+          type: string
+        dose_unit:
+          type: string
+        route:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+    CustomMedicationAdministration:
+      type: object
+      properties:
+        medication_administration_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        medication:
+          $ref: '#/components/schemas/CustomMedicationAdministrationMedication'
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_start:
+          type: string
+          format: date-time
+        occurrence_end:
+          type: string
+          format: date-time
+        recorded:
+          type: string
+          format: date-time
+        is_sub_potent:
+          type: boolean
+        sub_potent_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        performer_actor_id:
+          type: string
+        performer_function:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        request_id:
+          type: string
+        device_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        dose_value:
+          type: number
+        dose_unit:
+          type: string
+        route:
+          type: string
+        site:
+          type: string
+        method:
+          type: string
+        rate_value:
+          type: number
+        rate_unit:
+          type: string
+    CustomMedicationAdministrationMedication:
+      type: object
+      properties:
+        medication_id:
+          type: string
+        code_system:
+          type: string
+        name:
+          type: string
+    CustomMedicationDispense:
+      type: object
+      properties:
+        medication_dispense_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        status:
+          type: string
+        status_changed:
+          type: string
+          format: date-time
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        medication:
+          $ref: '#/components/schemas/CustomMedicationDispenseMedication'
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        performer_actor_id:
+          type: string
+        performer_function:
+          type: string
+        location:
+          type: string
+        authorizing_prescription_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        type:
+          type: string
+        quantity_value:
+          type: number
+        quantity_unit:
+          type: string
+        days_supply_value:
+          type: number
+        days_supply_unit:
+          type: string
+        recorded:
+          type: string
+          format: date-time
+        when_prepared:
+          type: string
+          format: date-time
+        when_handed_over:
+          type: string
+          format: date-time
+        destination:
+          type: string
+        receiver_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        rendered_dosage_instruction:
+          type: string
+        dosage_instruction:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        substitution_was_substituted:
+          oneOf:
+            - type: boolean
+            - type: string
+        substitution_type:
+          type: string
+        substitution_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        substitution_responsible_party:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        event_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomDeviceDispense:
+      type: object
+      properties:
+        device_dispense_id:
+          type: string
+        device_dispense_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_status:
+          type: string
+        device_dispense_status_reason_code:
+          type: string
+        device_dispense_status_reason_reference_id:
+          type: string
+        device_dispense_category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_device_id:
+          type: string
+        device_dispense_device_code:
+          type: string
+        device_dispense_subject_id:
+          type: string
+        device_dispense_receiver_id:
+          type: string
+        device_dispense_encounter_id:
+          type: string
+        device_dispense_supporting_information_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_dispense_performer_function:
+          type: string
+        device_dispense_performer_actor_id:
+          type: string
+        device_dispense_location_id:
+          type: string
+        device_dispense_type:
+          type: string
+        device_dispense_quantity_value:
+          type: number
+        device_dispense_quantity_unit:
+          type: string
+        device_dispense_prepared_date:
+          type: string
+          format: date-time
+        device_dispense_when_handed_over:
+          type: string
+          format: date-time
+        device_dispense_destination_id:
+          type: string
+        device_dispense_note:
+          type: string
+        device_dispense_usage_instruction:
+          type: string
+        device_dispense_event_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomDeviceRequest:
+      type: object
+      properties:
+        device_request_id:
+          type: string
+        device_request_status:
+          type: string
+        device_request_intent:
+          type: string
+        device_request_priority:
+          type: string
+        device_request_do_not_perform:
+          oneOf:
+            - type: boolean
+            - type: string
+        device_request_device_code:
+          type: string
+        device_request_device_reference_id:
+          type: string
+        device_request_subject_id:
+          type: string
+        device_request_encounter_id:
+          type: string
+        device_request_occurrence_date_time:
+          type: string
+          format: date-time
+        device_request_occurrence_start:
+          type: string
+          format: date-time
+        device_request_occurrence_end:
+          type: string
+          format: date-time
+        device_request_occurrence_timing:
+          type: string
+        device_request_authored_on:
+          type: string
+          format: date-time
+        device_request_requester_id:
+          type: string
+        device_request_performer_id:
+          type: string
+        device_request_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_as_needed:
+          oneOf:
+            - type: boolean
+            - type: string
+        device_request_as_needed_for:
+          type: string
+        device_request_insurance_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_note:
+          type: string
+        device_request_relevant_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_replaces_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_request_group_identifier:
+          type: string
+        device_request_quantity_value:
+          type: number
+        device_request_parameter_code:
+          type: string
+        device_request_parameter_value_code:
+          type: string
+        device_request_parameter_value_quantity_value:
+          type: number
+        device_request_parameter_value_quantity_unit:
+          type: string
+        device_request_parameter_value_boolean:
+          oneOf:
+            - type: boolean
+            - type: string
+    CustomDeviceUsage:
+      type: object
+      properties:
+        device_usage_id:
+          type: string
+        device_usage_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_status:
+          type: string
+        device_usage_category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_patient_id:
+          type: string
+        device_usage_derived_from_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_context_id:
+          type: string
+        device_usage_timing_timing:
+          type: string
+        device_usage_timing_start:
+          type: string
+          format: date-time
+        device_usage_timing_end:
+          type: string
+          format: date-time
+        device_usage_timing_date_time:
+          type: string
+          format: date-time
+        device_usage_date_asserted:
+          type: string
+          format: date-time
+        device_usage_usage_status:
+          type: string
+        device_usage_usage_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_adherence_code:
+          type: string
+        device_usage_adherence_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_information_source_id:
+          type: string
+        device_usage_device_code:
+          type: string
+        device_usage_device_reference_id:
+          type: string
+        device_usage_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        device_usage_body_site_id:
+          type: string
+        device_usage_note:
+          type: string
+    CustomEncounterHistory:
+      type: object
+      properties:
+        encounter_history_id:
+          type: string
+        encounter_history_encounter_id:
+          type: string
+        encounter_history_status:
+          type: string
+        encounter_history_class:
+          type: string
+        encounter_history_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_history_service_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_history_service_type_reference_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_history_subject_id:
+          type: string
+        encounter_history_subject_status:
+          type: string
+        encounter_history_actual_start:
+          type: string
+          format: date-time
+        encounter_history_actual_end:
+          type: string
+          format: date-time
+        encounter_history_planned_start_date:
+          type: string
+          format: date-time
+        encounter_history_planned_end_date:
+          type: string
+          format: date-time
+        encounter_history_length_value:
+          type: number
+        encounter_history_length_unit:
+          type: string
+        encounter_history_length_system:
+          type: string
+        encounter_history_length_code:
+          type: string
+        encounter_history_location_id:
+          type: string
+        encounter_history_location_form:
+          type: string
+    CustomFlag:
+      type: object
+      properties:
+        flag_id:
+          type: string
+        flag_status:
+          type: string
+        flag_category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        flag_code:
+          type: string
+        flag_subject_id:
+          type: string
+        flag_period_start:
+          type: string
+          format: date-time
+        flag_period_end:
+          type: string
+          format: date-time
+        flag_encounter_id:
+          type: string
+        flag_author_id:
+          type: string
+    CustomList:
+      type: object
+      properties:
+        list_id:
+          type: string
+        list_status:
+          type: string
+        list_mode:
+          type: string
+        list_title:
+          type: string
+        list_code:
+          type: string
+        list_subject_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        list_encounter_id:
+          type: string
+        list_date:
+          type: string
+          format: date-time
+        list_source_id:
+          type: string
+        list_ordered_by:
+          type: string
+        list_note:
+          type: string
+        list_entry_flag:
+          type: string
+        list_entry_deleted:
+          oneOf:
+            - type: boolean
+            - type: string
+        list_entry_date:
+          type: string
+          format: date-time
+        list_entry_item_id:
+          type: string
+        list_empty_reason:
+          type: string
+    CustomNutritionIntake:
+      type: object
+      properties:
+        nutrition_intake_id:
+          type: string
+        nutrition_intake_status:
+          type: string
+        nutrition_intake_status_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_code:
+          type: string
+        nutrition_intake_subject_id:
+          type: string
+        nutrition_intake_encounter_id:
+          type: string
+        nutrition_intake_occurrence_date_time:
+          type: string
+          format: date-time
+        nutrition_intake_occurrence_start:
+          type: string
+          format: date-time
+        nutrition_intake_occurrence_end:
+          type: string
+          format: date-time
+        nutrition_intake_recorded:
+          type: string
+          format: date-time
+        nutrition_intake_reported_boolean:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_intake_reported_reference_id:
+          type: string
+        nutrition_intake_instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_consumed_type:
+          type: string
+        nutrition_intake_consumed_product_code:
+          type: string
+        nutrition_intake_consumed_product_reference_id:
+          type: string
+        nutrition_intake_consumed_amount_value:
+          type: number
+        nutrition_intake_consumed_amount_unit:
+          type: string
+        nutrition_intake_consumed_not_consumed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_intake_consumed_not_consumed_reason:
+          type: string
+        nutrition_intake_ingredient_nutrient_code:
+          type: string
+        nutrition_intake_ingredient_nutrient_reference_id:
+          type: string
+        nutrition_intake_ingredient_amount_value:
+          type: number
+        nutrition_intake_ingredient_amount_unit:
+          type: string
+        nutrition_intake_performer_function:
+          type: string
+        nutrition_intake_performer_actor_id:
+          type: string
+        nutrition_intake_location_id:
+          type: string
+        nutrition_intake_derived_from_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_intake_note:
+          type: string
+    CustomNutritionOrder:
+      type: object
+      properties:
+        nutrition_order_id:
+          type: string
+        nutrition_order_status:
+          type: string
+        nutrition_order_intent:
+          type: string
+        nutrition_order_priority:
+          type: string
+        nutrition_order_subject_id:
+          type: string
+        nutrition_order_encounter_id:
+          type: string
+        nutrition_order_date_time:
+          type: string
+          format: date-time
+        nutrition_order_orderer_id:
+          type: string
+        nutrition_order_supporting_information_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_instantiates:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_group_identifier:
+          type: string
+        nutrition_order_performer_concept:
+          type: string
+        nutrition_order_performer_reference_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_allergy_intolerance_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_food_preference_modifier:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_exclude_food_modifier:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_outside_food_allowed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_order_oral_diet_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        nutrition_order_oral_diet_schedule_timing:
+          type: string
+        nutrition_order_oral_diet_as_needed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_order_oral_diet_as_needed_for:
+          type: string
+        nutrition_order_oral_diet_instruction:
+          type: string
+        nutrition_order_supplement_type_code:
+          type: string
+        nutrition_order_supplement_type_reference_id:
+          type: string
+        nutrition_order_supplement_product_name:
+          type: string
+        nutrition_order_supplement_schedule_timing:
+          type: string
+        nutrition_order_supplement_as_needed:
+          oneOf:
+            - type: boolean
+            - type: string
+        nutrition_order_supplement_as_needed_for:
+          type: string
+        nutrition_order_supplement_quantity_value:
+          type: number
+        nutrition_order_supplement_quantity_unit:
+          type: string
+        nutrition_order_supplement_instruction:
+          type: string
+        nutrition_order_enteral_base_formula_code:
+          type: string
+        nutrition_order_enteral_base_formula_reference_id:
+          type: string
+        nutrition_order_enteral_base_formula_product_name:
+          type: string
+        nutrition_order_enteral_route_of_administration:
+          type: string
+        nutrition_order_enteral_caloric_density_value:
+          type: number
+        nutrition_order_enteral_caloric_density_unit:
+          type: string
+        nutrition_order_enteral_administration_instruction:
+          type: string
+        nutrition_order_note:
+          type: string
+    CustomRiskAssessment:
+      type: object
+      properties:
+        risk_assessment_id:
+          type: string
+        risk_assessment_status:
+          type: string
+        risk_assessment_method:
+          type: string
+        risk_assessment_code:
+          type: string
+        risk_assessment_subject_id:
+          type: string
+        risk_assessment_encounter_id:
+          type: string
+        risk_assessment_occurrence_date_time:
+          type: string
+          format: date-time
+        risk_assessment_occurrence_start:
+          type: string
+          format: date-time
+        risk_assessment_occurrence_end:
+          type: string
+          format: date-time
+        risk_assessment_based_on_id:
+          type: string
+        risk_assessment_parent_id:
+          type: string
+        risk_assessment_condition_id:
+          type: string
+        risk_assessment_performer_id:
+          type: string
+        risk_assessment_reason_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        risk_assessment_basis_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        risk_assessment_prediction_outcome:
+          type: string
+        risk_assessment_prediction_probability_decimal:
+          type: number
+        risk_assessment_prediction_probability_range_low_value:
+          type: number
+        risk_assessment_prediction_probability_range_low_unit:
+          type: string
+        risk_assessment_prediction_probability_range_high_value:
+          type: number
+        risk_assessment_prediction_probability_range_high_unit:
+          type: string
+        risk_assessment_prediction_qualitative_risk:
+          type: string
+        risk_assessment_prediction_relative_risk:
+          type: number
+        risk_assessment_prediction_when_start:
+          type: string
+          format: date-time
+        risk_assessment_prediction_when_end:
+          type: string
+          format: date-time
+        risk_assessment_prediction_when_range_low_value:
+          type: number
+        risk_assessment_prediction_when_range_low_unit:
+          type: string
+        risk_assessment_prediction_when_range_high_value:
+          type: number
+        risk_assessment_prediction_when_range_high_unit:
+          type: string
+        risk_assessment_prediction_rationale:
+          type: string
+        risk_assessment_mitigation:
+          type: string
+        risk_assessment_note:
+          type: string
+    CustomMedicationDispenseMedication:
+      type: object
+      properties:
+        medication_id:
+          type: string
+        code_system:
+          type: string
+        name:
+          type: string
+    CustomOrganizationAffiliation:
+      type: object
+      properties:
+        organization_affiliation_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        organization_id:
+          type: string
+        participating_organization_id:
+          type: string
+        network_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        code:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        specialty:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        location_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        healthcare_service_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        contact_name:
+          type: string
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        endpoint_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomCapabilityStatement:
+      type: object
+      properties:
+        capability_statement_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        version:
+          type: string
+        version_algorithm:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        experimental:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        kind:
+          type: string
+        fhir_version:
+          type: string
+        format:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        implementation_url:
+          type: string
+        implementation_description:
+          type: string
+        software_name:
+          type: string
+        software_version:
+          type: string
+        software_release_date:
+          type: string
+          format: date-time
+        rest_mode:
+          type: string
+        rest_documentation:
+          type: string
+    CustomOperationOutcome:
+      type: object
+      properties:
+        operation_outcome_id:
+          type: string
+        severity:
+          type: string
+        code:
+          type: string
+        details_system:
+          type: string
+        details_code:
+          type: string
+        details_display:
+          type: string
+        diagnostics:
+          type: string
+        location:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        expression:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomParameters:
+      type: object
+      properties:
+        parameter_name:
+          type: string
+        parameter_value:
+          type: string
+        value_string:
+          type: string
+        value_code:
+          type: string
+        value_boolean:
+          type: boolean
+        value_date:
+          type: string
+          format: date
+        value_datetime:
+          type: string
+          format: date-time
+        value_integer:
+          type: number
+        value_decimal:
+          type: number
+        value_uri:
+          type: string
+        value_reference:
+          type: string
+    CustomCarePlan:
+      type: object
+      properties:
+        care_plan_id:
+          type: string
+        status:
+          type: string
+        intent:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        title:
+          type: string
+        description:
+          type: string
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        custodian_id:
+          type: string
+        contributor_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        care_team_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        addresses:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        goal_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        activity_reference:
+          type: string
+        activity_progress:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        activity_performed:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        replaces_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomCareTeam:
+      type: object
+      properties:
+        care_team_id:
+          type: string
+        status:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        name:
+          type: string
+        subject_id:
+          type: string
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        participant_role:
+          type: string
+        participant_member_id:
+          type: string
+        participant_on_behalf_of_id:
+          type: string
+        participant_coverage_start:
+          type: string
+          format: date-time
+        participant_coverage_end:
+          type: string
+          format: date-time
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        managing_org_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        phone:
+          type: string
+        email:
+          type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomGoal:
+      type: object
+      properties:
+        goal_id:
+          type: string
+        lifecycle_status:
+          type: string
+        achievement_status:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        continuous:
+          type: boolean
+        priority:
+          type: string
+        description:
+          type: string
+        subject_id:
+          type: string
+        start_date:
+          type: string
+          format: date
+        start_code:
+          type: string
+        target_measure:
+          type: string
+        target_detail:
+          type: string
+        target_due_date:
+          type: string
+          format: date
+        status_date:
+          type: string
+          format: date
+        status_reason:
+          type: string
+        source_id:
+          type: string
+        addresses:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        outcome:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomServiceRequest:
+      type: object
+      properties:
+        service_request_id:
+          type: string
+        status:
+          type: string
+        intent:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        priority:
+          type: string
+        do_not_perform:
+          type: boolean
+        code:
+          $ref: '#/components/schemas/CustomProcedureCode'
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_start:
+          type: string
+          format: date-time
+        occurrence_end:
+          type: string
+          format: date-time
+        as_needed:
+          type: boolean
+        authored_on:
+          type: string
+          format: date-time
+        requester_id:
+          type: string
+        performer_type:
+          type: string
+        performer_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        location_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        specimen_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        body_site:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        patient_instruction:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        replaces_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        requisition:
+          type: string
+    CustomTask:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        business_status:
+          type: string
+        intent:
+          type: string
+        priority:
+          type: string
+        do_not_perform:
+          type: boolean
+        code:
+          $ref: '#/components/schemas/CustomProcedureCode'
+        description:
+          type: string
+        focus_id:
+          type: string
+        for_id:
+          type: string
+        encounter_id:
+          type: string
+        requested_start:
+          type: string
+          format: date-time
+        requested_end:
+          type: string
+          format: date-time
+        execution_start:
+          type: string
+          format: date-time
+        execution_end:
+          type: string
+          format: date-time
+        authored_on:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        requester_id:
+          type: string
+        requested_performer_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        owner_id:
+          type: string
+        performer_id:
+          type: string
+        performer_function:
+          type: string
+        location:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        insurance_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        relevant_history_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          type: string
+        instantiates_uri:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        group_identifier:
+          type: string
+    CustomCommunication:
+      type: object
+      properties:
+        communication_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        priority:
+          type: string
+        medium:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        subject_id:
+          type: string
+        topic:
+          type: string
+        about_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_id:
+          type: string
+        sent:
+          type: string
+          format: date-time
+        received:
+          type: string
+          format: date-time
+        recipient_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        sender_id:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        payload:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_canonical:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        instantiates_uri:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        in_response_to_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomCommunicationRequest:
+      type: object
+      properties:
+        communication_request_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        intent:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        priority:
+          type: string
+        do_not_perform:
+          type: boolean
+        medium:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        subject_id:
+          type: string
+        about_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        encounter_id:
+          type: string
+        payload:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_start:
+          type: string
+          format: date-time
+        occurrence_end:
+          type: string
+          format: date-time
+        authored_on:
+          type: string
+          format: date-time
+        requester_id:
+          type: string
+        recipient_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        information_provider_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        replaces_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        group_identifier:
+          type: string
+    CustomQuestionnaire:
+      type: object
+      properties:
+        questionnaire_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        subject_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        item:
+          oneOf:
+            - type: object
+              properties:
+                link_id:
+                  type: string
+                text:
+                  type: string
+                type:
+                  type: string
+            - type: array
+              items:
+                type: object
+                properties:
+                  link_id:
+                    type: string
+                  text:
+                    type: string
+                  type:
+                    type: string
+    CustomQuestionnaireResponse:
+      type: object
+      properties:
+        questionnaire_response_id:
+          type: string
+        questionnaire:
+          type: string
+        status:
+          type: string
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        authored:
+          type: string
+          format: date-time
+        author_id:
+          type: string
+        source_id:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        item:
+          oneOf:
+            - type: object
+              properties:
+                link_id:
+                  type: string
+                text:
+                  type: string
+                answer:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+            - type: array
+              items:
+                type: object
+                properties:
+                  link_id:
+                    type: string
+                  text:
+                    type: string
+                  answer:
+                    oneOf:
+                      - type: string
+                      - type: array
+                        items:
+                          type: string
+    CustomCodeSystem:
+      type: object
+      properties:
+        code_system_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        case_sensitive:
+          oneOf:
+            - type: boolean
+            - type: string
+        concept:
+          oneOf:
+            - type: object
+              properties:
+                code:
+                  type: string
+                display:
+                  type: string
+                definition:
+                  type: string
+            - type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  display:
+                    type: string
+                  definition:
+                    type: string
+        concept_code:
+          type: string
+        concept_display:
+          type: string
+        concept_definition:
+          type: string
+    CustomValueSet:
+      type: object
+      properties:
+        value_set_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        include_system:
+          type: string
+        include_code:
+          type: string
+        include_display:
+          type: string
+        expansion_system:
+          type: string
+        expansion_code:
+          type: string
+        expansion_display:
+          type: string
+    CustomConceptMap:
+      type: object
+      properties:
+        concept_map_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        source_scope:
+          type: string
+        target_scope:
+          type: string
+        group_source:
+          type: string
+        group_target:
+          type: string
+        element_code:
+          type: string
+        element_display:
+          type: string
+        target_code:
+          type: string
+        target_display:
+          type: string
+        target_relationship:
+          type: string
+    CustomNamingSystem:
+      type: object
+      properties:
+        naming_system_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        kind:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        responsible:
+          type: string
+        description:
+          type: string
+        usage:
+          type: string
+        unique_id_type:
+          type: string
+        unique_id_value:
+          type: string
+        unique_id_preferred:
+          oneOf:
+            - type: boolean
+            - type: string
+    CustomTerminologyCapabilities:
+      type: object
+      properties:
+        terminology_capabilities_id:
+          type: string
+        url:
+          type: string
+        identifier:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        date:
+          type: string
+          format: date-time
+        publisher:
+          type: string
+        description:
+          type: string
+        kind:
+          type: string
+        code_search:
+          type: string
+    CustomProvenance:
+      type: object
+      properties:
+        provenance_id:
+          type: string
+        provenance_target_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        provenance_recorded:
+          type: string
+          format: date-time
+        provenance_activity:
+          type: string
+        provenance_agent_who:
+          type: string
+        provenance_agent_role:
+          type: string
+    CustomAuditEvent:
+      type: object
+      properties:
+        audit_event_id:
+          type: string
+        audit_event_category:
+          type: string
+        audit_event_code:
+          type: string
+        audit_event_action:
+          type: string
+        audit_event_severity:
+          type: string
+        audit_event_recorded:
+          type: string
+          format: date-time
+        audit_event_agent_who:
+          type: string
+        audit_event_agent_role:
+          type: string
+        audit_event_agent_requestor:
+          oneOf:
+            - type: boolean
+            - type: string
+    CustomConsent:
+      type: object
+      properties:
+        consent_id:
+          type: string
+        consent_status:
+          type: string
+        consent_category:
+          type: string
+        consent_subject_id:
+          type: string
+        consent_date:
+          type: string
+          format: date
+        consent_decision:
+          type: string
+        consent_grantor_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        consent_grantee_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomProcedure:
+      type: object
+      properties:
+        procedure_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomProcedureCode'
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_start:
+          type: string
+          format: date-time
+        occurrence_end:
+          type: string
+          format: date-time
+        recorded:
+          type: string
+          format: date-time
+        performer_id:
+          type: string
+        location:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        body_site:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          type: string
+    CustomProcedureCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomCondition:
+      type: object
+      properties:
+        condition_id:
+          type: string
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        clinical_status:
+          type: string
+        verification_status:
+          type: string
+        category:
+          type: string
+        severity:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomConditionCode'
+        body_site:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        onset_date:
+          type: string
+          format: date-time
+        onset_start:
+          type: string
+          format: date-time
+        onset_end:
+          type: string
+          format: date-time
+        onset_text:
+          type: string
+        abatement_date:
+          type: string
+          format: date-time
+        abatement_start:
+          type: string
+          format: date-time
+        abatement_end:
+          type: string
+          format: date-time
+        abatement_text:
+          type: string
+        recorded_date:
+          type: string
+          format: date-time
+        note:
+          type: string
+    CustomConditionCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomAppointment:
+      type: object
+      properties:
+        appointment_id:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        minutes_duration:
+          type: number
+        created:
+          type: string
+          format: date-time
+        cancellation_date:
+          type: string
+          format: date-time
+        subject_id:
+          type: string
+        participant_id:
+          type: string
+        participant_status:
+          type: string
+        note:
+          type: string
+    CustomAppointmentResponse:
+      type: object
+      properties:
+        appointment_response_id:
+          type: string
+        appointment_id:
+          type: string
+        proposed_new_time:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        participant_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        actor_id:
+          type: string
+        participant_status:
+          type: string
+        comment:
+          type: string
+        recurring:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        occurrence_date:
+          type: string
+          format: date
+        recurrence_id:
+          type: number
+    CustomClaim:
+      type: object
+      properties:
+        claim_id:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        sub_type:
+          type: string
+        use:
+          type: string
+        patient_id:
+          type: string
+        billable_start:
+          type: string
+          format: date-time
+        billable_end:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        enterer_id:
+          type: string
+        insurer_id:
+          type: string
+        provider_id:
+          type: string
+        priority:
+          type: string
+        funds_reserve:
+          type: string
+        referral_id:
+          type: string
+        facility_id:
+          type: string
+        prescription_id:
+          type: string
+        original_prescription_id:
+          type: string
+        diagnosis_related_group:
+          type: string
+        accident_date:
+          type: string
+          format: date
+        accident_type:
+          type: string
+        patient_paid_value:
+          type: number
+        patient_paid_currency:
+          type: string
+        total_value:
+          type: number
+        total_currency:
+          type: string
+        claim_item_sequence:
+          type: number
+        claim_item_product_or_service:
+          type: string
+        claim_item_quantity:
+          type: number
+        claim_item_unit_price:
+          type: number
+        claim_item_net:
+          type: number
+        claim_item_patient_paid:
+          type: number
+        claim_item_location_id:
+          type: string
+    CustomClaimResponse:
+      type: object
+      properties:
+        claim_response_id:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        sub_type:
+          type: string
+        use:
+          type: string
+        patient_id:
+          type: string
+        created:
+          type: string
+          format: date-time
+        insurer_id:
+          type: string
+        requestor_id:
+          type: string
+        request_id:
+          type: string
+        outcome:
+          type: string
+        disposition:
+          type: string
+        pre_auth_ref:
+          type: string
+        pre_auth_start:
+          type: string
+          format: date-time
+        pre_auth_end:
+          type: string
+          format: date-time
+        payee_type:
+          type: string
+        claim_response_total_value:
+          type: number
+        claim_response_total_currency:
+          type: string
+        claim_response_item_sequence:
+          type: number
+        claim_response_item_category:
+          type: string
+        claim_response_item_amount:
+          type: number
+    CustomComposition:
+      type: object
+      properties:
+        composition_id:
+          type: string
+        composition_status:
+          type: string
+        composition_type:
+          type: string
+        composition_title:
+          type: string
+        composition_subject_id:
+          type: string
+        composition_encounter_id:
+          type: string
+        composition_author_id:
+          type: string
+        composition_date:
+          type: string
+          format: date-time
+        composition_url:
+          type: string
+        composition_version:
+          type: string
+    CustomExplanationOfBenefit:
+      type: object
+      properties:
+        explanation_of_benefit_id:
+          type: string
+        explanation_of_benefit_status:
+          type: string
+        explanation_of_benefit_type:
+          type: string
+        explanation_of_benefit_sub_type:
+          type: string
+        explanation_of_benefit_use:
+          type: string
+        explanation_of_benefit_patient_id:
+          type: string
+        explanation_of_benefit_billable_start:
+          type: string
+          format: date-time
+        explanation_of_benefit_billable_end:
+          type: string
+          format: date-time
+        explanation_of_benefit_created:
+          type: string
+          format: date-time
+        explanation_of_benefit_enterer_id:
+          type: string
+        explanation_of_benefit_insurer_id:
+          type: string
+        explanation_of_benefit_provider_id:
+          type: string
+        explanation_of_benefit_priority:
+          type: string
+        explanation_of_benefit_claim_id:
+          type: string
+        explanation_of_benefit_claim_response_id:
+          type: string
+        explanation_of_benefit_outcome:
+          type: string
+        explanation_of_benefit_disposition:
+          type: string
+        explanation_of_benefit_pre_auth_ref:
+          type: string
+        explanation_of_benefit_total_value:
+          type: number
+        explanation_of_benefit_total_currency:
+          type: string
+        explanation_of_benefit_item_sequence:
+          type: number
+        explanation_of_benefit_item_product_or_service:
+          type: string
+        explanation_of_benefit_item_quantity:
+          type: number
+        explanation_of_benefit_item_unit_price:
+          type: number
+        explanation_of_benefit_item_net:
+          type: number
+    CustomCoverage:
+      type: object
+      properties:
+        coverage_id:
+          type: string
+        coverage_status:
+          type: string
+        coverage_kind:
+          type: string
+        coverage_type:
+          type: string
+        coverage_policy_holder_id:
+          type: string
+        coverage_subscriber_id:
+          type: string
+        coverage_beneficiary_id:
+          type: string
+        coverage_dependent:
+          type: string
+        coverage_relationship:
+          type: string
+        coverage_period_start:
+          type: string
+          format: date-time
+        coverage_period_end:
+          type: string
+          format: date-time
+        coverage_insurer_id:
+          type: string
+        coverage_class_type:
+          type: string
+        coverage_class_value:
+          type: string
+        coverage_class_name:
+          type: string
+        coverage_order:
+          type: number
+        coverage_network:
+          type: string
+        coverage_payment_party_id:
+          type: string
+        coverage_payment_responsibility:
+          type: string
+        coverage_cost_type:
+          type: string
+        coverage_cost_category:
+          type: string
+        coverage_cost_network:
+          type: string
+        coverage_cost_unit:
+          type: string
+        coverage_cost_term:
+          type: string
+        coverage_cost_value_quantity:
+          type: number
+        coverage_cost_value_unit:
+          type: string
+        coverage_cost_value_money:
+          type: number
+        coverage_cost_currency:
+          type: string
+        coverage_cost_exception_type:
+          type: string
+        coverage_cost_exception_start:
+          type: string
+          format: date-time
+        coverage_cost_exception_end:
+          type: string
+          format: date-time
+        coverage_subrogation:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        coverage_contract_id:
+          type: string
+        coverage_insurance_plan_id:
+          type: string
+    CustomAccount:
+      type: object
+      properties:
+        account_id:
+          type: string
+        account_status:
+          type: string
+        account_billing_status:
+          type: string
+        account_type:
+          type: string
+        account_name:
+          type: string
+        account_subject_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        account_service_period_start:
+          type: string
+          format: date-time
+        account_service_period_end:
+          type: string
+          format: date-time
+        account_coverage_id:
+          type: string
+        account_coverage_priority:
+          type: number
+        account_owner_id:
+          type: string
+        account_description:
+          type: string
+        account_guarantor_party_id:
+          type: string
+        account_guarantor_on_hold:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        account_guarantor_period_start:
+          type: string
+          format: date-time
+        account_guarantor_period_end:
+          type: string
+          format: date-time
+        account_currency:
+          type: string
+        account_balance_amount:
+          type: number
+        account_balance_currency:
+          type: string
+        account_calculated_at:
+          type: string
+          format: date-time
+        account_related_account_id:
+          type: string
+        account_related_account_relationship:
+          type: string
+        account_diagnosis_condition_id:
+          type: string
+        account_diagnosis_sequence:
+          type: number
+        account_diagnosis_date:
+          type: string
+          format: date-time
+        account_procedure_code:
+          type: string
+        account_procedure_sequence:
+          type: number
+        account_procedure_date:
+          type: string
+          format: date-time
+    CustomChargeItem:
+      type: object
+      properties:
+        charge_item_id:
+          type: string
+        charge_item_status:
+          type: string
+        charge_item_code:
+          type: string
+        charge_item_subject_id:
+          type: string
+        charge_item_encounter_id:
+          type: string
+        charge_item_occurrence_date_time:
+          type: string
+          format: date-time
+        charge_item_occurrence_start:
+          type: string
+          format: date-time
+        charge_item_occurrence_end:
+          type: string
+          format: date-time
+        charge_item_quantity_value:
+          type: number
+        charge_item_quantity_unit:
+          type: string
+        charge_item_enterer_id:
+          type: string
+        charge_item_entered_date:
+          type: string
+          format: date-time
+        charge_item_account_id:
+          type: string
+        charge_item_total_price_value:
+          type: number
+        charge_item_total_price_currency:
+          type: string
+    CustomChargeItemDefinition:
+      type: object
+      properties:
+        charge_item_definition_id:
+          type: string
+        charge_item_definition_url:
+          type: string
+        charge_item_definition_version:
+          type: string
+        charge_item_definition_status:
+          type: string
+        charge_item_definition_code:
+          type: string
+        charge_item_definition_name:
+          type: string
+        charge_item_definition_title:
+          type: string
+        charge_item_definition_publisher:
+          type: string
+        charge_item_definition_date:
+          type: string
+          format: date-time
+    CustomDevice:
+      type: object
+      properties:
+        device_id:
+          type: string
+        device_status:
+          type: string
+        device_display_name:
+          type: string
+        device_manufacturer:
+          type: string
+        device_model_number:
+          type: string
+        device_serial_number:
+          type: string
+        device_lot_number:
+          type: string
+        device_owner_id:
+          type: string
+        device_location_id:
+          type: string
+    CustomDeviceMetric:
+      type: object
+      properties:
+        device_metric_id:
+          type: string
+        device_metric_status:
+          type: string
+        device_metric_type:
+          type: string
+        device_metric_unit:
+          type: string
+        device_metric_device_id:
+          type: string
+        device_metric_operational_status:
+          type: string
+        device_metric_color:
+          type: string
+        device_metric_category:
+          type: string
+        device_metric_frequency_value:
+          type: number
+        device_metric_frequency_unit:
+          type: string
+    CustomEndpoint:
+      type: object
+      properties:
+        endpoint_id:
+          type: string
+        endpoint_status:
+          type: string
+        endpoint_name:
+          type: string
+        endpoint_description:
+          type: string
+        endpoint_address:
+          type: string
+        endpoint_managing_organization_id:
+          type: string
+        endpoint_connection_type:
+          type: string
+        endpoint_environment_type:
+          type: string
+    CustomBinary:
+      type: object
+      properties:
+        binary_id:
+          type: string
+        binary_content_type:
+          type: string
+        binary_security_context:
+          type: string
+        binary_data:
+          type: string
+    CustomSchedule:
+      type: object
+      properties:
+        schedule_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        name:
+          type: string
+        actor_id:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        comment:
+          type: string
+        service_category:
+          type: string
+        service_type:
+          type: string
+        specialty:
+          type: string
+    CustomSlot:
+      type: object
+      properties:
+        slot_id:
+          type: string
+        schedule_id:
+          type: string
+        status:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        overbooked:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        comment:
+          type: string
+        service_category:
+          type: string
+        service_type:
+          type: string
+        specialty:
+          type: string
+        appointment_type:
+          type: string
+    CustomDiagnosticReport:
+      type: object
+      properties:
+        diagnostic_report_id:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomDiagnosticReportCode'
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        effective_date:
+          type: string
+          format: date-time
+        effective_start:
+          type: string
+          format: date-time
+        effective_end:
+          type: string
+          format: date-time
+        issued:
+          type: string
+          format: date-time
+        performer_id:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        result_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        conclusion:
+          type: string
+        note:
+          type: string
+    CustomDiagnosticReportCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomRelatedPerson:
+      type: object
+      properties:
+        related_person_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        patient_id:
+          type: string
+        relationship:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+    CustomPerson:
+      type: object
+      properties:
+        person_id:
+          type: string
+        active:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        deceased:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        deceased_date:
+          type: string
+          format: date-time
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        marital_status:
+          type: string
+        language:
+          type: string
+        language_preferred:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        managing_organization_id:
+          type: string
+        link_target:
+          type: string
+        link_assurance:
+          type: string
+    CustomLocation:
+      type: object
+      properties:
+        location_id:
+          type: string
+        status:
+          type: string
+        name:
+          type: string
+        alias:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        description:
+          type: string
+        mode:
+          type: string
+        type:
+          type: string
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        managing_org_id:
+          type: string
+        part_of_id:
+          type: string
+    CustomEpisodeOfCare:
+      type: object
+      properties:
+        episode_of_care_id:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        diagnosis:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        patient_id:
+          type: string
+        managing_org_id:
+          type: string
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        referral_request_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        care_manager_id:
+          type: string
+        care_team_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        account_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        status_history_status:
+          type: string
+        status_history_start:
+          type: string
+          format: date-time
+        status_history_end:
+          type: string
+          format: date-time
+    CustomVerificationResult:
+      type: object
+      properties:
+        verification_result_id:
+          type: string
+        target_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        target_location:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        need:
+          type: string
+        status:
+          type: string
+        status_date:
+          type: string
+          format: date-time
+        validation_type:
+          type: string
+        validation_process:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        frequency:
+          type: string
+        last_performed:
+          type: string
+          format: date-time
+        next_scheduled:
+          type: string
+          format: date
+        failure_action:
+          type: string
+        primary_source_who_id:
+          type: string
+        primary_source_type:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        primary_source_communication_method:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        primary_source_validation_status:
+          type: string
+        primary_source_validation_date:
+          type: string
+          format: date-time
+        primary_source_can_push_updates:
+          type: string
+        primary_source_push_type_available:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        attestation_who_id:
+          type: string
+        attestation_on_behalf_of_id:
+          type: string
+        attestation_communication_method:
+          type: string
+        attestation_date:
+          type: string
+          format: date
+        attestation_source_identity_certificate:
+          type: string
+        attestation_proxy_identity_certificate:
+          type: string
+        attestation_proxy_signature:
+          type: string
+        attestation_source_signature:
+          type: string
+        validator_organization_id:
+          type: string
+        validator_identity_certificate:
+          type: string
+        validator_attestation_signature:
+          type: string
+    CustomSubstance:
+      type: object
+      properties:
+        substance_id:
+          type: string
+        identifier:
+          type: string
+        instance:
+          oneOf:
+            - type: boolean
+            - type: string
+            - type: number
+        status:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        code:
+          type: object
+          properties:
+            code:
+              type: string
+            code_system:
+              type: string
+            display:
+              type: string
+        description:
+          type: string
+        expiry:
+          type: string
+          format: date-time
+        quantity_value:
+          type: number
+        quantity_unit:
+          type: string
+        ingredient_substance:
+          type: string
+        ingredient_substance_system:
+          type: string
+        ingredient_substance_display:
+          type: string
+        ingredient_quantity_numerator_value:
+          type: number
+        ingredient_quantity_numerator_unit:
+          type: string
+        ingredient_quantity_denominator_value:
+          type: number
+        ingredient_quantity_denominator_unit:
+          type: string
+    CustomSpecimen:
+      type: object
+      properties:
+        specimen_id:
+          type: string
+        accession_identifier:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        subject_id:
+          type: string
+        received_time:
+          type: string
+          format: date-time
+        parent_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        request_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        combined:
+          type: string
+        role:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        feature_type:
+          type: string
+        feature_description:
+          type: string
+        collection_collector_id:
+          type: string
+        collection_collected_date:
+          type: string
+          format: date-time
+        collection_collected_start:
+          type: string
+          format: date-time
+        collection_collected_end:
+          type: string
+          format: date-time
+        collection_duration_value:
+          type: number
+        collection_duration_unit:
+          type: string
+        collection_quantity_value:
+          type: number
+        collection_quantity_unit:
+          type: string
+        collection_method:
+          type: string
+        collection_device_id:
+          type: string
+        collection_procedure_id:
+          type: string
+        collection_body_site:
+          type: string
+        collection_fasting_status:
+          type: string
+        collection_fasting_duration_value:
+          type: number
+        collection_fasting_duration_unit:
+          type: string
+        processing_description:
+          type: string
+        processing_method:
+          type: string
+        processing_additive_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        processing_time_date:
+          type: string
+          format: date-time
+        processing_time_start:
+          type: string
+          format: date-time
+        processing_time_end:
+          type: string
+          format: date-time
+        container_device_id:
+          type: string
+        container_location_id:
+          type: string
+        container_quantity_value:
+          type: number
+        container_quantity_unit:
+          type: string
+        condition:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomImagingStudy:
+      type: object
+      properties:
+        imaging_study_id:
+          type: string
+        imaging_study_identifier:
+          type: string
+        status:
+          type: string
+        modality:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        subject_id:
+          type: string
+        encounter_id:
+          type: string
+        started:
+          type: string
+          format: date-time
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        part_of_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        referrer_id:
+          type: string
+        endpoint_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        number_of_series:
+          type: number
+        number_of_instances:
+          type: number
+        procedure:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        location_id:
+          type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        description:
+          type: string
+        series_uid:
+          type: string
+        series_number:
+          type: number
+        series_modality:
+          type: string
+        series_description:
+          type: string
+        series_number_of_instances:
+          type: number
+        series_endpoint_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        series_body_site:
+          type: string
+        series_laterality:
+          type: string
+        series_specimen_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        series_started:
+          type: string
+          format: date-time
+        series_performer_id:
+          type: string
+        instance_uid:
+          type: string
+        instance_sop_class:
+          type: string
+        instance_number:
+          type: number
+        instance_title:
+          type: string
+    CustomAllergyIntolerance:
+      type: object
+      properties:
+        allergy_id:
+          type: string
+        clinical_status:
+          type: string
+        verification_status:
+          type: string
+        type:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        criticality:
+          type: string
+        code:
+          $ref: '#/components/schemas/CustomAllergyCode'
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        onset_date:
+          type: string
+          format: date-time
+        onset_start:
+          type: string
+          format: date-time
+        onset_end:
+          type: string
+          format: date-time
+        onset_text:
+          type: string
+        recorded_date:
+          type: string
+          format: date-time
+        participant_actor_id:
+          type: string
+        participant_function:
+          type: string
+        last_occurrence:
+          type: string
+          format: date-time
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reaction_substance:
+          type: string
+        reaction_manifestation:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reaction_description:
+          type: string
+        reaction_onset:
+          type: string
+          format: date-time
+        reaction_severity:
+          type: string
+        reaction_exposure_route:
+          type: string
+        reaction_note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+    CustomImmunization:
+      type: object
+      properties:
+        immunization_id:
+          type: string
+        status:
+          type: string
+        status_reason:
+          type: string
+        based_on_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        vaccine_code:
+          $ref: '#/components/schemas/CustomImmunizationCode'
+        administered_product_id:
+          type: string
+        manufacturer_id:
+          type: string
+        lot_number:
+          type: string
+        expiration_date:
+          type: string
+          format: date
+        patient_id:
+          type: string
+        encounter_id:
+          type: string
+        supporting_info_ids:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        occurrence_date:
+          type: string
+          format: date-time
+        occurrence_string:
+          type: string
+        primary_source:
+          type: boolean
+        information_source_id:
+          type: string
+        location_id:
+          type: string
+        site:
+          type: string
+        route:
+          type: string
+        dose_value:
+          type: number
+        dose_unit:
+          type: string
+        performer_actor_id:
+          type: string
+        performer_function:
+          type: string
+        note:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        is_subpotent:
+          type: boolean
+        subpotent_reason:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        program_eligibility_program:
+          type: string
+        program_eligibility_status:
+          type: string
+        funding_source:
+          type: string
+        reaction_date:
+          type: string
+          format: date-time
+        reaction_manifestation:
+          type: string
+        reaction_reported:
+          type: boolean
+        protocol_series:
+          type: string
+        protocol_authority_id:
+          type: string
+        protocol_target_disease:
+          type: string
+        protocol_dose_number:
+          type: string
+        protocol_series_doses:
+          type: string
+    CustomAllergyCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomImmunizationCode:
+      type: object
+      properties:
+        code:
+          type: string
+        code_system:
+          type: string
+        display:
+          type: string
+    CustomPractitioner:
+      type: object
+      properties:
+        practitioner_id:
+          type: string
+        name:
+          $ref: '#/components/schemas/CustomPractitionerName'
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+        contact_info:
+          $ref: '#/components/schemas/CustomPractitionerContactInfo'
+        license:
+          $ref: '#/components/schemas/CustomPractitionerLicense'
+        specialization:
+          type: string
+        years_of_experience:
+          type: number
+        languages_spoken:
+          type: array
+          items:
+            type: string
+        practice_location:
+          $ref: '#/components/schemas/CustomPractitionerPracticeLocation'
+        qualifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomPractitionerQualification'
+    CustomPractitionerName:
+      type: object
+      properties:
+        first_name:
+          type: string
+        middle_name:
+          type: string
+        last_name:
+          type: string
+    CustomPractitionerContactInfo:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          $ref: '#/components/schemas/CustomAddress'
+    CustomPractitionerLicense:
+      type: object
+      properties:
+        license_number:
+          type: string
+        state_issued:
+          type: string
+        issue_date:
+          type: string
+          format: date
+        expiry_date:
+          type: string
+          format: date
+    CustomPractitionerPracticeLocation:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/CustomAddress'
+        phone:
+          type: string
+    CustomPractitionerQualification:
+      type: object
+      properties:
+        degree:
+          type: string
+        institution:
+          type: string
+        year:
+          type: number
+    CustomPractitionerRole:
+      type: object
+      properties:
+        practitioner_role_id:
+          type: string
+        practitioner_id:
+          type: string
+        organization_id:
+          type: string
+        role:
+          type: string
+        specialty:
+          type: string
+        location:
+          $ref: '#/components/schemas/CustomPractitionerRoleLocation'
+        telecom:
+          $ref: '#/components/schemas/CustomPractitionerRoleTelecom'
+        available_hours:
+          $ref: '#/components/schemas/CustomPractitionerRoleAvailableHours'
+        service_period:
+          $ref: '#/components/schemas/CustomPractitionerRoleServicePeriod'
+    CustomPractitionerRoleLocation:
+      type: object
+      properties:
+        location_id:
+          type: string
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/CustomAddress'
+    CustomPractitionerRoleTelecom:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+    CustomPractitionerRoleAvailableHours:
+      type: object
+      properties:
+        weekdays:
+          type: string
+        weekends:
+          type: string
+    CustomPractitionerRoleServicePeriod:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          nullable: true
+    CustomOrganization:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        contact_info:
+          $ref: '#/components/schemas/CustomOrganizationContactInfo'
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomOrganizationDepartment'
+        affiliations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomOrganizationAffiliationDetail'
+        services_offered:
+          type: array
+          items:
+            type: string
+        operating_hours:
+          $ref: '#/components/schemas/CustomOrganizationOperatingHours'
+    CustomOrganizationContactInfo:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          $ref: '#/components/schemas/CustomAddress'
+        fax:
+          type: string
+        website:
+          type: string
+    CustomOrganizationDepartment:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_phone:
+          type: string
+    CustomOrganizationAffiliationDetail:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+    CustomOrganizationOperatingHours:
+      type: object
+      properties:
+        weekdays:
+          type: string
+        weekends:
+          type: string
+    FhirBundle:
+      type: object
+      description: FHIR R5 Bundle (simplified)
+      properties:
+        resourceType:
+          type: string
+          example: Bundle
+        type:
+          type: string
+        entry:
+          type: array
+          items:
+            type: object
+    CustomJsonPatientOnly:
+      title: Patient
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [patient]
+    CustomJsonEncounterOnly:
+      title: Encounter
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [encounter]
+    CustomJsonMedicationOnly:
+      title: Medication
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [medication]
+    CustomJsonMedicationRequestOnly:
+      title: MedicationRequest
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [medication_request]
+    CustomJsonMedicationStatementOnly:
+      title: MedicationStatement
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [medication_statement]
+    CustomJsonMedicationAdministrationOnly:
+      title: MedicationAdministration
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [medication_administration]
+    CustomJsonMedicationDispenseOnly:
+      title: MedicationDispense
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [medication_dispense]
+    CustomJsonOrganizationAffiliationOnly:
+      title: OrganizationAffiliation
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [organization_affiliation]
+    CustomJsonDeviceDispenseOnly:
+      title: DeviceDispense
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_dispense]
+    CustomJsonDeviceRequestOnly:
+      title: DeviceRequest
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_request]
+    CustomJsonDeviceUsageOnly:
+      title: DeviceUsage
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_usage]
+    CustomJsonEncounterHistoryOnly:
+      title: EncounterHistory
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [encounter_history]
+    CustomJsonFlagOnly:
+      title: Flag
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [flag]
+    CustomJsonListOnly:
+      title: List
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [list]
+    CustomJsonNutritionIntakeOnly:
+      title: NutritionIntake
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [nutrition_intake]
+    CustomJsonNutritionOrderOnly:
+      title: NutritionOrder
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [nutrition_order]
+    CustomJsonRiskAssessmentOnly:
+      title: RiskAssessment
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [risk_assessment]
+    CustomJsonCapabilityStatementOnly:
+      title: CapabilityStatement
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [capability_statement]
+    CustomJsonOperationOutcomeOnly:
+      title: OperationOutcome
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [operation_outcome]
+    CustomJsonParametersOnly:
+      title: Parameters
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [parameters]
+    CustomJsonCarePlanOnly:
+      title: CarePlan
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [care_plan]
+    CustomJsonCareTeamOnly:
+      title: CareTeam
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [care_team]
+    CustomJsonGoalOnly:
+      title: Goal
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [goal]
+    CustomJsonServiceRequestOnly:
+      title: ServiceRequest
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [service_request]
+    CustomJsonTaskOnly:
+      title: Task
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [task]
+    CustomJsonCommunicationOnly:
+      title: Communication
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [communication]
+    CustomJsonCommunicationRequestOnly:
+      title: CommunicationRequest
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [communication_request]
+    CustomJsonQuestionnaireOnly:
+      title: Questionnaire
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [questionnaire]
+    CustomJsonQuestionnaireResponseOnly:
+      title: QuestionnaireResponse
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [questionnaire_response]
+    CustomJsonCodeSystemOnly:
+      title: CodeSystem
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [code_system]
+    CustomJsonValueSetOnly:
+      title: ValueSet
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [value_set]
+    CustomJsonConceptMapOnly:
+      title: ConceptMap
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [concept_map]
+    CustomJsonNamingSystemOnly:
+      title: NamingSystem
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [naming_system]
+    CustomJsonTerminologyCapabilitiesOnly:
+      title: TerminologyCapabilities
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [terminology_capabilities]
+    CustomJsonProvenanceOnly:
+      title: Provenance
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [provenance]
+    CustomJsonAuditEventOnly:
+      title: AuditEvent
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [audit_event]
+    CustomJsonConsentOnly:
+      title: Consent
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [consent]
+    CustomJsonProcedureOnly:
+      title: Procedure
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [procedure]
+    CustomJsonConditionOnly:
+      title: Condition
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [condition]
+    CustomJsonAppointmentOnly:
+      title: Appointment
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [appointment]
+    CustomJsonAppointmentResponseOnly:
+      title: AppointmentResponse
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [appointment_response]
+    CustomJsonClaimOnly:
+      title: Claim
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [claim]
+    CustomJsonClaimResponseOnly:
+      title: ClaimResponse
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [claim_response]
+    CustomJsonCompositionOnly:
+      title: Composition
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [composition]
+    CustomJsonExplanationOfBenefitOnly:
+      title: ExplanationOfBenefit
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [explanation_of_benefit]
+    CustomJsonCoverageOnly:
+      title: Coverage
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [coverage]
+    CustomJsonAccountOnly:
+      title: Account
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [account]
+    CustomJsonChargeItemOnly:
+      title: ChargeItem
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [charge_item]
+    CustomJsonChargeItemDefinitionOnly:
+      title: ChargeItemDefinition
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [charge_item_definition]
+    CustomJsonDeviceOnly:
+      title: Device
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device]
+    CustomJsonDeviceMetricOnly:
+      title: DeviceMetric
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [device_metric]
+    CustomJsonEndpointOnly:
+      title: Endpoint
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [endpoint]
+    CustomJsonBinaryOnly:
+      title: Binary
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [binary]
+    CustomJsonScheduleOnly:
+      title: Schedule
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [schedule]
+    CustomJsonSlotOnly:
+      title: Slot
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [slot]
+    CustomJsonDiagnosticReportOnly:
+      title: DiagnosticReport
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [diagnostic_report]
+    CustomJsonRelatedPersonOnly:
+      title: RelatedPerson
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [related_person]
+    CustomJsonPersonOnly:
+      title: Person
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [person]
+    CustomJsonLocationOnly:
+      title: Location
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [location]
+    CustomJsonEpisodeOfCareOnly:
+      title: EpisodeOfCare
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [episode_of_care]
+    CustomJsonVerificationResultOnly:
+      title: VerificationResult
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [verification_result]
+    CustomJsonSubstanceOnly:
+      title: Substance
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [substance]
+    CustomJsonSpecimenOnly:
+      title: Specimen
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [specimen]
+    CustomJsonImagingStudyOnly:
+      title: ImagingStudy
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [imaging_study]
+    CustomJsonAllergyIntoleranceOnly:
+      title: AllergyIntolerance
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [allergy_intolerance]
+    CustomJsonImmunizationOnly:
+      title: Immunization
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [immunization]
+    CustomJsonPractitionerOnly:
+      title: Practitioner
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [practitioner]
+    CustomJsonPractitionerRoleOnly:
+      title: PractitionerRole
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [practitioner_role]
+    CustomJsonOrganizationOnly:
+      title: Organization
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required: [organization]
+    CustomJsonFull:
+      title: Full Bundle
+      allOf:
+        - $ref: '#/components/schemas/CustomJsonInput'
+        - type: object
+          required:
+            - patient
+            - encounter
+            - medication
+            - medication_request
+            - practitioner
+            - practitioner_role
+            - organization

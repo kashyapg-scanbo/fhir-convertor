@@ -1,0 +1,31 @@
+{
+  "patient": {
+    "patient_id": "PAT-2",
+    "name": {
+      "first_name": "Alice",
+      "last_name": "Smith"
+    }
+  },
+  "task": {
+    "task_id": "TASK-2",
+    "status": "in-progress",
+    "status_reason": "Awaiting lab",
+    "business_status": "Specimen collected",
+    "intent": "order",
+    "priority": "urgent",
+    "code": {
+      "code": "PROC",
+      "display": "Prepare IV"
+    },
+    "for_id": "PAT-2",
+    "requested_start": "2024-03-02T09:00:00Z",
+    "requested_end": "2024-03-02T10:00:00Z",
+    "execution_start": "2024-03-02T09:15:00Z",
+    "requester_id": "ORG-1",
+    "owner_id": "PRAC-3",
+    "location": "LOC-1",
+    "reason": ["Pre-op prep"],
+    "insurance_ids": ["COV-1"],
+    "relevant_history_ids": ["PROV-1"]
+  }
+}

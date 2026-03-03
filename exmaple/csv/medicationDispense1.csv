@@ -1,0 +1,2 @@
+medication_dispense_id,medication_dispense_status,medication_dispense_medication_code,medication_dispense_medication_display,medication_dispense_subject_id,medication_dispense_quantity_value,medication_dispense_quantity_unit,medication_dispense_when_handed_over
+MEDDISP-1,completed,MED-1,Amoxicillin,PAT-1,30,tablet,2024-03-01T10:00:00Z

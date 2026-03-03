@@ -1,0 +1,3 @@
+MSH|^~\&|EHR|HOSP|EHR|HOSP|202502151400||ORU^R01|LISTMSG2|P|2.5
+PID|1||PAT-20^^^HOSP^MR||Nguyen^Arlen||19881214|M
+OBX|1|TX|LIST^Completed tasks^L||Completed discharge tasks for patient|F

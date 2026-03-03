@@ -1,0 +1,5 @@
+MSH|^~\&|APP|SENDFAC|RECVAPP|RECVFAC|202405131200||Z99^APPOINTMENT|MSG-Appointment-3|P|2.5
+PID|1||PAT3||LAST3^FIRST3||19800103|M|||3 Main St^^City^ST^12343||555-1003
+PV1|1|O|ER^3^1^HOSP||||PRAC3
+OBX|1|TX|APPOINTMENT^Appointment^L||Example Appointment data 3| | | | |F
+NTE|1|L|Note for Appointment example 3

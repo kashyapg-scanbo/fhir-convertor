@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id extension="PAT-4"/>
+      <patient>
+        <name>
+          <family>Doe4</family>
+          <given>John4</given>
+        </name>
+        <administrativeGenderCode code="F"/>
+        <birthTime value="19800104"/>
+      </patient>
+      
+    </patientRole>
+  </recordTarget>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="11502-2" codeSystem="2.16.840.1.113883.6.1"/>
+          <entry>
+            <diagnosticReport><id extension="DIA4"/><code code="DIAG4" displayName="DiagnosticReport Example 4" codeSystem="2.16.840.1.113883.6.96"/><effectiveTime value="20240514090000"/></diagnosticReport>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

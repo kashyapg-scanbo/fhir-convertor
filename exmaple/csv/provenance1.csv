@@ -1,0 +1,2 @@
+provenance_id,provenance_target_ids,provenance_recorded,provenance_activity,provenance_agent_who,provenance_agent_role
+PROV-1,Observation/OBS-1,2024-03-12T10:00:00Z,Observation recorded,Practitioner/PRAC-1,author

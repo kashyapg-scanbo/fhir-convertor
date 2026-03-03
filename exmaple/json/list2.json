@@ -1,0 +1,29 @@
+{
+  "list": {
+    "list_id": "LIST-2",
+    "status": "retired",
+    "mode": "snapshot",
+    "title": "Completed care team tasks",
+    "code": "clinical-list",
+    "subject_ids": ["PAT-6"],
+    "date": "2025-01-30T11:45:00Z",
+    "source_id": "PRAC-5",
+    "ordered_by": "clinical",
+    "note": "Daily care tasks completed for discharge",
+    "entry": [
+      {
+        "flag": { "code": "completed", "display": "completed" },
+        "deleted": false,
+        "date": "2025-01-30T10:00:00Z",
+        "item_id": "Task/TASK-21"
+      },
+      {
+        "flag": { "code": "completed", "display": "completed" },
+        "deleted": false,
+        "date": "2025-01-30T11:00:00Z",
+        "item_id": "Task/TASK-22"
+      }
+    ],
+    "empty_reason": { "code": "not-empty", "display": "not empty" }
+  }
+}

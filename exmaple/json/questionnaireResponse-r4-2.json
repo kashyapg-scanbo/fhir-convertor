@@ -1,0 +1,39 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "id": "QNRRESP-R4-2",
+  "questionnaire": "https://example.org/qnr/intake",
+  "status": "in-progress",
+  "subject": {
+    "reference": "Patient/PAT-2"
+  },
+  "encounter": {
+    "reference": "Encounter/ENC-2"
+  },
+  "authored": "2024-03-05T10:15:00Z",
+  "author": {
+    "reference": "Practitioner/PRAC-2"
+  },
+  "source": {
+    "reference": "Patient/PAT-2"
+  },
+  "item": [
+    {
+      "linkId": "q1",
+      "text": "Date of birth",
+      "answer": [
+        {
+          "valueDate": "1990-02-14"
+        }
+      ]
+    },
+    {
+      "linkId": "q2",
+      "text": "Primary complaint",
+      "answer": [
+        {
+          "valueString": "Headache"
+        }
+      ]
+    }
+  ]
+}

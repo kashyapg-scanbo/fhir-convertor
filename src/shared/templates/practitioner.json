@@ -1,0 +1,27 @@
+{
+  "resourceType": "Practitioner",
+  "identifier": [],
+  "active": false,
+  "name": [],
+  "telecom": [],
+  "gender": "",
+  "birthDate": "",
+  "deceasedBoolean": false,
+  "deceasedDateTime": "",
+  "address": [],
+  "photo": [],
+  "qualification": [
+    {
+      "identifier": [],
+      "code": {},
+      "period": {},
+      "issuer": {}
+    }
+  ],
+  "communication": [
+    {
+      "language": {},
+      "preferred": false
+    }
+  ]
+}

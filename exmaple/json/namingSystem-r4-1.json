@@ -1,0 +1,15 @@
+{
+  "resourceType": "NamingSystem",
+  "id": "NS-R4-1",
+  "url": "https://example.org/namingsystems/example",
+  "name": "ExampleNamingSystem",
+  "status": "active",
+  "kind": "identifier",
+  "uniqueId": [
+    {
+      "type": "uri",
+      "value": "https://example.org/namingsystems/example",
+      "preferred": true
+    }
+  ]
+}

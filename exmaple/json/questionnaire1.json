@@ -1,0 +1,18 @@
+{
+  "questionnaire": {
+    "questionnaire_id": "QNR-1",
+    "url": "https://example.org/qnr/health-check",
+    "title": "Health Check",
+    "status": "active",
+    "date": "2024-03-01T00:00:00Z",
+    "publisher": "Example Health",
+    "subject_type": ["Patient"],
+    "item": [
+      {
+        "link_id": "q1",
+        "text": "Do you smoke?",
+        "type": "boolean"
+      }
+    ]
+  }
+}

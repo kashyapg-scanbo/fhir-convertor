@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="PROVENANCE"/>
+          <entry>
+            <act>
+              <id extension="PROV-CDA-1"/>
+              <effectiveTime value="20240312"/>
+              <code code="PROVOBS" displayName="Observation recorded"/>
+              <text>Observation recorded</text>
+            </act>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

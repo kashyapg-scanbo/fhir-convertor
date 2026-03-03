@@ -1,0 +1,14 @@
+{
+  "value_set": {
+    "value_set_id": "VS-2",
+    "url": "https://example.org/valuesets/labs",
+    "title": "Lab Value Set",
+    "status": "active",
+    "include_system": "https://example.org/codesystems/labs",
+    "include_code": "LAB001",
+    "include_display": "Complete blood count",
+    "expansion_system": "https://example.org/codesystems/labs",
+    "expansion_code": "LAB001",
+    "expansion_display": "Complete blood count"
+  }
+}

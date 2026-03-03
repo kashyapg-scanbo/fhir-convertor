@@ -1,0 +1,14 @@
+{
+  "resourceType": "CareTeam",
+  "identifier": [],
+  "status": "",
+  "category": [],
+  "name": "",
+  "subject": {},
+  "period": {},
+  "participant": [],
+  "reason": [],
+  "managingOrganization": [],
+  "telecom": [],
+  "note": []
+}
