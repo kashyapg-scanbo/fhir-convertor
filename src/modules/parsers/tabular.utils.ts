@@ -73,51 +73,97 @@ function splitFullName(fullName?: string): { given?: string[]; family?: string }
   };
 }
 
-export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
-  const firstRow = rows[0] || {};
-
-  const patientId = readValue(firstRow, 'patient_id');
-  const patientFirst = readValue(firstRow, 'patient_first_name');
-  const patientMiddle = readValue(firstRow, 'patient_middle_name');
-  let patientLast = readValue(firstRow, 'patient_last_name');
+function buildCanonicalPatientFromRow(row: TabularRow) {
+  const patientId = readValue(row, 'patient_id');
+  const patientFirst = readValue(row, 'patient_first_name');
+  const patientMiddle = readValue(row, 'patient_middle_name');
+  let patientLast = readValue(row, 'patient_last_name');
   let fullNameGiven: string[] | undefined;
+
+  const fullName = readValue(row, 'patient_name');
   if (!patientFirst && !patientLast) {
-    const nameFromFull = splitFullName(readValue(firstRow, 'patient_name'));
+    const nameFromFull = splitFullName(fullName);
     if (nameFromFull?.family) patientLast = nameFromFull.family;
     if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
   }
 
-  const addressLine1 = readValue(firstRow, 'patient_address_line1');
-  const addressLine2 = readValue(firstRow, 'patient_address_line2');
-  const address = (addressLine1 || addressLine2 || readValue(firstRow, 'patient_city')) ? [{
+  const addressLine1 = readValue(row, 'patient_address_line1');
+  const addressLine2 = readValue(row, 'patient_address_line2');
+  const city = readValue(row, 'patient_city');
+  const state = readValue(row, 'patient_state');
+  const postalCode = readValue(row, 'patient_postal_code');
+  const country = readValue(row, 'patient_country');
+
+  const address = (addressLine1 || addressLine2 || city || state || postalCode || country) ? [{
     line: [addressLine1, addressLine2].filter(Boolean) as string[],
-    city: readValue(firstRow, 'patient_city'),
-    state: readValue(firstRow, 'patient_state'),
-    postalCode: readValue(firstRow, 'patient_postal_code'),
-    country: readValue(firstRow, 'patient_country')
+    city,
+    state,
+    postalCode,
+    country
   }] : undefined;
 
   const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
-  const phone = readValue(firstRow, 'patient_phone');
-  const email = readValue(firstRow, 'patient_email');
+  const phone = readValue(row, 'patient_phone');
+  const email = readValue(row, 'patient_email');
   if (phone) telecom.push({ system: 'phone', value: phone });
   if (email) telecom.push({ system: 'email', value: email });
 
   const givenValues = (fullNameGiven ?? [patientFirst, patientMiddle].filter(Boolean)) as string[];
+  const gender = readValue(row, 'patient_gender');
+  const birthDate = readValue(row, 'patient_birth_date');
+
+  const hasAnyPatientField = Boolean(
+    patientId ||
+    patientFirst ||
+    patientMiddle ||
+    patientLast ||
+    fullName ||
+    gender ||
+    birthDate ||
+    phone ||
+    email ||
+    addressLine1 ||
+    addressLine2 ||
+    city ||
+    state ||
+    postalCode ||
+    country
+  );
+
+  if (!hasAnyPatientField) return undefined;
+
+  return {
+    id: patientId,
+    identifier: patientId,
+    name: {
+      family: patientLast,
+      given: givenValues.length > 0 ? givenValues : undefined
+    },
+    gender,
+    birthDate,
+    address,
+    telecom: telecom.length > 0 ? telecom : undefined
+  };
+}
+
+export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
+  const firstRow = rows[0] || {};
+
+  const rawPatients = rows.map(buildCanonicalPatientFromRow).filter(Boolean) as any[];
+  const dedupedPatients: any[] = [];
+  const seen = new Set<string>();
+  for (const p of rawPatients) {
+    const key = String(p?.identifier || p?.id || JSON.stringify(p));
+    if (seen.has(key)) continue;
+    seen.add(key);
+    dedupedPatients.push(p);
+  }
+  const firstPatient = dedupedPatients[0] || buildCanonicalPatientFromRow(firstRow);
+
   const canonical: CanonicalModel = {
     messageType,
-    patient: {
-      id: patientId,
-      identifier: patientId,
-      name: {
-        family: patientLast,
-        given: givenValues.length > 0 ? givenValues : undefined
-      },
-      gender: readValue(firstRow, 'patient_gender'),
-      birthDate: readValue(firstRow, 'patient_birth_date'),
-      address,
-      telecom: telecom.length > 0 ? telecom : undefined
-    }
+    patient: firstPatient,
+    patients: dedupedPatients.length > 0 ? dedupedPatients : undefined
   };
 
   const encounterId = readValue(firstRow, 'encounter_id');

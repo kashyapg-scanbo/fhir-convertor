@@ -8586,6 +8586,30 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     }
   }
 
+  // Allow multiple "documents" in one request.
+  // NOTE: We intentionally check for tabular JSON first so that an array-of-rows
+  // stays mapped via the tabular pathway.
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      throw new Error('JSON validation failed: payload array must not be empty.');
+    }
+
+    const canonicals: CanonicalModel[] = parsed.map((item, index) => {
+      try {
+        // Each item may be an object or a JSON string; parseCustomJSON supports both.
+        if (item === null || item === undefined) {
+          throw new Error('Item is null or undefined');
+        }
+        return parseCustomJSON(item as any);
+      } catch (e: any) {
+        const msg = e?.message ? String(e.message) : String(e);
+        throw new Error(`Invalid JSON item at index ${index}: ${msg}`);
+      }
+    });
+
+    return mergeCanonicalModels(canonicals);
+  }
+
   const normalizedGlobalCandidate = isPlainRecord(parsed) ? normalizeGlobalPayload(parsed) : parsed;
   const wrappedGlobal = wrapGlobalPayload(normalizedGlobalCandidate);
   if (wrappedGlobal) {
@@ -8619,6 +8643,41 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
   }
 
   throw new Error('JSON validation failed: payload must match the global custom JSON schema.');
+}
+
+function mergeCanonicalModels(models: CanonicalModel[]): CanonicalModel {
+  const out: CanonicalModel = {};
+
+  for (const model of models) {
+    if (!model || typeof model !== 'object') continue;
+
+    for (const [key, value] of Object.entries(model)) {
+      if (value === undefined) continue;
+
+      // Arrays: concatenate
+      if (Array.isArray(value)) {
+        const existing = (out as any)[key];
+        (out as any)[key] = Array.isArray(existing) ? existing.concat(value) : value.slice();
+        continue;
+      }
+
+      // Plain objects: merge only for sourcePayloads, otherwise keep first value
+      if (isPlainRecord(value)) {
+        if (key === 'sourcePayloads') {
+          const existing = (out as any)[key];
+          (out as any)[key] = isPlainRecord(existing) ? { ...existing, ...value } : { ...value };
+        } else {
+          if ((out as any)[key] === undefined) (out as any)[key] = value;
+        }
+        continue;
+      }
+
+      // Scalars: keep first value
+      if ((out as any)[key] === undefined) (out as any)[key] = value;
+    }
+  }
+
+  return out;
 }
 
 function mapGender(gender?: string) {

@@ -1547,22 +1547,106 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     practitioner_role_active: ['role_active']
   },
   organization: {
-    organization_id: ['org_id', 'organization_identifier', 'organizationid'],
-    organization_name: ['org_name', 'facility_name'],
-    organization_alias: ['org_alias', 'organization_aliases'],
-    organization_type_code: ['org_type_code', 'organization_type'],
+    organization_id: [
+      'org_id',
+      'organization_identifier',
+      'organizationid',
+      'hospital_code',
+      'hospitalCode',
+      'hospital_reg_no',
+      'registration_number',
+      'registrationNumber',
+      'hospital_gst_number',
+      'hospitalid',
+      'hospital_id'
+    ],
+    organization_name: [
+      'org_name',
+      'facility_name',
+      'hospital_name',
+      'hospitalName'
+    ],
+    organization_alias: [
+      'org_alias',
+      'organization_aliases',
+      'hospital_alias'
+    ],
+    organization_type_code: [
+      'org_type_code',
+      'organization_type',
+      'hospital_type',
+      'hospital_category',
+      'category',
+      'type'
+    ],
     organization_type_system: ['org_type_system'],
     organization_type_display: ['org_type_display'],
-    organization_phone: ['org_phone', 'organization_phone_number'],
-    organization_email: ['org_email', 'organization_email_address'],
-    organization_address_line1: ['org_address', 'org_address1', 'organization_address1', 'organization_address_1'],
-    organization_address_line2: ['org_address2', 'organization_address2', 'organization_address_2'],
-    organization_city: ['org_city', 'organization_city'],
-    organization_state: ['org_state', 'organization_state', 'organization_province'],
-    organization_postal_code: ['org_zip', 'organization_zip', 'organization_postal'],
-    organization_country: ['org_country', 'organization_country'],
-    organization_part_of: ['org_parent_id', 'parent_organization_id', 'organization_parent_id'],
-    organization_active: ['org_active']
+    organization_phone: [
+      'org_phone',
+      'organization_phone_number',
+      'phone_number',
+      'phoneNumber',
+      'hospital_contact_number',
+      'hospital_phone'
+    ],
+    organization_email: [
+      'org_email',
+      'organization_email_address',
+      'hospital_email',
+      'email'
+    ],
+    organization_address_line1: [
+      'org_address',
+      'org_address1',
+      'organization_address1',
+      'organization_address_1',
+      'hospital_address',
+      'address'
+    ],
+    organization_address_line2: [
+      'org_address2',
+      'organization_address2',
+      'organization_address_2'
+    ],
+    organization_city: [
+      'org_city',
+      'organization_city',
+      'hospital_city',
+      'city'
+    ],
+    organization_state: [
+      'org_state',
+      'organization_state',
+      'organization_province',
+      'hospital_state',
+      'state'
+    ],
+    organization_postal_code: [
+      'org_zip',
+      'organization_zip',
+      'organization_postal',
+      'hospital_pincode',
+      'pincode',
+      'hospital_zip',
+      'zip',
+      'postal_code'
+    ],
+    organization_country: [
+      'org_country',
+      'organization_country',
+      'hospital_country',
+      'country'
+    ],
+    organization_part_of: [
+      'org_parent_id',
+      'parent_organization_id',
+      'organization_parent_id'
+    ],
+    organization_active: [
+      'org_active',
+      'is_active',
+      'isActive'
+    ]
   }
 };
 

@@ -6352,6 +6352,12 @@ export type CanonicalModel = {
   operation?: OperationType; // 'create' (ADT^A01), 'update' (ADT^A08), 'delete' (ADT^A08 with active: false)
   messageType?: string; // e.g., 'ADT^A01', 'ADT^A08'
   patient?: CanonicalPatient;
+  /**
+   * Optional multi-patient payload support.
+   * When set, converters/mappers should emit one Patient per entry.
+   * `patient` remains supported for backward compatibility (often the "primary" patient).
+   */
+  patients?: CanonicalPatient[];
   encounter?: CanonicalEncounter;
   observations?: CanonicalObservation[];
   allergies?: CanonicalAllergy[];
