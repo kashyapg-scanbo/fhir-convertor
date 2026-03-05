@@ -32,6 +32,7 @@ const PRACTITIONER_NAME_ALIASES = {
 
 function normalizeAliasKey(value: string): string {
   return value
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '_')
@@ -104,16 +105,43 @@ const GlobalPractitionerNameSchema = z.preprocess(
 
 const GlobalPatientSchema = z.object({
   patient_id: GlobalIdSchema.optional(),
+  resource_type: z.string().optional(),
   ihi: GlobalIdSchema.optional(),
   name: GlobalPatientNameSchema.optional(),
   date_of_birth: z.string().optional(),
   gender: z.string().optional(),
+  country_code: z.string().optional(),
+  patient_type: z.string().optional(),
+  photo: z.string().optional(),
+  age: z.preprocess((value) => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string' && value.trim() !== '') return Number(value);
+    return value;
+  }, z.number()).optional(),
+  weight: z.preprocess((value) => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string' && value.trim() !== '') return Number(value);
+    return value;
+  }, z.number()).optional(),
+  weight_unit: z.string().optional(),
+  height: z.preprocess((value) => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string' && value.trim() !== '') return Number(value);
+    return value;
+  }, z.number()).optional(),
+  height_taken: z.boolean().optional(),
+  height_unit: z.string().optional(),
+  blood_group: z.string().optional(),
   contact_info: z.object({
     phone: z.string().optional(),
     email: z.string().optional(),
     address: GlobalAddressSchema
   }).optional(),
   marital_status: z.string().optional(),
+  deceased_boolean: z.union([z.boolean(), z.string(), z.number()]).optional(),
+  is_pregnant: z.boolean().optional(),
+  is_diabetic: z.boolean().optional(),
+  is_hypertension: z.boolean().optional(),
   language: z.string().optional(),
   ethnicity: z.string().optional(),
   emergency_contact: z.object({
@@ -3600,6 +3628,51 @@ function normalizeGlobalPatientAliases(value: Record<string, unknown>) {
 
   const country = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_country'));
   if (country && address.country === undefined) address.country = country;
+
+  const countryCode = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_country'));
+  if (countryCode && normalized.country_code === undefined) normalized.country_code = countryCode;
+
+  const patientType = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_type'));
+  if (patientType && normalized.patient_type === undefined) normalized.patient_type = patientType;
+
+  const photo = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_photo'));
+  if (photo && normalized.photo === undefined) normalized.photo = photo;
+
+  const age = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_age'));
+  if (age && normalized.age === undefined) normalized.age = age;
+
+  const weight = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_weight'));
+  if (weight && normalized.weight === undefined) normalized.weight = weight;
+
+  const weightUnit = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_weight_unit'));
+  if (weightUnit && normalized.weight_unit === undefined) normalized.weight_unit = weightUnit;
+
+  const height = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_height'));
+  if (height && normalized.height === undefined) normalized.height = height;
+
+  const heightUnit = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_height_unit'));
+  if (heightUnit && normalized.height_unit === undefined) normalized.height_unit = heightUnit;
+
+  const heightTaken = readSectionAliasValue(value, 'patient', 'patient_height_taken');
+  if (heightTaken !== undefined && normalized.height_taken === undefined) normalized.height_taken = heightTaken;
+
+  const bloodGroup = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_blood_group'));
+  if (bloodGroup && normalized.blood_group === undefined) normalized.blood_group = bloodGroup;
+
+  const maritalStatus = normalizeAliasValue(readSectionAliasValue(value, 'patient', 'patient_marital_status'));
+  if (maritalStatus && normalized.marital_status === undefined) normalized.marital_status = maritalStatus;
+
+  const deceasedBoolean = readSectionAliasValue(value, 'patient', 'patient_deceased_boolean');
+  if (deceasedBoolean !== undefined && normalized.deceased_boolean === undefined) normalized.deceased_boolean = deceasedBoolean;
+
+  const isPregnant = readSectionAliasValue(value, 'patient', 'patient_is_pregnant');
+  if (isPregnant !== undefined && normalized.is_pregnant === undefined) normalized.is_pregnant = isPregnant;
+
+  const isDiabetic = readSectionAliasValue(value, 'patient', 'patient_is_diabetic');
+  if (isDiabetic !== undefined && normalized.is_diabetic === undefined) normalized.is_diabetic = isDiabetic;
+
+  const isHypertension = readSectionAliasValue(value, 'patient', 'patient_is_hypertension');
+  if (isHypertension !== undefined && normalized.is_hypertension === undefined) normalized.is_hypertension = isHypertension;
 
   if (Object.keys(name).length > 0) normalized.name = name;
   if (Object.keys(address).length > 0) {
@@ -8000,6 +8073,7 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
   const contactInfo = isPlainRecord(normalized.contact_info) ? { ...normalized.contact_info } : {};
   const address = isPlainRecord(contactInfo.address) ? { ...contactInfo.address } : {};
+  const license = isPlainRecord(normalized.license) ? { ...normalized.license } : {};
 
   const practitionerId = readSectionAliasValue(value, 'practitioner', 'practitioner_id');
   if (normalized.practitioner_id === undefined && practitionerId !== undefined) {
@@ -8036,6 +8110,8 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
 
   const street1 = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_address_line1'));
   if (street1 && address.street === undefined) address.street = street1;
+  const directAddress = normalizeAliasValue((value as Record<string, unknown>).address);
+  if (directAddress && address.street === undefined) address.street = directAddress;
 
   const street2 = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_address_line2'));
   if (street2) {
@@ -8048,21 +8124,49 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
 
   const city = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_city'));
   if (city && address.city === undefined) address.city = city;
+  const directCity = normalizeAliasValue((value as Record<string, unknown>).city);
+  if (directCity && address.city === undefined) address.city = directCity;
 
   const state = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_state'));
   if (state && address.state === undefined) address.state = state;
+  const directState = normalizeAliasValue((value as Record<string, unknown>).state);
+  if (directState && address.state === undefined) address.state = directState;
 
   const postal = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_postal_code'));
   if (postal && address.postal_code === undefined) address.postal_code = postal;
+  const directPostal = normalizeAliasValue((value as Record<string, unknown>).zipCode ?? (value as Record<string, unknown>).zip_code ?? (value as Record<string, unknown>).zipcode);
+  if (directPostal && address.postal_code === undefined) address.postal_code = directPostal;
 
   const country = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_country'));
   if (country && address.country === undefined) address.country = country;
+  const directCountry = normalizeAliasValue((value as Record<string, unknown>).country);
+  if (directCountry && address.country === undefined) address.country = directCountry;
+
+  const licenseNumber = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_license_number'));
+  if (licenseNumber && license.license_number === undefined) license.license_number = licenseNumber;
+  const directMedicalRegNo = normalizeAliasValue((value as Record<string, unknown>).medicalRegNo ?? (value as Record<string, unknown>).medical_reg_no);
+  if (directMedicalRegNo && license.license_number === undefined) license.license_number = directMedicalRegNo;
+
+  const experience = readSectionAliasValue(value, 'practitioner', 'practitioner_years_of_experience');
+  if (experience !== undefined && normalized.years_of_experience === undefined) {
+    normalized.years_of_experience = experience;
+  }
+  const directExperience = (value as Record<string, unknown>).noOfExperience ?? (value as Record<string, unknown>).no_of_experience;
+  if (directExperience !== undefined && normalized.years_of_experience === undefined) {
+    normalized.years_of_experience = directExperience;
+  }
+  const qualification = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_qualification_code'));
+  const directQualification = normalizeAliasValue((value as Record<string, unknown>).qualification);
+  if ((qualification || directQualification) && normalized.specialization === undefined) {
+    normalized.specialization = qualification || directQualification;
+  }
 
   if (Object.keys(name).length > 0) normalized.name = name;
   if (Object.keys(address).length > 0) {
     contactInfo.address = address;
   }
   if (Object.keys(contactInfo).length > 0) normalized.contact_info = contactInfo;
+  if (Object.keys(license).length > 0) normalized.license = license;
 
   return normalized;
 }
@@ -9134,6 +9238,15 @@ function normalizeStringArray(value?: string | string[]): string[] {
 function wrapGlobalPayload(value: any) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
+  const normalizedResourceType = typeof value.resourceType === 'string'
+    ? value.resourceType.trim().toLowerCase()
+    : typeof value.resource_type === 'string'
+      ? value.resource_type.trim().toLowerCase()
+      : undefined;
+  if (normalizedResourceType === 'patient') {
+    return { patient: value };
+  }
+
   const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'observation', 'observations', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'verification_result', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
@@ -9421,7 +9534,7 @@ function wrapGlobalPayload(value: any) {
     if ('practitioner_role_id' in value || 'role' in value || 'specialty' in value) {
       return { practitioner_role: value };
     }
-    if ('practitioner_id' in value || 'license' in value || value.name?.first_name) {
+    if ('practitioner_id' in value || '_id' in value || 'medicalRegNo' in value || 'doctorFirstName' in value || 'doctorLastName' in value || 'license' in value || value.name?.first_name) {
       return { practitioner: value };
     }
     if ('organization_id' in value || 'services_offered' in value || 'departments' in value) {
@@ -9631,6 +9744,10 @@ function looksLikeGlobalResource(value: any) {
     'vaccine_code' in value ||
     'lot_number' in value ||
     'practitioner_id' in value ||
+    '_id' in value ||
+    'medicalRegNo' in value ||
+    'doctorFirstName' in value ||
+    'doctorLastName' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
     'organization_id' in value ||
@@ -9660,12 +9777,30 @@ function buildCanonicalPatientGlobal(patient: z.infer<typeof GlobalPatientSchema
   return {
     id: patient.patient_id,
     identifier: patient.ihi || patient.patient_id,
+    resourceType: patient.resource_type,
     name: {
       family: patient.name?.last_name,
       given: given.length ? given : undefined
     },
     gender: mapGender(patient.gender),
     birthDate: patient.date_of_birth,
+    deceasedBoolean: patient.deceased_boolean !== undefined ? normalizeBoolean(patient.deceased_boolean) : undefined,
+    maritalStatus: patient.marital_status ? {
+      code: patient.marital_status,
+      display: patient.marital_status
+    } : undefined,
+    patientType: patient.patient_type,
+    photo: patient.photo,
+    age: patient.age,
+    weight: patient.weight,
+    weightUnit: patient.weight_unit,
+    height: patient.height,
+    heightTaken: patient.height_taken,
+    heightUnit: patient.height_unit,
+    bloodGroup: patient.blood_group,
+    isPregnant: patient.is_pregnant,
+    isDiabetic: patient.is_diabetic,
+    isHypertension: patient.is_hypertension,
     address,
     telecom
   };

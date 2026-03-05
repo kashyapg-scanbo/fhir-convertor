@@ -9,7 +9,11 @@ export function toFhirDate(value?: string): string | undefined {
   if (dateOnly.test(s)) return s;
   const dateTimeMatch = /^(\d{4}-\d{2}-\d{2})T/.exec(s);
   if (dateTimeMatch) return dateTimeMatch[1];
+<<<<<<< HEAD
   return s;
+=======
+  return undefined;
+>>>>>>> main
 }
 
 export function cleanResource<T>(obj: T): T | undefined {

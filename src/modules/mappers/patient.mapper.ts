@@ -38,7 +38,11 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
     given: canonicalPatient?.name?.given
   }] : undefined;
 
+<<<<<<< HEAD
   patient.gender = canonicalPatient?.gender || undefined;
+=======
+  patient.gender = normalizeAdministrativeGender(canonicalPatient?.gender);
+>>>>>>> main
   patient.birthDate = toFhirDate(canonicalPatient?.birthDate) || undefined;
   patient.address = canonicalPatient?.address?.length
     ? canonicalPatient.address.map(address => ({
@@ -52,9 +56,26 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
         use: mapTelecomUse(telecom.use)
       }))
     : undefined;
+<<<<<<< HEAD
   patient.deceasedBoolean = undefined;
   patient.deceasedDateTime = undefined;
   patient.maritalStatus = undefined;
+=======
+  patient.deceasedBoolean = canonicalPatient?.deceasedBoolean ?? undefined;
+  patient.deceasedDateTime = undefined;
+  patient.maritalStatus = canonicalPatient?.maritalStatus && !isBooleanLike(canonicalPatient.maritalStatus.code) && !isBooleanLike(canonicalPatient.maritalStatus.display)
+    ? {
+        coding: canonicalPatient.maritalStatus.code
+          ? [{
+              system: 'urn:scanbo:patient:marital-status',
+              code: canonicalPatient.maritalStatus.code,
+              display: canonicalPatient.maritalStatus.display
+            }]
+          : undefined,
+        text: canonicalPatient.maritalStatus.display || canonicalPatient.maritalStatus.code
+      }
+    : undefined;
+>>>>>>> main
   patient.multipleBirthBoolean = undefined;
   patient.multipleBirthInteger = undefined;
   patient.photo = undefined;
@@ -64,6 +85,11 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   patient.managingOrganization = undefined;
   patient.link = undefined;
 
+<<<<<<< HEAD
+=======
+  patient.extension = undefined;
+
+>>>>>>> main
   const primaryName = Array.isArray(patient.name) ? patient.name[0] : undefined;
   const patientSummary = `${primaryName?.family ?? ''} ${primaryName?.given?.join(' ') ?? ''}`.trim();
   if (patientSummary) patient.text = makeNarrative('Patient', patientSummary);
@@ -127,4 +153,24 @@ function mapAddressUse(use?: string): CanonicalAddressUse | undefined {
   if (normalized === 'BILL' || normalized === 'B') return 'billing';
   return use;
 }
+<<<<<<< HEAD
   
+=======
+
+function normalizeAdministrativeGender(gender?: string): string | undefined {
+  if (!gender) return undefined;
+  const normalized = gender.trim().toLowerCase();
+  if (normalized === 'm' || normalized === 'male') return 'male';
+  if (normalized === 'f' || normalized === 'female') return 'female';
+  if (normalized === 'o' || normalized === 'other') return 'other';
+  if (normalized === 'u' || normalized === 'unknown') return 'unknown';
+  return undefined;
+}
+
+function isBooleanLike(value?: string) {
+  if (!value) return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === 'true' || normalized === 'false';
+}
+  
+>>>>>>> main

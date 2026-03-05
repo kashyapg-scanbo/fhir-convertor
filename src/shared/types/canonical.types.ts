@@ -6,12 +6,36 @@
 export type CanonicalPatient = {
   id?: string;
   identifier?: string;
+<<<<<<< HEAD
+=======
+  resourceType?: string;
+>>>>>>> main
   name: {
     family?: string;
     given?: string[];
   };
   gender?: string;
   birthDate?: string;
+<<<<<<< HEAD
+=======
+  deceasedBoolean?: boolean;
+  maritalStatus?: {
+    code?: string;
+    display?: string;
+  };
+  patientType?: string;
+  photo?: string;
+  age?: number;
+  weight?: number;
+  weightUnit?: string;
+  height?: number;
+  heightTaken?: boolean;
+  heightUnit?: string;
+  bloodGroup?: string;
+  isPregnant?: boolean;
+  isDiabetic?: boolean;
+  isHypertension?: boolean;
+>>>>>>> main
   address?: Array<{
     line?: string[];
     city?: string;

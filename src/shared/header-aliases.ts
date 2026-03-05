@@ -4,6 +4,7 @@ export type HeaderAliasSections = Record<string, HeaderAliasMap>;
 export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
   patient: {
     patient_id: ['patient_identifier', 'patient_mrn', 'mrn', 'medical_record_number', 'medical_record_no', 'patientid', 'pat_id', 'person_id', 'pid'],
+<<<<<<< HEAD
     patient_first_name: ['first_name', 'fname', 'given_name', 'given', 'patient_given', 'patient_given_name', 'patient_first'],
     patient_middle_name: ['middle_name', 'middlename'],
     patient_last_name: ['last_name', 'lname', 'family_name', 'surname', 'patient_family', 'patient_family_name', 'patient_last'],
@@ -11,13 +12,41 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     patient_gender: ['gender', 'sex', 'gndr'],
     patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate', 'patient_dob'],
     patient_phone: ['phone', 'phone_number', 'mobile', 'cell', 'cell_phone', 'patient_phone_number', 'patient_mobile', 'patient_home_phone', 'patient_phone'],
+=======
+    patient_first_name: ['first_name', 'fname', 'given_name', 'given', 'patient_given', 'patient_given_name', 'patient_first', 'patientfirstname'],
+    patient_middle_name: ['middle_name', 'middlename', 'patientmiddlename'],
+    patient_last_name: ['last_name', 'lname', 'family_name', 'surname', 'patient_family', 'patient_family_name', 'patient_last', 'patientlastname'],
+    patient_name: ['name', 'patientname', 'full_name', 'patient_full_name', 'pt_name'],
+    patient_gender: ['gender', 'sex', 'gndr'],
+    patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate', 'patient_dob'],
+    patient_phone: ['phone', 'phone_number', 'mobile', 'mobile_number', 'mobilenumber', 'cell', 'cell_phone', 'patient_phone_number', 'patient_mobile', 'patient_home_phone', 'patient_phone'],
+>>>>>>> main
     patient_email: ['email', 'email_address'],
     patient_address_line1: ['address', 'address1', 'address_line1', 'street', 'street_address', 'patient_address1', 'patient_address_1', 'addr_line1'],
     patient_address_line2: ['address2', 'address_line2', 'street2', 'street_address_2', 'patient_address2', 'patient_address_2'],
     patient_city: ['city', 'town'],
     patient_state: ['state', 'province', 'region', 'patient_province'],
     patient_postal_code: ['zip', 'zipcode', 'postal', 'postal_code', 'patient_zip'],
+<<<<<<< HEAD
     patient_country: ['country']
+=======
+    patient_country: ['country', 'country_code', 'countrycode'],
+    patient_type: ['patient_type', 'patienttype'],
+    patient_photo: ['photo', 'patient_photo'],
+    patient_age: ['age', 'patient_age'],
+    patient_weight: ['weight', 'patient_weight'],
+    patient_weight_unit: ['weight_unit', 'patient_weight_unit'],
+    patient_height: ['height', 'patient_height'],
+    patient_height_unit: ['height_unit', 'patient_height_unit'],
+    patient_height_taken: ['height_taken', 'patient_height_taken'],
+    patient_blood_group: ['blood_group', 'bloodgroup', 'patient_blood_group'],
+    patient_marital_status: ['marital_status', 'maritalstatus', 'patient_marital_status'],
+    patient_is_pregnant: ['is_pregnant', 'ispregnant', 'patient_is_pregnant'],
+    patient_is_diabetic: ['is_diabetic', 'isdiabetic', 'patient_is_diabetic'],
+    patient_is_hypertension: ['is_hypertension', 'ishypertension', 'patient_is_hypertension'],
+    patient_deceased_boolean: ['deceased_boolean', 'deceasedboolean', 'patient_deceased_boolean'],
+    patient_resource_type: ['resource_type', 'resourcetype', 'patient_resource_type']
+>>>>>>> main
   },
   encounter: {
     encounter_id: ['visit_id', 'encounter_identifier', 'encounterid', 'visitid', 'csn', 'encntr_id'],
@@ -1512,24 +1541,26 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     binary_data: ['data', 'binary_data']
   },
   practitioner: {
-    practitioner_id: ['provider_id', 'providerid', 'clinician_id', 'practitioner_identifier', 'practitionerid'],
-    practitioner_first_name: ['practitioner_given', 'practitioner_given_name', 'provider_first_name', 'clinician_first_name'],
+    practitioner_id: ['provider_id', 'providerid', 'clinician_id', 'practitioner_identifier', 'practitionerid', '_id', 'doctor_id'],
+    practitioner_first_name: ['practitioner_given', 'practitioner_given_name', 'provider_first_name', 'clinician_first_name', 'doctor_first_name', 'doctorfirstname'],
     practitioner_middle_name: ['practitioner_middlename', 'provider_middle_name', 'clinician_middle_name'],
-    practitioner_last_name: ['practitioner_family', 'practitioner_family_name', 'provider_last_name', 'clinician_last_name'],
+    practitioner_last_name: ['practitioner_family', 'practitioner_family_name', 'provider_last_name', 'clinician_last_name', 'doctor_last_name', 'doctorlastname'],
     practitioner_name: ['practitioner_full_name', 'provider_name', 'providername', 'clinician_name', 'attend_prsnl_name', 'attending_provider_name'],
-    practitioner_gender: ['practitioner_sex', 'provider_gender', 'clinician_gender'],
-    practitioner_birth_date: ['practitioner_dob', 'provider_dob', 'clinician_dob'],
-    practitioner_phone: ['practitioner_phone_number', 'provider_phone', 'clinician_phone', 'practitioner_mobile', 'practitioner_home_phone'],
+    practitioner_gender: ['practitioner_sex', 'provider_gender', 'clinician_gender', 'doctor_gender'],
+    practitioner_birth_date: ['practitioner_dob', 'provider_dob', 'clinician_dob', 'birth_date', 'birthdate', 'doctor_birth_date'],
+    practitioner_phone: ['practitioner_phone_number', 'provider_phone', 'clinician_phone', 'practitioner_mobile', 'practitioner_home_phone', 'doctor_phone'],
     practitioner_email: ['practitioner_email_address', 'provider_email', 'clinician_email'],
-    practitioner_address_line1: ['practitioner_address', 'practitioner_address1', 'provider_address1', 'practitioner_address_1'],
+    practitioner_address_line1: ['practitioner_address', 'practitioner_address1', 'provider_address1', 'practitioner_address_1', 'doctor_address'],
     practitioner_address_line2: ['practitioner_address2', 'provider_address2', 'practitioner_address_2'],
-    practitioner_city: ['practitioner_city', 'provider_city'],
-    practitioner_state: ['practitioner_state', 'provider_state', 'practitioner_province'],
-    practitioner_postal_code: ['practitioner_zip', 'provider_zip', 'practitioner_postal'],
-    practitioner_country: ['practitioner_country', 'provider_country'],
-    practitioner_qualification_code: ['practitioner_qualification', 'provider_qualification_code'],
+    practitioner_city: ['practitioner_city', 'provider_city', 'doctor_city'],
+    practitioner_state: ['practitioner_state', 'provider_state', 'practitioner_province', 'doctor_state'],
+    practitioner_postal_code: ['practitioner_zip', 'provider_zip', 'practitioner_postal', 'practitioner_zip_code', 'doctor_zip_code', 'zip_code', 'zipcode'],
+    practitioner_country: ['practitioner_country', 'provider_country', 'doctor_country'],
+    practitioner_qualification_code: ['practitioner_qualification', 'provider_qualification_code', 'qualification'],
     practitioner_qualification_system: ['practitioner_qualification_system', 'provider_qualification_system'],
     practitioner_qualification_display: ['practitioner_qualification_display', 'provider_qualification_display'],
+    practitioner_license_number: ['medical_reg_no', 'medicalregno', 'medical_registration_number', 'registration_number', 'license_number'],
+    practitioner_years_of_experience: ['years_of_experience', 'experience_years', 'no_of_experience', 'noofexperience'],
     practitioner_active: ['provider_active', 'clinician_active']
   },
   practitionerRole: {

@@ -38,12 +38,10 @@ export function detectInputFormat(input: string): InputFormat {
     // Try to detect device-specific JSON formats
     try {
       const jsonData = JSON.parse(trimmed);
-
       // Detect Whoop format (actual API structure)
       if (jsonData.profile?.user_id || jsonData.recovery?.score || jsonData.cycle?.score || jsonData.sleep?.score) {
         return 'whoop';
       }
-
       // Detect Dexcom format
       if (jsonData.egvs || jsonData.calibrations || (jsonData.device && jsonData.device.transmitter_id)) {
         return 'dexcom';
@@ -68,7 +66,6 @@ export function detectInputFormat(input: string): InputFormat {
       if (jsonData.profile?.id || Array.isArray(jsonData.activities)) {
         return 'strava';
       }
-
       // Default to generic JSON parser
       return 'json';
     } catch {
