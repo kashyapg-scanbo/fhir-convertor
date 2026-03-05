@@ -13,10 +13,7 @@ function applyHeaderAliases(normalized: string): string {
 
 export function normalizeHeader(value: string): string {
   const normalized = value
-<<<<<<< HEAD
-=======
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
->>>>>>> main
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '_')
@@ -77,18 +74,6 @@ function splitFullName(fullName?: string): { given?: string[]; family?: string }
   };
 }
 
-<<<<<<< HEAD
-function buildCanonicalPatientFromRow(row: TabularRow) {
-  const patientId = readValue(row, 'patient_id');
-  const patientFirst = readValue(row, 'patient_first_name');
-  const patientMiddle = readValue(row, 'patient_middle_name');
-  let patientLast = readValue(row, 'patient_last_name');
-  let fullNameGiven: string[] | undefined;
-
-  const fullName = readValue(row, 'patient_name');
-  if (!patientFirst && !patientLast) {
-    const nameFromFull = splitFullName(fullName);
-=======
 export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
   const firstRow = rows[0] || {};
 
@@ -99,31 +84,10 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   let fullNameGiven: string[] | undefined;
   if (!patientFirst && !patientLast) {
     const nameFromFull = splitFullName(readValue(firstRow, 'patient_name'));
->>>>>>> main
     if (nameFromFull?.family) patientLast = nameFromFull.family;
     if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
   }
 
-<<<<<<< HEAD
-  const addressLine1 = readValue(row, 'patient_address_line1');
-  const addressLine2 = readValue(row, 'patient_address_line2');
-  const city = readValue(row, 'patient_city');
-  const state = readValue(row, 'patient_state');
-  const postalCode = readValue(row, 'patient_postal_code');
-  const country = readValue(row, 'patient_country');
-
-  const address = (addressLine1 || addressLine2 || city || state || postalCode || country) ? [{
-    line: [addressLine1, addressLine2].filter(Boolean) as string[],
-    city,
-    state,
-    postalCode,
-    country
-  }] : undefined;
-
-  const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
-  const phone = readValue(row, 'patient_phone');
-  const email = readValue(row, 'patient_email');
-=======
   const addressLine1 = readValue(firstRow, 'patient_address_line1');
   const addressLine2 = readValue(firstRow, 'patient_address_line2');
   const address = (addressLine1 || addressLine2 || readValue(firstRow, 'patient_city')) ? [{
@@ -137,68 +101,10 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
   const phone = readValue(firstRow, 'patient_phone');
   const email = readValue(firstRow, 'patient_email');
->>>>>>> main
   if (phone) telecom.push({ system: 'phone', value: phone });
   if (email) telecom.push({ system: 'email', value: email });
 
   const givenValues = (fullNameGiven ?? [patientFirst, patientMiddle].filter(Boolean)) as string[];
-<<<<<<< HEAD
-  const gender = readValue(row, 'patient_gender');
-  const birthDate = readValue(row, 'patient_birth_date');
-
-  const hasAnyPatientField = Boolean(
-    patientId ||
-    patientFirst ||
-    patientMiddle ||
-    patientLast ||
-    fullName ||
-    gender ||
-    birthDate ||
-    phone ||
-    email ||
-    addressLine1 ||
-    addressLine2 ||
-    city ||
-    state ||
-    postalCode ||
-    country
-  );
-
-  if (!hasAnyPatientField) return undefined;
-
-  return {
-    id: patientId,
-    identifier: patientId,
-    name: {
-      family: patientLast,
-      given: givenValues.length > 0 ? givenValues : undefined
-    },
-    gender,
-    birthDate,
-    address,
-    telecom: telecom.length > 0 ? telecom : undefined
-  };
-}
-
-export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
-  const firstRow = rows[0] || {};
-
-  const rawPatients = rows.map(buildCanonicalPatientFromRow).filter(Boolean) as any[];
-  const dedupedPatients: any[] = [];
-  const seen = new Set<string>();
-  for (const p of rawPatients) {
-    const key = String(p?.identifier || p?.id || JSON.stringify(p));
-    if (seen.has(key)) continue;
-    seen.add(key);
-    dedupedPatients.push(p);
-  }
-  const firstPatient = dedupedPatients[0] || buildCanonicalPatientFromRow(firstRow);
-
-  const canonical: CanonicalModel = {
-    messageType,
-    patient: firstPatient,
-    patients: dedupedPatients.length > 0 ? dedupedPatients : undefined
-=======
   const patientMaritalStatus = readValue(firstRow, 'patient_marital_status');
   const canonical: CanonicalModel = {
     messageType,
@@ -232,8 +138,92 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       isDiabetic: readBoolean(firstRow, 'patient_is_diabetic'),
       isHypertension: readBoolean(firstRow, 'patient_is_hypertension')
     }
->>>>>>> main
   };
+
+  const rawPatients = rows.map(row => {
+    const rowPatientId = readValue(row, 'patient_id');
+    const rowFirst = readValue(row, 'patient_first_name');
+    const rowMiddle = readValue(row, 'patient_middle_name');
+    let rowLast = readValue(row, 'patient_last_name');
+    let rowGivenFromFull: string[] | undefined;
+    if (!rowFirst && !rowLast) {
+      const rowNameFromFull = splitFullName(readValue(row, 'patient_name'));
+      if (rowNameFromFull?.family) rowLast = rowNameFromFull.family;
+      if (rowNameFromFull?.given?.length) rowGivenFromFull = rowNameFromFull.given;
+    }
+
+    const rowAddressLine1 = readValue(row, 'patient_address_line1');
+    const rowAddressLine2 = readValue(row, 'patient_address_line2');
+    const rowAddress = (rowAddressLine1 || rowAddressLine2 || readValue(row, 'patient_city')) ? [{
+      line: [rowAddressLine1, rowAddressLine2].filter(Boolean) as string[],
+      city: readValue(row, 'patient_city'),
+      state: readValue(row, 'patient_state'),
+      postalCode: readValue(row, 'patient_postal_code'),
+      country: readValue(row, 'patient_country')
+    }] : undefined;
+
+    const rowTelecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
+    const rowPhone = readValue(row, 'patient_phone');
+    const rowEmail = readValue(row, 'patient_email');
+    if (rowPhone) rowTelecom.push({ system: 'phone', value: rowPhone });
+    if (rowEmail) rowTelecom.push({ system: 'email', value: rowEmail });
+
+    const rowGivenValues = (rowGivenFromFull ?? [rowFirst, rowMiddle].filter(Boolean)) as string[];
+    const hasAnyPatientField = Boolean(
+      rowPatientId ||
+      rowLast ||
+      rowGivenValues.length ||
+      rowTelecom.length ||
+      rowAddress ||
+      readValue(row, 'patient_gender') ||
+      readValue(row, 'patient_birth_date')
+    );
+    if (!hasAnyPatientField) return null;
+
+    const rowMaritalStatus = readValue(row, 'patient_marital_status');
+    return {
+      id: rowPatientId,
+      identifier: rowPatientId,
+      resourceType: readValue(row, 'patient_resource_type'),
+      name: {
+        family: rowLast,
+        given: rowGivenValues.length > 0 ? rowGivenValues : undefined
+      },
+      gender: readValue(row, 'patient_gender'),
+      birthDate: readValue(row, 'patient_birth_date'),
+      address: rowAddress,
+      telecom: rowTelecom.length > 0 ? rowTelecom : undefined,
+      deceasedBoolean: readBoolean(row, 'patient_deceased_boolean'),
+      maritalStatus: rowMaritalStatus ? { code: rowMaritalStatus, display: rowMaritalStatus } : undefined,
+      patientType: readValue(row, 'patient_type'),
+      photo: readValue(row, 'patient_photo'),
+      age: readNumber(row, 'patient_age'),
+      weight: readNumber(row, 'patient_weight'),
+      weightUnit: readValue(row, 'patient_weight_unit'),
+      height: readNumber(row, 'patient_height'),
+      heightUnit: readValue(row, 'patient_height_unit'),
+      heightTaken: readBoolean(row, 'patient_height_taken'),
+      bloodGroup: readValue(row, 'patient_blood_group'),
+      isPregnant: readBoolean(row, 'patient_is_pregnant'),
+      isDiabetic: readBoolean(row, 'patient_is_diabetic'),
+      isHypertension: readBoolean(row, 'patient_is_hypertension')
+    };
+  }).filter(Boolean) as NonNullable<CanonicalModel['patients']>;
+
+  if (rawPatients.length > 0) {
+    const dedupedPatients: NonNullable<CanonicalModel['patients']> = [];
+    const seen = new Set<string>();
+    for (const patient of rawPatients) {
+      const key = String(patient.identifier || patient.id || JSON.stringify(patient));
+      if (seen.has(key)) continue;
+      seen.add(key);
+      dedupedPatients.push(patient);
+    }
+    if (dedupedPatients.length > 0) {
+      canonical.patients = dedupedPatients;
+      if (!canonical.patient) canonical.patient = dedupedPatients[0];
+    }
+  }
 
   const encounterId = readValue(firstRow, 'encounter_id');
   if (encounterId) {
@@ -4072,10 +4062,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
 
   const practitioners = rows.map(row => {
     const practitionerId = readValue(row, 'practitioner_id');
-<<<<<<< HEAD
-=======
     const practitionerLicenseNumber = readValue(row, 'practitioner_license_number');
->>>>>>> main
     const practitionerFirst = readValue(row, 'practitioner_first_name');
     const practitionerMiddle = readValue(row, 'practitioner_middle_name');
     let practitionerLast = readValue(row, 'practitioner_last_name');
@@ -4086,16 +4073,6 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
     }
 
-<<<<<<< HEAD
-    const addressLine1 = readValue(row, 'practitioner_address_line1');
-    const addressLine2 = readValue(row, 'practitioner_address_line2');
-    const address = (addressLine1 || addressLine2 || readValue(row, 'practitioner_city')) ? [{
-      line: [addressLine1, addressLine2].filter(Boolean) as string[],
-      city: readValue(row, 'practitioner_city'),
-      state: readValue(row, 'practitioner_state'),
-      postalCode: readValue(row, 'practitioner_postal_code'),
-      country: readValue(row, 'practitioner_country')
-=======
     const addressLine1 = readValue(row, 'practitioner_address_line1') ?? readValue(row, 'patient_address_line1');
     const addressLine2 = readValue(row, 'practitioner_address_line2') ?? readValue(row, 'patient_address_line2');
     const practitionerCity = readValue(row, 'practitioner_city') ?? readValue(row, 'patient_city');
@@ -4108,7 +4085,6 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       state: practitionerState,
       postalCode: practitionerPostal,
       country: practitionerCountry
->>>>>>> main
     }] : undefined;
 
     const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
@@ -4116,11 +4092,8 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     const email = readValue(row, 'practitioner_email');
     if (phone) telecom.push({ system: 'phone', value: phone });
     if (email) telecom.push({ system: 'email', value: email });
-<<<<<<< HEAD
-=======
     const practitionerGender = readValue(row, 'practitioner_gender') ?? readValue(row, 'patient_gender');
     const practitionerBirthDate = readValue(row, 'practitioner_birth_date') ?? readValue(row, 'patient_birth_date');
->>>>>>> main
 
     const givenValues = (fullNameGiven ?? [practitionerFirst, practitionerMiddle].filter(Boolean)) as string[];
     const qualificationCode = readValue(row, 'practitioner_qualification_code');
@@ -4132,32 +4105,19 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       }
     }] : undefined;
 
-<<<<<<< HEAD
-    if (!practitionerId && !practitionerLast && !givenValues.length && !telecom.length && !address) {
-=======
     if (!practitionerId && !practitionerLicenseNumber && !practitionerLast && !givenValues.length && !telecom.length && !address) {
->>>>>>> main
       return null;
     }
 
     return {
       id: practitionerId,
-<<<<<<< HEAD
-      identifier: practitionerId,
-=======
       identifier: practitionerLicenseNumber || practitionerId,
->>>>>>> main
       name: {
         family: practitionerLast,
         given: givenValues.length > 0 ? givenValues : undefined
       },
-<<<<<<< HEAD
-      gender: readValue(row, 'practitioner_gender'),
-      birthDate: readValue(row, 'practitioner_birth_date'),
-=======
       gender: practitionerGender,
       birthDate: practitionerBirthDate,
->>>>>>> main
       address,
       telecom: telecom.length > 0 ? telecom : undefined,
       qualification,

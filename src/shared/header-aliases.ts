@@ -4,15 +4,6 @@ export type HeaderAliasSections = Record<string, HeaderAliasMap>;
 export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
   patient: {
     patient_id: ['patient_identifier', 'patient_mrn', 'mrn', 'medical_record_number', 'medical_record_no', 'patientid', 'pat_id', 'person_id', 'pid'],
-<<<<<<< HEAD
-    patient_first_name: ['first_name', 'fname', 'given_name', 'given', 'patient_given', 'patient_given_name', 'patient_first'],
-    patient_middle_name: ['middle_name', 'middlename'],
-    patient_last_name: ['last_name', 'lname', 'family_name', 'surname', 'patient_family', 'patient_family_name', 'patient_last'],
-    patient_name: ['name', 'patientname', 'full_name', 'patient_full_name', 'pt_name'],
-    patient_gender: ['gender', 'sex', 'gndr'],
-    patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate', 'patient_dob'],
-    patient_phone: ['phone', 'phone_number', 'mobile', 'cell', 'cell_phone', 'patient_phone_number', 'patient_mobile', 'patient_home_phone', 'patient_phone'],
-=======
     patient_first_name: ['first_name', 'fname', 'given_name', 'given', 'patient_given', 'patient_given_name', 'patient_first', 'patientfirstname'],
     patient_middle_name: ['middle_name', 'middlename', 'patientmiddlename'],
     patient_last_name: ['last_name', 'lname', 'family_name', 'surname', 'patient_family', 'patient_family_name', 'patient_last', 'patientlastname'],
@@ -20,16 +11,12 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     patient_gender: ['gender', 'sex', 'gndr'],
     patient_birth_date: ['dob', 'date_of_birth', 'birth_date', 'birthdate', 'patient_dob'],
     patient_phone: ['phone', 'phone_number', 'mobile', 'mobile_number', 'mobilenumber', 'cell', 'cell_phone', 'patient_phone_number', 'patient_mobile', 'patient_home_phone', 'patient_phone'],
->>>>>>> main
     patient_email: ['email', 'email_address'],
     patient_address_line1: ['address', 'address1', 'address_line1', 'street', 'street_address', 'patient_address1', 'patient_address_1', 'addr_line1'],
     patient_address_line2: ['address2', 'address_line2', 'street2', 'street_address_2', 'patient_address2', 'patient_address_2'],
     patient_city: ['city', 'town'],
     patient_state: ['state', 'province', 'region', 'patient_province'],
     patient_postal_code: ['zip', 'zipcode', 'postal', 'postal_code', 'patient_zip'],
-<<<<<<< HEAD
-    patient_country: ['country']
-=======
     patient_country: ['country', 'country_code', 'countrycode'],
     patient_type: ['patient_type', 'patienttype'],
     patient_photo: ['photo', 'patient_photo'],
@@ -46,7 +33,6 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     patient_is_hypertension: ['is_hypertension', 'ishypertension', 'patient_is_hypertension'],
     patient_deceased_boolean: ['deceased_boolean', 'deceasedboolean', 'patient_deceased_boolean'],
     patient_resource_type: ['resource_type', 'resourcetype', 'patient_resource_type']
->>>>>>> main
   },
   encounter: {
     encounter_id: ['visit_id', 'encounter_identifier', 'encounterid', 'visitid', 'csn', 'encntr_id'],

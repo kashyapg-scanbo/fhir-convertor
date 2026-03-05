@@ -38,11 +38,7 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
     given: canonicalPatient?.name?.given
   }] : undefined;
 
-<<<<<<< HEAD
-  patient.gender = canonicalPatient?.gender || undefined;
-=======
   patient.gender = normalizeAdministrativeGender(canonicalPatient?.gender);
->>>>>>> main
   patient.birthDate = toFhirDate(canonicalPatient?.birthDate) || undefined;
   patient.address = canonicalPatient?.address?.length
     ? canonicalPatient.address.map(address => ({
@@ -56,11 +52,6 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
         use: mapTelecomUse(telecom.use)
       }))
     : undefined;
-<<<<<<< HEAD
-  patient.deceasedBoolean = undefined;
-  patient.deceasedDateTime = undefined;
-  patient.maritalStatus = undefined;
-=======
   patient.deceasedBoolean = canonicalPatient?.deceasedBoolean ?? undefined;
   patient.deceasedDateTime = undefined;
   patient.maritalStatus = canonicalPatient?.maritalStatus && !isBooleanLike(canonicalPatient.maritalStatus.code) && !isBooleanLike(canonicalPatient.maritalStatus.display)
@@ -75,7 +66,6 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
         text: canonicalPatient.maritalStatus.display || canonicalPatient.maritalStatus.code
       }
     : undefined;
->>>>>>> main
   patient.multipleBirthBoolean = undefined;
   patient.multipleBirthInteger = undefined;
   patient.photo = undefined;
@@ -85,11 +75,7 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
   patient.managingOrganization = undefined;
   patient.link = undefined;
 
-<<<<<<< HEAD
-=======
   patient.extension = undefined;
-
->>>>>>> main
   const primaryName = Array.isArray(patient.name) ? patient.name[0] : undefined;
   const patientSummary = `${primaryName?.family ?? ''} ${primaryName?.given?.join(' ') ?? ''}`.trim();
   if (patientSummary) patient.text = makeNarrative('Patient', patientSummary);
@@ -153,10 +139,6 @@ function mapAddressUse(use?: string): CanonicalAddressUse | undefined {
   if (normalized === 'BILL' || normalized === 'B') return 'billing';
   return use;
 }
-<<<<<<< HEAD
-  
-=======
-
 function normalizeAdministrativeGender(gender?: string): string | undefined {
   if (!gender) return undefined;
   const normalized = gender.trim().toLowerCase();
@@ -172,5 +154,3 @@ function isBooleanLike(value?: string) {
   const normalized = value.trim().toLowerCase();
   return normalized === 'true' || normalized === 'false';
 }
-  
->>>>>>> main
