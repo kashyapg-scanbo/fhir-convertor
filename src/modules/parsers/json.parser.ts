@@ -8073,6 +8073,7 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const name = isPlainRecord(normalized.name) ? { ...normalized.name } : {};
   const contactInfo = isPlainRecord(normalized.contact_info) ? { ...normalized.contact_info } : {};
   const address = isPlainRecord(contactInfo.address) ? { ...contactInfo.address } : {};
+  const license = isPlainRecord(normalized.license) ? { ...normalized.license } : {};
 
   const practitionerId = readSectionAliasValue(value, 'practitioner', 'practitioner_id');
   if (normalized.practitioner_id === undefined && practitionerId !== undefined) {
@@ -8109,6 +8110,8 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
 
   const street1 = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_address_line1'));
   if (street1 && address.street === undefined) address.street = street1;
+  const directAddress = normalizeAliasValue((value as Record<string, unknown>).address);
+  if (directAddress && address.street === undefined) address.street = directAddress;
 
   const street2 = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_address_line2'));
   if (street2) {
@@ -8121,21 +8124,49 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
 
   const city = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_city'));
   if (city && address.city === undefined) address.city = city;
+  const directCity = normalizeAliasValue((value as Record<string, unknown>).city);
+  if (directCity && address.city === undefined) address.city = directCity;
 
   const state = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_state'));
   if (state && address.state === undefined) address.state = state;
+  const directState = normalizeAliasValue((value as Record<string, unknown>).state);
+  if (directState && address.state === undefined) address.state = directState;
 
   const postal = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_postal_code'));
   if (postal && address.postal_code === undefined) address.postal_code = postal;
+  const directPostal = normalizeAliasValue((value as Record<string, unknown>).zipCode ?? (value as Record<string, unknown>).zip_code ?? (value as Record<string, unknown>).zipcode);
+  if (directPostal && address.postal_code === undefined) address.postal_code = directPostal;
 
   const country = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_country'));
   if (country && address.country === undefined) address.country = country;
+  const directCountry = normalizeAliasValue((value as Record<string, unknown>).country);
+  if (directCountry && address.country === undefined) address.country = directCountry;
+
+  const licenseNumber = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_license_number'));
+  if (licenseNumber && license.license_number === undefined) license.license_number = licenseNumber;
+  const directMedicalRegNo = normalizeAliasValue((value as Record<string, unknown>).medicalRegNo ?? (value as Record<string, unknown>).medical_reg_no);
+  if (directMedicalRegNo && license.license_number === undefined) license.license_number = directMedicalRegNo;
+
+  const experience = readSectionAliasValue(value, 'practitioner', 'practitioner_years_of_experience');
+  if (experience !== undefined && normalized.years_of_experience === undefined) {
+    normalized.years_of_experience = experience;
+  }
+  const directExperience = (value as Record<string, unknown>).noOfExperience ?? (value as Record<string, unknown>).no_of_experience;
+  if (directExperience !== undefined && normalized.years_of_experience === undefined) {
+    normalized.years_of_experience = directExperience;
+  }
+  const qualification = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_qualification_code'));
+  const directQualification = normalizeAliasValue((value as Record<string, unknown>).qualification);
+  if ((qualification || directQualification) && normalized.specialization === undefined) {
+    normalized.specialization = qualification || directQualification;
+  }
 
   if (Object.keys(name).length > 0) normalized.name = name;
   if (Object.keys(address).length > 0) {
     contactInfo.address = address;
   }
   if (Object.keys(contactInfo).length > 0) normalized.contact_info = contactInfo;
+  if (Object.keys(license).length > 0) normalized.license = license;
 
   return normalized;
 }
@@ -9444,7 +9475,7 @@ function wrapGlobalPayload(value: any) {
     if ('practitioner_role_id' in value || 'role' in value || 'specialty' in value) {
       return { practitioner_role: value };
     }
-    if ('practitioner_id' in value || 'license' in value || value.name?.first_name) {
+    if ('practitioner_id' in value || '_id' in value || 'medicalRegNo' in value || 'doctorFirstName' in value || 'doctorLastName' in value || 'license' in value || value.name?.first_name) {
       return { practitioner: value };
     }
     if ('organization_id' in value || 'services_offered' in value || 'departments' in value) {
@@ -9654,6 +9685,10 @@ function looksLikeGlobalResource(value: any) {
     'vaccine_code' in value ||
     'lot_number' in value ||
     'practitioner_id' in value ||
+    '_id' in value ||
+    'medicalRegNo' in value ||
+    'doctorFirstName' in value ||
+    'doctorLastName' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
     'organization_id' in value ||

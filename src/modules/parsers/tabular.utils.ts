@@ -3977,6 +3977,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
 
   const practitioners = rows.map(row => {
     const practitionerId = readValue(row, 'practitioner_id');
+    const practitionerLicenseNumber = readValue(row, 'practitioner_license_number');
     const practitionerFirst = readValue(row, 'practitioner_first_name');
     const practitionerMiddle = readValue(row, 'practitioner_middle_name');
     let practitionerLast = readValue(row, 'practitioner_last_name');
@@ -3987,14 +3988,18 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
     }
 
-    const addressLine1 = readValue(row, 'practitioner_address_line1');
-    const addressLine2 = readValue(row, 'practitioner_address_line2');
-    const address = (addressLine1 || addressLine2 || readValue(row, 'practitioner_city')) ? [{
+    const addressLine1 = readValue(row, 'practitioner_address_line1') ?? readValue(row, 'patient_address_line1');
+    const addressLine2 = readValue(row, 'practitioner_address_line2') ?? readValue(row, 'patient_address_line2');
+    const practitionerCity = readValue(row, 'practitioner_city') ?? readValue(row, 'patient_city');
+    const practitionerState = readValue(row, 'practitioner_state') ?? readValue(row, 'patient_state');
+    const practitionerPostal = readValue(row, 'practitioner_postal_code') ?? readValue(row, 'patient_postal_code') ?? readValue(row, 'zip_code') ?? readValue(row, 'zipcode');
+    const practitionerCountry = readValue(row, 'practitioner_country') ?? readValue(row, 'patient_country');
+    const address = (addressLine1 || addressLine2 || practitionerCity) ? [{
       line: [addressLine1, addressLine2].filter(Boolean) as string[],
-      city: readValue(row, 'practitioner_city'),
-      state: readValue(row, 'practitioner_state'),
-      postalCode: readValue(row, 'practitioner_postal_code'),
-      country: readValue(row, 'practitioner_country')
+      city: practitionerCity,
+      state: practitionerState,
+      postalCode: practitionerPostal,
+      country: practitionerCountry
     }] : undefined;
 
     const telecom: Array<{ system: 'phone' | 'email' | 'fax' | 'url' | 'other'; value: string; }> = [];
@@ -4002,6 +4007,8 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     const email = readValue(row, 'practitioner_email');
     if (phone) telecom.push({ system: 'phone', value: phone });
     if (email) telecom.push({ system: 'email', value: email });
+    const practitionerGender = readValue(row, 'practitioner_gender') ?? readValue(row, 'patient_gender');
+    const practitionerBirthDate = readValue(row, 'practitioner_birth_date') ?? readValue(row, 'patient_birth_date');
 
     const givenValues = (fullNameGiven ?? [practitionerFirst, practitionerMiddle].filter(Boolean)) as string[];
     const qualificationCode = readValue(row, 'practitioner_qualification_code');
@@ -4013,19 +4020,19 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       }
     }] : undefined;
 
-    if (!practitionerId && !practitionerLast && !givenValues.length && !telecom.length && !address) {
+    if (!practitionerId && !practitionerLicenseNumber && !practitionerLast && !givenValues.length && !telecom.length && !address) {
       return null;
     }
 
     return {
       id: practitionerId,
-      identifier: practitionerId,
+      identifier: practitionerLicenseNumber || practitionerId,
       name: {
         family: practitionerLast,
         given: givenValues.length > 0 ? givenValues : undefined
       },
-      gender: readValue(row, 'practitioner_gender'),
-      birthDate: readValue(row, 'practitioner_birth_date'),
+      gender: practitionerGender,
+      birthDate: practitionerBirthDate,
       address,
       telecom: telecom.length > 0 ? telecom : undefined,
       qualification,

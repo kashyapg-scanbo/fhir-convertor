@@ -4,7 +4,6 @@
     "organization_name": "Example organization 1",
     "organization_alias": "Example 1",
     "organization_type_code": "CODE-1",
-    "organization_type_system": "http://example.org/system/organization",
     "organization_type_display": "Display 1",
     "organization_phone": "555-0101",
     "organization_email": "user1@example.org",

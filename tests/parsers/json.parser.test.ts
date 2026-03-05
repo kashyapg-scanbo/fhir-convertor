@@ -153,4 +153,45 @@ describe('parseCustomJSON', () => {
     expect(canonical.patient?.isHypertension).toBe(false);
     expect(canonical.patient?.deceasedBoolean).toBe(false);
   });
+
+  it('maps practitioner payload with doctor-style field names', () => {
+    const input = {
+      _id: '671800c8b17ef535c9fcdac8',
+      doctorFirstName: 'Bhushan',
+      doctorLastName: 'Bafna',
+      medicalRegNo: '123456',
+      noOfExperience: 0,
+      hospitalTime: '',
+      hospitalContactNumber: '',
+      gender: 'Male',
+      photo: '',
+      age: 25,
+      weight: 53,
+      height: 0,
+      birthDate: '1999-07-01T19:45:12.133Z',
+      bloodGroup: "I don't know",
+      address: '-',
+      zipCode: '400063',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      country: 'India',
+      qualification: 'MBBS',
+      period: '10/2024'
+    };
+
+    const canonical = parseCustomJSON(input);
+    const practitioner = canonical.practitioners?.[0];
+
+    expect(practitioner?.id).toBe('671800c8b17ef535c9fcdac8');
+    expect(practitioner?.identifier).toBe('123456');
+    expect(practitioner?.name?.given?.[0]).toBe('Bhushan');
+    expect(practitioner?.name?.family).toBe('Bafna');
+    expect(practitioner?.gender).toBe('Male');
+    expect(practitioner?.birthDate).toBe('1999-07-01T19:45:12.133Z');
+    expect(practitioner?.address?.[0]?.city).toBe('Mumbai');
+    expect(practitioner?.address?.[0]?.state).toBe('Maharashtra');
+    expect(practitioner?.address?.[0]?.postalCode).toBe('400063');
+    expect(practitioner?.address?.[0]?.country).toBe('India');
+    expect(practitioner?.qualification?.[0]?.code?.code).toBe('MBBS');
+  });
 });
