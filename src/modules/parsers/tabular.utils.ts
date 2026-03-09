@@ -82,6 +82,12 @@ function isBooleanLikeValue(value?: string) {
 
 export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
   const firstRow = rows[0] || {};
+  const observationTypeMap: Record<string, { code: string; system: string; display: string }> = {
+    bodytemperature: { code: '8310-5', system: 'http://loinc.org', display: 'Body temperature' },
+    bodytempreture: { code: '8310-5', system: 'http://loinc.org', display: 'Body temperature' },
+    bloodglucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood' },
+    bloodgloucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood' }
+  };
 
   const patientId = readValue(firstRow, ['patient_id', '_id', 'master_profile_id', 'masterprofileid']);
   const patientFirst = readValue(firstRow, 'patient_first_name');
@@ -253,15 +259,18 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   }
 
   const observations = rows.map(row => {
-    const code = readValue(row, 'observation_code');
+    const observationTypeRaw = readValue(row, 'observation_type');
+    const observationTypeKey = observationTypeRaw?.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const mappedType = observationTypeKey ? observationTypeMap[observationTypeKey] : undefined;
+    const code = readValue(row, 'observation_code') || mappedType?.code;
     const value = readValue(row, 'observation_value');
     if (!code && value === undefined) return null;
     return {
       setId: readValue(row, 'observation_id'),
       code: {
-        system: readValue(row, 'observation_code_system'),
+        system: readValue(row, 'observation_code_system') || mappedType?.system,
         code: code,
-        display: readValue(row, 'observation_display')
+        display: readValue(row, 'observation_display') || mappedType?.display || observationTypeRaw
       },
       value: readNumber(row, 'observation_value') ?? value,
       unit: readValue(row, 'observation_unit'),
@@ -4069,6 +4078,33 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   if (binaries.length > 0) canonical.binaries = binaries as any[];
 
   const practitioners = rows.map(row => {
+    const hasPractitionerSignals = Boolean(
+      readValue(row, [
+        'practitioner_id',
+        '_id',
+        'practitioner_license_number',
+        'medical_reg_no',
+        'registration_number',
+        'practitioner_first_name',
+        'community_worker_first_name',
+        'practitioner_last_name',
+        'community_worker_last_name',
+        'practitioner_name',
+        'practitioner_gender',
+        'practitioner_birth_date',
+        'practitioner_phone',
+        'practitioner_email',
+        'practitioner_address_line1',
+        'practitioner_address_line2',
+        'practitioner_city',
+        'practitioner_state',
+        'practitioner_postal_code',
+        'practitioner_country',
+        'practitioner_qualification_code'
+      ])
+    );
+    if (!hasPractitionerSignals) return null;
+
     const practitionerId = readValue(row, 'practitioner_id') ?? readValue(row, '_id');
     const practitionerLicenseNumber = readValue(row, 'practitioner_license_number') ?? readValue(row, 'medical_reg_no') ?? readValue(row, 'registration_number');
     const practitionerFirst = readValue(row, 'practitioner_first_name') ?? readValue(row, 'community_worker_first_name');
@@ -4081,12 +4117,12 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       if (nameFromFull?.given?.length) fullNameGiven = nameFromFull.given;
     }
 
-    const addressLine1 = readValue(row, 'practitioner_address_line1') ?? readValue(row, 'patient_address_line1');
-    const addressLine2 = readValue(row, 'practitioner_address_line2') ?? readValue(row, 'patient_address_line2');
-    const practitionerCity = readValue(row, 'practitioner_city') ?? readValue(row, 'patient_city');
-    const practitionerState = readValue(row, 'practitioner_state') ?? readValue(row, 'patient_state');
-    const practitionerPostal = readValue(row, 'practitioner_postal_code') ?? readValue(row, 'patient_postal_code') ?? readValue(row, 'zip_code') ?? readValue(row, 'zipcode');
-    const practitionerCountry = readValue(row, 'practitioner_country') ?? readValue(row, 'patient_country');
+    const addressLine1 = readValue(row, 'practitioner_address_line1');
+    const addressLine2 = readValue(row, 'practitioner_address_line2');
+    const practitionerCity = readValue(row, 'practitioner_city');
+    const practitionerState = readValue(row, 'practitioner_state');
+    const practitionerPostal = readValue(row, 'practitioner_postal_code') ?? readValue(row, 'zip_code') ?? readValue(row, 'zipcode');
+    const practitionerCountry = readValue(row, 'practitioner_country');
     const address = (addressLine1 || addressLine2 || practitionerCity) ? [{
       line: [addressLine1, addressLine2].filter(Boolean) as string[],
       city: practitionerCity,
@@ -4100,11 +4136,11 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     const email = readValue(row, 'practitioner_email');
     if (phone) telecom.push({ system: 'phone', value: phone });
     if (email) telecom.push({ system: 'email', value: email });
-    const practitionerGender = readValue(row, 'practitioner_gender') ?? readValue(row, 'patient_gender');
-    const practitionerBirthDate = readValue(row, 'practitioner_birth_date') ?? readValue(row, 'patient_birth_date');
+    const practitionerGender = readValue(row, 'practitioner_gender');
+    const practitionerBirthDate = readValue(row, 'practitioner_birth_date');
 
     const givenValues = (fullNameGiven ?? [practitionerFirst, practitionerMiddle].filter(Boolean)) as string[];
-    const qualificationCode = readValue(row, 'practitioner_qualification_code') || 'Doctor';
+    const qualificationCode = readValue(row, 'practitioner_qualification_code');
     const qualification = qualificationCode ? [{
       code: {
         system: readValue(row, 'practitioner_qualification_system'),

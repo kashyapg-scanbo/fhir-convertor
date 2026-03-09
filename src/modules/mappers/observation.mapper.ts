@@ -46,6 +46,15 @@ const vitalSignAliases: Array<{ code: string; match: RegExp }> = [
 
 const allowedInterpretationCodes = new Set(['L', 'LL', 'H', 'HH', 'A', 'AA', 'N', 'S', 'R', 'I']);
 const ucumUnitMap: Record<string, string> = {
+  'c': 'Cel',
+  '°c': 'Cel',
+  'celsius': 'Cel',
+  'degree celsius': 'Cel',
+  'centigrade': 'Cel',
+  'f': '[degF]',
+  '°f': '[degF]',
+  'fahrenheit': '[degF]',
+  'degree fahrenheit': '[degF]',
   'beats/min': '/min',
   'beat/min': '/min',
   'bpm': '/min',

@@ -25,19 +25,20 @@ export function mapPractitioners({
     const practitioner = structuredClone(practitionerTemplate) as any;
     const identifierSystem = 'urn:hl7-org:v2';
 
-    practitioner.id = crypto.randomUUID();
-    const identifierValue = practitionerSource.identifier || practitionerSource.id || practitioner.id;
+    const generatedUuid = crypto.randomUUID();
+    practitioner.id = practitionerSource.id || undefined;
+    const identifierValue = practitionerSource.identifier || practitionerSource.id || generatedUuid;
     practitioner.identifier = identifierValue ? [{
       system: identifierSystem,
       value: identifierValue
     }] : undefined;
 
-    const fullUrl = `urn:uuid:${practitioner.id}`;
+    const fullUrl = `urn:uuid:${generatedUuid}`;
     registry.register(
       'Practitioner',
       {
         identifier: identifierValue,
-        id: practitioner.id,
+        id: practitionerSource.id || generatedUuid,
         additionalKeys: practitionerSource.id && practitionerSource.id !== identifierValue ? [practitionerSource.id] : undefined
       },
       fullUrl

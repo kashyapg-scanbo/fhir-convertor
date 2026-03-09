@@ -100,6 +100,30 @@ describe('observation mapper', () => {
     expect(resource.referenceRange[0].text).toBe('60-100');
     expect(resource.interpretation[0].coding[0].code).toBe('H');
   });
+
+  it('maps body temperature unit C to UCUM Cel code', () => {
+    const registry = new FullUrlRegistry();
+    const observations: CanonicalObservation[] = [{
+      setId: 'temp-1',
+      code: { system: 'http://loinc.org', code: '8310-5', display: 'Body temperature' },
+      value: 36.7,
+      unit: 'C',
+      date: '2024-01-01T00:00:00Z'
+    }];
+
+    const entries = mapObservations({
+      observations,
+      registry,
+      patientFullUrl: 'urn:uuid:patient'
+    });
+
+    expect(entries.length).toBe(1);
+    const resource = entries[0].resource;
+    expect(resource.valueQuantity.value).toBe(36.7);
+    expect(resource.valueQuantity.unit).toBe('C');
+    expect(resource.valueQuantity.system).toBe('http://unitsofmeasure.org');
+    expect(resource.valueQuantity.code).toBe('Cel');
+  });
 });
 
 describe('practitioner mapper', () => {

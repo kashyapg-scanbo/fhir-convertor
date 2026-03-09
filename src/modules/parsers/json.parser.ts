@@ -2931,6 +2931,7 @@ const FLAT_KNOWN_KEYS = new Set(
 const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   patient: 'patient',
   encounter: 'encounter',
+  observation: 'observation',
   observations: 'observation',
   medications: 'medication',
   medicationKnowledge: 'medicationKnowledge',
@@ -3011,6 +3012,10 @@ const SECTION_NAME_MAP: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
 
 const SECTION_KEY_ALIASES: Record<string, keyof typeof HEADER_ALIAS_SECTIONS> = {
   ...SECTION_NAME_MAP,
+  doctor: 'practitioner',
+  doctors: 'practitioner',
+  hospital: 'organization',
+  hospitals: 'organization',
   medication_knowledge: 'medicationKnowledge',
   medication_knowledges: 'medicationKnowledge',
   medicationknowledge: 'medicationKnowledge',
@@ -3201,6 +3206,10 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   patient: 'patient',
   patients: 'patient',
+  doctor: 'practitioner',
+  doctors: 'practitioner',
+  hospital: 'organization',
+  hospitals: 'organization',
   encounter: 'encounter',
   encounters: 'encounter',
   medication: 'medication',
@@ -3424,6 +3433,7 @@ function normalizeGlobalPayload(value: unknown): unknown {
   const normalized = normalizeJsonKeys(value) as Record<string, unknown>;
   const remapped: Record<string, unknown> = {};
   for (const [key, rawValue] of Object.entries(normalized)) {
+    if (rawValue === null || rawValue === undefined) continue;
     const canonicalKey = GLOBAL_TOP_LEVEL_KEY_MAP[key] ?? key;
     remapped[canonicalKey] = rawValue;
   }
@@ -8556,12 +8566,42 @@ function looksLikeStructuredAliasJson(payload: unknown): boolean {
     const canonicalKeys = SECTION_CANONICAL_KEYS[aliasSection];
     if (!canonicalKeys) return false;
     if (Array.isArray(value)) {
-      return value.some(item => isPlainRecord(item) && hasAliasKey(item, canonicalKeys));
+      return value.some(item => isPlainRecord(item) && hasAliasKey(item, canonicalKeys, aliasSection));
     }
     if (isPlainRecord(value)) {
-      return hasAliasKey(value, canonicalKeys);
+      return hasAliasKey(value, canonicalKeys, aliasSection);
     }
     return false;
+  });
+}
+
+function shouldPreferStructuredAlias(payload: unknown): boolean {
+  if (!isPlainRecord(payload)) return false;
+
+  return Object.entries(payload).some(([key, value]) => {
+    const normalizedSectionKey = normalizeAliasKey(key);
+    const section = STRUCTURED_SECTION_LOOKUP.get(normalizedSectionKey);
+    if (!section) return false;
+
+    const canonicalSectionSingular = normalizeAliasKey(section);
+    const canonicalSectionPlural = `${canonicalSectionSingular}s`;
+    if (normalizedSectionKey !== canonicalSectionSingular && normalizedSectionKey !== canonicalSectionPlural) {
+      return true;
+    }
+
+    const records = Array.isArray(value)
+      ? value.filter(isPlainRecord)
+      : isPlainRecord(value) ? [value] : [];
+    if (records.length === 0) return false;
+
+    const canonicalKeys = SECTION_CANONICAL_KEYS[section];
+    const aliasLookup = SECTION_ALIAS_LOOKUPS[section];
+    return records.some(record => Object.keys(record).some(recordKey => {
+      const normalizedRecordKey = normalizeHeader(recordKey);
+      if (canonicalKeys.has(normalizedRecordKey)) return false;
+      const mapped = aliasLookup?.get(normalizeAliasKey(recordKey));
+      return Boolean(mapped && normalizeHeader(mapped) !== normalizedRecordKey);
+    }));
   });
 }
 
@@ -8582,8 +8622,18 @@ function getStructuredSectionValue(payload: Record<string, unknown>, section: ke
   return undefined;
 }
 
-function hasAliasKey(value: Record<string, unknown>, canonicalKeys: Set<string>): boolean {
-  return Object.keys(value).some(key => canonicalKeys.has(normalizeHeader(key)));
+function hasAliasKey(
+  value: Record<string, unknown>,
+  canonicalKeys: Set<string>,
+  section?: keyof typeof HEADER_ALIAS_SECTIONS
+): boolean {
+  const aliasLookup = section ? SECTION_ALIAS_LOOKUPS[section] : undefined;
+  return Object.keys(value).some(key => {
+    const normalized = normalizeHeader(key);
+    if (canonicalKeys.has(normalized)) return true;
+    const mapped = aliasLookup?.get(normalizeAliasKey(key));
+    return mapped ? canonicalKeys.has(normalizeHeader(mapped)) : false;
+  });
 }
 
 function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): TabularRow[] {
@@ -8685,11 +8735,14 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
 function toSectionRow(sectionKey: keyof typeof SECTION_CANONICAL_KEYS, value: unknown): TabularRow {
   if (!isPlainRecord(value)) return {};
   const canonicalKeys = SECTION_CANONICAL_KEYS[sectionKey];
+  const aliasLookup = SECTION_ALIAS_LOOKUPS[sectionKey as keyof typeof HEADER_ALIAS_SECTIONS];
   const row: TabularRow = {};
   for (const [key, rawValue] of Object.entries(value)) {
     const normalized = normalizeHeader(String(key));
-    if (!canonicalKeys.has(normalized)) continue;
-    row[normalized] = rawValue === undefined || rawValue === null ? '' : String(rawValue).trim();
+    const mappedKey = aliasLookup?.get(normalizeAliasKey(String(key)));
+    const canonicalKey = mappedKey ? normalizeHeader(mappedKey) : normalized;
+    if (!canonicalKeys.has(canonicalKey)) continue;
+    row[canonicalKey] = rawValue === undefined || rawValue === null ? '' : String(rawValue).trim();
   }
   return row;
 }
@@ -8799,6 +8852,20 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     });
 
     return mergeCanonicalModels(canonicals);
+  }
+
+  if (shouldPreferStructuredAlias(parsed)) {
+    const rows = buildRowsFromStructuredAliasJson(parsed);
+    if (rows.length > 0) {
+      const canonical = mapTabularRowsToCanonical(rows, 'JSON');
+      applyCommunityWorkerQualificationDefault(canonical, parsed);
+      const leftover = extractFlatLeftoverPayload(parsed);
+      if (leftover) {
+        const payloads = buildLeftoverSourcePayloads(canonical, leftover);
+        if (payloads) canonical.sourcePayloads = payloads;
+      }
+      return canonical;
+    }
   }
 
   const normalizedGlobalCandidate = isPlainRecord(parsed) ? normalizeGlobalPayload(parsed) : parsed;

@@ -220,7 +220,7 @@ describe('parseCustomJSON', () => {
     expect(identifiers).toContain('PAT-2');
   });
 
-  it('defaults practitioner qualification to Doctor when not community worker', () => {
+  it('does not set practitioner qualification when not provided', () => {
     const input = {
       _id: 'DOC-1',
       doctorFirstName: 'Bhushan',
@@ -233,7 +233,7 @@ describe('parseCustomJSON', () => {
     const practitioner = canonical.practitioners?.[0];
     expect(practitioner?.name?.given?.[0]).toBe('Bhushan');
     expect(practitioner?.name?.family).toBe('Bafna');
-    expect(practitioner?.qualification?.[0]?.code?.code).toBe('Doctor');
+    expect(practitioner?.qualification).toBeUndefined();
   });
 
   it('maps community worker payload and sets qualification to Community Worker', () => {
@@ -371,5 +371,123 @@ describe('parseCustomJSON', () => {
     expect(canonical.patient?.height).toBe(0);
     expect(canonical.patient?.maritalStatus).toBeUndefined();
     expect(canonical.patient?.deceasedBoolean).toBe(false);
+  });
+
+  it('maps nested payload patient/doctor/observation sections with hospital null', () => {
+    const input = {
+      payload: {
+        patient: {
+          _id: '671800c8b17ef535c9fcdad6',
+          masterProfileId: '671800c8b17ef535c9fcdac4',
+          patientFirstName: 'Bhushan',
+          patientMiddleName: null,
+          patientLastName: 'Bafna',
+          patientType: null,
+          mobileNumber: '',
+          countryCode: '',
+          gender: 'Male',
+          birthDate: '1999-07-01T19:45:12.166Z',
+          photo: '',
+          weight: 53,
+          weightUnit: 'kg',
+          height: 0,
+          heightUnit: 'cm',
+          bloodGroup: "I don't know",
+          maritalStatus: false,
+          isPregnant: false,
+          isDiabetic: false,
+          isHypertension: false,
+          deceasedBoolean: false,
+          email: null,
+          address: '-',
+          zipCode: '400063',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          country: 'India'
+        },
+        doctor: {
+          _id: '671800c8b17ef535c9fcdac8',
+          doctorFirstName: 'Bhushan',
+          doctorLastName: 'Bafna',
+          medicalRegNo: '123456',
+          noOfExperience: 0,
+          hospitalTime: '',
+          hospitalContactNumber: '',
+          gender: 'Male',
+          photo: '',
+          age: 25,
+          weight: 53,
+          height: 0,
+          birthDate: '1999-07-01T19:45:12.133Z',
+          bloodGroup: "I don't know",
+          address: '-',
+          zipCode: '400063',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          country: 'India',
+          qualification: 'MBBS',
+          period: '10/2024'
+        },
+        hospital: null,
+        observation: {
+          testDateTime: '2019-05-16T14:18:49.000Z',
+          readingFromDevice: 28.188888888888886,
+          calibratedReading: 28.188888888888886,
+          measuringUnitFullName: 'Celsius',
+          measuringUnitShortName: 'C'
+        }
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    expect(canonical.patient?.id).toBe('671800c8b17ef535c9fcdac4');
+    const doctor = canonical.practitioners?.find(p => p.id === '671800c8b17ef535c9fcdac8');
+    expect(doctor?.id).toBe('671800c8b17ef535c9fcdac8');
+    const practitionerQualification = doctor?.qualification?.[0]?.code;
+    expect(practitionerQualification?.code || practitionerQualification?.display).toBe('MBBS');
+    expect(canonical.observations?.[0]?.value).toBe(28.188888888888886);
+    expect(canonical.observations?.[0]?.unit).toBe('C');
+    expect(canonical.observations?.[0]?.date).toBe('2019-05-16T14:18:49.000Z');
+  });
+
+  it('maps observation type aliases to standard LOINC codes', () => {
+    const bodyTemperatureInput = {
+      payload: {
+        observation: {
+          type: 'bodyTempreture',
+          testDateTime: '2019-05-16T14:18:49.000Z',
+          readingFromDevice: 28.1,
+          measuringUnitShortName: 'C'
+        }
+      }
+    };
+
+    const bloodGlucoseInput = {
+      payload: {
+        observation: {
+          type: 'bloodGloucose',
+          testDateTime: '2019-05-16T14:18:49.000Z',
+          readingFromDevice: 98,
+          measuringUnitShortName: 'mg/dL'
+        }
+      }
+    };
+
+    const bodyCanonical = parseCustomJSON(bodyTemperatureInput as any);
+    const glucoseCanonical = parseCustomJSON(bloodGlucoseInput as any);
+    const bodyCode = Array.isArray(bodyCanonical.observations?.[0]?.code)
+      ? bodyCanonical.observations?.[0]?.code?.[0]
+      : bodyCanonical.observations?.[0]?.code;
+    const glucoseCode = Array.isArray(glucoseCanonical.observations?.[0]?.code)
+      ? glucoseCanonical.observations?.[0]?.code?.[0]
+      : glucoseCanonical.observations?.[0]?.code;
+
+    expect(bodyCode?.code).toBe('8310-5');
+    expect(bodyCode?.system).toBe('http://loinc.org');
+    expect(bodyCode?.display).toBe('Body temperature');
+
+    expect(glucoseCode?.code).toBe('2339-0');
+    expect(glucoseCode?.system).toBe('http://loinc.org');
+    expect(glucoseCode?.display).toBe('Glucose [Mass/volume] in Blood');
   });
 });
