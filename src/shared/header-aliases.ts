@@ -50,6 +50,12 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     observation_display: ['obs_display', 'test_name', 'observation_name', 'observation_display_name', 'lab_name', 'lab_test_name'],
     observation_type: ['observation_type', 'observationtype', 'type', 'test_type', 'measurement_type'],
     observation_value: ['obs_value', 'result_value', 'lab_result', 'lab_value', 'lab_result_value', 'labresultvalue', 'reading_from_device', 'readingfromdevice', 'calibrated_reading', 'calibratedreading'],
+    observation_systolic_value: ['systolic_value', 'systolic_reading_from_device', 'systolicreadingfromdevice', 'systolic_calibrated_reading', 'systoliccalibratedreading'],
+    observation_diastolic_value: ['diastolic_value', 'diastolic_reading_from_device', 'diastolicreadingfromdevice', 'diastolic_calibrated_reading', 'diastoliccalibratedreading'],
+    observation_ecg_waves: ['pqrst_waves', 'pqrstwaves'],
+    observation_ecg_heart_rate: ['ecg_heart_rate', 'heart_rate', 'heartrate'],
+    observation_ecg_hrv: ['ecg_hrv', 'heart_rate_variability', 'heartratevariability'],
+    observation_ecg_breathe_rate: ['ecg_breathe_rate', 'breathe_rate', 'breatherate'],
     observation_unit: ['obs_unit', 'result_unit', 'lab_unit', 'lab_result_unit', 'measuring_unit_short_name', 'measuringunitshortname', 'measuring_unit_full_name', 'measuringunitfullname'],
     observation_date: ['obs_date', 'observation_datetime', 'observation_time', 'recorded_datetime', 'lab_result_date', 'result_dt', 'lab_collected_datetime', 'labresultdate', 'test_date_time', 'testdatetime'],
     observation_status: ['obs_status', 'result_status', 'lab_result_status']

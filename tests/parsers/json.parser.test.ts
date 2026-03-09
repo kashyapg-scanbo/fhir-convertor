@@ -490,4 +490,79 @@ describe('parseCustomJSON', () => {
     expect(glucoseCode?.system).toBe('http://loinc.org');
     expect(glucoseCode?.display).toBe('Glucose [Mass/volume] in Blood');
   });
+
+  it('maps blood pressure, blood oxygen, heart rate and ecg observation payloads', () => {
+    const bloodPressureInput = {
+      payload: {
+        observation: {
+          type: 'bloodPressure',
+          testDateTime: '2019-05-17T08:51:15.000Z',
+          systolicReadingFromDevice: 58,
+          diastolicReadingFromDevice: 46
+        }
+      }
+    };
+    const oxygenInput = {
+      payload: {
+        observation: {
+          type: 'bloodOxygen',
+          testDateTime: '2019-05-17T08:40:02.000Z',
+          readingFromDevice: 99
+        }
+      }
+    };
+    const heartRateInput = {
+      payload: {
+        observation: {
+          type: 'heartRate',
+          testDateTime: '2019-05-17T08:40:02.000Z',
+          readingFromDevice: 85
+        }
+      }
+    };
+    const ecgInput = {
+      payload: {
+        observation: {
+          type: 'ecg',
+          testDateTime: '2019-05-16T14:23:32.000Z',
+          PQRSTWaves: '0,1,2,3,2,1,0',
+          heartRate: 66,
+          heartRateVariability: '32',
+          breatheRate: '18'
+        }
+      }
+    };
+
+    const bpCanonical = parseCustomJSON(bloodPressureInput as any);
+    const bpCodes = (bpCanonical.observations || []).map(obs => {
+      const code = Array.isArray(obs.code) ? obs.code[0] : obs.code;
+      return code?.code;
+    });
+    expect(bpCodes).toContain('8480-6');
+    expect(bpCodes).toContain('8462-4');
+    expect(bpCanonical.observations?.find(obs => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '8480-6')?.value).toBe(58);
+    expect(bpCanonical.observations?.find(obs => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '8462-4')?.value).toBe(46);
+
+    const oxygenCanonical = parseCustomJSON(oxygenInput as any);
+    const oxygenCode = Array.isArray(oxygenCanonical.observations?.[0]?.code)
+      ? oxygenCanonical.observations?.[0]?.code?.[0]
+      : oxygenCanonical.observations?.[0]?.code;
+    expect(oxygenCode?.code).toBe('2708-6');
+    expect(oxygenCanonical.observations?.[0]?.unit).toBe('%');
+
+    const heartRateCanonical = parseCustomJSON(heartRateInput as any);
+    const heartRateCode = Array.isArray(heartRateCanonical.observations?.[0]?.code)
+      ? heartRateCanonical.observations?.[0]?.code?.[0]
+      : heartRateCanonical.observations?.[0]?.code;
+    expect(heartRateCode?.code).toBe('8867-4');
+    expect(heartRateCanonical.observations?.[0]?.unit).toBe('/min');
+
+    const ecgCanonical = parseCustomJSON(ecgInput as any);
+    const ecgCode = Array.isArray(ecgCanonical.observations?.[0]?.code)
+      ? ecgCanonical.observations?.[0]?.code?.[0]
+      : ecgCanonical.observations?.[0]?.code;
+    expect(ecgCode?.code).toBe('11524-6');
+    expect(ecgCanonical.observations?.[0]?.value).toBe('0,1,2,3,2,1,0');
+    expect(ecgCanonical.observations?.[0]?.components?.length).toBe(3);
+  });
 });

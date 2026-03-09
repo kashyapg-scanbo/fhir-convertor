@@ -82,11 +82,15 @@ function isBooleanLikeValue(value?: string) {
 
 export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
   const firstRow = rows[0] || {};
-  const observationTypeMap: Record<string, { code: string; system: string; display: string }> = {
-    bodytemperature: { code: '8310-5', system: 'http://loinc.org', display: 'Body temperature' },
-    bodytempreture: { code: '8310-5', system: 'http://loinc.org', display: 'Body temperature' },
-    bloodglucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood' },
-    bloodgloucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood' }
+  const observationTypeMap: Record<string, { code: string; system: string; display: string; defaultUnit?: string; kind?: 'single' | 'blood_pressure' | 'ecg' }> = {
+    bodytemperature: { code: '8310-5', system: 'http://loinc.org', display: 'Body temperature', defaultUnit: 'C', kind: 'single' },
+    bodytempreture: { code: '8310-5', system: 'http://loinc.org', display: 'Body temperature', defaultUnit: 'C', kind: 'single' },
+    bloodoxygen: { code: '2708-6', system: 'http://loinc.org', display: 'Oxygen saturation in Arterial blood', defaultUnit: '%', kind: 'single' },
+    bloodpressure: { code: '85354-9', system: 'http://loinc.org', display: 'Blood pressure panel with all children optional', defaultUnit: 'mmHg', kind: 'blood_pressure' },
+    bloodglucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood', kind: 'single' },
+    bloodgloucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood', kind: 'single' },
+    heartrate: { code: '8867-4', system: 'http://loinc.org', display: 'Heart rate', defaultUnit: '/min', kind: 'single' },
+    ecg: { code: '11524-6', system: 'http://loinc.org', display: 'ECG study', kind: 'ecg' }
   };
 
   const patientId = readValue(firstRow, ['patient_id', '_id', 'master_profile_id', 'masterprofileid']);
@@ -258,26 +262,101 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     };
   }
 
-  const observations = rows.map(row => {
+  const observations: Array<Record<string, unknown>> = [];
+  rows.forEach(row => {
     const observationTypeRaw = readValue(row, 'observation_type');
     const observationTypeKey = observationTypeRaw?.toLowerCase().replace(/[^a-z0-9]/g, '');
     const mappedType = observationTypeKey ? observationTypeMap[observationTypeKey] : undefined;
+    const observationId = readValue(row, 'observation_id');
+    const observationDate = readValue(row, 'observation_date');
+    const observationStatus = readValue(row, 'observation_status') || 'final';
+    const explicitUnit = readValue(row, 'observation_unit');
+
+    if (mappedType?.kind === 'blood_pressure') {
+      const systolicValue = readNumber(row, 'observation_systolic_value');
+      const diastolicValue = readNumber(row, 'observation_diastolic_value');
+      if (systolicValue !== undefined) {
+        observations.push({
+          setId: observationId,
+          code: {
+            system: 'http://loinc.org',
+            code: '8480-6',
+            display: 'Systolic blood pressure'
+          },
+          value: systolicValue,
+          unit: explicitUnit || mappedType.defaultUnit,
+          date: observationDate,
+          status: observationStatus
+        });
+      }
+      if (diastolicValue !== undefined) {
+        observations.push({
+          setId: observationId,
+          code: {
+            system: 'http://loinc.org',
+            code: '8462-4',
+            display: 'Diastolic blood pressure'
+          },
+          value: diastolicValue,
+          unit: explicitUnit || mappedType.defaultUnit,
+          date: observationDate,
+          status: observationStatus
+        });
+      }
+      return;
+    }
+
     const code = readValue(row, 'observation_code') || mappedType?.code;
-    const value = readValue(row, 'observation_value');
-    if (!code && value === undefined) return null;
-    return {
-      setId: readValue(row, 'observation_id'),
+    const rawObservationValue = readValue(row, 'observation_value') ?? readValue(row, 'observation_ecg_waves');
+    const numericObservationValue = readNumber(row, 'observation_value');
+
+    if (!code && rawObservationValue === undefined) return;
+
+    const observation: Record<string, unknown> = {
+      setId: observationId,
       code: {
         system: readValue(row, 'observation_code_system') || mappedType?.system,
         code: code,
         display: readValue(row, 'observation_display') || mappedType?.display || observationTypeRaw
       },
-      value: readNumber(row, 'observation_value') ?? value,
-      unit: readValue(row, 'observation_unit'),
-      date: readValue(row, 'observation_date'),
-      status: readValue(row, 'observation_status') || 'final'
+      value: numericObservationValue ?? rawObservationValue,
+      unit: explicitUnit || mappedType?.defaultUnit,
+      date: observationDate,
+      status: observationStatus
     };
-  }).filter(Boolean);
+
+    if (mappedType?.kind === 'ecg') {
+      const ecgHeartRate = readNumber(row, 'observation_ecg_heart_rate');
+      const ecgHrv = readNumber(row, 'observation_ecg_hrv');
+      const ecgBreatheRate = readNumber(row, 'observation_ecg_breathe_rate');
+      const components: Array<Record<string, unknown>> = [];
+
+      if (ecgHeartRate !== undefined) {
+        components.push({
+          code: { system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' },
+          valueQuantity: { value: ecgHeartRate, unit: '/min', code: '/min', system: 'http://unitsofmeasure.org' }
+        });
+      }
+      if (ecgHrv !== undefined) {
+        components.push({
+          code: { system: 'urn:hl7-org:local', code: 'heart-rate-variability', display: 'Heart rate variability' },
+          valueQuantity: { value: ecgHrv, unit: 'ms', code: 'ms', system: 'http://unitsofmeasure.org' }
+        });
+      }
+      if (ecgBreatheRate !== undefined) {
+        components.push({
+          code: { system: 'http://loinc.org', code: '9279-1', display: 'Respiratory rate' },
+          valueQuantity: { value: ecgBreatheRate, unit: '/min', code: '/min', system: 'http://unitsofmeasure.org' }
+        });
+      }
+
+      if (components.length > 0) {
+        observation.components = components;
+      }
+    }
+
+    observations.push(observation);
+  });
 
   if (observations.length > 0) canonical.observations = observations as any[];
 
