@@ -3573,6 +3573,14 @@ function normalizeGlobalPatientAliases(value: Record<string, unknown>) {
   if (normalized.patient_id === undefined && patientId !== undefined) {
     normalized.patient_id = patientId;
   }
+  const directPatientId = normalizeAliasValue(
+    (value as Record<string, unknown>)._id ??
+    (value as Record<string, unknown>).masterProfileId ??
+    (value as Record<string, unknown>).master_profile_id
+  );
+  if (directPatientId && normalized.patient_id === undefined) {
+    normalized.patient_id = directPatientId;
+  }
 
   const firstRaw = readSectionAliasValue(value, 'patient', 'patient_first_name');
   const first = normalizeAliasValue(firstRaw);
@@ -3679,6 +3687,16 @@ function normalizeGlobalPatientAliases(value: Record<string, unknown>) {
     contactInfo.address = address;
   }
   if (Object.keys(contactInfo).length > 0) normalized.contact_info = contactInfo;
+
+  // Sanitize common null/boolean edge-cases so strict global schema accepts payloads.
+  if (normalized.patient_type === null) normalized.patient_type = undefined;
+  if (normalized.photo === null) normalized.photo = undefined;
+  if (normalized.age === null) normalized.age = undefined;
+  if (normalized.weight === null) normalized.weight = undefined;
+  if (normalized.height === null) normalized.height = undefined;
+  if (normalized.marital_status !== undefined && typeof normalized.marital_status !== 'string') {
+    normalized.marital_status = undefined;
+  }
 
   return normalized;
 }

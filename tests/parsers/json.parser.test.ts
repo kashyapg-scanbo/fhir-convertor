@@ -331,4 +331,45 @@ describe('parseCustomJSON', () => {
     expect(practitioner?.name?.family).toBe('Testworker');
     expect(practitioner?.qualification?.[0]?.code?.code).toBe('Community Worker');
   });
+
+  it('accepts patient payload with null patientType and boolean maritalStatus', () => {
+    const input = {
+      _id: '671800c8b17ef535c9fcdb04',
+      masterProfileId: '671800c8b17ef535c9fcdaf8',
+      patientFirstName: 'Om',
+      patientMiddleName: null,
+      patientLastName: 'K',
+      patientType: null,
+      mobileNumber: '',
+      countryCode: '',
+      gender: 'Male',
+      birthDate: '1999-07-01T19:45:12.255Z',
+      photo: '',
+      weight: 65,
+      weightUnit: 'kg',
+      height: 0,
+      heightUnit: 'cm',
+      bloodGroup: "I don't know",
+      maritalStatus: false,
+      isPregnant: false,
+      isDiabetic: false,
+      isHypertension: false,
+      deceasedBoolean: false,
+      email: null,
+      address: '-',
+      zipCode: '400602',
+      city: 'Thane',
+      state: 'Maharashtra',
+      country: 'India'
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    expect(canonical.patient?.id).toBe('671800c8b17ef535c9fcdaf8');
+    expect(canonical.patient?.name?.given?.[0]).toBe('Om');
+    expect(canonical.patient?.name?.family).toBe('K');
+    expect(canonical.patient?.weight).toBe(65);
+    expect(canonical.patient?.height).toBe(0);
+    expect(canonical.patient?.maritalStatus).toBeUndefined();
+    expect(canonical.patient?.deceasedBoolean).toBe(false);
+  });
 });

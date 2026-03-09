@@ -74,10 +74,16 @@ function splitFullName(fullName?: string): { given?: string[]; family?: string }
   };
 }
 
+function isBooleanLikeValue(value?: string) {
+  if (!value) return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === 'true' || normalized === 'false';
+}
+
 export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: string): CanonicalModel {
   const firstRow = rows[0] || {};
 
-  const patientId = readValue(firstRow, 'patient_id');
+  const patientId = readValue(firstRow, ['patient_id', '_id', 'master_profile_id', 'masterprofileid']);
   const patientFirst = readValue(firstRow, 'patient_first_name');
   const patientMiddle = readValue(firstRow, 'patient_middle_name');
   let patientLast = readValue(firstRow, 'patient_last_name');
@@ -121,7 +127,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       address,
       telecom: telecom.length > 0 ? telecom : undefined,
       deceasedBoolean: readBoolean(firstRow, 'patient_deceased_boolean'),
-      maritalStatus: patientMaritalStatus ? {
+      maritalStatus: patientMaritalStatus && !isBooleanLikeValue(patientMaritalStatus) ? {
         code: patientMaritalStatus,
         display: patientMaritalStatus
       } : undefined,
@@ -141,7 +147,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   };
 
   const rawPatients = rows.map(row => {
-    const rowPatientId = readValue(row, 'patient_id');
+    const rowPatientId = readValue(row, ['patient_id', '_id', 'master_profile_id', 'masterprofileid']);
     const rowFirst = readValue(row, 'patient_first_name');
     const rowMiddle = readValue(row, 'patient_middle_name');
     let rowLast = readValue(row, 'patient_last_name');
@@ -194,7 +200,9 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
       address: rowAddress,
       telecom: rowTelecom.length > 0 ? rowTelecom : undefined,
       deceasedBoolean: readBoolean(row, 'patient_deceased_boolean'),
-      maritalStatus: rowMaritalStatus ? { code: rowMaritalStatus, display: rowMaritalStatus } : undefined,
+      maritalStatus: rowMaritalStatus && !isBooleanLikeValue(rowMaritalStatus)
+        ? { code: rowMaritalStatus, display: rowMaritalStatus }
+        : undefined,
       patientType: readValue(row, 'patient_type'),
       photo: readValue(row, 'patient_photo'),
       age: readNumber(row, 'patient_age'),
