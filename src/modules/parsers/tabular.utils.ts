@@ -4061,11 +4061,11 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
   if (binaries.length > 0) canonical.binaries = binaries as any[];
 
   const practitioners = rows.map(row => {
-    const practitionerId = readValue(row, 'practitioner_id');
-    const practitionerLicenseNumber = readValue(row, 'practitioner_license_number');
-    const practitionerFirst = readValue(row, 'practitioner_first_name');
+    const practitionerId = readValue(row, 'practitioner_id') ?? readValue(row, '_id');
+    const practitionerLicenseNumber = readValue(row, 'practitioner_license_number') ?? readValue(row, 'medical_reg_no') ?? readValue(row, 'registration_number');
+    const practitionerFirst = readValue(row, 'practitioner_first_name') ?? readValue(row, 'community_worker_first_name');
     const practitionerMiddle = readValue(row, 'practitioner_middle_name');
-    let practitionerLast = readValue(row, 'practitioner_last_name');
+    let practitionerLast = readValue(row, 'practitioner_last_name') ?? readValue(row, 'community_worker_last_name');
     let fullNameGiven: string[] | undefined;
     if (!practitionerFirst && !practitionerLast) {
       const nameFromFull = splitFullName(readValue(row, 'practitioner_name'));
@@ -4096,7 +4096,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     const practitionerBirthDate = readValue(row, 'practitioner_birth_date') ?? readValue(row, 'patient_birth_date');
 
     const givenValues = (fullNameGiven ?? [practitionerFirst, practitionerMiddle].filter(Boolean)) as string[];
-    const qualificationCode = readValue(row, 'practitioner_qualification_code');
+    const qualificationCode = readValue(row, 'practitioner_qualification_code') || 'Doctor';
     const qualification = qualificationCode ? [{
       code: {
         system: readValue(row, 'practitioner_qualification_system'),

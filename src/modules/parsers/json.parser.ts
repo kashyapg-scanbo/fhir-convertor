@@ -8082,12 +8082,16 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
 
   const first = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_first_name'));
   if (first && name.first_name === undefined) name.first_name = first;
+  const directCommunityFirst = normalizeAliasValue((value as Record<string, unknown>).communityWorkerFirstName ?? (value as Record<string, unknown>).community_worker_first_name);
+  if (directCommunityFirst && name.first_name === undefined) name.first_name = directCommunityFirst;
 
   const middle = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_middle_name'));
   if (middle && name.middle_name === undefined) name.middle_name = middle;
 
   const last = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_last_name'));
   if (last && name.last_name === undefined) name.last_name = last;
+  const directCommunityLast = normalizeAliasValue((value as Record<string, unknown>).communityWorkerLastName ?? (value as Record<string, unknown>).community_worker_last_name);
+  if (directCommunityLast && name.last_name === undefined) name.last_name = directCommunityLast;
 
   const fullNameRaw = readSectionAliasValue(value, 'practitioner', 'practitioner_name');
   if (typeof fullNameRaw === 'string' && fullNameRaw.trim()) {
@@ -8146,12 +8150,14 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   if (licenseNumber && license.license_number === undefined) license.license_number = licenseNumber;
   const directMedicalRegNo = normalizeAliasValue((value as Record<string, unknown>).medicalRegNo ?? (value as Record<string, unknown>).medical_reg_no);
   if (directMedicalRegNo && license.license_number === undefined) license.license_number = directMedicalRegNo;
+  const directRegistrationNumber = normalizeAliasValue((value as Record<string, unknown>).registrationNumber ?? (value as Record<string, unknown>).registration_number);
+  if (directRegistrationNumber && license.license_number === undefined) license.license_number = directRegistrationNumber;
 
-  const experience = readSectionAliasValue(value, 'practitioner', 'practitioner_years_of_experience');
+  const experience = normalizeAliasValue(readSectionAliasValue(value, 'practitioner', 'practitioner_years_of_experience'));
   if (experience !== undefined && normalized.years_of_experience === undefined) {
     normalized.years_of_experience = experience;
   }
-  const directExperience = (value as Record<string, unknown>).noOfExperience ?? (value as Record<string, unknown>).no_of_experience;
+  const directExperience = normalizeAliasValue((value as Record<string, unknown>).noOfExperience ?? (value as Record<string, unknown>).no_of_experience);
   if (directExperience !== undefined && normalized.years_of_experience === undefined) {
     normalized.years_of_experience = directExperience;
   }
@@ -8159,6 +8165,19 @@ function normalizeGlobalPractitionerAliases(value: Record<string, unknown>) {
   const directQualification = normalizeAliasValue((value as Record<string, unknown>).qualification);
   if ((qualification || directQualification) && normalized.specialization === undefined) {
     normalized.specialization = qualification || directQualification;
+  }
+  const hasCommunityWorkerMarker = Boolean(
+    directCommunityFirst ||
+    directCommunityLast ||
+    normalizeAliasValue((value as Record<string, unknown>).practitionerType ?? (value as Record<string, unknown>).practitioner_type) === 'community_worker' ||
+    normalizeAliasValue((value as Record<string, unknown>).sourceEntityType ?? (value as Record<string, unknown>).source_entity_type) === 'community_worker' ||
+    (value as Record<string, unknown>).communityWorkerFirstName !== undefined ||
+    (value as Record<string, unknown>).communityWorkerLastName !== undefined ||
+    (value as Record<string, unknown>).community_worker_first_name !== undefined ||
+    (value as Record<string, unknown>).community_worker_last_name !== undefined
+  );
+  if (normalized.specialization === undefined) {
+    normalized.specialization = hasCommunityWorkerMarker ? 'Community Worker' : 'Doctor';
   }
 
   if (Object.keys(name).length > 0) normalized.name = name;
@@ -8657,6 +8676,44 @@ function toSectionRow(sectionKey: keyof typeof SECTION_CANONICAL_KEYS, value: un
   return row;
 }
 
+function hasCommunityWorkerMarker(payload: unknown): boolean {
+  if (Array.isArray(payload)) {
+    return payload.some(item => hasCommunityWorkerMarker(item));
+  }
+  if (!isPlainRecord(payload)) return false;
+
+  const keys = Object.keys(payload).map(normalizeAliasKey);
+  if (
+    keys.includes('community_worker_first_name') ||
+    keys.includes('community_worker_last_name') ||
+    keys.includes('communityworkerfirstname') ||
+    keys.includes('communityworkerlastname')
+  ) {
+    return true;
+  }
+  const practitionerType = normalizeAliasValue(payload.practitionerType ?? payload.practitioner_type);
+  const sourceEntityType = normalizeAliasValue(payload.sourceEntityType ?? payload.source_entity_type);
+  if (practitionerType === 'community_worker' || sourceEntityType === 'community_worker') {
+    return true;
+  }
+
+  return Object.values(payload).some(value => hasCommunityWorkerMarker(value));
+}
+
+function applyCommunityWorkerQualificationDefault(canonical: CanonicalModel, payload: unknown) {
+  if (!hasCommunityWorkerMarker(payload)) return;
+  if (!canonical.practitioners?.length) return;
+
+  for (const practitioner of canonical.practitioners) {
+    practitioner.qualification = [{
+      code: {
+        code: 'Community Worker',
+        display: 'Community Worker'
+      }
+    }];
+  }
+}
+
 /**
  * Parse custom JSON to Canonical Model
  * The JSON structure should match the canonical model
@@ -8676,11 +8733,23 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     parsed = jsonInput;
   }
 
+  // Accept common envelope wrappers from upstream systems:
+  // { payload: {...} } or { data: {...} }.
+  // Only unwrap when the wrapped value is an object/array to avoid
+  // interfering with resources like Communication that use string payloads.
+  if (isPlainRecord(parsed)) {
+    const wrapped = parsed.payload ?? parsed.data;
+    if (isPlainRecord(wrapped) || Array.isArray(wrapped)) {
+      parsed = wrapped;
+    }
+  }
+
   if (looksLikeTabularJson(parsed)) {
     const rows = coerceTabularRows(parsed) || [];
     if (rows.length > 0) {
       const messageType = resolveMessageType(parsed) || 'JSON';
       const canonical = mapTabularRowsToCanonical(rows, messageType);
+      applyCommunityWorkerQualificationDefault(canonical, parsed);
       const leftover = extractFlatLeftoverPayload(parsed);
       if (leftover) {
         const payloads = buildLeftoverSourcePayloads(canonical, leftover);
@@ -8737,6 +8806,7 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     const rows = buildRowsFromStructuredAliasJson(parsed);
     if (rows.length > 0) {
       const canonical = mapTabularRowsToCanonical(rows, 'JSON');
+      applyCommunityWorkerQualificationDefault(canonical, parsed);
       const leftover = extractFlatLeftoverPayload(parsed);
       if (leftover) {
         const payloads = buildLeftoverSourcePayloads(canonical, leftover);
@@ -9534,7 +9604,7 @@ function wrapGlobalPayload(value: any) {
     if ('practitioner_role_id' in value || 'role' in value || 'specialty' in value) {
       return { practitioner_role: value };
     }
-    if ('practitioner_id' in value || '_id' in value || 'medicalRegNo' in value || 'doctorFirstName' in value || 'doctorLastName' in value || 'license' in value || value.name?.first_name) {
+    if ('practitioner_id' in value || '_id' in value || 'medicalRegNo' in value || 'doctorFirstName' in value || 'doctorLastName' in value || 'communityWorkerFirstName' in value || 'communityWorkerLastName' in value || 'registrationNumber' in value || 'license' in value || value.name?.first_name) {
       return { practitioner: value };
     }
     if ('organization_id' in value || 'services_offered' in value || 'departments' in value) {
@@ -9748,6 +9818,9 @@ function looksLikeGlobalResource(value: any) {
     'medicalRegNo' in value ||
     'doctorFirstName' in value ||
     'doctorLastName' in value ||
+    'communityWorkerFirstName' in value ||
+    'communityWorkerLastName' in value ||
+    'registrationNumber' in value ||
     'license' in value ||
     'practitioner_role_id' in value ||
     'organization_id' in value ||

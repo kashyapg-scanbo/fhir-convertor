@@ -219,4 +219,116 @@ describe('parseCustomJSON', () => {
     expect(identifiers).toContain('PAT-1');
     expect(identifiers).toContain('PAT-2');
   });
+
+  it('defaults practitioner qualification to Doctor when not community worker', () => {
+    const input = {
+      _id: 'DOC-1',
+      doctorFirstName: 'Bhushan',
+      doctorLastName: 'Bafna',
+      gender: 'Male',
+      birthDate: '1999-07-01T19:45:12.133Z'
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const practitioner = canonical.practitioners?.[0];
+    expect(practitioner?.name?.given?.[0]).toBe('Bhushan');
+    expect(practitioner?.name?.family).toBe('Bafna');
+    expect(practitioner?.qualification?.[0]?.code?.code).toBe('Doctor');
+  });
+
+  it('maps community worker payload and sets qualification to Community Worker', () => {
+    const input = {
+      _id: '671800c8b17ef535c9fcdb44',
+      communityWorkerFirstName: 'New',
+      communityWorkerLastName: 'Text',
+      gender: 'Male',
+      age: 24,
+      birthdate: '2000-02-01T00:00:00.000Z',
+      registrationNumber: 'Njdn',
+      workingWithOrganazation: false
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const practitioner = canonical.practitioners?.[0];
+    expect(practitioner?.id).toBe('671800c8b17ef535c9fcdb44');
+    expect(practitioner?.identifier).toBe('Njdn');
+    expect(practitioner?.name?.given?.[0]).toBe('New');
+    expect(practitioner?.name?.family).toBe('Text');
+    expect(practitioner?.qualification?.[0]?.code?.code).toBe('Community Worker');
+  });
+
+  it('accepts community worker payload with null experience and practitionerType marker', () => {
+    const input = {
+      _id: '671800c8b17ef535c9fcdc16',
+      communityWorkerId: '671800c8b17ef535c9fcdc16',
+      doctorFirstName: 'Arvind',
+      doctorLastName: 'Rajan',
+      medicalRegNo: '75245713',
+      noOfExperience: null,
+      hospitalTime: null,
+      hospitalContactNumber: null,
+      gender: 'Male',
+      photo: null,
+      age: 50,
+      weight: null,
+      height: null,
+      birthDate: '1974-07-01T19:45:12.747Z',
+      bloodGroup: null,
+      address: null,
+      zipCode: '600130',
+      city: 'Kanchipuram',
+      state: 'Tamil nadu',
+      country: 'India',
+      qualification: 'MBBS',
+      period: '',
+      practitionerType: 'community_worker',
+      sourceEntityType: 'community_worker'
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const practitioner = canonical.practitioners?.[0];
+    expect(practitioner?.id).toBe('671800c8b17ef535c9fcdc16');
+    expect(practitioner?.identifier).toBe('75245713');
+    expect(practitioner?.name?.given?.[0]).toBe('Arvind');
+    expect(practitioner?.name?.family).toBe('Rajan');
+    expect(practitioner?.qualification?.[0]?.code?.code).toBe('Community Worker');
+  });
+
+  it('accepts community worker payload wrapped in top-level payload object', () => {
+    const input = {
+      payload: {
+        _id: '671800c9b17ef535c9fcddc4',
+        communityWorkerId: '671800c9b17ef535c9fcddc4',
+        doctorFirstName: 'Mayur',
+        doctorLastName: 'Testworker',
+        medicalRegNo: '',
+        noOfExperience: null,
+        hospitalTime: null,
+        hospitalContactNumber: null,
+        gender: 'Male',
+        photo: null,
+        age: null,
+        weight: null,
+        height: null,
+        birthDate: '2000-07-01T00:00:00.000Z',
+        bloodGroup: null,
+        address: null,
+        zipCode: '401105',
+        city: 'Thane',
+        state: 'Maharashtra',
+        country: 'India',
+        qualification: null,
+        period: '',
+        practitionerType: 'community_worker',
+        sourceEntityType: 'community_worker'
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const practitioner = canonical.practitioners?.[0];
+    expect(practitioner?.id).toBe('671800c9b17ef535c9fcddc4');
+    expect(practitioner?.name?.given?.[0]).toBe('Mayur');
+    expect(practitioner?.name?.family).toBe('Testworker');
+    expect(practitioner?.qualification?.[0]?.code?.code).toBe('Community Worker');
+  });
 });

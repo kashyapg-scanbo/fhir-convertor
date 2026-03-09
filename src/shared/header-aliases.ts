@@ -1528,9 +1528,9 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
   },
   practitioner: {
     practitioner_id: ['provider_id', 'providerid', 'clinician_id', 'practitioner_identifier', 'practitionerid', '_id', 'doctor_id'],
-    practitioner_first_name: ['practitioner_given', 'practitioner_given_name', 'provider_first_name', 'clinician_first_name', 'doctor_first_name', 'doctorfirstname'],
+    practitioner_first_name: ['practitioner_given', 'practitioner_given_name', 'provider_first_name', 'clinician_first_name', 'doctor_first_name', 'doctorfirstname', 'community_worker_first_name', 'communityworkerfirstname'],
     practitioner_middle_name: ['practitioner_middlename', 'provider_middle_name', 'clinician_middle_name'],
-    practitioner_last_name: ['practitioner_family', 'practitioner_family_name', 'provider_last_name', 'clinician_last_name', 'doctor_last_name', 'doctorlastname'],
+    practitioner_last_name: ['practitioner_family', 'practitioner_family_name', 'provider_last_name', 'clinician_last_name', 'doctor_last_name', 'doctorlastname', 'community_worker_last_name', 'communityworkerlastname'],
     practitioner_name: ['practitioner_full_name', 'provider_name', 'providername', 'clinician_name', 'attend_prsnl_name', 'attending_provider_name'],
     practitioner_gender: ['practitioner_sex', 'provider_gender', 'clinician_gender', 'doctor_gender'],
     practitioner_birth_date: ['practitioner_dob', 'provider_dob', 'clinician_dob', 'birth_date', 'birthdate', 'doctor_birth_date'],
@@ -1545,7 +1545,7 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     practitioner_qualification_code: ['practitioner_qualification', 'provider_qualification_code', 'qualification'],
     practitioner_qualification_system: ['practitioner_qualification_system', 'provider_qualification_system'],
     practitioner_qualification_display: ['practitioner_qualification_display', 'provider_qualification_display'],
-    practitioner_license_number: ['medical_reg_no', 'medicalregno', 'medical_registration_number', 'registration_number', 'license_number'],
+    practitioner_license_number: ['medical_reg_no', 'medicalregno', 'medical_registration_number', 'registration_number', 'registrationnumber', 'license_number'],
     practitioner_years_of_experience: ['years_of_experience', 'experience_years', 'no_of_experience', 'noofexperience'],
     practitioner_active: ['provider_active', 'clinician_active']
   },
