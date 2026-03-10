@@ -124,6 +124,38 @@ describe('observation mapper', () => {
     expect(resource.valueQuantity.system).toBe('http://unitsofmeasure.org');
     expect(resource.valueQuantity.code).toBe('Cel');
   });
+
+  it('maps blood pressure units to UCUM mm[Hg] for BP profile', () => {
+    const registry = new FullUrlRegistry();
+    const observations: CanonicalObservation[] = [
+      {
+        setId: 'bp-1',
+        code: { system: 'http://loinc.org', code: '8480-6', display: 'Systolic blood pressure' },
+        value: 120,
+        unit: 'mmHg',
+        date: '2024-01-01T00:00:00Z'
+      },
+      {
+        setId: 'bp-2',
+        code: { system: 'http://loinc.org', code: '8462-4', display: 'Diastolic blood pressure' },
+        value: 80,
+        unit: 'mmHg',
+        date: '2024-01-01T00:00:00Z'
+      }
+    ];
+
+    const entries = mapObservations({
+      observations,
+      registry,
+      patientFullUrl: 'urn:uuid:patient'
+    });
+
+    expect(entries.length).toBe(1);
+    const resource = entries[0].resource;
+    expect(resource.code.coding[0].code).toBe('85354-9');
+    expect(resource.component[0].valueQuantity.code).toBe('mm[Hg]');
+    expect(resource.component[1].valueQuantity.code).toBe('mm[Hg]');
+  });
 });
 
 describe('practitioner mapper', () => {

@@ -90,7 +90,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
     bloodglucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood', kind: 'single' },
     bloodgloucose: { code: '2339-0', system: 'http://loinc.org', display: 'Glucose [Mass/volume] in Blood', kind: 'single' },
     heartrate: { code: '8867-4', system: 'http://loinc.org', display: 'Heart rate', defaultUnit: '/min', kind: 'single' },
-    ecg: { code: '11524-6', system: 'http://loinc.org', display: 'ECG study', kind: 'ecg' }
+    ecg: { code: '11524-6', system: 'http://loinc.org', display: 'EKG study', kind: 'ecg' }
   };
 
   const patientId = readValue(firstRow, ['patient_id', '_id', 'master_profile_id', 'masterprofileid']);
