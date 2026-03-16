@@ -638,7 +638,7 @@ describe('parseCustomJSON', () => {
     expect(resourceTypes).toContain('MedicationRequest');
     expect(resourceTypes).toContain('CarePlan');
     expect(resourceTypes).toContain('DocumentReference');
-    expect(medicationCount).toBe(3);
+    expect(medicationCount).toBe(1);
     expect(medicationRequestCount).toBe(2);
     expect(conditionResource?.clinicalStatus?.coding?.[0]?.code).toBe('active');
     expect(appointmentResource?.start).toBeDefined();

@@ -8895,12 +8895,15 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
       const medId = payloadId ? `${payloadId}-med-${index + 1}` : undefined;
       const requestId = payloadId ? `${payloadId}-med-req-${index + 1}` : undefined;
 
-      pushRow({
-        medication_id: medId,
-        medication_display: medicationName,
-        medication_code: medicationName,
-        medication_code_system: 'urn:scanbo:medication'
-      });
+      // Intentionally disabled for now:
+      // Prescription drugName entries should create MedicationRequest only,
+      // not standalone Medication resources.
+      // pushRow({
+      //   medication_id: medId,
+      //   medication_display: medicationName,
+      //   medication_code: medicationName,
+      //   medication_code_system: 'urn:scanbo:medication'
+      // });
 
       pushRow({
         medication_request_id: requestId,
