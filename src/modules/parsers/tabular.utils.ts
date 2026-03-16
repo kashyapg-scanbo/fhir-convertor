@@ -408,19 +408,29 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
 
   const medicationRequests = rows.map(row => {
     const medCode = readValue(row, 'medication_code');
+    const medDisplay = readValue(row, 'medication_display');
     const requestId = readValue(row, 'medication_request_id');
-    if (!medCode && !requestId) return null;
+    const hasRequestSignals = Boolean(
+      requestId ||
+      readValue(row, 'medication_status') ||
+      readValue(row, 'medication_authored_on') ||
+      readValue(row, 'medication_dose') ||
+      readValue(row, 'medication_route') ||
+      readValue(row, 'medication_sig')
+    );
+    if (!hasRequestSignals) return null;
+    if (!medCode && !medDisplay && !requestId) return null;
     return {
-      id: requestId || medCode || undefined,
+      id: requestId || medCode || medDisplay || undefined,
       status: readValue(row, 'medication_status') || 'active',
       intent: 'order',
-      medicationCodeableConcept: medCode ? {
+      medicationCodeableConcept: (medCode || medDisplay) ? {
         coding: [{
           system: readValue(row, 'medication_code_system'),
           code: medCode,
-          display: readValue(row, 'medication_display')
-        }],
-        text: readValue(row, 'medication_display')
+          display: medDisplay
+        }].filter(coding => coding.code || coding.display),
+        text: medDisplay || medCode
       } : undefined,
       authoredOn: readValue(row, 'medication_authored_on'),
       dosageInstruction: (readValue(row, 'medication_dose') || readValue(row, 'medication_route')) ? [{

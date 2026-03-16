@@ -565,4 +565,77 @@ describe('parseCustomJSON', () => {
     expect(ecgCanonical.observations?.[0]?.value).toBe('0,1,2,3,2,1,0');
     expect(ecgCanonical.observations?.[0]?.components?.length).toBe(3);
   });
+
+  it('maps scanbo consultation payload to patient/practitioner/appointment/condition/medication/careplan/document resources', () => {
+    const input = {
+      _id: '69b405097b2f9de46afbf471',
+      exercise: '30 minutes walking daily',
+      diet: 'Low carb diabetic diet',
+      mindSet: {
+        _id: '68e50d791f242bf1e6cec99d',
+        name: 'RECORDED DIABETES EDUCATION SEMINAR'
+      },
+      appointment: '2026-02-04T18:30:00.000Z',
+      note: 'Test1001',
+      supplementList: [
+        {
+          quantity: 2,
+          frequencyName: 'daily 3',
+          frequencyDayCount: 3,
+          duration: 10,
+          remark: 'Testing remark'
+        }
+      ],
+      followUps: [{ name: 'S. Insulin Fasting & PP' }],
+      books: [{ name: 'Spring of Inspiration' }],
+      diagnosis: [{ diagnosis: 'B12 DEFICIANCY' }],
+      prescription: [
+        {
+          testDateTime: '2026-02-04T09:07:05.701Z',
+          drugName: 'REMO 100',
+          frequencyName: 'Once daily after dinner or for one week',
+          remarkName: null,
+          quantity: 1,
+          duration: 1,
+          notes: ''
+        },
+        {
+          testDateTime: '2026-02-04T09:07:05.701Z',
+          drugName: 'Once daily',
+          frequencyName: 'Once daily after dinner or for one week',
+          remarkName: null,
+          quantity: 1,
+          duration: 1,
+          notes: ''
+        }
+      ],
+      patient: {
+        _id: '6981c756d8e8c4987f61c366',
+        patientFirstName: 'Kashyap',
+        patientLastName: 'Oooo'
+      },
+      doctor: {
+        _id: '671800c8b17ef535c9fcdb36',
+        doctorFirstName: 'Shivan',
+        doctorLastName: 'Patel'
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const bundle = mapCanonicalToFHIR(canonical, 'r5');
+    const resourceTypes = (bundle.entry || []).map((e: any) => e?.resource?.resourceType);
+    const medicationCount = resourceTypes.filter((type: string) => type === 'Medication').length;
+    const medicationRequestCount = resourceTypes.filter((type: string) => type === 'MedicationRequest').length;
+
+    expect(resourceTypes).toContain('Patient');
+    expect(resourceTypes).toContain('Practitioner');
+    expect(resourceTypes).toContain('Appointment');
+    expect(resourceTypes).toContain('Condition');
+    expect(resourceTypes).toContain('Medication');
+    expect(resourceTypes).toContain('MedicationRequest');
+    expect(resourceTypes).toContain('CarePlan');
+    expect(resourceTypes).toContain('DocumentReference');
+    expect(medicationCount).toBe(3);
+    expect(medicationRequestCount).toBe(2);
+  });
 });

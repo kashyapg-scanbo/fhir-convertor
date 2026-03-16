@@ -8747,6 +8747,203 @@ function toSectionRow(sectionKey: keyof typeof SECTION_CANONICAL_KEYS, value: un
   return row;
 }
 
+function readMongoWrappedString(value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : undefined;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (isPlainRecord(value)) {
+    if (typeof value.$oid === 'string') return value.$oid;
+    if (typeof value.$date === 'string') return value.$date;
+    if (value.$date instanceof Date) return value.$date.toISOString();
+    const nestedName = typeof value.name === 'string' ? value.name.trim() : '';
+    if (nestedName) return nestedName;
+  }
+  return undefined;
+}
+
+function looksLikeScanboConsultationPayload(payload: unknown): payload is Record<string, unknown> {
+  if (!isPlainRecord(payload)) return false;
+  const hasPersonBlocks = isPlainRecord(payload.patient) || isPlainRecord(payload.doctor);
+  const hasConsultationSignals =
+    'prescription' in payload ||
+    'diagnosis' in payload ||
+    'supplementList' in payload ||
+    'appointment' in payload ||
+    'exercise' in payload ||
+    'diet' in payload ||
+    'mindSet' in payload ||
+    'note' in payload;
+  return hasPersonBlocks && hasConsultationSignals;
+}
+
+function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>): TabularRow[] {
+  const rows: TabularRow[] = [];
+  const payloadId = readMongoWrappedString(payload._id);
+  const patient = isPlainRecord(payload.patient) ? payload.patient : {};
+  const doctor = isPlainRecord(payload.doctor) ? payload.doctor : {};
+
+  const patientId =
+    readMongoWrappedString(payload.patientMasterProfileId) ||
+    readMongoWrappedString(payload.patientId) ||
+    readMongoWrappedString(patient._id);
+  const practitionerId =
+    readMongoWrappedString(payload.doctorId) ||
+    readMongoWrappedString(doctor._id);
+
+  const patientFirstName = readMongoWrappedString(patient.patientFirstName);
+  const patientLastName = readMongoWrappedString(patient.patientLastName);
+  const doctorFirstName = readMongoWrappedString(doctor.doctorFirstName);
+  const doctorLastName = readMongoWrappedString(doctor.doctorLastName);
+
+  const base: TabularRow = {};
+  if (patientId) base.patient_id = patientId;
+  if (patientFirstName) base.patient_first_name = patientFirstName;
+  if (patientLastName) base.patient_last_name = patientLastName;
+  if (practitionerId) base.practitioner_id = practitionerId;
+  if (doctorFirstName) base.practitioner_first_name = doctorFirstName;
+  if (doctorLastName) base.practitioner_last_name = doctorLastName;
+
+  const pushRow = (fields: Record<string, unknown>, includePractitioner = false) => {
+    const row: TabularRow = {};
+    if (base.patient_id) row.patient_id = base.patient_id;
+    if (base.patient_first_name) row.patient_first_name = base.patient_first_name;
+    if (base.patient_last_name) row.patient_last_name = base.patient_last_name;
+    if (includePractitioner) {
+      if (base.practitioner_id) row.practitioner_id = base.practitioner_id;
+      if (base.practitioner_first_name) row.practitioner_first_name = base.practitioner_first_name;
+      if (base.practitioner_last_name) row.practitioner_last_name = base.practitioner_last_name;
+    }
+    for (const [key, raw] of Object.entries(fields)) {
+      if (raw === undefined || raw === null) continue;
+      const value = String(raw).trim();
+      if (!value) continue;
+      row[key] = value;
+    }
+    if (Object.keys(row).length > 0) rows.push(row);
+  };
+
+  // Base row ensures Patient + Practitioner creation.
+  pushRow({}, true);
+
+  const appointmentDate = readMongoWrappedString(payload.appointment);
+  if (appointmentDate) {
+    pushRow({
+      appointment_id: payloadId ? `${payloadId}-appointment` : undefined,
+      appointment_status: 'booked',
+      appointment_start: appointmentDate,
+      appointment_subject_id: patientId,
+      appointment_participant_id: practitionerId
+    });
+  }
+
+  const carePlanPieces = [
+    readMongoWrappedString(payload.exercise) ? `Exercise: ${readMongoWrappedString(payload.exercise)}` : undefined,
+    readMongoWrappedString(payload.diet) ? `Diet: ${readMongoWrappedString(payload.diet)}` : undefined,
+    isPlainRecord(payload.mindSet) && readMongoWrappedString(payload.mindSet.name) ? `Mindset: ${readMongoWrappedString(payload.mindSet.name)}` : undefined,
+    Array.isArray(payload.followUps)
+      ? `Follow-ups: ${payload.followUps
+          .filter(isPlainRecord)
+          .map(item => readMongoWrappedString(item.name))
+          .filter(Boolean)
+          .join(', ')}`
+      : undefined,
+    Array.isArray(payload.books)
+      ? `Books: ${payload.books
+          .filter(isPlainRecord)
+          .map(item => readMongoWrappedString(item.name))
+          .filter(Boolean)
+          .join(', ')}`
+      : undefined
+  ].filter(Boolean) as string[];
+  if (carePlanPieces.length > 0 || readMongoWrappedString(payload.note)) {
+    pushRow({
+      care_plan_id: payloadId ? `${payloadId}-care-plan` : undefined,
+      care_plan_status: 'active',
+      care_plan_intent: 'plan',
+      care_plan_title: 'Scanbo Consultation Care Plan',
+      care_plan_description: carePlanPieces.join(' | '),
+      care_plan_subject_id: patientId,
+      care_plan_note: readMongoWrappedString(payload.note)
+    });
+  }
+
+  if (Array.isArray(payload.diagnosis)) {
+    payload.diagnosis.filter(isPlainRecord).forEach((diag, index) => {
+      const diagnosisText = readMongoWrappedString(diag.diagnosis) || readMongoWrappedString(diag.name);
+      if (!diagnosisText) return;
+      pushRow({
+        condition_id: payloadId ? `${payloadId}-condition-${index + 1}` : undefined,
+        condition_display: diagnosisText,
+        condition_subject_id: patientId
+      });
+    });
+  }
+
+  if (Array.isArray(payload.prescription)) {
+    payload.prescription.filter(isPlainRecord).forEach((rx, index) => {
+      const medicationName = readMongoWrappedString(rx.drugName);
+      if (!medicationName) return;
+      const authoredOn = readMongoWrappedString(rx.testDateTime) || appointmentDate;
+      const quantity = readMongoWrappedString(rx.quantity);
+      const duration = readMongoWrappedString(rx.duration);
+      const frequencyName = readMongoWrappedString(rx.frequencyName);
+      const remarkName = readMongoWrappedString(rx.remarkName);
+      const notes = readMongoWrappedString(rx.notes);
+      const medId = payloadId ? `${payloadId}-med-${index + 1}` : undefined;
+      const requestId = payloadId ? `${payloadId}-med-req-${index + 1}` : undefined;
+
+      pushRow({
+        medication_id: medId,
+        medication_display: medicationName,
+        medication_code: medicationName,
+        medication_code_system: 'urn:scanbo:medication'
+      });
+
+      pushRow({
+        medication_request_id: requestId,
+        medication_status: 'active',
+        medication_authored_on: authoredOn,
+        medication_display: medicationName,
+        medication_code_system: 'urn:scanbo:medication',
+        medication_dose: quantity,
+        medication_dose_unit: duration ? `day(s)` : undefined,
+        medication_sig: [frequencyName, remarkName, notes].filter(Boolean).join(' | ')
+      });
+    });
+  }
+
+  if (Array.isArray(payload.supplementList)) {
+    payload.supplementList.filter(isPlainRecord).forEach((supp, index) => {
+      const supplementName = readMongoWrappedString(supp.supplementName) || `Supplement ${index + 1}`;
+
+      pushRow({
+        medication_id: payloadId ? `${payloadId}-supp-med-${index + 1}` : undefined,
+        medication_display: supplementName,
+        medication_code: supplementName,
+        medication_code_system: 'urn:scanbo:supplement'
+      });
+    });
+  }
+
+  const note = readMongoWrappedString(payload.note);
+  if (note) {
+    pushRow({
+      document_id: payloadId ? `${payloadId}-note` : undefined,
+      document_title: 'Consultation Note',
+      document_description: 'Consultation note captured from Scanbo observation model',
+      document_format: 'text/plain',
+      document_content_type: 'text/plain',
+      document_data: note,
+      document_status: 'current'
+    });
+  }
+
+  return rows;
+}
+
 function hasCommunityWorkerMarker(payload: unknown): boolean {
   if (Array.isArray(payload)) {
     return payload.some(item => hasCommunityWorkerMarker(item));
@@ -8812,6 +9009,20 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     const wrapped = parsed.payload ?? parsed.data;
     if (isPlainRecord(wrapped) || Array.isArray(wrapped)) {
       parsed = wrapped;
+    }
+  }
+
+  if (looksLikeScanboConsultationPayload(parsed)) {
+    const rows = buildRowsFromScanboConsultationPayload(parsed);
+    if (rows.length > 0) {
+      const canonical = mapTabularRowsToCanonical(rows, 'JSON');
+      applyCommunityWorkerQualificationDefault(canonical, parsed);
+      const leftover = extractFlatLeftoverPayload(parsed);
+      if (leftover) {
+        const payloads = buildLeftoverSourcePayloads(canonical, leftover);
+        if (payloads) canonical.sourcePayloads = payloads;
+      }
+      return canonical;
     }
   }
 
