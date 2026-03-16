@@ -9017,11 +9017,6 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     if (rows.length > 0) {
       const canonical = mapTabularRowsToCanonical(rows, 'JSON');
       applyCommunityWorkerQualificationDefault(canonical, parsed);
-      const leftover = extractFlatLeftoverPayload(parsed);
-      if (leftover) {
-        const payloads = buildLeftoverSourcePayloads(canonical, leftover);
-        if (payloads) canonical.sourcePayloads = payloads;
-      }
       return canonical;
     }
   }

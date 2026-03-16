@@ -27,6 +27,7 @@ export function mapDocumentReferences({
   const entries: any[] = [];
   for (let index = 0; index < documentReferences.length; index++) {
     const source = documentReferences[index];
+    const sourceAny = source as any;
     const documentReference = structuredClone(documentReferenceTemplate) as any;
     const identifierSystem = 'urn:hl7-org:v2';
     const identifierValue = source.identifier || source.id;
@@ -108,6 +109,16 @@ export function mapDocumentReferences({
       // Use the document type mapper to automatically detect and convert legacy types
       // This handles legacy format detection from contentType, url, or format fields
       documentReference.content = mapDocumentContent(source.content);
+    } else if (sourceAny.url || sourceAny.data || sourceAny.contentType || sourceAny.format || sourceAny.title) {
+      documentReference.content = [{
+        attachment: mapDocumentAttachment({
+          contentType: sourceAny.contentType,
+          format: sourceAny.format,
+          url: sourceAny.url,
+          title: sourceAny.title,
+          data: sourceAny.data
+        })
+      }];
     } else {
       documentReference.content = undefined;
     }

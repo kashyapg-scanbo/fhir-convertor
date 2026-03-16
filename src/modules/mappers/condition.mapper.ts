@@ -55,7 +55,14 @@ export function mapConditions({
         display: source.clinicalStatus.display
       }],
       text: source.clinicalStatus.display
-    } : undefined;
+    } : {
+      coding: [{
+        system: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+        code: 'active',
+        display: 'Active'
+      }],
+      text: 'Active'
+    };
 
     condition.verificationStatus = source.verificationStatus ? {
       coding: [{

@@ -50,6 +50,19 @@ export function mapAppointments({
     appointment.description = source.description || undefined;
     appointment.start = source.start || undefined;
     appointment.end = source.end || undefined;
+    if (appointment.start && !appointment.end) {
+      appointment.end = appointment.start;
+    }
+    if (!appointment.start && appointment.end) {
+      appointment.start = appointment.end;
+    }
+    if (appointment.start && appointment.end) {
+      const startTime = new Date(appointment.start).getTime();
+      const endTime = new Date(appointment.end).getTime();
+      if (!Number.isNaN(startTime) && !Number.isNaN(endTime) && endTime < startTime) {
+        appointment.end = appointment.start;
+      }
+    }
     appointment.minutesDuration = (source.minutesDuration && source.minutesDuration > 0)
       ? source.minutesDuration
       : undefined;

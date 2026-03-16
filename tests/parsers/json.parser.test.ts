@@ -626,6 +626,9 @@ describe('parseCustomJSON', () => {
     const resourceTypes = (bundle.entry || []).map((e: any) => e?.resource?.resourceType);
     const medicationCount = resourceTypes.filter((type: string) => type === 'Medication').length;
     const medicationRequestCount = resourceTypes.filter((type: string) => type === 'MedicationRequest').length;
+    const conditionResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'Condition')?.resource;
+    const appointmentResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'Appointment')?.resource;
+    const documentResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'DocumentReference')?.resource;
 
     expect(resourceTypes).toContain('Patient');
     expect(resourceTypes).toContain('Practitioner');
@@ -637,5 +640,14 @@ describe('parseCustomJSON', () => {
     expect(resourceTypes).toContain('DocumentReference');
     expect(medicationCount).toBe(3);
     expect(medicationRequestCount).toBe(2);
+    expect(conditionResource?.clinicalStatus?.coding?.[0]?.code).toBe('active');
+    expect(appointmentResource?.start).toBeDefined();
+    expect(appointmentResource?.end).toBeDefined();
+    expect(documentResource?.content?.length).toBeGreaterThan(0);
+    const hasSourcePayloadExtension = (bundle.entry || []).some(
+      (entry: any) => Array.isArray(entry?.resource?.extension)
+        && entry.resource.extension.some((ext: any) => ext?.url === 'urn:scanbo:source-payload')
+    );
+    expect(hasSourcePayloadExtension).toBe(false);
   });
 });
