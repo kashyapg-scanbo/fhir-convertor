@@ -8840,6 +8840,7 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   }
 
   const carePlanPieces = [
+    isPlainRecord(payload.treatment) && readMongoWrappedString(payload.treatment.name) ? `Treatment: ${readMongoWrappedString(payload.treatment.name)}` : undefined,
     readMongoWrappedString(payload.exercise) ? `Exercise: ${readMongoWrappedString(payload.exercise)}` : undefined,
     readMongoWrappedString(payload.diet) ? `Diet: ${readMongoWrappedString(payload.diet)}` : undefined,
     isPlainRecord(payload.mindSet) && readMongoWrappedString(payload.mindSet.name) ? `Mindset: ${readMongoWrappedString(payload.mindSet.name)}` : undefined,
@@ -8931,6 +8932,55 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
     });
   }
 
+  const pushObservationRow = (
+    obsIdSuffix: string,
+    display: string,
+    value: unknown,
+    options?: { code?: string; system?: string; unit?: string }
+  ) => {
+    const raw = readMongoWrappedString(value);
+    if (!raw) return;
+    pushRow({
+      observation_id: payloadId ? `${payloadId}-${obsIdSuffix}` : undefined,
+      observation_code: options?.code,
+      observation_code_system: options?.system || (options?.code ? 'http://loinc.org' : 'urn:scanbo:observation'),
+      observation_display: display,
+      observation_value: raw,
+      observation_unit: options?.unit,
+      observation_date: appointmentDate,
+      observation_status: 'final'
+    });
+  };
+
+  // Vitals/Labs from Scanbo consultation payload -> Observation resources
+  const bpRaw = readMongoWrappedString(payload.blood_pressure);
+  if (bpRaw) {
+    const bpMatch = bpRaw.match(/^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/);
+    if (bpMatch) {
+      pushRow({
+        observation_id: payloadId ? `${payloadId}-blood-pressure` : undefined,
+        observation_type: 'bloodPressure',
+        observation_systolic_value: bpMatch[1],
+        observation_diastolic_value: bpMatch[2],
+        observation_unit: 'mmHg',
+        observation_date: appointmentDate,
+        observation_status: 'final'
+      });
+    }
+  }
+
+  pushObservationRow('bsl-random', 'Blood glucose random', payload.bsl_random, { code: '2339-0', unit: 'mg/dL' });
+  pushObservationRow('insulin-fasting', 'Insulin fasting', payload.insulin_fasting, { code: '20448-7', unit: 'u[IU]/mL' });
+  pushObservationRow('bsl-fasting', 'Blood glucose fasting', payload.bsl_fasting, { code: '1558-6', unit: 'mg/dL' });
+  pushObservationRow('insulin-postprandial', 'Insulin postprandial', payload.insulin_postprandial, { unit: 'u[IU]/mL' });
+  pushObservationRow('bsl-postprandial', 'Blood glucose postprandial', payload.bsl_postprandial, { code: '14771-0', unit: 'mg/dL' });
+  pushObservationRow('hba1c', 'Hemoglobin A1c', payload.hba1c_percent, { code: '4548-4', unit: '%' });
+  pushObservationRow('weight', 'Body weight', payload.weight_kg, { code: '29463-7', unit: 'kg' });
+  pushObservationRow('tsh', 'TSH', payload.tsh_level, { code: '3016-3', unit: 'u[IU]/mL' });
+  pushObservationRow('c-peptide-fasting', 'C-peptide fasting', payload.c_peptide_fasting, { unit: 'ng/mL' });
+  pushObservationRow('c-peptide-postprandial', 'C-peptide postprandial', payload.c_peptide_postprandial, { unit: 'ng/mL' });
+  pushObservationRow('creatinine', 'Creatinine', payload.creatinine_level, { code: '2160-0', unit: 'mg/dL' });
+
   const note = readMongoWrappedString(payload.note);
   if (note) {
     pushRow({
@@ -8943,6 +8993,20 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
       document_status: 'current'
     });
   }
+
+  // Persist full source payload as base64 JSON in a dedicated DocumentReference
+  // so downstream systems can reconstruct and inspect the original consultation payload.
+  const payloadJson = JSON.stringify(payload);
+  const payloadBase64 = Buffer.from(payloadJson, 'utf8').toString('base64');
+  pushRow({
+    document_id: payloadId ? `${payloadId}-source-payload` : undefined,
+    document_title: 'Scanbo Source Payload',
+    document_description: 'Original Scanbo consultation payload (base64 JSON)',
+    document_format: 'json',
+    document_content_type: 'application/json',
+    document_data: payloadBase64,
+    document_status: 'current'
+  });
 
   return rows;
 }

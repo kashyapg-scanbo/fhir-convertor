@@ -569,6 +569,9 @@ describe('parseCustomJSON', () => {
   it('maps scanbo consultation payload to patient/practitioner/appointment/condition/medication/careplan/document resources', () => {
     const input = {
       _id: '69b405097b2f9de46afbf471',
+      treatment: {
+        name: 'TAKING REGULAR MEDICINES BUT NO SUPPLEMENTS'
+      },
       exercise: '30 minutes walking daily',
       diet: 'Low carb diabetic diet',
       mindSet: {
@@ -629,6 +632,13 @@ describe('parseCustomJSON', () => {
     const conditionResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'Condition')?.resource;
     const appointmentResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'Appointment')?.resource;
     const documentResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'DocumentReference')?.resource;
+    const documentResources = (bundle.entry || [])
+      .map((e: any) => e?.resource)
+      .filter((resource: any) => resource?.resourceType === 'DocumentReference');
+    const sourcePayloadDocument = documentResources.find((resource: any) =>
+      resource?.description === 'Original Scanbo consultation payload (base64 JSON)'
+    );
+    const carePlanResource = (bundle.entry || []).find((e: any) => e?.resource?.resourceType === 'CarePlan')?.resource;
 
     expect(resourceTypes).toContain('Patient');
     expect(resourceTypes).toContain('Practitioner');
@@ -644,10 +654,56 @@ describe('parseCustomJSON', () => {
     expect(appointmentResource?.start).toBeDefined();
     expect(appointmentResource?.end).toBeDefined();
     expect(documentResource?.content?.length).toBeGreaterThan(0);
+    expect(sourcePayloadDocument).toBeDefined();
+    const sourceAttachment = sourcePayloadDocument?.content?.[0]?.attachment;
+    expect(sourceAttachment?.contentType).toBe('application/json');
+    const decoded = sourceAttachment?.data ? Buffer.from(sourceAttachment.data, 'base64').toString('utf8') : '';
+    expect(decoded).toContain('"_id":"69b405097b2f9de46afbf471"');
+    expect(carePlanResource?.description).toContain('Treatment: TAKING REGULAR MEDICINES BUT NO SUPPLEMENTS');
     const hasSourcePayloadExtension = (bundle.entry || []).some(
       (entry: any) => Array.isArray(entry?.resource?.extension)
         && entry.resource.extension.some((ext: any) => ext?.url === 'urn:scanbo:source-payload')
     );
     expect(hasSourcePayloadExtension).toBe(false);
+  });
+
+  it('maps scanbo consultation lab/vital fields into Observation resources', () => {
+    const input = {
+      _id: '69b405097b2f9de46afbf471',
+      appointment: '2026-02-04T18:30:00.000Z',
+      bsl_random: '145',
+      insulin_fasting: '12',
+      bsl_fasting: '110',
+      insulin_postprandial: '18',
+      bsl_postprandial: '160',
+      hba1c_percent: '6.8',
+      blood_pressure: '120/80',
+      weight_kg: '72',
+      tsh_level: '2.5',
+      c_peptide_fasting: '1.3',
+      c_peptide_postprandial: '2.8',
+      creatinine_level: '0.9',
+      patient: {
+        _id: '6981c756d8e8c4987f61c366',
+        patientFirstName: 'Kashyap',
+        patientLastName: 'Oooo'
+      },
+      doctor: {
+        _id: '671800c8b17ef535c9fcdb36',
+        doctorFirstName: 'Shivan',
+        doctorLastName: 'Patel'
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const bundle = mapCanonicalToFHIR(canonical, 'r5');
+    const observations = (bundle.entry || [])
+      .map((e: any) => e?.resource)
+      .filter((r: any) => r?.resourceType === 'Observation');
+
+    expect(observations.length).toBeGreaterThanOrEqual(11);
+    const bpObservation = observations.find((o: any) => o?.code?.coding?.some((c: any) => c?.code === '85354-9'));
+    expect(bpObservation).toBeDefined();
+    expect(bpObservation?.component?.length).toBe(2);
   });
 });
