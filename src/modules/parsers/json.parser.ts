@@ -8813,7 +8813,6 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
         const unit = resolveSmartScaleUnit(key);
         return {
           code: {
-            system: 'urn:scanbo:smart-scale:ext-data',
             code: key,
             display: titleFromSnake(key)
           },
@@ -8831,7 +8830,6 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
       grouped.push({
         setId: payloadId ? `${payloadId}-segmental-body-composition` : undefined,
         code: {
-          system: 'urn:scanbo:panel',
           code: 'segmental-body-composition',
           display: 'Segmental body composition'
         },
@@ -8853,7 +8851,6 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
   if (impedanceValues.length > 0) {
     const components = impedanceValues.map((value, index) => ({
       code: {
-        system: 'urn:scanbo:smart-scale:impedance',
         code: `impedance-${index + 1}`,
         display: `Impedance ${index + 1}`
       },
@@ -8868,7 +8865,6 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
     grouped.push({
       setId: payloadId ? `${payloadId}-bioimpedance-series` : undefined,
       code: {
-        system: 'urn:scanbo:panel',
         code: 'bioimpedance-series',
         display: 'Bioimpedance series'
       },
@@ -9147,6 +9143,35 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
           observation_ecg_heart_rate: heartRate,
           observation_ecg_hrv: heartRateVariability,
           observation_ecg_breathe_rate: breatheRate,
+          observation_date: nestedDate,
+          observation_status: 'final'
+        });
+        nestedHandled = true;
+      }
+    }
+
+    if (
+      normalizedNestedType === 'bodytemperature' ||
+      normalizedNestedType === 'bodytempreture' ||
+      normalizedNestedType === 'bloodoxygen' ||
+      normalizedNestedType === 'heartrate' ||
+      normalizedNestedType === 'bloodglucose' ||
+      normalizedNestedType === 'bloodgloucose'
+    ) {
+      const nestedValueForKnownType =
+        readMongoWrappedString(observationPayload.calibratedReading)
+        || readMongoWrappedString(observationPayload.readingFromDevice)
+        || readMongoWrappedString(observationPayload.value);
+      const nestedUnitForKnownType =
+        readMongoWrappedString(observationPayload.measuringUnitShortName)
+        || readMongoWrappedString(observationPayload.measuringUnitFullName);
+
+      if (nestedValueForKnownType) {
+        pushRow({
+          observation_id: payloadId ? `${payloadId}-nested-${normalizedNestedType}` : undefined,
+          observation_type: nestedType,
+          observation_value: nestedValueForKnownType,
+          observation_unit: nestedUnitForKnownType,
           observation_date: nestedDate,
           observation_status: 'final'
         });

@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "validate:r5": "node ./scripts/validate-r5.mjs",
+    "validate:r5:offline": "node ./scripts/validate-r5-offline.mjs",
     "validate:r5:remote": "node ./scripts/validate-r5-remote.mjs",
     "test:convert": "node ./scripts/test-converter.mjs",
     "test:example:hl7": "node ./scripts/test-converter.mjs --example=hl7v2 --validate",

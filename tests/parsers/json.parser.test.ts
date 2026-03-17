@@ -515,6 +515,106 @@ describe('parseCustomJSON', () => {
     expect(ecg?.components?.length).toBe(3);
   });
 
+  it('keeps old nested observation type payloads working (bp/ecg/temp/spo2/hr)', () => {
+    const base = {
+      patient: {
+        _id: '671800c8b17ef535c9fcdad6',
+        patientFirstName: 'Bhushan',
+        patientLastName: 'Bafna'
+      },
+      doctor: {
+        _id: '671800c8b17ef535c9fcdac8',
+        doctorFirstName: 'Bhushan',
+        doctorLastName: 'Bafna'
+      }
+    };
+
+    const cases = [
+      {
+        name: 'bloodPressure',
+        payload: {
+          ...base,
+          observation: {
+            type: 'bloodPressure',
+            testDateTime: '2019-05-17T08:51:15.000Z',
+            systolicReadingFromDevice: 58,
+            systolicCalibratedReading: 58,
+            diastolicReadingFromDevice: 46,
+            diastolicCalibratedReading: 46
+          }
+        },
+        expectedCodes: ['8480-6', '8462-4']
+      },
+      {
+        name: 'ecg',
+        payload: {
+          ...base,
+          observation: {
+            type: 'ecg',
+            testDateTime: '2019-05-16T14:23:32.000Z',
+            PQRSTWaves: '0,1,2,3,2,1,0',
+            heartRate: 66,
+            heartRateVariability: '32',
+            breatheRate: '18'
+          }
+        },
+        expectedCodes: ['11524-6']
+      },
+      {
+        name: 'bodyTempreture',
+        payload: {
+          ...base,
+          observation: {
+            type: 'bodyTempreture',
+            testDateTime: '2019-05-16T14:18:49.000Z',
+            readingFromDevice: 28.188888888888886,
+            calibratedReading: 28.188888888888886,
+            measuringUnitFullName: 'Celsius',
+            measuringUnitShortName: 'C'
+          }
+        },
+        expectedCodes: ['8310-5']
+      },
+      {
+        name: 'bloodOxygen',
+        payload: {
+          ...base,
+          observation: {
+            type: 'bloodOxygen',
+            testDateTime: '2019-05-17T08:40:02.000Z',
+            readingFromDevice: 99,
+            calibratedReading: 99
+          }
+        },
+        expectedCodes: ['2708-6']
+      },
+      {
+        name: 'heartRate',
+        payload: {
+          ...base,
+          observation: {
+            type: 'heartRate',
+            testDateTime: '2019-05-17T08:40:02.000Z',
+            readingFromDevice: 85,
+            calibratedReading: 85,
+            heartRateTakenFrom: 'Blood Pressure'
+          }
+        },
+        expectedCodes: ['8867-4']
+      }
+    ];
+
+    for (const c of cases) {
+      const canonical = parseCustomJSON(c.payload as any);
+      const codes = (canonical.observations || [])
+        .map((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code)
+        .filter(Boolean);
+      for (const expectedCode of c.expectedCodes) {
+        expect(codes).toContain(expectedCode);
+      }
+    }
+  });
+
   it('maps observation type aliases to standard LOINC codes', () => {
     const bodyTemperatureInput = {
       payload: {

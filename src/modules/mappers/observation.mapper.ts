@@ -745,7 +745,11 @@ export function mapObservations({
           const component: any = {
             code: {
               coding: [{
-                system: absoluteSystem(c.code.system),
+                system: (() => {
+                  const resolved = absoluteSystem(c.code.system);
+                  if (resolved) return resolved;
+                  return isLoincCode(c.code.code) ? 'http://loinc.org' : 'urn:hl7-org:local';
+                })(),
                 code: c.code.code,
                 display: c.code.display
               }]
