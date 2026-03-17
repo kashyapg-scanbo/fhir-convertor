@@ -1,4 +1,4 @@
-import type { CanonicalComposition, CanonicalModel } from '../../shared/types/canonical.types.js';
+import type { CanonicalComposition, CanonicalModel, CanonicalObservation } from '../../shared/types/canonical.types.js';
 import { HEADER_ALIAS_SECTIONS } from '../../shared/header-aliases.js';
 import { mapTabularRowsToCanonical, normalizeHeader, TabularRow } from './tabular.utils.js';
 import { z } from 'zod';
@@ -8764,6 +8764,123 @@ function readMongoWrappedString(value: unknown): string | undefined {
   return undefined;
 }
 
+function readMongoWrappedNumber(value: unknown): number | undefined {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value.trim());
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function titleFromSnake(value: string): string {
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function resolveSmartScaleUnit(key: string): string {
+  if (key.endsWith('_kg')) return 'kg';
+  if (key.includes('muscle') && !key.endsWith('_kg')) return '%';
+  if (key.includes('left_arm') || key.includes('right_arm') || key.includes('left_leg') || key.includes('right_leg') || key.includes('all_body')) return 'Ohm';
+  return '{score}';
+}
+
+function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, payloadId?: string): CanonicalObservation[] {
+  const observationPayload = isPlainRecord(payload.smartScale)
+    ? payload.smartScale
+    : (isPlainRecord(payload.obseravtion)
+    ? payload.obseravtion
+    : (isPlainRecord(payload.observation) ? payload.observation : undefined));
+  if (!observationPayload) return [];
+
+  const observationDate =
+    readMongoWrappedString(observationPayload.testDateTime)
+    || readMongoWrappedString(payload.testDateTime)
+    || readMongoWrappedString(payload.appointment);
+
+  const grouped: CanonicalObservation[] = [];
+
+  const extData = isPlainRecord(observationPayload.extData) ? observationPayload.extData : undefined;
+  if (extData) {
+    const components = Object.entries(extData)
+      .map(([key, rawValue]) => {
+        const value = readMongoWrappedNumber(rawValue);
+        if (value === undefined) return undefined;
+        const unit = resolveSmartScaleUnit(key);
+        return {
+          code: {
+            system: 'urn:scanbo:smart-scale:ext-data',
+            code: key,
+            display: titleFromSnake(key)
+          },
+          valueQuantity: {
+            value,
+            unit,
+            system: 'http://unitsofmeasure.org',
+            code: unit
+          }
+        };
+      })
+      .filter(Boolean) as NonNullable<CanonicalObservation['components']>;
+
+    if (components.length > 0) {
+      grouped.push({
+        setId: payloadId ? `${payloadId}-segmental-body-composition` : undefined,
+        code: {
+          system: 'urn:scanbo:panel',
+          code: 'segmental-body-composition',
+          display: 'Segmental body composition'
+        },
+        status: 'final',
+        date: observationDate,
+        components
+      });
+    }
+  }
+
+  const impedanceArray = Array.isArray(observationPayload.impendences)
+    ? observationPayload.impendences
+    : undefined;
+
+  const impedanceValues = impedanceArray
+    ? impedanceArray.map(readMongoWrappedNumber).filter((value): value is number => value !== undefined)
+    : [];
+
+  if (impedanceValues.length > 0) {
+    const components = impedanceValues.map((value, index) => ({
+      code: {
+        system: 'urn:scanbo:smart-scale:impedance',
+        code: `impedance-${index + 1}`,
+        display: `Impedance ${index + 1}`
+      },
+      valueQuantity: {
+        value,
+        unit: 'Ohm',
+        system: 'http://unitsofmeasure.org',
+        code: 'Ohm'
+      }
+    }));
+
+    grouped.push({
+      setId: payloadId ? `${payloadId}-bioimpedance-series` : undefined,
+      code: {
+        system: 'urn:scanbo:panel',
+        code: 'bioimpedance-series',
+        display: 'Bioimpedance series'
+      },
+      status: 'final',
+      date: observationDate,
+      components
+    });
+  }
+
+  return grouped;
+}
+
 function looksLikeScanboConsultationPayload(payload: unknown): payload is Record<string, unknown> {
   if (!isPlainRecord(payload)) return false;
   const hasPersonBlocks = isPlainRecord(payload.patient) || isPlainRecord(payload.doctor);
@@ -8775,7 +8892,10 @@ function looksLikeScanboConsultationPayload(payload: unknown): payload is Record
     'exercise' in payload ||
     'diet' in payload ||
     'mindSet' in payload ||
-    'note' in payload;
+    'note' in payload ||
+    isPlainRecord(payload.smartScale) ||
+    isPlainRecord(payload.obseravtion) ||
+    isPlainRecord(payload.observation);
   return hasPersonBlocks && hasConsultationSignals;
 }
 
@@ -8784,10 +8904,17 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   const payloadId = readMongoWrappedString(payload._id);
   const patient = isPlainRecord(payload.patient) ? payload.patient : {};
   const doctor = isPlainRecord(payload.doctor) ? payload.doctor : {};
+  const observationPayload = isPlainRecord(payload.smartScale)
+    ? payload.smartScale
+    : (isPlainRecord(payload.obseravtion)
+    ? payload.obseravtion
+    : (isPlainRecord(payload.observation) ? payload.observation : undefined));
 
   const patientId =
     readMongoWrappedString(payload.patientMasterProfileId) ||
     readMongoWrappedString(payload.patientId) ||
+    readMongoWrappedString(patient.masterProfileId) ||
+    readMongoWrappedString(patient.masterProfile_id) ||
     readMongoWrappedString(patient._id);
   const practitionerId =
     readMongoWrappedString(payload.doctorId) ||
@@ -8797,6 +8924,7 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   const patientLastName = readMongoWrappedString(patient.patientLastName);
   const doctorFirstName = readMongoWrappedString(doctor.doctorFirstName);
   const doctorLastName = readMongoWrappedString(doctor.doctorLastName);
+  const doctorQualification = readMongoWrappedString(doctor.qualification);
 
   const base: TabularRow = {};
   if (patientId) base.patient_id = patientId;
@@ -8805,6 +8933,10 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   if (practitionerId) base.practitioner_id = practitionerId;
   if (doctorFirstName) base.practitioner_first_name = doctorFirstName;
   if (doctorLastName) base.practitioner_last_name = doctorLastName;
+  if (doctorQualification) {
+    base.practitioner_qualification_code = doctorQualification;
+    base.practitioner_qualification_display = doctorQualification;
+  }
 
   const pushRow = (fields: Record<string, unknown>, includePractitioner = false) => {
     const row: TabularRow = {};
@@ -8815,6 +8947,8 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
       if (base.practitioner_id) row.practitioner_id = base.practitioner_id;
       if (base.practitioner_first_name) row.practitioner_first_name = base.practitioner_first_name;
       if (base.practitioner_last_name) row.practitioner_last_name = base.practitioner_last_name;
+      if (base.practitioner_qualification_code) row.practitioner_qualification_code = base.practitioner_qualification_code;
+      if (base.practitioner_qualification_display) row.practitioner_qualification_display = base.practitioner_qualification_display;
     }
     for (const [key, raw] of Object.entries(fields)) {
       if (raw === undefined || raw === null) continue;
@@ -8829,6 +8963,10 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   pushRow({}, true);
 
   const appointmentDate = readMongoWrappedString(payload.appointment);
+  const observationDate =
+    (observationPayload && readMongoWrappedString(observationPayload.testDateTime))
+    || readMongoWrappedString(payload.testDateTime)
+    || appointmentDate;
   if (appointmentDate) {
     pushRow({
       appointment_id: payloadId ? `${payloadId}-appointment` : undefined,
@@ -8943,14 +9081,98 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
     pushRow({
       observation_id: payloadId ? `${payloadId}-${obsIdSuffix}` : undefined,
       observation_code: options?.code,
-      observation_code_system: options?.system || (options?.code ? 'http://loinc.org' : 'urn:scanbo:observation'),
+      observation_code_system: options?.system || (options?.code ? 'http://loinc.org' : undefined),
       observation_display: display,
       observation_value: raw,
       observation_unit: options?.unit,
-      observation_date: appointmentDate,
+      observation_date: observationDate,
       observation_status: 'final'
     });
   };
+
+  // Nested observation block support (payload.observation / payload.obseravtion),
+  // used by existing scanbo payloads that provide readingFromDevice-style fields.
+  if (observationPayload) {
+    const nestedType = readMongoWrappedString(observationPayload.type);
+    const nestedDate = readMongoWrappedString(observationPayload.testDateTime) || observationDate;
+    const normalizedNestedType = nestedType?.toLowerCase().replace(/[^a-z0-9]/g, '');
+    let nestedHandled = false;
+
+    if (normalizedNestedType === 'bloodpressure') {
+      const systolic =
+        readMongoWrappedString(observationPayload.systolicCalibratedReading)
+        || readMongoWrappedString(observationPayload.systolicReadingFromDevice);
+      const diastolic =
+        readMongoWrappedString(observationPayload.diastolicCalibratedReading)
+        || readMongoWrappedString(observationPayload.diastolicReadingFromDevice);
+
+      if (systolic || diastolic) {
+        pushRow({
+          observation_id: payloadId ? `${payloadId}-nested-blood-pressure` : undefined,
+          observation_type: 'bloodPressure',
+          observation_systolic_value: systolic,
+          observation_diastolic_value: diastolic,
+          observation_unit: 'mmHg',
+          observation_date: nestedDate,
+          observation_status: 'final'
+        });
+        nestedHandled = true;
+      }
+    }
+
+    if (normalizedNestedType === 'ecg') {
+      const waves =
+        readMongoWrappedString(observationPayload.PQRSTWaves)
+        || readMongoWrappedString(observationPayload.pqrstWaves)
+        || readMongoWrappedString(observationPayload.pqrstwaves)
+        || readMongoWrappedString(observationPayload.observation_ecg_waves);
+      const heartRate =
+        readMongoWrappedString(observationPayload.heartRate)
+        || readMongoWrappedString(observationPayload.heart_rate)
+        || readMongoWrappedString(observationPayload.observation_ecg_heart_rate);
+      const heartRateVariability =
+        readMongoWrappedString(observationPayload.heartRateVariability)
+        || readMongoWrappedString(observationPayload.heart_rate_variability)
+        || readMongoWrappedString(observationPayload.observation_ecg_hrv);
+      const breatheRate =
+        readMongoWrappedString(observationPayload.breatheRate)
+        || readMongoWrappedString(observationPayload.breathe_rate)
+        || readMongoWrappedString(observationPayload.observation_ecg_breathe_rate);
+
+      if (waves || heartRate || heartRateVariability || breatheRate) {
+        pushRow({
+          observation_id: payloadId ? `${payloadId}-nested-ecg` : undefined,
+          observation_type: 'ecg',
+          observation_ecg_waves: waves,
+          observation_ecg_heart_rate: heartRate,
+          observation_ecg_hrv: heartRateVariability,
+          observation_ecg_breathe_rate: breatheRate,
+          observation_date: nestedDate,
+          observation_status: 'final'
+        });
+        nestedHandled = true;
+      }
+    }
+
+    const nestedValue =
+      readMongoWrappedString(observationPayload.calibratedReading)
+      || readMongoWrappedString(observationPayload.readingFromDevice)
+      || readMongoWrappedString(observationPayload.value);
+    const nestedUnit =
+      readMongoWrappedString(observationPayload.measuringUnitShortName)
+      || readMongoWrappedString(observationPayload.measuringUnitFullName);
+    if (!nestedHandled && nestedValue) {
+      pushRow({
+        observation_id: payloadId ? `${payloadId}-nested-observation` : undefined,
+        observation_type: nestedType,
+        observation_display: nestedType ? titleFromSnake(nestedType) : 'Observation',
+        observation_value: nestedValue,
+        observation_unit: nestedUnit,
+        observation_date: observationDate,
+        observation_status: 'final'
+      });
+    }
+  }
 
   // Vitals/Labs from Scanbo consultation payload -> Observation resources
   const bpRaw = readMongoWrappedString(payload.blood_pressure);
@@ -8963,7 +9185,7 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
         observation_systolic_value: bpMatch[1],
         observation_diastolic_value: bpMatch[2],
         observation_unit: 'mmHg',
-        observation_date: appointmentDate,
+        observation_date: observationDate,
         observation_status: 'final'
       });
     }
@@ -8980,6 +9202,17 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   pushObservationRow('c-peptide-fasting', 'C-peptide fasting', payload.c_peptide_fasting, { unit: 'ng/mL' });
   pushObservationRow('c-peptide-postprandial', 'C-peptide postprandial', payload.c_peptide_postprandial, { unit: 'ng/mL' });
   pushObservationRow('creatinine', 'Creatinine', payload.creatinine_level, { code: '2160-0', unit: 'mg/dL' });
+
+  // Smart-scale standalone body metrics
+  if (observationPayload) {
+    pushObservationRow('weight-kg', 'Body weight', observationPayload.weightKg, { code: '29463-7', unit: 'kg' });
+    pushObservationRow('bmi', 'Body mass index (BMI) [Ratio]', observationPayload.bmi, { code: '39156-5', unit: 'kg/m2' });
+    pushObservationRow('body-fat-percent', 'Body fat percentage', observationPayload.bodyFatPercent, { unit: '%' });
+    pushObservationRow('muscle-percent', 'Muscle percentage', observationPayload.musclePercent, { unit: '%' });
+    pushObservationRow('moisture-percent', 'Body water percentage', observationPayload.moisturePercent, { unit: '%' });
+    pushObservationRow('bone-mass', 'Bone mass', observationPayload.boneMass, { unit: 'kg' });
+    pushObservationRow('bmr', 'Basal metabolic rate', observationPayload.bmr, { unit: '{kcal}/d' });
+  }
 
   const note = readMongoWrappedString(payload.note);
   if (note) {
@@ -9083,6 +9316,10 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     const rows = buildRowsFromScanboConsultationPayload(parsed);
     if (rows.length > 0) {
       const canonical = mapTabularRowsToCanonical(rows, 'JSON');
+      const groupedSmartScale = buildSmartScaleGroupedObservations(parsed, readMongoWrappedString(parsed._id));
+      if (groupedSmartScale.length > 0) {
+        canonical.observations = [...(canonical.observations || []), ...groupedSmartScale];
+      }
       applyCommunityWorkerQualificationDefault(canonical, parsed);
       return canonical;
     }

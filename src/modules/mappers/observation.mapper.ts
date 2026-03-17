@@ -26,6 +26,15 @@ const vitalSignLoincMap: Record<string, string> = {
   '8462-4': 'Diastolic blood pressure',
   '8478-0': 'Mean blood pressure'
 };
+const loincDisplayMap: Record<string, string> = {
+  ...vitalSignLoincMap,
+  '11524-6': 'EKG study',
+  '2339-0': 'Glucose [Mass/volume] in Blood',
+  '4548-4': 'Hemoglobin A1c/Hemoglobin.total in Blood',
+  '3016-3': 'Thyrotropin [Units/volume] in Serum or Plasma',
+  '2160-0': 'Creatinine [Mass/volume] in Serum or Plasma',
+  '39156-5': 'Body mass index (BMI) [Ratio]'
+};
 const loincVitalSigns = new Set(Object.keys(vitalSignLoincMap));
 
 const vitalSignAliases: Array<{ code: string; match: RegExp }> = [
@@ -406,23 +415,41 @@ export function mapObservations({
 
   if (obs.code) {
       const codes = Array.isArray(obs.code) ? obs.code : [obs.code];
-      resource.code = {
-        coding: codes.map((coding: any) => {
+      const mappedCoding = codes.map((coding: any) => {
+          const codeValue = String(coding.code || '').trim();
+          if (!codeValue) return null;
           const normalizedSystem = normalizeSystem(coding.system);
           const fallbackSystem = coding.system
             ? undefined
             : (isLoincCode(coding.code) ? 'http://loinc.org' : 'urn:hl7-org:local');
+          const resolvedSystem = normalizedSystem ?? fallbackSystem;
           const result: any = {
-            system: normalizedSystem ?? fallbackSystem,
-            code: coding.code || ''
+            system: resolvedSystem,
+            code: codeValue
           };
-          // Always include display if provided (even for LOINC codes, as it helps with readability)
-          if (coding.display) {
+
+          // For LOINC, use canonical display when known; otherwise omit display
+          // to avoid terminology validator mismatches on custom text.
+          if (resolvedSystem === 'http://loinc.org') {
+            const canonicalDisplay = loincDisplayMap[codeValue];
+            if (canonicalDisplay) result.display = canonicalDisplay;
+          } else if (coding.display) {
             result.display = coding.display;
           }
           return result;
-        })
-      };
+        }).filter(Boolean);
+
+      const textOnlyCode = codes.find((coding: any) => typeof coding.display === 'string' && coding.display.trim().length > 0);
+      if (mappedCoding.length > 0) {
+        resource.code = {
+          coding: mappedCoding,
+          text: textOnlyCode?.display
+        };
+      } else if (textOnlyCode?.display) {
+        resource.code = { text: textOnlyCode.display };
+      } else {
+        resource.code = undefined;
+      }
     } else {
       resource.code = undefined;
     }

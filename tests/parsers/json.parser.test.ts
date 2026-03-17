@@ -450,6 +450,71 @@ describe('parseCustomJSON', () => {
     expect(canonical.observations?.[0]?.date).toBe('2019-05-16T14:18:49.000Z');
   });
 
+  it('maps nested bloodPressure observation in consultation payload', () => {
+    const input = {
+      payload: {
+        patient: {
+          _id: '671800c8b17ef535c9fcdad6',
+          patientFirstName: 'Bhushan',
+          patientLastName: 'Bafna'
+        },
+        doctor: {
+          _id: '671800c8b17ef535c9fcdac8',
+          doctorFirstName: 'Bhushan',
+          doctorLastName: 'Bafna'
+        },
+        hospital: {
+          _id: '671800c8b17ef535c9fcdc66',
+          hospitalName: 'Test Hospital'
+        },
+        observation: {
+          type: 'bloodPressure',
+          testDateTime: '2019-05-17T08:51:15.000Z',
+          systolicReadingFromDevice: 58,
+          systolicCalibratedReading: 58,
+          diastolicReadingFromDevice: 46,
+          diastolicCalibratedReading: 46
+        }
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const systolic = canonical.observations?.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '8480-6');
+    const diastolic = canonical.observations?.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '8462-4');
+    expect(systolic?.value).toBe(58);
+    expect(diastolic?.value).toBe(46);
+  });
+
+  it('maps nested ecg observation in consultation payload', () => {
+    const input = {
+      payload: {
+        patient: {
+          _id: '671800c8b17ef535c9fcdad6',
+          patientFirstName: 'Bhushan',
+          patientLastName: 'Bafna'
+        },
+        doctor: {
+          _id: '671800c8b17ef535c9fcdac8',
+          doctorFirstName: 'Bhushan',
+          doctorLastName: 'Bafna'
+        },
+        observation: {
+          type: 'ecg',
+          testDateTime: '2019-05-16T14:23:32.000Z',
+          PQRSTWaves: '0,1,2,3,2,1,0',
+          heartRate: 66,
+          heartRateVariability: '32',
+          breatheRate: '18'
+        }
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const ecg = canonical.observations?.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '11524-6');
+    expect(ecg?.value).toBe('0,1,2,3,2,1,0');
+    expect(ecg?.components?.length).toBe(3);
+  });
+
   it('maps observation type aliases to standard LOINC codes', () => {
     const bodyTemperatureInput = {
       payload: {
@@ -705,5 +770,60 @@ describe('parseCustomJSON', () => {
     const bpObservation = observations.find((o: any) => o?.code?.coding?.some((c: any) => c?.code === '85354-9'));
     expect(bpObservation).toBeDefined();
     expect(bpObservation?.component?.length).toBe(2);
+  });
+
+  it('maps smart-scale payload into standalone and grouped observations', () => {
+    const input = {
+      _id: '69ae69494704878dd4fce25a',
+      patient: {
+        _id: '6981c756d8e8c4987f61c366',
+        patientFirstName: 'Kashyap',
+        patientLastName: 'Oooo'
+      },
+      doctor: {
+        _id: '671800c8b17ef535c9fcdb36',
+        doctorFirstName: 'Shivan',
+        doctorLastName: 'Patel'
+      },
+      smartScale: {
+        testDateTime: '2026-03-09T07:07:02.892Z',
+        weightKg: 66.8,
+        bmi: 22.1,
+        bodyFatPercent: 26.1,
+        musclePercent: 69,
+        moisturePercent: 54.2,
+        boneMass: 3.3,
+        bmr: 1437,
+        extData: {
+          left_arm: 166.7,
+          right_arm: 171.56,
+          left_arm_kg: 1.08,
+          all_body_muscle: 88.3
+        },
+        impendences: [28.1, 375.1, 367.7]
+      }
+    };
+
+    const canonical = parseCustomJSON(input as any);
+    const observations = canonical.observations || [];
+    expect(observations.length).toBeGreaterThanOrEqual(9);
+
+    const weight = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '29463-7');
+    const bmi = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '39156-5');
+    const segmental = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === 'segmental-body-composition');
+    const impedance = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === 'bioimpedance-series');
+
+    expect(weight?.value).toBe(66.8);
+    expect(weight?.unit).toBe('kg');
+    expect(bmi?.value).toBe(22.1);
+    expect(segmental?.components?.length).toBe(4);
+    expect(impedance?.components?.length).toBe(3);
+
+    const bundle = mapCanonicalToFHIR(canonical, 'r5');
+    const resourceTypes = (bundle.entry || []).map((e: any) => e?.resource?.resourceType);
+    expect(resourceTypes).toContain('Patient');
+    expect(resourceTypes).toContain('Practitioner');
+    expect(resourceTypes).toContain('Observation');
+    expect(resourceTypes).toContain('DocumentReference');
   });
 });
