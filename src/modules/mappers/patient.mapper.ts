@@ -68,7 +68,16 @@ export function mapPatient({ patient: canonicalPatient, operation, registry }: P
     : undefined;
   patient.multipleBirthBoolean = undefined;
   patient.multipleBirthInteger = undefined;
-  patient.photo = undefined;
+  if (canonicalPatient?.photo?.url || canonicalPatient?.photo?.data || canonicalPatient?.photo?.contentType) {
+    patient.photo = [{
+      ...(canonicalPatient.photo.contentType ? { contentType: canonicalPatient.photo.contentType } : {}),
+      ...(canonicalPatient.photo.url ? { url: canonicalPatient.photo.url } : {}),
+      ...(canonicalPatient.photo.title ? { title: canonicalPatient.photo.title } : {}),
+      ...(canonicalPatient.photo.data ? { data: canonicalPatient.photo.data } : {})
+    }];
+  } else {
+    patient.photo = undefined;
+  }
   patient.contact = undefined;
   patient.communication = undefined;
   patient.generalPractitioner = undefined;

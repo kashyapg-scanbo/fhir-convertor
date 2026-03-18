@@ -142,7 +142,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
         display: patientMaritalStatus
       } : undefined,
       patientType: readValue(firstRow, 'patient_type'),
-      photo: readValue(firstRow, 'patient_photo'),
+      photo: readValue(firstRow, 'patient_photo') ? { url: readValue(firstRow, 'patient_photo') } : undefined,
       age: readNumber(firstRow, 'patient_age'),
       weight: readNumber(firstRow, 'patient_weight'),
       weightUnit: readValue(firstRow, 'patient_weight_unit'),
@@ -214,7 +214,7 @@ export function mapTabularRowsToCanonical(rows: TabularRow[], messageType: strin
         ? { code: rowMaritalStatus, display: rowMaritalStatus }
         : undefined,
       patientType: readValue(row, 'patient_type'),
-      photo: readValue(row, 'patient_photo'),
+      photo: readValue(row, 'patient_photo') ? { url: readValue(row, 'patient_photo') } : undefined,
       age: readNumber(row, 'patient_age'),
       weight: readNumber(row, 'patient_weight'),
       weightUnit: readValue(row, 'patient_weight_unit'),

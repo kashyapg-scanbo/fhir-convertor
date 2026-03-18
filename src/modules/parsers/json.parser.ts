@@ -112,7 +112,15 @@ const GlobalPatientSchema = z.object({
   gender: z.string().optional(),
   country_code: z.string().optional(),
   patient_type: z.string().optional(),
-  photo: z.string().optional(),
+  photo: z.union([
+    z.string(),
+    z.object({
+      content_type: z.string().optional(),
+      url: z.string().optional(),
+      title: z.string().optional(),
+      data: z.string().optional()
+    })
+  ]).optional(),
   age: z.preprocess((value) => {
     if (typeof value === 'number') return value;
     if (typeof value === 'string' && value.trim() !== '') return Number(value);
@@ -8813,6 +8821,7 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
         const unit = resolveSmartScaleUnit(key);
         return {
           code: {
+            system: 'urn:scanbo:observation',
             code: key,
             display: titleFromSnake(key)
           },
@@ -8830,6 +8839,7 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
       grouped.push({
         setId: payloadId ? `${payloadId}-segmental-body-composition` : undefined,
         code: {
+          system: 'urn:scanbo:observation',
           code: 'segmental-body-composition',
           display: 'Segmental body composition'
         },
@@ -8866,6 +8876,7 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
     grouped.push({
       setId: payloadId ? `${payloadId}-bioimpedance-series` : undefined,
       code: {
+        system: 'urn:scanbo:observation',
         code: 'bioimpedance-series',
         display: 'Bioimpedance series'
       },
@@ -10483,7 +10494,11 @@ function buildCanonicalPatientGlobal(patient: z.infer<typeof GlobalPatientSchema
       display: patient.marital_status
     } : undefined,
     patientType: patient.patient_type,
-    photo: patient.photo,
+    photo: typeof patient.photo === 'string'
+      ? { url: patient.photo }
+      : patient.photo
+        ? { contentType: patient.photo.content_type, url: patient.photo.url, title: patient.photo.title, data: patient.photo.data }
+        : undefined,
     age: patient.age,
     weight: patient.weight,
     weightUnit: patient.weight_unit,
