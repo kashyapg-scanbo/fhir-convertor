@@ -19,7 +19,12 @@ export type CanonicalPatient = {
     display?: string;
   };
   patientType?: string;
-  photo?: string;
+  photo?: {
+    contentType?: string;
+    url?: string;
+    title?: string;
+    data?: string;
+  };
   age?: number;
   weight?: number;
   weightUnit?: string;
