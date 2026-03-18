@@ -907,14 +907,36 @@ describe('parseCustomJSON', () => {
         doctorLastName: 'Patel'
       },
       smartScale: {
-        testDateTime: '2026-03-09T07:07:02.892Z',
+        time: 1773040022,
         weightKg: 66.8,
+        weightLb: 147.3,
         bmi: 22.1,
         bodyFatPercent: 26.1,
+        subcutaneousFatPercent: 18.4,
+        visceralFat: 9,
         musclePercent: 69,
         moisturePercent: 54.2,
         boneMass: 3.3,
         bmr: 1437,
+        physicalAge: 31,
+        proteinPercent: 17.2,
+        smPercent: 48.6,
+        isSupportHr: false,
+        hr: 0,
+        height: 173,
+        age: 28,
+        isStabilized: true,
+        masterProfileId: '69ae68e14704878dd4fcc8e3',
+        testPerformerId: '6729c3e8dacc0c1a90b33439',
+        createdBy: '6729c3e8dacc0c1a90b33439',
+        updatedBy: null,
+        deletedBy: null,
+        deletedAt: null,
+        deleted: false,
+        longitude: '72.87180247351283',
+        latitude: '72.87180247351283',
+        testPerformByKeyIdentifier: 'DO',
+        createdByKeyIdentifier: 'DO',
         extData: {
           left_arm: 166.7,
           right_arm: 171.56,
@@ -927,16 +949,35 @@ describe('parseCustomJSON', () => {
 
     const canonical = parseCustomJSON(input as any);
     const observations = canonical.observations || [];
-    expect(observations.length).toBeGreaterThanOrEqual(9);
+    expect(observations.length).toBe(3);
 
-    const weight = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '29463-7');
-    const bmi = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '39156-5');
+    const metrics = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === 'smart-scale-metrics');
     const segmental = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === 'segmental-body-composition');
     const impedance = observations.find((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === 'bioimpedance-series');
 
-    expect(weight?.value).toBe(66.8);
-    expect(weight?.unit).toBe('kg');
-    expect(bmi?.value).toBe(22.1);
+    expect(metrics?.date).toBe('2026-03-09T07:07:02.000Z');
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'weightKg' && c?.valueQuantity?.value === 66.8)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'bmi' && c?.valueQuantity?.value === 22.1)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'bodyFatPercent' && c?.valueQuantity?.value === 26.1)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'musclePercent' && c?.valueQuantity?.value === 69)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'moisturePercent' && c?.valueQuantity?.value === 54.2)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'boneMass' && c?.valueQuantity?.value === 3.3)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'bmr' && c?.valueQuantity?.value === 1437)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'weightLb' && c?.valueQuantity?.value === 147.3)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'subcutaneousFatPercent' && c?.valueQuantity?.value === 18.4)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'physicalAge' && c?.valueQuantity?.value === 31)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'isSupportHr' && c?.valueBoolean === false)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'height' && c?.valueQuantity?.value === 173)).toBe(true);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'isStabilized')).toBe(false);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'masterProfileId')).toBe(false);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'testPerformerId')).toBe(false);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'createdBy')).toBe(false);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'longitude')).toBe(false);
+    expect(metrics?.components?.some((c: any) => c?.code?.code === 'latitude')).toBe(false);
+    expect(observations.some((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '29463-7')).toBe(false);
+    expect(observations.some((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.code === '39156-5')).toBe(false);
+    expect(observations.some((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.display === 'Body fat percentage')).toBe(false);
+    expect(observations.some((obs: any) => (Array.isArray(obs.code) ? obs.code[0] : obs.code)?.display === 'Basal metabolic rate')).toBe(false);
     expect(segmental?.components?.length).toBe(4);
     expect(impedance?.components?.length).toBe(3);
 

@@ -8797,6 +8797,105 @@ function resolveSmartScaleUnit(key: string): string {
   return '{score}';
 }
 
+function resolveSmartScaleScalarUnit(key: string): string | undefined {
+  const lower = key.toLowerCase();
+
+  if (lower === 'weightg') return 'g';
+  if (lower === 'weightkg') return 'kg';
+  if (lower === 'weightlb') return '[lb_av]';
+  if (lower === 'weightst') return '[stone_av]';
+  if (lower === 'weightstlb') return '[lb_av]';
+
+  if (lower === 'precisionkg' || lower === 'kgscaledivision') return 'kg';
+  if (lower === 'precisionlb' || lower === 'lbscaledivision' || lower === 'precisionstlb') return '[lb_av]';
+
+  if (lower === 'temperature') return 'Cel';
+  if (lower === 'hr') return '/min';
+  if (lower === 'height') return 'cm';
+  if (lower === 'time') return 's';
+
+  if (lower === 'bmi' || lower === 'bmistandard' || lower === 'bmimax' || lower === 'bmimin' || lower === 'smi') {
+    return 'kg/m2';
+  }
+
+  if (
+    lower.includes('percent')
+    || lower === 'bodyfatpercent'
+    || lower === 'subcutaneousfatpercent'
+    || lower === 'musclepercent'
+    || lower === 'moisturepercent'
+    || lower === 'proteinpercent'
+    || lower === 'smpercent'
+    || lower === 'bfpstandard'
+    || lower === 'bfpmax'
+    || lower === 'bfpmin'
+  ) {
+    return '%';
+  }
+
+  if (
+    lower === 'weightstandard'
+    || lower === 'targetweight'
+    || lower === 'bfmcontrol'
+    || lower === 'ffmcontrol'
+    || lower === 'weightcontrol'
+    || lower === 'bfmstandard'
+    || lower === 'smmstandard'
+    || lower === 'ffmstandard'
+    || lower === 'bonemass'
+    || lower === 'bonemax'
+    || lower === 'bonemin'
+    || lower === 'bfmmax'
+    || lower === 'bfmmin'
+    || lower === 'weightmax'
+    || lower === 'weightmin'
+    || lower === 'smmmax'
+    || lower === 'smmmin'
+    || lower === 'watermassmax'
+    || lower === 'watermassmin'
+    || lower === 'proteinmassmax'
+    || lower === 'proteinmassmin'
+    || lower === 'musclemassmax'
+    || lower === 'musclemassmin'
+  ) {
+    return 'kg';
+  }
+
+  if (lower === 'bmr' || lower === 'bmrstandard' || lower === 'bmrmax' || lower === 'bmrmin') {
+    return '{kcal}/d';
+  }
+
+  if (lower === 'age' || lower === 'physicalage') return 'a';
+
+  if (
+    lower === 'electrode'
+    || lower === 'visceralfat'
+    || lower === 'bodyscore'
+    || lower === 'bodytype'
+    || lower === 'obesitydegree'
+    || lower === 'state'
+    || lower === 'imp'
+    || lower === 'imp2'
+    || lower === 'imp3'
+    || lower === 'imp4'
+    || lower === 'imp5'
+    || lower === 'datacalctype'
+    || lower === 'bfatype'
+    || lower === 'impendencetype'
+    || lower === 'impendenceproperty'
+  ) {
+    return '{score}';
+  }
+
+  return undefined;
+}
+
+function smartScaleEpochToIso(rawValue: unknown): string | undefined {
+  const epochSeconds = readMongoWrappedNumber(rawValue);
+  if (epochSeconds === undefined || !Number.isFinite(epochSeconds)) return undefined;
+  return new Date(epochSeconds * 1000).toISOString();
+}
+
 function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, payloadId?: string): CanonicalObservation[] {
   const observationPayload = isPlainRecord(payload.smartScale)
     ? payload.smartScale
@@ -8807,10 +8906,93 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
 
   const observationDate =
     readMongoWrappedString(observationPayload.testDateTime)
+    || smartScaleEpochToIso(observationPayload.time)
     || readMongoWrappedString(payload.testDateTime)
     || readMongoWrappedString(payload.appointment);
 
   const grouped: CanonicalObservation[] = [];
+  const excludedSmartScaleKeys = new Set([
+    '_id',
+    '__v',
+    'extData',
+    'impendences',
+    'testDateTime',
+    'isStabilized',
+    'masterProfileId',
+    'testPerformerId',
+    'createdBy',
+    'updatedBy',
+    'deletedBy',
+    'deletedAt',
+    'deleted',
+    'longitude',
+    'latitude',
+    'testPerformByKeyIdentifier',
+    'createdByKeyIdentifier'
+  ]);
+
+  const topLevelComponents = Object.entries(observationPayload)
+    .map(([key, rawValue]) => {
+      if (excludedSmartScaleKeys.has(key)) return undefined;
+
+      const code = {
+        system: 'urn:scanbo:observation',
+        code: key,
+        display: titleFromSnake(key)
+      };
+
+      if (typeof rawValue === 'boolean') {
+        return {
+          code,
+          valueBoolean: rawValue
+        };
+      }
+
+      const numericValue = readMongoWrappedNumber(rawValue);
+      if (numericValue !== undefined) {
+        const unit = resolveSmartScaleScalarUnit(key);
+        if (unit) {
+          return {
+            code,
+            valueQuantity: {
+              value: numericValue,
+              unit,
+              system: 'http://unitsofmeasure.org',
+              code: unit
+            }
+          };
+        }
+        return {
+          code,
+          valueString: String(numericValue)
+        };
+      }
+
+      const stringValue = readMongoWrappedString(rawValue);
+      if (stringValue) {
+        return {
+          code,
+          valueString: stringValue
+        };
+      }
+
+      return undefined;
+    })
+    .filter(Boolean) as NonNullable<CanonicalObservation['components']>;
+
+  if (topLevelComponents.length > 0) {
+    grouped.push({
+      setId: payloadId ? `${payloadId}-smart-scale-metrics` : undefined,
+      code: {
+        system: 'urn:scanbo:observation',
+        code: 'smart-scale-metrics',
+        display: 'Smart scale metrics'
+      },
+      status: 'final',
+      date: observationDate,
+      components: topLevelComponents
+    });
+  }
 
   const extData = isPlainRecord(observationPayload.extData) ? observationPayload.extData : undefined;
   if (extData) {
@@ -9241,13 +9423,9 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
 
   // Smart-scale standalone body metrics
   if (observationPayload) {
-    pushObservationRow('weight-kg', 'Body weight', observationPayload.weightKg, { code: '29463-7', unit: 'kg' });
-    pushObservationRow('bmi', 'Body mass index (BMI) [Ratio]', observationPayload.bmi, { code: '39156-5', unit: 'kg/m2' });
-    pushObservationRow('body-fat-percent', 'Body fat percentage', observationPayload.bodyFatPercent, { unit: '%' });
-    pushObservationRow('muscle-percent', 'Muscle percentage', observationPayload.musclePercent, { unit: '%' });
-    pushObservationRow('moisture-percent', 'Body water percentage', observationPayload.moisturePercent, { unit: '%' });
-    pushObservationRow('bone-mass', 'Bone mass', observationPayload.boneMass, { unit: 'kg' });
-    pushObservationRow('bmr', 'Basal metabolic rate', observationPayload.bmr, { unit: '{kcal}/d' });
+    // Smart-scale measurements are represented in the grouped
+    // `smart-scale-metrics` observation to avoid duplicate standalone
+    // observations for the same payload.
   }
 
   const note = readMongoWrappedString(payload.note);
