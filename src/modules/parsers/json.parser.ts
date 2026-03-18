@@ -8851,6 +8851,7 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
   if (impedanceValues.length > 0) {
     const components = impedanceValues.map((value, index) => ({
       code: {
+        system: 'urn:hl7-org:local',
         code: `impedance-${index + 1}`,
         display: `Impedance ${index + 1}`
       },
@@ -9070,14 +9071,14 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
     obsIdSuffix: string,
     display: string,
     value: unknown,
-    options?: { code?: string; system?: string; unit?: string }
+    options?: { code?: string; system?: string; unit?: string; textOnly?: boolean }
   ) => {
     const raw = readMongoWrappedString(value);
     if (!raw) return;
     pushRow({
       observation_id: payloadId ? `${payloadId}-${obsIdSuffix}` : undefined,
-      observation_code: options?.code,
-      observation_code_system: options?.system || (options?.code ? 'http://loinc.org' : undefined),
+      observation_code: options?.textOnly ? undefined : options?.code,
+      observation_code_system: options?.textOnly ? undefined : (options?.system || (options?.code ? 'http://loinc.org' : undefined)),
       observation_display: display,
       observation_value: raw,
       observation_unit: options?.unit,
@@ -9202,31 +9203,30 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   // Vitals/Labs from Scanbo consultation payload -> Observation resources
   const bpRaw = readMongoWrappedString(payload.blood_pressure);
   if (bpRaw) {
-    const bpMatch = bpRaw.match(/^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/);
-    if (bpMatch) {
-      pushRow({
-        observation_id: payloadId ? `${payloadId}-blood-pressure` : undefined,
-        observation_type: 'bloodPressure',
-        observation_systolic_value: bpMatch[1],
-        observation_diastolic_value: bpMatch[2],
-        observation_unit: 'mmHg',
-        observation_date: observationDate,
-        observation_status: 'final'
-      });
-    }
+    pushRow({
+      observation_id: payloadId ? `${payloadId}-blood-pressure` : undefined,
+      observation_display: 'Blood pressure',
+      observation_value: bpRaw,
+      observation_unit: 'mmHg',
+      observation_date: observationDate,
+      observation_status: 'final'
+    });
   }
 
-  pushObservationRow('bsl-random', 'Blood glucose random', payload.bsl_random, { code: '2339-0', unit: 'mg/dL' });
-  pushObservationRow('insulin-fasting', 'Insulin fasting', payload.insulin_fasting, { code: '20448-7', unit: 'u[IU]/mL' });
-  pushObservationRow('bsl-fasting', 'Blood glucose fasting', payload.bsl_fasting, { code: '1558-6', unit: 'mg/dL' });
-  pushObservationRow('insulin-postprandial', 'Insulin postprandial', payload.insulin_postprandial, { unit: 'u[IU]/mL' });
-  pushObservationRow('bsl-postprandial', 'Blood glucose postprandial', payload.bsl_postprandial, { code: '14771-0', unit: 'mg/dL' });
-  pushObservationRow('hba1c', 'Hemoglobin A1c', payload.hba1c_percent, { code: '4548-4', unit: '%' });
-  pushObservationRow('weight', 'Body weight', payload.weight_kg, { code: '29463-7', unit: 'kg' });
-  pushObservationRow('tsh', 'TSH', payload.tsh_level, { code: '3016-3', unit: 'u[IU]/mL' });
-  pushObservationRow('c-peptide-fasting', 'C-peptide fasting', payload.c_peptide_fasting, { unit: 'ng/mL' });
-  pushObservationRow('c-peptide-postprandial', 'C-peptide postprandial', payload.c_peptide_postprandial, { unit: 'ng/mL' });
-  pushObservationRow('creatinine', 'Creatinine', payload.creatinine_level, { code: '2160-0', unit: 'mg/dL' });
+  // Temporary workaround for Scanbo consultation observations:
+  // keep previous LOINC mappings here for reference, but emit text-only Observation.code
+  // so online validators do not call external terminology lookup for this endpoint's payload.
+  pushObservationRow('bsl-random', 'Blood glucose random', payload.bsl_random, { code: '2339-0', unit: 'mg/dL', textOnly: true });
+  pushObservationRow('insulin-fasting', 'Insulin fasting', payload.insulin_fasting, { code: '20448-7', unit: 'u[IU]/mL', textOnly: true });
+  pushObservationRow('bsl-fasting', 'Blood glucose fasting', payload.bsl_fasting, { code: '1558-6', unit: 'mg/dL', textOnly: true });
+  pushObservationRow('insulin-postprandial', 'Insulin postprandial', payload.insulin_postprandial, { unit: 'u[IU]/mL', textOnly: true });
+  pushObservationRow('bsl-postprandial', 'Blood glucose postprandial', payload.bsl_postprandial, { code: '14771-0', unit: 'mg/dL', textOnly: true });
+  pushObservationRow('hba1c', 'Hemoglobin A1c', payload.hba1c_percent, { code: '4548-4', unit: '%', textOnly: true });
+  pushObservationRow('weight', 'Body weight', payload.weight_kg, { code: '29463-7', unit: 'kg', textOnly: true });
+  pushObservationRow('tsh', 'TSH', payload.tsh_level, { code: '3016-3', unit: 'u[IU]/mL', textOnly: true });
+  pushObservationRow('c-peptide-fasting', 'C-peptide fasting', payload.c_peptide_fasting, { unit: 'ng/mL', textOnly: true });
+  pushObservationRow('c-peptide-postprandial', 'C-peptide postprandial', payload.c_peptide_postprandial, { unit: 'ng/mL', textOnly: true });
+  pushObservationRow('creatinine', 'Creatinine', payload.creatinine_level, { code: '2160-0', unit: 'mg/dL', textOnly: true });
 
   // Smart-scale standalone body metrics
   if (observationPayload) {

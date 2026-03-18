@@ -867,9 +867,30 @@ describe('parseCustomJSON', () => {
       .filter((r: any) => r?.resourceType === 'Observation');
 
     expect(observations.length).toBeGreaterThanOrEqual(11);
-    const bpObservation = observations.find((o: any) => o?.code?.coding?.some((c: any) => c?.code === '85354-9'));
+    const bpObservation = observations.find((o: any) => o?.code?.text === 'Blood pressure');
     expect(bpObservation).toBeDefined();
-    expect(bpObservation?.component?.length).toBe(2);
+    expect(bpObservation?.code?.coding).toBeUndefined();
+    expect(bpObservation?.valueString).toBe('120/80');
+
+    const scanboTextOnlyObservations = observations.filter((o: any) => [
+      'Blood glucose random',
+      'Insulin fasting',
+      'Blood glucose fasting',
+      'Insulin postprandial',
+      'Blood glucose postprandial',
+      'Hemoglobin A1c',
+      'Body weight',
+      'TSH',
+      'C-peptide fasting',
+      'C-peptide postprandial',
+      'Creatinine',
+      'Blood pressure'
+    ].includes(o?.code?.text));
+
+    expect(scanboTextOnlyObservations.length).toBe(12);
+    scanboTextOnlyObservations.forEach((observation: any) => {
+      expect(observation?.code?.coding).toBeUndefined();
+    });
   });
 
   it('maps smart-scale payload into standalone and grouped observations', () => {
