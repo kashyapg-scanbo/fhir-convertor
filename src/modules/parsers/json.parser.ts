@@ -9071,9 +9071,23 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
   return grouped;
 }
 
+function getScanboPractitionerPayload(payload: Record<string, unknown>): Record<string, unknown> | undefined {
+  if (isPlainRecord(payload.doctor)) return payload.doctor;
+  if (isPlainRecord(payload.practitioner)) return payload.practitioner;
+  return undefined;
+}
+
+function getScanboObservationPayload(payload: Record<string, unknown>): Record<string, unknown> | undefined {
+  if (isPlainRecord(payload.smartScale)) return payload.smartScale;
+  if (isPlainRecord(payload.digitalMeasurement)) return payload.digitalMeasurement;
+  if (isPlainRecord(payload.obseravtion)) return payload.obseravtion;
+  if (isPlainRecord(payload.observation)) return payload.observation;
+  return undefined;
+}
+
 function looksLikeScanboConsultationPayload(payload: unknown): payload is Record<string, unknown> {
   if (!isPlainRecord(payload)) return false;
-  const hasPersonBlocks = isPlainRecord(payload.patient) || isPlainRecord(payload.doctor);
+  const hasPersonBlocks = isPlainRecord(payload.patient) || Boolean(getScanboPractitionerPayload(payload));
   const hasConsultationSignals =
     'prescription' in payload ||
     'diagnosis' in payload ||
@@ -9084,6 +9098,7 @@ function looksLikeScanboConsultationPayload(payload: unknown): payload is Record
     'mindSet' in payload ||
     'note' in payload ||
     isPlainRecord(payload.smartScale) ||
+    isPlainRecord(payload.digitalMeasurement) ||
     isPlainRecord(payload.obseravtion) ||
     isPlainRecord(payload.observation);
   return hasPersonBlocks && hasConsultationSignals;
@@ -9093,12 +9108,8 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
   const rows: TabularRow[] = [];
   const payloadId = readMongoWrappedString(payload._id);
   const patient = isPlainRecord(payload.patient) ? payload.patient : {};
-  const doctor = isPlainRecord(payload.doctor) ? payload.doctor : {};
-  const observationPayload = isPlainRecord(payload.smartScale)
-    ? payload.smartScale
-    : (isPlainRecord(payload.obseravtion)
-    ? payload.obseravtion
-    : (isPlainRecord(payload.observation) ? payload.observation : undefined));
+  const practitioner = getScanboPractitionerPayload(payload) || {};
+  const observationPayload = getScanboObservationPayload(payload);
 
   const patientId =
     readMongoWrappedString(payload.patientMasterProfileId) ||
@@ -9108,31 +9119,49 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
     readMongoWrappedString(patient._id);
   const practitionerId =
     readMongoWrappedString(payload.doctorId) ||
-    readMongoWrappedString(doctor._id);
+    readMongoWrappedString(payload.practitionerId) ||
+    readMongoWrappedString(practitioner._id) ||
+    readMongoWrappedString(practitioner.masterProfileId) ||
+    readMongoWrappedString(practitioner.masterProfile_id);
 
   const patientFirstName = readMongoWrappedString(patient.patientFirstName);
+  const patientMiddleName = readMongoWrappedString(patient.patientMiddleName);
   const patientLastName = readMongoWrappedString(patient.patientLastName);
-  const doctorFirstName = readMongoWrappedString(doctor.doctorFirstName);
-  const doctorLastName = readMongoWrappedString(doctor.doctorLastName);
-  const doctorQualification = readMongoWrappedString(doctor.qualification);
+  const patientGender = readMongoWrappedString(patient.gender);
+  const patientBirthDate = readMongoWrappedString(patient.birthDate);
+  const practitionerFirstName =
+    readMongoWrappedString(practitioner.doctorFirstName) ||
+    readMongoWrappedString(practitioner.practitionerFirstName);
+  const practitionerLastName =
+    readMongoWrappedString(practitioner.doctorLastName) ||
+    readMongoWrappedString(practitioner.practitionerLastName);
+  const practitionerQualification =
+    readMongoWrappedString(practitioner.qualification) ||
+    readMongoWrappedString(practitioner.practitionerType);
 
   const base: TabularRow = {};
   if (patientId) base.patient_id = patientId;
   if (patientFirstName) base.patient_first_name = patientFirstName;
+  if (patientMiddleName) base.patient_middle_name = patientMiddleName;
   if (patientLastName) base.patient_last_name = patientLastName;
+  if (patientGender) base.patient_gender = mapGender(patientGender) || patientGender;
+  if (patientBirthDate) base.patient_birth_date = patientBirthDate;
   if (practitionerId) base.practitioner_id = practitionerId;
-  if (doctorFirstName) base.practitioner_first_name = doctorFirstName;
-  if (doctorLastName) base.practitioner_last_name = doctorLastName;
-  if (doctorQualification) {
-    base.practitioner_qualification_code = doctorQualification;
-    base.practitioner_qualification_display = doctorQualification;
+  if (practitionerFirstName) base.practitioner_first_name = practitionerFirstName;
+  if (practitionerLastName) base.practitioner_last_name = practitionerLastName;
+  if (practitionerQualification) {
+    base.practitioner_qualification_code = practitionerQualification;
+    base.practitioner_qualification_display = practitionerQualification;
   }
 
   const pushRow = (fields: Record<string, unknown>, includePractitioner = false) => {
     const row: TabularRow = {};
     if (base.patient_id) row.patient_id = base.patient_id;
     if (base.patient_first_name) row.patient_first_name = base.patient_first_name;
+    if (base.patient_middle_name) row.patient_middle_name = base.patient_middle_name;
     if (base.patient_last_name) row.patient_last_name = base.patient_last_name;
+    if (base.patient_gender) row.patient_gender = base.patient_gender;
+    if (base.patient_birth_date) row.patient_birth_date = base.patient_birth_date;
     if (includePractitioner) {
       if (base.practitioner_id) row.practitioner_id = base.practitioner_id;
       if (base.practitioner_first_name) row.practitioner_first_name = base.practitioner_first_name;
@@ -9371,6 +9400,28 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
         });
         nestedHandled = true;
       }
+    }
+
+    const digitalMeasurementType = readMongoWrappedString(observationPayload.measurementType);
+    const digitalMeasurementValue =
+      readMongoWrappedString(observationPayload.value)
+      || readMongoWrappedString(observationPayload.otherValue);
+    const digitalMeasurementUnit = readMongoWrappedString(observationPayload.measurementUnit);
+    const digitalMeasurementCode = readMongoWrappedString(observationPayload.measurementKeyIdentifier);
+    if (!nestedHandled && digitalMeasurementType && digitalMeasurementValue) {
+      pushRow({
+        observation_id:
+          readMongoWrappedString(observationPayload._id)
+          || (payloadId ? `${payloadId}-digital-measurement` : undefined),
+        observation_code: digitalMeasurementCode,
+        observation_code_system: digitalMeasurementCode ? 'urn:scanbo:digital-measurement' : undefined,
+        observation_display: digitalMeasurementType,
+        observation_value: digitalMeasurementValue,
+        observation_unit: digitalMeasurementUnit,
+        observation_date: nestedDate,
+        observation_status: 'final'
+      });
+      nestedHandled = true;
     }
 
     const nestedValue =
