@@ -3562,6 +3562,52 @@ function normalizeAliasValue(value: unknown): string | undefined {
   return undefined;
 }
 
+function assignAliasedValue(
+  normalized: Record<string, unknown>,
+  source: Record<string, unknown>,
+  section: keyof typeof HEADER_ALIAS_SECTIONS,
+  canonicalKey: string,
+  targetKey = canonicalKey,
+  options?: { raw?: boolean }
+) {
+  if (normalized[targetKey] !== undefined) return;
+  const aliasValue = readSectionAliasValue(source, section, canonicalKey);
+  if (aliasValue === undefined) return;
+
+  if (options?.raw) {
+    normalized[targetKey] = aliasValue;
+    return;
+  }
+
+  const normalizedValue = normalizeAliasValue(aliasValue);
+  if (normalizedValue !== undefined) {
+    normalized[targetKey] = normalizedValue;
+  }
+}
+
+function assignAliasedCodeableConcept(
+  normalized: Record<string, unknown>,
+  source: Record<string, unknown>,
+  section: keyof typeof HEADER_ALIAS_SECTIONS,
+  targetKey: string,
+  codeKey: string,
+  systemKey: string,
+  displayKey: string
+) {
+  if (normalized[targetKey] !== undefined) return;
+
+  const code = normalizeAliasValue(readSectionAliasValue(source, section, codeKey));
+  const codeSystem = normalizeAliasValue(readSectionAliasValue(source, section, systemKey));
+  const display = normalizeAliasValue(readSectionAliasValue(source, section, displayKey));
+
+  if (!code && !codeSystem && !display) return;
+  normalized[targetKey] = {
+    code,
+    code_system: codeSystem,
+    display
+  };
+}
+
 function splitNameParts(fullName: string) {
   const tokens = fullName.split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return {};
@@ -4522,6 +4568,40 @@ function normalizeGlobalFlagAliases(value: Record<string, unknown>) {
 
   const authorId = normalizeAliasValue(readSectionAliasValue(value, 'flag', 'flag_author_id'));
   if (authorId && normalized.author_id === undefined) normalized.author_id = authorId;
+
+  return normalized;
+}
+
+function normalizeGlobalObservationAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  const observationId = readSectionAliasValue(value, 'observation', 'observation_id');
+  if (normalized.observation_id === undefined && observationId !== undefined) {
+    normalized.observation_id = observationId;
+  }
+
+  const code = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_code'));
+  if (code && normalized.observation_code === undefined) normalized.observation_code = code;
+
+  const codeSystem = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_code_system'));
+  if (codeSystem && normalized.observation_code_system === undefined) normalized.observation_code_system = codeSystem;
+
+  const display = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_display'));
+  if (display && normalized.observation_display === undefined) normalized.observation_display = display;
+
+  const valueCandidate = readSectionAliasValue(value, 'observation', 'observation_value');
+  if (normalized.observation_value === undefined && valueCandidate !== undefined) {
+    normalized.observation_value = valueCandidate;
+  }
+
+  const unit = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_unit'));
+  if (unit && normalized.observation_unit === undefined) normalized.observation_unit = unit;
+
+  const date = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_date'));
+  if (date && normalized.observation_date === undefined) normalized.observation_date = date;
+
+  const status = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_status'));
+  if (status && normalized.observation_status === undefined) normalized.observation_status = status;
 
   return normalized;
 }
@@ -6942,6 +7022,158 @@ function normalizeGlobalEpisodeOfCareAliases(value: Record<string, unknown>) {
   return normalized;
 }
 
+function normalizeGlobalCodeSystemAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_id', 'code_system_id');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_url', 'url');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_version', 'version');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_name', 'name');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_title', 'title');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_status', 'status');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_date', 'date');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_publisher', 'publisher');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_description', 'description');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_content', 'content');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_case_sensitive', 'case_sensitive', { raw: true });
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_concept_code', 'concept_code');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_concept_display', 'concept_display');
+  assignAliasedValue(normalized, value, 'codeSystem', 'code_system_concept_definition', 'concept_definition');
+
+  return normalized;
+}
+
+function normalizeGlobalValueSetAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_id', 'value_set_id');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_url', 'url');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_version', 'version');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_name', 'name');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_title', 'title');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_status', 'status');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_date', 'date');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_publisher', 'publisher');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_description', 'description');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_include_system', 'include_system');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_include_code', 'include_code');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_include_display', 'include_display');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_expansion_system', 'expansion_system');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_expansion_code', 'expansion_code');
+  assignAliasedValue(normalized, value, 'valueSet', 'value_set_expansion_display', 'expansion_display');
+
+  return normalized;
+}
+
+function normalizeGlobalConceptMapAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_id', 'concept_map_id');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_url', 'url');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_version', 'version');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_name', 'name');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_title', 'title');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_status', 'status');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_date', 'date');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_publisher', 'publisher');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_description', 'description');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_source_scope', 'source_scope');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_target_scope', 'target_scope');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_group_source', 'group_source');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_group_target', 'group_target');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_element_code', 'element_code');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_element_display', 'element_display');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_target_code', 'target_code');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_target_display', 'target_display');
+  assignAliasedValue(normalized, value, 'conceptMap', 'concept_map_target_relationship', 'target_relationship');
+
+  return normalized;
+}
+
+function normalizeGlobalNamingSystemAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_id', 'naming_system_id');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_url', 'url');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_version', 'version');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_name', 'name');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_title', 'title');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_status', 'status');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_kind', 'kind');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_date', 'date');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_publisher', 'publisher');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_responsible', 'responsible');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_description', 'description');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_usage', 'usage');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_unique_id_type', 'unique_id_type');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_unique_id_value', 'unique_id_value');
+  assignAliasedValue(normalized, value, 'namingSystem', 'naming_system_unique_id_preferred', 'unique_id_preferred', { raw: true });
+
+  return normalized;
+}
+
+function normalizeGlobalTerminologyCapabilitiesAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_id', 'terminology_capabilities_id');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_url', 'url');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_version', 'version');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_name', 'name');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_title', 'title');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_status', 'status');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_date', 'date');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_publisher', 'publisher');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_description', 'description');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_kind', 'kind');
+  assignAliasedValue(normalized, value, 'terminologyCapabilities', 'terminology_capabilities_code_search', 'code_search');
+
+  return normalized;
+}
+
+function normalizeGlobalProvenanceAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'provenance', 'provenance_id', 'provenance_id');
+  assignAliasedValue(normalized, value, 'provenance', 'provenance_target_ids', 'target_ids', { raw: true });
+  assignAliasedValue(normalized, value, 'provenance', 'provenance_recorded', 'recorded');
+  assignAliasedValue(normalized, value, 'provenance', 'provenance_activity', 'activity');
+  assignAliasedValue(normalized, value, 'provenance', 'provenance_agent_who', 'agent_who');
+  assignAliasedValue(normalized, value, 'provenance', 'provenance_agent_role', 'agent_role');
+
+  return normalized;
+}
+
+function normalizeGlobalAuditEventAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_id', 'audit_event_id');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_category', 'category');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_code', 'code');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_action', 'action');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_severity', 'severity');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_recorded', 'recorded');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_agent_who', 'agent_who');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_agent_role', 'agent_role');
+  assignAliasedValue(normalized, value, 'auditEvent', 'audit_event_agent_requestor', 'agent_requestor', { raw: true });
+
+  return normalized;
+}
+
+function normalizeGlobalConsentAliases(value: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...value };
+
+  assignAliasedValue(normalized, value, 'consent', 'consent_id', 'consent_id');
+  assignAliasedValue(normalized, value, 'consent', 'consent_status', 'status');
+  assignAliasedValue(normalized, value, 'consent', 'consent_category', 'category');
+  assignAliasedValue(normalized, value, 'consent', 'consent_subject_id', 'subject_id');
+  assignAliasedValue(normalized, value, 'consent', 'consent_date', 'date');
+  assignAliasedValue(normalized, value, 'consent', 'consent_decision', 'decision');
+  assignAliasedValue(normalized, value, 'consent', 'consent_grantor_ids', 'grantor_ids', { raw: true });
+  assignAliasedValue(normalized, value, 'consent', 'consent_grantee_ids', 'grantee_ids', { raw: true });
+
+  return normalized;
+}
+
 function normalizeGlobalCarePlanAliases(value: Record<string, unknown>) {
   const normalized: Record<string, unknown> = { ...value };
 
@@ -8348,6 +8580,8 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalEncounterHistoryAliases(value);
     case 'flag':
       return normalizeGlobalFlagAliases(value);
+    case 'observation':
+      return normalizeGlobalObservationAliases(value);
     case 'list':
       return normalizeGlobalListAliases(value);
     case 'group':
@@ -8386,6 +8620,22 @@ function normalizeGlobalSectionPayload(value: unknown, section: keyof typeof HEA
       return normalizeGlobalQuestionnaireAliases(value);
     case 'questionnaireResponse':
       return normalizeGlobalQuestionnaireResponseAliases(value);
+    case 'codeSystem':
+      return normalizeGlobalCodeSystemAliases(value);
+    case 'valueSet':
+      return normalizeGlobalValueSetAliases(value);
+    case 'conceptMap':
+      return normalizeGlobalConceptMapAliases(value);
+    case 'namingSystem':
+      return normalizeGlobalNamingSystemAliases(value);
+    case 'terminologyCapabilities':
+      return normalizeGlobalTerminologyCapabilitiesAliases(value);
+    case 'provenance':
+      return normalizeGlobalProvenanceAliases(value);
+    case 'auditEvent':
+      return normalizeGlobalAuditEventAliases(value);
+    case 'consent':
+      return normalizeGlobalConsentAliases(value);
     case 'procedure':
       return normalizeGlobalProcedureAliases(value);
     case 'condition':
@@ -8472,6 +8722,8 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['deviceUsage', 'device_usage'],
     ['encounterHistory', 'encounter_history'],
     ['flag', 'flag'],
+    ['observation', 'observation'],
+    ['observation', 'observations'],
     ['list', 'list'],
     ['group', 'group'],
     ['healthcareService', 'healthcare_service'],
@@ -8490,6 +8742,14 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['communicationRequest', 'communication_request'],
     ['questionnaire', 'questionnaire'],
     ['questionnaireResponse', 'questionnaire_response'],
+    ['codeSystem', 'code_system'],
+    ['valueSet', 'value_set'],
+    ['conceptMap', 'concept_map'],
+    ['namingSystem', 'naming_system'],
+    ['terminologyCapabilities', 'terminology_capabilities'],
+    ['provenance', 'provenance'],
+    ['auditEvent', 'audit_event'],
+    ['consent', 'consent'],
     ['procedure', 'procedure'],
     ['condition', 'condition'],
     ['appointment', 'appointment'],
@@ -8513,8 +8773,12 @@ function normalizeGlobalPayloadAliases(payload: Record<string, unknown>) {
     ['relatedPerson', 'related_person'],
     ['person', 'person'],
     ['location', 'location'],
+    ['episodeOfCare', 'episode_of_care'],
     ['verificationResult', 'verification_result'],
     ['substance', 'substance'],
+    ['specimen', 'specimen'],
+    ['imagingStudy', 'imaging_study'],
+    ['allergyIntolerance', 'allergy_intolerance'],
     ['immunization', 'immunization'],
     ['practitioner', 'practitioner'],
     ['practitionerRole', 'practitioner_role'],
@@ -8561,6 +8825,17 @@ function toTabularRow(source: Record<string, unknown>): TabularRow {
 }
 
 function looksLikeTabularJson(payload: unknown): boolean {
+  if (isPlainRecord(payload)) {
+    const hasStructuredSectionWrapper = Object.entries(payload).some(([key, value]) => {
+      const section = STRUCTURED_SECTION_LOOKUP.get(normalizeAliasKey(key));
+      if (!section) return false;
+      if (isPlainRecord(value)) return true;
+      return Array.isArray(value) && value.some(isPlainRecord);
+    });
+
+    if (hasStructuredSectionWrapper) return false;
+  }
+
   const rows = coerceTabularRows(payload);
   if (!rows || rows.length === 0) return false;
   return rows.some(row => Object.keys(row).length > 0);
@@ -8660,6 +8935,7 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'medicationStatement',
     'medicationAdministration',
     'medicationDispense',
+    'organizationAffiliation',
     'deviceDispense',
     'deviceRequest',
     'deviceUsage',
@@ -8678,6 +8954,19 @@ function buildRowsFromStructuredAliasJson(payload: Record<string, unknown>): Tab
     'careTeam',
     'goal',
     'serviceRequest',
+    'task',
+    'communication',
+    'communicationRequest',
+    'questionnaire',
+    'questionnaireResponse',
+    'codeSystem',
+    'valueSet',
+    'conceptMap',
+    'namingSystem',
+    'terminologyCapabilities',
+    'provenance',
+    'auditEvent',
+    'consent',
     'procedure',
     'condition',
     'appointment',
@@ -9629,21 +9918,17 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     return mergeCanonicalModels(canonicals);
   }
 
-  if (shouldPreferStructuredAlias(parsed)) {
-    const rows = buildRowsFromStructuredAliasJson(parsed);
-    if (rows.length > 0) {
-      const canonical = mapTabularRowsToCanonical(rows, 'JSON');
-      applyCommunityWorkerQualificationDefault(canonical, parsed);
-      const leftover = extractFlatLeftoverPayload(parsed);
-      if (leftover) {
-        const payloads = buildLeftoverSourcePayloads(canonical, leftover);
-        if (payloads) canonical.sourcePayloads = payloads;
-      }
-      return canonical;
+  const normalizedGlobalCandidate = isPlainRecord(parsed) ? normalizeGlobalPayload(parsed) : parsed;
+  if (isPlainRecord(normalizedGlobalCandidate)) {
+    try {
+      const normalizedGlobal = normalizeGlobalPayloadAliases(normalizedGlobalCandidate);
+      const validatedGlobal = GlobalCustomJSONSchema.parse(normalizedGlobal);
+      return buildCanonicalFromGlobal(validatedGlobal);
+    } catch (error) {
+      if (!(error instanceof z.ZodError)) throw error;
     }
   }
 
-  const normalizedGlobalCandidate = isPlainRecord(parsed) ? normalizeGlobalPayload(parsed) : parsed;
   const wrappedGlobal = wrapGlobalPayload(normalizedGlobalCandidate);
   if (wrappedGlobal) {
     try {
@@ -10177,83 +10462,10 @@ function wrapGlobalPayload(value: any) {
     return { patient: value };
   }
 
-  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'observation', 'observations', 'list', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'verification_result', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
+  const hasGlobalKey = ['patient', 'encounter', 'medication', 'medication_knowledge', 'medication_request', 'medication_statement', 'medication_administration', 'medication_dispense', 'organization_affiliation', 'device_dispense', 'device_request', 'device_usage', 'encounter_history', 'flag', 'observation', 'observations', 'list', 'group', 'healthcare_service', 'insurance_plan', 'nutrition_intake', 'nutrition_order', 'risk_assessment', 'capability_statement', 'operation_outcome', 'parameters', 'care_plan', 'care_team', 'goal', 'service_request', 'task', 'communication', 'communication_request', 'questionnaire', 'questionnaire_response', 'code_system', 'value_set', 'concept_map', 'naming_system', 'terminology_capabilities', 'provenance', 'audit_event', 'consent', 'procedure', 'condition', 'appointment', 'appointment_response', 'claim', 'claim_response', 'composition', 'explanation_of_benefit', 'coverage', 'account', 'charge_item', 'charge_item_definition', 'device', 'device_metric', 'endpoint', 'binary', 'schedule', 'slot', 'diagnostic_report', 'related_person', 'person', 'location', 'episode_of_care', 'verification_result', 'substance', 'specimen', 'imaging_study', 'allergy_intolerance', 'immunization', 'practitioner', 'practitioner_role', 'organization']
     .some(key => key in value);
   if (hasGlobalKey) {
-    const candidates = [
-      value.patient,
-      value.encounter,
-      value.medication,
-      value.medication_request,
-      value.medication_statement,
-      value.medication_administration,
-      value.medication_dispense,
-      value.organization_affiliation,
-      value.device_dispense,
-      value.device_request,
-      value.device_usage,
-      value.encounter_history,
-      value.flag,
-      value.observation,
-      value.observations,
-      value.list,
-      value.nutrition_intake,
-      value.nutrition_order,
-      value.risk_assessment,
-      value.capability_statement,
-      value.operation_outcome,
-      value.parameters,
-      value.care_plan,
-      value.care_team,
-      value.goal,
-      value.service_request,
-      value.task,
-      value.communication,
-      value.communication_request,
-      value.questionnaire,
-      value.questionnaire_response,
-      value.code_system,
-      value.value_set,
-      value.concept_map,
-      value.naming_system,
-      value.terminology_capabilities,
-      value.provenance,
-      value.audit_event,
-      value.consent,
-      value.procedure,
-      value.condition,
-      value.appointment,
-      value.appointment_response,
-      value.claim,
-      value.claim_response,
-      value.composition,
-      value.explanation_of_benefit,
-      value.coverage,
-      value.account,
-      value.charge_item,
-      value.charge_item_definition,
-      value.device,
-      value.device_metric,
-      value.binary,
-      value.schedule,
-      value.slot,
-      value.diagnostic_report,
-      value.related_person,
-      value.person,
-      value.location,
-      value.episode_of_care,
-      value.verification_result,
-      value.substance,
-      value.specimen,
-      value.imaging_study,
-      value.allergy_intolerance,
-      value.immunization,
-      value.practitioner,
-      value.practitioner_role,
-      value.organization
-    ].filter(Boolean);
-    const matchesGlobal = candidates.some(candidate => looksLikeGlobalResource(candidate));
-    return matchesGlobal ? value : null;
+    return value;
   }
 
   if (looksLikeGlobalResource(value)) {
