@@ -18,9 +18,47 @@ const openApiDoc = fs.existsSync(openApiPath)
   : undefined;
 
 if (openApiDoc) {
-  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDoc));
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDoc, {
+    swaggerOptions: {
+      defaultModelsExpandDepth: -1,
+      defaultModelRendering: 'example',
+      docExpansion: 'none'
+    }
+  }));
   app.get('/docs.json', (req, res) => res.json(openApiDoc));
 }
+
+/**
+ * POST /json
+ *
+ * Dedicated endpoint for custom JSON payloads.
+ * Accepts the custom JSON body directly, or an envelope like:
+ * { input: {...}, fhirVersion?: 'r4' | 'r5' }
+ */
+app.post('/json', async (req, res) => {
+  try {
+    const body = req.body && typeof req.body === 'object' && 'input' in req.body
+      ? req.body.input
+      : req.body;
+
+    if (body === undefined || body === null) {
+      return res.status(400).json({
+        error: 'JSON body is required'
+      });
+    }
+
+    const input = typeof body === 'string' ? body : JSON.stringify(body);
+    const fhirVersion = ((req.query.fhirVersion as FhirOutputVersion)
+      || (req.body?.fhirVersion as FhirOutputVersion)
+      || 'r5');
+
+    const result = await convertLegacyData(input, 'json', fhirVersion);
+    res.json(result);
+  } catch (e: any) {
+    console.error('Custom JSON conversion error:', e);
+    res.status(400).json({ error: e.message });
+  }
+});
 
 /**
  * POST /convert

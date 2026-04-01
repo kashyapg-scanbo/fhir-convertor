@@ -5,7 +5,7 @@ info:
   description: |
     Convert custom JSON, HL7v2, CDA, CSV, and Excel into FHIR R5 Bundles.
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:4000
     description: Local
 tags:
   - name: Custom JSON
@@ -17,53 +17,17 @@ paths:
       tags: [Custom JSON]
       summary: Convert custom JSON to FHIR R5 Bundle
       description: |
-        Accepts global custom JSON (snake_case).
+        Accepts custom JSON (snake_case) directly on the body.
+        This documentation is focused on the current priority resource types:
+        Patient, Observation, Practitioner, PractitionerRole, Organization,
+        Location, Encounter, Condition, DiagnosticReport, Medication,
+        MedicationRequest, MedicationStatement, and DocumentReference.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/CustomJsonPatientOnly'
-                - $ref: '#/components/schemas/CustomJsonEncounterOnly'
-                - $ref: '#/components/schemas/CustomJsonMedicationOnly'
-                - $ref: '#/components/schemas/CustomJsonMedicationRequestOnly'
-                - $ref: '#/components/schemas/CustomJsonMedicationAdministrationOnly'
-                - $ref: '#/components/schemas/CustomJsonMedicationDispenseOnly'
-                - $ref: '#/components/schemas/CustomJsonOrganizationAffiliationOnly'
-                - $ref: '#/components/schemas/CustomJsonCapabilityStatementOnly'
-                - $ref: '#/components/schemas/CustomJsonOperationOutcomeOnly'
-                - $ref: '#/components/schemas/CustomJsonParametersOnly'
-                - $ref: '#/components/schemas/CustomJsonCarePlanOnly'
-                - $ref: '#/components/schemas/CustomJsonCareTeamOnly'
-                - $ref: '#/components/schemas/CustomJsonGoalOnly'
-                - $ref: '#/components/schemas/CustomJsonServiceRequestOnly'
-                - $ref: '#/components/schemas/CustomJsonTaskOnly'
-                - $ref: '#/components/schemas/CustomJsonCommunicationOnly'
-                - $ref: '#/components/schemas/CustomJsonCommunicationRequestOnly'
-                - $ref: '#/components/schemas/CustomJsonQuestionnaireOnly'
-                - $ref: '#/components/schemas/CustomJsonQuestionnaireResponseOnly'
-                - $ref: '#/components/schemas/CustomJsonCodeSystemOnly'
-                - $ref: '#/components/schemas/CustomJsonValueSetOnly'
-                - $ref: '#/components/schemas/CustomJsonConceptMapOnly'
-                - $ref: '#/components/schemas/CustomJsonNamingSystemOnly'
-                - $ref: '#/components/schemas/CustomJsonTerminologyCapabilitiesOnly'
-                - $ref: '#/components/schemas/CustomJsonProvenanceOnly'
-                - $ref: '#/components/schemas/CustomJsonAuditEventOnly'
-                - $ref: '#/components/schemas/CustomJsonConsentOnly'
-                - $ref: '#/components/schemas/CustomJsonPractitionerOnly'
-                - $ref: '#/components/schemas/CustomJsonPractitionerRoleOnly'
-                - $ref: '#/components/schemas/CustomJsonOrganizationOnly'
-                - $ref: '#/components/schemas/CustomJsonPersonOnly'
-                - $ref: '#/components/schemas/CustomJsonLocationOnly'
-                - $ref: '#/components/schemas/CustomJsonEpisodeOfCareOnly'
-                - $ref: '#/components/schemas/CustomJsonVerificationResultOnly'
-                - $ref: '#/components/schemas/CustomJsonSubstanceOnly'
-                - $ref: '#/components/schemas/CustomJsonSpecimenOnly'
-                - $ref: '#/components/schemas/CustomJsonImagingStudyOnly'
-                - $ref: '#/components/schemas/CustomJsonAllergyIntoleranceOnly'
-                - $ref: '#/components/schemas/CustomJsonImmunizationOnly'
-                - $ref: '#/components/schemas/CustomJsonFull'
+              $ref: '#/components/schemas/CustomJsonPriorityInput'
             examples:
               patient:
                 summary: Patient
@@ -113,6 +77,147 @@ paths:
                           surgery_date: 2000-06-15
                         - surgery_name: Knee Replacement
                           surgery_date: 2015-08-20
+              observation:
+                summary: Observation
+                value:
+                  observation:
+                    observation_id: OBS-100
+                    observation_code: 8310-5
+                    observation_code_system: http://loinc.org
+                    observation_display: Body temperature
+                    observation_value: 37.1
+                    observation_unit: C
+                    observation_date: 2024-08-15T09:05:00Z
+                    observation_status: final
+              practitioner:
+                summary: Practitioner
+                value:
+                  practitioner:
+                    practitioner_id: 98765
+                    name:
+                      first_name: Emily
+                      middle_name: R.
+                      last_name: Smith
+                    date_of_birth: 1975-10-12
+                    gender: female
+                    contact_info:
+                      phone: "+1-555-555-7777"
+                      email: emily.smith@healthcare.com
+                      address:
+                        street: 456 Health St
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90210
+                        country: USA
+                    license:
+                      license_number: MD123456
+                      state_issued: CA
+                      issue_date: 2000-05-20
+                      expiry_date: 2025-05-20
+                    specialization: Cardiology
+                    years_of_experience: 20
+                    languages_spoken:
+                      - English
+                      - Spanish
+                    practice_location:
+                      name: Healthy Heart Clinic
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                      phone: "+1-555-555-8888"
+                    qualifications:
+                      - degree: MD
+                        institution: Harvard Medical School
+                        year: 2000
+                      - degree: Fellowship in Cardiology
+                        institution: Johns Hopkins Hospital
+                        year: 2004
+              practitioner_role:
+                summary: PractitionerRole
+                value:
+                  practitioner_role:
+                    practitioner_role_id: PR123456
+                    practitioner_id: 98765
+                    organization_id: ORG001
+                    role: Cardiologist
+                    specialty: Cardiology
+                    location:
+                      location_id: LOC123456
+                      name: Healthy Heart Clinic
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                    telecom:
+                      phone: "+1-555-555-7777"
+                      email: emily.smith@healthyheartclinic.com
+                    available_hours:
+                      weekdays: 8:00 AM - 5:00 PM
+                      weekends: 9:00 AM - 2:00 PM
+                    service_period:
+                      start_date: 2020-01-01
+                      end_date: null
+              organization:
+                summary: Organization
+                value:
+                  organization:
+                    organization_id: ORG001
+                    name: Healthy Heart Clinic
+                    type: Healthcare Provider
+                    contact_info:
+                      phone: "+1-555-555-8888"
+                      email: contact@healthyheartclinic.com
+                      address:
+                        street: 789 Clinic Blvd
+                        city: Healthyville
+                        state: CA
+                        postal_code: 90211
+                        country: USA
+                      fax: "+1-555-555-9999"
+                      website: https://www.healthyheartclinic.com
+                    departments:
+                      - name: Cardiology
+                        contact_phone: "+1-555-555-1234"
+                      - name: Radiology
+                        contact_phone: "+1-555-555-5678"
+                    affiliations:
+                      - name: American Heart Association
+                        type: Professional Association
+                      - name: National Institutes of Health
+                        type: Research Partner
+                    services_offered:
+                      - Cardiac Consultation
+                      - Echocardiography
+                      - Stress Testing
+                      - Cardiac Surgery
+                    operating_hours:
+                      weekdays: 8:00 AM - 5:00 PM
+                      weekends: 9:00 AM - 2:00 PM
+              location:
+                summary: Location
+                value:
+                  location:
+                    location_id: LOC123456
+                    status: active
+                    name: Healthy Heart Clinic
+                    alias:
+                      - Main Clinic
+                    description: Outpatient clinic location
+                    mode: instance
+                    type: clinic
+                    address_line1: 789 Clinic Blvd
+                    address_line2: Suite 100
+                    city: Healthyville
+                    state: CA
+                    postal_code: 90211
+                    country: USA
+                    managing_org_id: ORG001
+                    part_of_id: LOC-PARENT
               encounter:
                 summary: Encounter
                 value:
@@ -149,6 +254,44 @@ paths:
                       recommended: true
                       next_appointment_date: 2024-09-15T09:00:00Z
                     note: Patient advised to continue current medication and follow-up in one month.
+              condition:
+                summary: Condition
+                value:
+                  condition:
+                    condition_id: COND-100
+                    patient_id: P-10001
+                    encounter_id: ENC345678
+                    clinical_status: active
+                    verification_status: confirmed
+                    category: problem-list-item
+                    severity: moderate
+                    code:
+                      code: 44054006
+                      code_system: http://snomed.info/sct
+                      display: Diabetes mellitus type 2
+                    onset_date: 2024-01-10
+                    recorded_date: 2024-01-11
+                    note: Managed with oral medication
+              diagnostic_report:
+                summary: DiagnosticReport
+                value:
+                  diagnostic_report:
+                    diagnostic_report_id: DR-100
+                    status: final
+                    category: laboratory
+                    code:
+                      code: 58410-2
+                      code_system: http://loinc.org
+                      display: Complete blood count
+                    subject_id: P-10001
+                    encounter_id: ENC345678
+                    effective_date: 2024-08-15T09:20:00Z
+                    issued: 2024-08-15T10:00:00Z
+                    performer_id:
+                      - ORG001
+                    result_ids:
+                      - OBS-100
+                    conclusion: CBC within expected range
               medication:
                 summary: Medication
                 value:
@@ -204,6 +347,42 @@ paths:
                     status: active
                     authored_on: 2024-08-01
                     note: Patient advised to take medication in the evening.
+              medication_statement:
+                summary: MedicationStatement
+                value:
+                  medication_statement:
+                    medication_statement_id: MST-100
+                    patient_id: P-10001
+                    encounter_id: ENC345678
+                    status: active
+                    category: inpatient
+                    medication:
+                      medication_id: MED987654
+                      code_system: http://www.nlm.nih.gov/research/umls/rxnorm
+                      name: Atorvastatin
+                      strength: 20 mg
+                      form: Tablet
+                    effective_date: 2024-08-15T09:00:00Z
+                    author_id: PRAC-1
+                    information_source: patient
+                    reason:
+                      - Hyperlipidemia
+                    dosage:
+                      dose: 20
+                      dose_unit: mg
+                      route: Oral
+                      frequency: Once daily
+              document_reference:
+                summary: DocumentReference
+                value:
+                  document_reference:
+                    document_id: DOC-100
+                    document_title: Consultation note
+                    document_description: PDF consultation summary
+                    document_format: pdf
+                    document_content_type: application/pdf
+                    document_data: SGVsbG8gUERGIENvbnRlbnQ=
+                    document_status: current
               medication_administration:
                 summary: MedicationAdministration
                 value:
@@ -499,115 +678,6 @@ paths:
                       - Patient/PAT-1
                     consent_grantee_ids:
                       - Organization/ORG-1
-              practitioner:
-                summary: Practitioner
-                value:
-                  practitioner:
-                    practitioner_id: 98765
-                    name:
-                      first_name: Emily
-                      middle_name: R.
-                      last_name: Smith
-                    date_of_birth: 1975-10-12
-                    gender: female
-                    contact_info:
-                      phone: "+1-555-555-7777"
-                      email: emily.smith@healthcare.com
-                      address:
-                        street: 456 Health St
-                        city: Healthyville
-                        state: CA
-                        postal_code: 90210
-                        country: USA
-                    license:
-                      license_number: MD123456
-                      state_issued: CA
-                      issue_date: 2000-05-20
-                      expiry_date: 2025-05-20
-                    specialization: Cardiology
-                    years_of_experience: 20
-                    languages_spoken:
-                      - English
-                      - Spanish
-                    practice_location:
-                      name: Healthy Heart Clinic
-                      address:
-                        street: 789 Clinic Blvd
-                        city: Healthyville
-                        state: CA
-                        postal_code: 90211
-                        country: USA
-                      phone: "+1-555-555-8888"
-                    qualifications:
-                      - degree: MD
-                        institution: Harvard Medical School
-                        year: 2000
-                      - degree: Fellowship in Cardiology
-                        institution: Johns Hopkins Hospital
-                        year: 2004
-              practitioner_role:
-                summary: PractitionerRole
-                value:
-                  practitioner_role:
-                    practitioner_role_id: PR123456
-                    practitioner_id: 98765
-                    organization_id: ORG001
-                    role: Cardiologist
-                    specialty: Cardiology
-                    location:
-                      location_id: LOC123456
-                      name: Healthy Heart Clinic
-                      address:
-                        street: 789 Clinic Blvd
-                        city: Healthyville
-                        state: CA
-                        postal_code: 90211
-                        country: USA
-                    telecom:
-                      phone: "+1-555-555-7777"
-                      email: emily.smith@healthyheartclinic.com
-                    available_hours:
-                      weekdays: 8:00 AM - 5:00 PM
-                      weekends: 9:00 AM - 2:00 PM
-                    service_period:
-                      start_date: 2020-01-01
-                      end_date: null
-              organization:
-                summary: Organization
-                value:
-                  organization:
-                    organization_id: ORG001
-                    name: Healthy Heart Clinic
-                    type: Healthcare Provider
-                    contact_info:
-                      phone: "+1-555-555-8888"
-                      email: contact@healthyheartclinic.com
-                      address:
-                        street: 789 Clinic Blvd
-                        city: Healthyville
-                        state: CA
-                        postal_code: 90211
-                        country: USA
-                      fax: "+1-555-555-9999"
-                      website: https://www.healthyheartclinic.com
-                    departments:
-                      - name: Cardiology
-                        contact_phone: "+1-555-555-1234"
-                      - name: Radiology
-                        contact_phone: "+1-555-555-5678"
-                    affiliations:
-                      - name: American Heart Association
-                        type: Professional Association
-                      - name: National Institutes of Health
-                        type: Research Partner
-                    services_offered:
-                      - Cardiac Consultation
-                      - Echocardiography
-                      - Stress Testing
-                      - Cardiac Surgery
-                    operating_hours:
-                      weekdays: 8:00 AM - 5:00 PM
-                      weekends: 9:00 AM - 2:00 PM
               person:
                 summary: Person
                 value:
@@ -686,26 +756,6 @@ paths:
                     ingredient_quantity_numerator_unit: g
                     ingredient_quantity_denominator_value: 1000
                     ingredient_quantity_denominator_unit: mL
-              location:
-                summary: Location
-                value:
-                  location:
-                    location_id: LOC123456
-                    status: active
-                    name: Healthy Heart Clinic
-                    alias:
-                      - Main Clinic
-                    description: Outpatient clinic location
-                    mode: instance
-                    type: clinic
-                    address_line1: 789 Clinic Blvd
-                    address_line2: Suite 100
-                    city: Healthyville
-                    state: CA
-                    postal_code: 90211
-                    country: USA
-                    managing_org_id: ORG001
-                    part_of_id: LOC-PARENT
               episode_of_care:
                 summary: EpisodeOfCare
                 value:
@@ -1449,6 +1499,99 @@ components:
             - type: array
               items:
                 $ref: '#/components/schemas/CustomOrganization'
+    CustomJsonPriorityInput:
+      type: object
+      description: Focused custom JSON request schema for the current priority resource types. Each section accepts either a single object or an array of objects.
+      properties:
+        operation:
+          type: string
+          enum: [create, update, delete]
+        messageType:
+          type: string
+        patient:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPatient'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPatient'
+        observation:
+          oneOf:
+            - $ref: '#/components/schemas/CustomObservation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomObservation'
+        observations:
+          oneOf:
+            - $ref: '#/components/schemas/CustomObservation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomObservation'
+        practitioner:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPractitioner'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPractitioner'
+        practitioner_role:
+          oneOf:
+            - $ref: '#/components/schemas/CustomPractitionerRole'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomPractitionerRole'
+        organization:
+          oneOf:
+            - $ref: '#/components/schemas/CustomOrganization'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomOrganization'
+        location:
+          oneOf:
+            - $ref: '#/components/schemas/CustomLocation'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomLocation'
+        encounter:
+          oneOf:
+            - $ref: '#/components/schemas/CustomEncounter'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomEncounter'
+        condition:
+          oneOf:
+            - $ref: '#/components/schemas/CustomCondition'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomCondition'
+        diagnostic_report:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDiagnosticReport'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDiagnosticReport'
+        medication:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedication'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedication'
+        medication_request:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationRequest'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationRequest'
+        medication_statement:
+          oneOf:
+            - $ref: '#/components/schemas/CustomMedicationStatement'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomMedicationStatement'
+        document_reference:
+          oneOf:
+            - $ref: '#/components/schemas/CustomDocumentReference'
+            - type: array
+              items:
+                $ref: '#/components/schemas/CustomDocumentReference'
     CustomAddress:
       type: object
       properties:
@@ -1641,6 +1784,28 @@ components:
         next_appointment_date:
           type: string
           format: date-time
+    CustomObservation:
+      type: object
+      properties:
+        observation_id:
+          type: string
+        observation_code:
+          type: string
+        observation_code_system:
+          type: string
+        observation_display:
+          type: string
+        observation_value:
+          oneOf:
+            - type: string
+            - type: number
+        observation_unit:
+          type: string
+        observation_date:
+          type: string
+          format: date-time
+        observation_status:
+          type: string
     CustomMedication:
       type: object
       properties:
@@ -4742,6 +4907,26 @@ components:
         code_system:
           type: string
         display:
+          type: string
+    CustomDocumentReference:
+      type: object
+      properties:
+        document_id:
+          type: string
+        document_title:
+          type: string
+        document_description:
+          type: string
+        document_format:
+          type: string
+        document_url:
+          type: string
+        document_data:
+          type: string
+          description: Base64-encoded content when sending inline data.
+        document_content_type:
+          type: string
+        document_status:
           type: string
     CustomRelatedPerson:
       type: object

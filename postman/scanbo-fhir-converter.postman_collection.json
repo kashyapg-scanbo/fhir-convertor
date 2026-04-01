@@ -7,34 +7,339 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3001"
+      "value": "http://localhost:4000"
     }
   ],
   "item": [
     {
-      "name": "Convert Custom JSON to FHIR Bundle",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
+      "name": "Custom JSON Priority Resources",
+      "item": [
+        {
+          "name": "Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient\": {\n    \"patient_id\": \"P-10001\",\n    \"name\": {\n      \"first_name\": \"John\",\n      \"last_name\": \"Doe\"\n    },\n    \"date_of_birth\": \"1980-05-15\",\n    \"gender\": \"male\"\n  }\n}"
+            }
           }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/json",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "json"
-          ]
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"patient\": {\n    \"patient_id\": \"P-10001\",\n    \"ihi\": \"1234098753\",\n    \"name\": {\n      \"first_name\": \"John\",\n      \"middle_name\": \"A.\",\n      \"last_name\": \"Doe\"\n    },\n    \"date_of_birth\": \"1980-05-15\",\n    \"gender\": \"male\",\n    \"contact_info\": {\n      \"phone\": \"+1-555-555-5555\",\n      \"email\": \"john.doe@example.com\",\n      \"address\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"Springfield\",\n        \"state\": \"IL\",\n        \"postal_code\": \"62701\",\n        \"country\": \"USA\"\n      }\n    }\n  }\n}"
+        {
+          "name": "Observation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"observation\": {\n    \"observation_id\": \"OBS-1\",\n    \"observation_code\": \"8310-5\",\n    \"observation_code_system\": \"http://loinc.org\",\n    \"observation_display\": \"Body temperature\",\n    \"observation_value\": 37.1,\n    \"observation_unit\": \"C\",\n    \"observation_date\": \"2024-08-15T09:05:00Z\",\n    \"observation_status\": \"final\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Practitioner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"practitioner\": {\n    \"practitioner_id\": \"PRAC-1\",\n    \"name\": {\n      \"first_name\": \"Emily\",\n      \"last_name\": \"Smith\"\n    },\n    \"gender\": \"female\",\n    \"specialization\": \"Cardiology\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "PractitionerRole",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"practitioner_role\": {\n    \"practitioner_role_id\": \"ROLE-1\",\n    \"practitioner_id\": \"PRAC-1\",\n    \"organization_id\": \"ORG-1\",\n    \"role\": \"Cardiologist\",\n    \"specialty\": \"Cardiology\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organization\": {\n    \"organization_id\": \"ORG-1\",\n    \"name\": \"Healthy Heart Clinic\",\n    \"type\": \"Healthcare Provider\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": {\n    \"location_id\": \"LOC-1\",\n    \"status\": \"active\",\n    \"name\": \"Main Clinic\",\n    \"city\": \"Healthyville\",\n    \"state\": \"CA\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Encounter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounter\": {\n    \"encounter_id\": \"ENC-1\",\n    \"patient_id\": \"P-10001\",\n    \"practitioner_id\": \"PRAC-1\",\n    \"encounter_type\": \"Outpatient\",\n    \"start_date\": \"2024-08-15T09:00:00Z\",\n    \"status\": \"completed\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Condition",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"condition\": {\n    \"condition_id\": \"COND-1\",\n    \"patient_id\": \"P-10001\",\n    \"encounter_id\": \"ENC-1\",\n    \"clinical_status\": \"active\",\n    \"verification_status\": \"confirmed\",\n    \"code\": {\n      \"code\": \"44054006\",\n      \"code_system\": \"http://snomed.info/sct\",\n      \"display\": \"Diabetes mellitus type 2\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "DiagnosticReport",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnostic_report\": {\n    \"diagnostic_report_id\": \"DR-1\",\n    \"status\": \"final\",\n    \"category\": \"laboratory\",\n    \"code\": {\n      \"code\": \"58410-2\",\n      \"code_system\": \"http://loinc.org\",\n      \"display\": \"Complete blood count\"\n    },\n    \"subject_id\": \"P-10001\",\n    \"result_ids\": [\"OBS-1\"]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Medication",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medication\": {\n    \"medication_id\": \"MED-1\",\n    \"name\": \"Atorvastatin\",\n    \"form\": \"Tablet\",\n    \"strength\": \"20 mg\",\n    \"status\": \"active\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "MedicationRequest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medication_request\": {\n    \"medication_request_id\": \"MR-1\",\n    \"patient_id\": \"P-10001\",\n    \"practitioner_id\": \"PRAC-1\",\n    \"medication\": {\n      \"medication_id\": \"MED-1\",\n      \"name\": \"Atorvastatin\"\n    },\n    \"status\": \"active\",\n    \"authored_on\": \"2024-08-01\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "MedicationStatement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medication_statement\": {\n    \"medication_statement_id\": \"MS-1\",\n    \"patient_id\": \"P-10001\",\n    \"status\": \"active\",\n    \"medication\": {\n      \"medication_id\": \"MED-1\",\n      \"name\": \"Atorvastatin\"\n    },\n    \"effective_date\": \"2024-08-15T09:00:00Z\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "DocumentReference",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "json"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document_reference\": {\n    \"document_id\": \"DOC-1\",\n    \"document_title\": \"Consultation note\",\n    \"document_description\": \"PDF consultation summary\",\n    \"document_format\": \"pdf\",\n    \"document_content_type\": \"application/pdf\",\n    \"document_data\": \"SGVsbG8gUERGIENvbnRlbnQ=\",\n    \"document_status\": \"current\"\n  }\n}"
+            }
+          }
         }
-      }
+      ]
     },
     {
       "name": "Convert Mixed Input (Auto-detect)",
