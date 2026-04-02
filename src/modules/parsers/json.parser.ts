@@ -9188,9 +9188,7 @@ function smartScaleEpochToIso(rawValue: unknown): string | undefined {
 function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, payloadId?: string): CanonicalObservation[] {
   const observationPayload = isPlainRecord(payload.smartScale)
     ? payload.smartScale
-    : (isPlainRecord(payload.obseravtion)
-    ? payload.obseravtion
-    : (isPlainRecord(payload.observation) ? payload.observation : undefined));
+    : undefined;
   if (!observationPayload) return [];
 
   const observationDate =
@@ -9866,7 +9864,7 @@ export function parseCustomJSON(jsonInput: string | object): CanonicalModel {
     }
   }
 
-  if (looksLikeScanboConsultationPayload(parsed)) {
+  if (!looksLikeStructuredAliasJson(parsed) && looksLikeScanboConsultationPayload(parsed)) {
     const rows = buildRowsFromScanboConsultationPayload(parsed);
     if (rows.length > 0) {
       const canonical = mapTabularRowsToCanonical(rows, 'JSON');
