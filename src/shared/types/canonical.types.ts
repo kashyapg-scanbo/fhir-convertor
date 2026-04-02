@@ -859,6 +859,7 @@ export type CanonicalRiskAssessment = {
 
 export type CanonicalObservation = {
   setId?: string;
+  subject?: string;
   valueType?: string;
   code: {
     system?: string;

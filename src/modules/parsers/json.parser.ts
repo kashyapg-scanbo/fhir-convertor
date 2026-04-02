@@ -1068,10 +1068,18 @@ const GlobalFlagSchema = z.object({
 
 const GlobalObservationSchema = z.object({
   observation_id: GlobalIdSchema.optional(),
+  observation_subject_id: GlobalIdSchema.optional(),
+  observation_type: z.string().optional(),
   observation_code: z.string().optional(),
   observation_code_system: z.string().optional(),
   observation_display: z.string().optional(),
   observation_value: z.union([z.string(), z.number()]).optional(),
+  observation_systolic_value: z.union([z.string(), z.number()]).optional(),
+  observation_diastolic_value: z.union([z.string(), z.number()]).optional(),
+  observation_ecg_waves: z.string().optional(),
+  observation_ecg_heart_rate: z.union([z.string(), z.number()]).optional(),
+  observation_ecg_hrv: z.union([z.string(), z.number()]).optional(),
+  observation_ecg_breathe_rate: z.union([z.string(), z.number()]).optional(),
   observation_unit: z.string().optional(),
   observation_date: z.string().optional(),
   observation_status: z.string().optional()
@@ -4580,6 +4588,11 @@ function normalizeGlobalObservationAliases(value: Record<string, unknown>) {
     normalized.observation_id = observationId;
   }
 
+  const subjectId = readSectionAliasValue(value, 'observation', 'observation_subject_id');
+  if (normalized.observation_subject_id === undefined && subjectId !== undefined) {
+    normalized.observation_subject_id = subjectId;
+  }
+
   const code = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_code'));
   if (code && normalized.observation_code === undefined) normalized.observation_code = code;
 
@@ -4589,9 +4602,42 @@ function normalizeGlobalObservationAliases(value: Record<string, unknown>) {
   const display = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_display'));
   if (display && normalized.observation_display === undefined) normalized.observation_display = display;
 
+  const type = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_type'));
+  if (type && normalized.observation_type === undefined) normalized.observation_type = type;
+
   const valueCandidate = readSectionAliasValue(value, 'observation', 'observation_value');
   if (normalized.observation_value === undefined && valueCandidate !== undefined) {
     normalized.observation_value = valueCandidate;
+  }
+
+  const systolicValue = readSectionAliasValue(value, 'observation', 'observation_systolic_value');
+  if (normalized.observation_systolic_value === undefined && systolicValue !== undefined) {
+    normalized.observation_systolic_value = systolicValue;
+  }
+
+  const diastolicValue = readSectionAliasValue(value, 'observation', 'observation_diastolic_value');
+  if (normalized.observation_diastolic_value === undefined && diastolicValue !== undefined) {
+    normalized.observation_diastolic_value = diastolicValue;
+  }
+
+  const ecgWaves = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_ecg_waves'));
+  if (ecgWaves && normalized.observation_ecg_waves === undefined) {
+    normalized.observation_ecg_waves = ecgWaves;
+  }
+
+  const ecgHeartRate = readSectionAliasValue(value, 'observation', 'observation_ecg_heart_rate');
+  if (normalized.observation_ecg_heart_rate === undefined && ecgHeartRate !== undefined) {
+    normalized.observation_ecg_heart_rate = ecgHeartRate;
+  }
+
+  const ecgHrv = readSectionAliasValue(value, 'observation', 'observation_ecg_hrv');
+  if (normalized.observation_ecg_hrv === undefined && ecgHrv !== undefined) {
+    normalized.observation_ecg_hrv = ecgHrv;
+  }
+
+  const ecgBreatheRate = readSectionAliasValue(value, 'observation', 'observation_ecg_breathe_rate');
+  if (normalized.observation_ecg_breathe_rate === undefined && ecgBreatheRate !== undefined) {
+    normalized.observation_ecg_breathe_rate = ecgBreatheRate;
   }
 
   const unit = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_unit'));
@@ -10127,7 +10173,7 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
     canonical.flags = flags.map(buildCanonicalFlagGlobal);
   }
   if (observations.length) {
-    canonical.observations = observations.map(buildCanonicalObservationGlobal);
+    canonical.observations = observations.flatMap(buildCanonicalObservationGlobal);
   }
   if (lists.length) {
     canonical.lists = lists.map(buildCanonicalListGlobal);
@@ -13235,20 +13281,141 @@ function buildCanonicalFlagGlobal(flag: z.infer<typeof GlobalFlagSchema>) {
   };
 }
 
-function buildCanonicalObservationGlobal(obs: z.infer<typeof GlobalObservationSchema>) {
+function buildCanonicalObservationGlobal(obs: z.infer<typeof GlobalObservationSchema>): CanonicalObservation[] {
+  const status = obs.observation_status || 'final';
+  const date = obs.observation_date;
+  const subject = obs.observation_subject_id;
+  const unit = obs.observation_unit;
+  const normalizedType = obs.observation_type?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const normalizedDisplay = obs.observation_display?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const looksLikeBloodPressure =
+    normalizedType === 'bloodpressure'
+    || normalizedDisplay === 'bloodpressure'
+    || obs.observation_systolic_value !== undefined
+    || obs.observation_diastolic_value !== undefined;
+
+  if (looksLikeBloodPressure) {
+    const bloodPressureObservations: CanonicalObservation[] = [];
+    if (obs.observation_systolic_value !== undefined) {
+      bloodPressureObservations.push({
+        setId: obs.observation_id,
+        subject,
+        code: {
+          system: 'http://loinc.org',
+          code: '8480-6',
+          display: 'Systolic blood pressure'
+        },
+        value: obs.observation_systolic_value,
+        unit: unit || 'mmHg',
+        date,
+        status
+      });
+    }
+    if (obs.observation_diastolic_value !== undefined) {
+      bloodPressureObservations.push({
+        setId: obs.observation_id,
+        subject,
+        code: {
+          system: 'http://loinc.org',
+          code: '8462-4',
+          display: 'Diastolic blood pressure'
+        },
+        value: obs.observation_diastolic_value,
+        unit: unit || 'mmHg',
+        date,
+        status
+      });
+    }
+    if (bloodPressureObservations.length > 0) {
+      return bloodPressureObservations;
+    }
+  }
+
+  const looksLikeEcg =
+    normalizedType === 'ecg'
+    || normalizedDisplay === 'ecg'
+    || obs.observation_ecg_waves !== undefined
+    || obs.observation_ecg_heart_rate !== undefined
+    || obs.observation_ecg_hrv !== undefined
+    || obs.observation_ecg_breathe_rate !== undefined;
+
+  if (looksLikeEcg) {
+    const components: NonNullable<CanonicalObservation['components']> = [];
+    if (obs.observation_ecg_heart_rate !== undefined) {
+      components.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '8867-4',
+          display: 'Heart rate'
+        },
+        valueQuantity: {
+          value: Number(obs.observation_ecg_heart_rate),
+          unit: '/min',
+          code: '/min',
+          system: 'http://unitsofmeasure.org'
+        }
+      });
+    }
+    if (obs.observation_ecg_hrv !== undefined) {
+      components.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'heart-rate-variability',
+          display: 'Heart rate variability'
+        },
+        valueQuantity: {
+          value: Number(obs.observation_ecg_hrv),
+          unit: 'ms',
+          code: 'ms',
+          system: 'http://unitsofmeasure.org'
+        }
+      });
+    }
+    if (obs.observation_ecg_breathe_rate !== undefined) {
+      components.push({
+        code: {
+          system: 'http://loinc.org',
+          code: '9279-1',
+          display: 'Respiratory rate'
+        },
+        valueQuantity: {
+          value: Number(obs.observation_ecg_breathe_rate),
+          unit: '/min',
+          code: '/min',
+          system: 'http://unitsofmeasure.org'
+        }
+      });
+    }
+
+    return [{
+      setId: obs.observation_id,
+      subject,
+      code: {
+        system: obs.observation_code_system || 'http://loinc.org',
+        code: obs.observation_code || '11524-6',
+        display: obs.observation_display || 'EKG study'
+      },
+      value: obs.observation_ecg_waves ?? obs.observation_value,
+      date,
+      status,
+      components: components.length > 0 ? components : undefined
+    }];
+  }
+
   const code = {
     system: obs.observation_code_system,
     code: obs.observation_code,
     display: obs.observation_display
   };
-  return {
+  return [{
     setId: obs.observation_id,
+    subject,
     code,
     value: obs.observation_value,
-    unit: obs.observation_unit,
-    date: obs.observation_date,
-    status: obs.observation_status || 'final'
-  };
+    unit,
+    date,
+    status
+  }];
 }
 
 function buildCanonicalListGlobal(list: z.infer<typeof GlobalListSchema>) {
