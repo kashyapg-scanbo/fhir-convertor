@@ -574,6 +574,12 @@ export function mapObservations({
       resource.valueQuantity.system = 'http://unitsofmeasure.org';
     }
 
+    if (resource.valueQuantity && primaryCode?.code === '2708-6') {
+      resource.valueQuantity.unit = '%';
+      resource.valueQuantity.code = '%';
+      resource.valueQuantity.system = 'http://unitsofmeasure.org';
+    }
+
     if (obs.referenceRange) {
       resource.referenceRange = [{
         text: obs.referenceRange
