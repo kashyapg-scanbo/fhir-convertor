@@ -1085,6 +1085,8 @@ const GlobalObservationSchema = z.object({
   observation_status: z.string().optional()
 });
 
+const GlobalThirdPartyPayloadSchema = z.record(z.string(), z.unknown());
+
 const GlobalListEntrySchema = z.object({
   flag: GlobalCodeableConceptSchema.optional(),
   deleted: z.union([z.boolean(), z.string(), z.number()]).optional(),
@@ -2788,6 +2790,8 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
   flag: z.union([GlobalFlagSchema, z.array(GlobalFlagSchema)]).optional(),
   observation: z.union([GlobalObservationSchema, z.array(GlobalObservationSchema)]).optional(),
   observations: z.union([GlobalObservationSchema, z.array(GlobalObservationSchema)]).optional(),
+  smart_scale: z.union([GlobalThirdPartyPayloadSchema, z.array(GlobalThirdPartyPayloadSchema)]).optional(),
+  digital_measurement: z.union([GlobalThirdPartyPayloadSchema, z.array(GlobalThirdPartyPayloadSchema)]).optional(),
   list: z.union([GlobalListSchema, z.array(GlobalListSchema)]).optional(),
   group: z.union([GlobalGroupSchema, z.array(GlobalGroupSchema)]).optional(),
   healthcare_service: z.union([GlobalHealthcareServiceSchema, z.array(GlobalHealthcareServiceSchema)]).optional(),
@@ -2864,6 +2868,8 @@ const GlobalCustomJSONSchema: z.ZodTypeAny = z.object({
     value.flag ||
     value.observation ||
     value.observations ||
+    value.smart_scale ||
+    value.digital_measurement ||
     value.list ||
     value.group ||
     value.healthcare_service ||
@@ -3254,6 +3260,12 @@ const GLOBAL_TOP_LEVEL_KEY_MAP: Record<string, string> = {
   device_dispenses: 'device_dispense',
   devicedispense: 'device_dispense',
   devicedispenses: 'device_dispense',
+  smart_scale: 'smart_scale',
+  smartscale: 'smart_scale',
+  digital_measurement: 'digital_measurement',
+  digital_measurements: 'digital_measurement',
+  digitalmeasurement: 'digital_measurement',
+  digitalmeasurements: 'digital_measurement',
   nutrition_order: 'nutrition_order',
   nutrition_orders: 'nutrition_order',
   nutritionorder: 'nutrition_order',
@@ -9231,16 +9243,24 @@ function smartScaleEpochToIso(rawValue: unknown): string | undefined {
   return new Date(epochSeconds * 1000).toISOString();
 }
 
+function toCamelCaseKey(value: string): string {
+  return value.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase());
+}
+
 function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, payloadId?: string): CanonicalObservation[] {
   const observationPayload = isPlainRecord(payload.smartScale)
     ? payload.smartScale
+    : isPlainRecord(payload.smart_scale)
+      ? payload.smart_scale
     : undefined;
   if (!observationPayload) return [];
 
   const observationDate =
     readMongoWrappedString(observationPayload.testDateTime)
+    || readMongoWrappedString(observationPayload.test_date_time)
     || smartScaleEpochToIso(observationPayload.time)
     || readMongoWrappedString(payload.testDateTime)
+    || readMongoWrappedString(payload.test_date_time)
     || readMongoWrappedString(payload.appointment);
 
   const grouped: CanonicalObservation[] = [];
@@ -9248,30 +9268,43 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
     '_id',
     '__v',
     'extData',
+    'ext_data',
     'impendences',
     'testDateTime',
+    'test_date_time',
     'isStabilized',
+    'is_stabilized',
     'masterProfileId',
+    'master_profile_id',
     'testPerformerId',
+    'test_performer_id',
     'createdBy',
+    'created_by',
     'updatedBy',
+    'updated_by',
     'deletedBy',
+    'deleted_by',
     'deletedAt',
+    'deleted_at',
     'deleted',
     'longitude',
     'latitude',
     'testPerformByKeyIdentifier',
-    'createdByKeyIdentifier'
+    'test_perform_by_key_identifier',
+    'createdByKeyIdentifier',
+    'created_by_key_identifier'
   ]);
 
   const topLevelComponents = Object.entries(observationPayload)
     .map(([key, rawValue]) => {
       if (excludedSmartScaleKeys.has(key)) return undefined;
+      const componentCode = key.includes('_') ? toCamelCaseKey(key) : key;
+      const componentDisplayKey = key.includes('_') ? key : componentCode;
 
       const code = {
         system: 'urn:scanbo:observation',
-        code: key,
-        display: titleFromSnake(key)
+        code: componentCode,
+        display: titleFromSnake(componentDisplayKey)
       };
 
       if (typeof rawValue === 'boolean') {
@@ -9283,7 +9316,7 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
 
       const numericValue = readMongoWrappedNumber(rawValue);
       if (numericValue !== undefined) {
-        const unit = resolveSmartScaleScalarUnit(key);
+        const unit = resolveSmartScaleScalarUnit(componentCode);
         if (unit) {
           return {
             code,
@@ -9327,7 +9360,10 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
     });
   }
 
-  const extData = isPlainRecord(observationPayload.extData) ? observationPayload.extData : undefined;
+  const extData =
+    isPlainRecord(observationPayload.extData) ? observationPayload.extData
+    : isPlainRecord(observationPayload.ext_data) ? observationPayload.ext_data
+    : undefined;
   if (extData) {
     const components = Object.entries(extData)
       .map(([key, rawValue]) => {
@@ -9402,6 +9438,62 @@ function buildSmartScaleGroupedObservations(payload: Record<string, unknown>, pa
   }
 
   return grouped;
+}
+
+function buildDigitalMeasurementObservations(payload: Record<string, unknown>, payloadId?: string): CanonicalObservation[] {
+  const observationPayload = isPlainRecord(payload.digitalMeasurement)
+    ? payload.digitalMeasurement
+    : isPlainRecord(payload.digital_measurement)
+      ? payload.digital_measurement
+      : undefined;
+  if (!observationPayload) return [];
+
+  const observationDisplay =
+    readMongoWrappedString(observationPayload.measurementType)
+    || readMongoWrappedString(observationPayload.measurement_type)
+    || readMongoWrappedString(observationPayload.observation_display);
+  const observationValue =
+    readMongoWrappedString(observationPayload.value)
+    || readMongoWrappedString(observationPayload.otherValue)
+    || readMongoWrappedString(observationPayload.other_value)
+    || readMongoWrappedString(observationPayload.observation_value);
+  if (!observationDisplay || !observationValue) return [];
+
+  const observationCode =
+    readMongoWrappedString(observationPayload.measurementKeyIdentifier)
+    || readMongoWrappedString(observationPayload.measurement_key_identifier)
+    || readMongoWrappedString(observationPayload.observation_code);
+  const observationUnit =
+    readMongoWrappedString(observationPayload.measurementUnit)
+    || readMongoWrappedString(observationPayload.measurement_unit)
+    || readMongoWrappedString(observationPayload.observation_unit);
+  const observationDate =
+    readMongoWrappedString(observationPayload.testDateTime)
+    || readMongoWrappedString(observationPayload.test_date_time)
+    || readMongoWrappedString(observationPayload.observation_date)
+    || readMongoWrappedString(payload.testDateTime)
+    || readMongoWrappedString(payload.test_date_time)
+    || readMongoWrappedString(payload.appointment);
+  const observationStatus =
+    readMongoWrappedString(observationPayload.observation_status)
+    || 'final';
+  const observationId =
+    readMongoWrappedString(observationPayload.observation_id)
+    || readMongoWrappedString(observationPayload._id)
+    || payloadId;
+
+  return [{
+    setId: observationId,
+    code: {
+      system: observationCode ? 'urn:scanbo:digital-measurement' : undefined,
+      code: observationCode,
+      display: observationDisplay
+    },
+    value: observationValue,
+    unit: observationUnit,
+    date: observationDate,
+    status: observationStatus
+  }];
 }
 
 function getScanboPractitionerPayload(payload: Record<string, unknown>): Record<string, unknown> | undefined {
@@ -10069,6 +10161,8 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   const encounterHistories = normalizeArray(validated.encounter_history);
   const flags = normalizeArray(validated.flag);
   const observations = normalizeArray(validated.observation ?? validated.observations);
+  const smartScalePayloads = normalizeArray(validated.smart_scale);
+  const digitalMeasurementPayloads = normalizeArray(validated.digital_measurement);
   const lists = normalizeArray(validated.list);
   const groups = normalizeArray(validated.group);
   const healthcareServices = normalizeArray(validated.healthcare_service);
@@ -10172,8 +10266,26 @@ function buildCanonicalFromGlobal(validated: GlobalJSONInput): CanonicalModel {
   if (flags.length) {
     canonical.flags = flags.map(buildCanonicalFlagGlobal);
   }
-  if (observations.length) {
-    canonical.observations = observations.flatMap(buildCanonicalObservationGlobal);
+  const structuredObservations = observations.flatMap(buildCanonicalObservationGlobal);
+  const smartScaleObservations = smartScalePayloads.flatMap(payload => {
+    const payloadId = isPlainRecord(payload) ? readMongoWrappedString(payload._id) : undefined;
+    return isPlainRecord(payload)
+      ? buildSmartScaleGroupedObservations({ smart_scale: payload }, payloadId)
+      : [];
+  });
+  const digitalMeasurementObservations = digitalMeasurementPayloads.flatMap(payload => {
+    const payloadId = isPlainRecord(payload) ? readMongoWrappedString(payload._id) : undefined;
+    return isPlainRecord(payload)
+      ? buildDigitalMeasurementObservations({ digital_measurement: payload }, payloadId)
+      : [];
+  });
+  const allObservations = [
+    ...structuredObservations,
+    ...smartScaleObservations,
+    ...digitalMeasurementObservations
+  ];
+  if (allObservations.length) {
+    canonical.observations = allObservations;
   }
   if (lists.length) {
     canonical.lists = lists.map(buildCanonicalListGlobal);

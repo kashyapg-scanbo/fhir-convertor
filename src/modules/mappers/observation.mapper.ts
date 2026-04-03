@@ -99,6 +99,7 @@ const ucumUnitMap: Record<string, string> = {
 const systolicCode = '8480-6';
 const diastolicCode = '8462-4';
 const bpPanelCode = '85354-9';
+const panelLoincCodes = new Set(['85353-1', bpPanelCode]);
 
 function getPrimaryCoding(obs: CanonicalObservation) {
   return Array.isArray(obs.code) ? obs.code[0] : obs.code;
@@ -132,13 +133,31 @@ function hasLoincCode(coding: any[] | undefined, code: string) {
 
 function inferVitalSignCode(primaryCode?: { code?: string; display?: string }) {
   const code = String(primaryCode?.code || '');
-  if (loincVitalSigns.has(code)) return code;
+  if (loincVitalSigns.has(code) && !panelLoincCodes.has(code)) return code;
   const text = `${primaryCode?.code || ''} ${primaryCode?.display || ''}`.trim();
   if (!text) return undefined;
   for (const alias of vitalSignAliases) {
     if (alias.match.test(text)) return alias.code;
   }
+  if (loincVitalSigns.has(code)) return code;
   return undefined;
+}
+
+function narrowVitalSignPanelCoding(primaryCode?: { system?: string; code?: string; display?: string }) {
+  const currentCode = String(primaryCode?.code || '').trim();
+  if (!currentCode || !panelLoincCodes.has(currentCode)) return undefined;
+
+  const currentSystem = normalizeSystem(primaryCode?.system) || (isLoincCode(currentCode) ? 'http://loinc.org' : undefined);
+  if (currentSystem !== 'http://loinc.org') return undefined;
+
+  const inferred = inferVitalSignCode({ display: primaryCode?.display });
+  if (!inferred || inferred === currentCode) return undefined;
+
+  return {
+    system: 'http://loinc.org',
+    code: inferred,
+    display: loincDisplayMap[inferred]
+  };
 }
 
 function applyVitalSignCoding(resource: any, primaryCode?: { code?: string; display?: string }) {
@@ -395,6 +414,7 @@ export function mapObservations({
     }
 
     const primaryCode = getPrimaryCoding(obs);
+    const narrowedPanelCoding = narrowVitalSignPanelCoding(primaryCode);
     const isVitalSign = Boolean(primaryCode?.code && loincVitalSigns.has(primaryCode.code));
     const obsSummary = primaryCode?.code || primaryCode?.display || '';
     if (obsSummary) resource.text = makeNarrative('Observation', String(obsSummary));
@@ -415,13 +435,16 @@ export function mapObservations({
 
   if (obs.code) {
       const codes = Array.isArray(obs.code) ? obs.code : [obs.code];
-      const mappedCoding = codes.map((coding: any) => {
-          const codeValue = String(coding.code || '').trim();
+      let mappedCoding = codes.map((coding: any, index: number) => {
+          const effectiveCoding = index === 0 && narrowedPanelCoding
+            ? { ...coding, ...narrowedPanelCoding }
+            : coding;
+          const codeValue = String(effectiveCoding.code || '').trim();
           if (!codeValue) return null;
-          const normalizedSystem = normalizeSystem(coding.system);
-          const fallbackSystem = coding.system
+          const normalizedSystem = normalizeSystem(effectiveCoding.system);
+          const fallbackSystem = effectiveCoding.system
             ? undefined
-            : (isLoincCode(coding.code) ? 'http://loinc.org' : 'urn:hl7-org:local');
+            : (isLoincCode(effectiveCoding.code) ? 'http://loinc.org' : 'urn:hl7-org:local');
           const resolvedSystem = normalizedSystem ?? fallbackSystem;
           const result: any = {
             system: resolvedSystem,
@@ -433,11 +456,17 @@ export function mapObservations({
           if (resolvedSystem === 'http://loinc.org') {
             const canonicalDisplay = loincDisplayMap[codeValue];
             if (canonicalDisplay) result.display = canonicalDisplay;
-          } else if (coding.display) {
-            result.display = coding.display;
+          } else if (effectiveCoding.display) {
+            result.display = effectiveCoding.display;
           }
           return result;
         }).filter(Boolean);
+
+      if (narrowedPanelCoding) {
+        mappedCoding = mappedCoding.filter((coding: any) =>
+          !(normalizeSystem(coding.system) === 'http://loinc.org' && panelLoincCodes.has(coding.code) && coding.code !== narrowedPanelCoding.code)
+        );
+      }
 
       const textOnlyCode = codes.find((coding: any) => typeof coding.display === 'string' && coding.display.trim().length > 0);
       if (mappedCoding.length > 0) {
@@ -455,6 +484,7 @@ export function mapObservations({
     }
 
     applyVitalSignCoding(resource, primaryCode);
+    const resolvedPrimaryCoding = Array.isArray(resource.code?.coding) ? resource.code.coding[0] : primaryCode;
 
     // Handle valueSampledData for time-series data (e.g., real-time heart rate)
     if (obs.valueSampledData !== undefined) {
@@ -568,15 +598,21 @@ export function mapObservations({
       }
     }
 
-    if (resource.valueQuantity && primaryCode?.code === '8867-4') {
+    if (resource.valueQuantity && resolvedPrimaryCoding?.code === '8867-4') {
       resource.valueQuantity.unit = 'beats/min';
       resource.valueQuantity.code = '/min';
       resource.valueQuantity.system = 'http://unitsofmeasure.org';
     }
 
-    if (resource.valueQuantity && primaryCode?.code === '2708-6') {
+    if (resource.valueQuantity && resolvedPrimaryCoding?.code === '2708-6') {
       resource.valueQuantity.unit = '%';
       resource.valueQuantity.code = '%';
+      resource.valueQuantity.system = 'http://unitsofmeasure.org';
+    }
+
+    if (resource.valueQuantity && resolvedPrimaryCoding?.code === '39156-5') {
+      resource.valueQuantity.unit = 'kg/m2';
+      resource.valueQuantity.code = 'kg/m2';
       resource.valueQuantity.system = 'http://unitsofmeasure.org';
     }
 
