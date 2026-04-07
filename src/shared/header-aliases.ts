@@ -56,6 +56,9 @@ export const HEADER_ALIAS_SECTIONS: HeaderAliasSections = {
     observation_ecg_heart_rate: ['ecg_heart_rate', 'heart_rate', 'heartrate'],
     observation_ecg_hrv: ['ecg_hrv', 'heart_rate_variability', 'heartratevariability'],
     observation_ecg_breathe_rate: ['ecg_breathe_rate', 'breathe_rate', 'breatherate'],
+    observation_ecg_rr_min: ['ecg_rr_min', 'rr_min', 'rrmin'],
+    observation_ecg_rr_max: ['ecg_rr_max', 'rr_max', 'rrmax'],
+    observation_ecg_mood: ['ecg_mood', 'mood'],
     observation_unit: ['obs_unit', 'result_unit', 'lab_unit', 'lab_result_unit', 'measuring_unit_short_name', 'measuringunitshortname', 'measuring_unit_full_name', 'measuringunitfullname'],
     observation_date: ['obs_date', 'observation_datetime', 'observation_time', 'recorded_datetime', 'lab_result_date', 'result_dt', 'lab_collected_datetime', 'labresultdate', 'test_date_time', 'testdatetime'],
     observation_status: ['obs_status', 'result_status', 'lab_result_status']

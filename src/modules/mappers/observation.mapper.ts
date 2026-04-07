@@ -240,10 +240,12 @@ function toFhirObservationStatus(status?: string): string {
 /** Ensure dateTime is in a format FHIR validators accept (ISO 8601 with optional milliseconds). */
 function normalizeFhirDateTime(dateStr?: string): string | undefined {
   if (!dateStr || typeof dateStr !== 'string') return undefined;
-  const s = dateStr.trim();
+  let s = dateStr.trim();
   if (!s) return undefined;
+  s = s.replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/i.test(s)) return s.replace(/Z$/i, '.000Z');
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})$/i.test(s)) return s.replace(/([+-]\d{2}:\d{2})$/i, '.000$1');
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{1,9}(Z|[+-]\d{2}:\d{2})$/i.test(s)) return s;
   return s;
 }
 

@@ -1080,6 +1080,9 @@ const GlobalObservationSchema = z.object({
   observation_ecg_heart_rate: z.union([z.string(), z.number()]).optional(),
   observation_ecg_hrv: z.union([z.string(), z.number()]).optional(),
   observation_ecg_breathe_rate: z.union([z.string(), z.number()]).optional(),
+  observation_ecg_rr_min: z.union([z.string(), z.number()]).optional(),
+  observation_ecg_rr_max: z.union([z.string(), z.number()]).optional(),
+  observation_ecg_mood: z.union([z.string(), z.number()]).optional(),
   observation_unit: z.string().optional(),
   observation_date: z.string().optional(),
   observation_status: z.string().optional()
@@ -4650,6 +4653,21 @@ function normalizeGlobalObservationAliases(value: Record<string, unknown>) {
   const ecgBreatheRate = readSectionAliasValue(value, 'observation', 'observation_ecg_breathe_rate');
   if (normalized.observation_ecg_breathe_rate === undefined && ecgBreatheRate !== undefined) {
     normalized.observation_ecg_breathe_rate = ecgBreatheRate;
+  }
+
+  const ecgRrMin = readSectionAliasValue(value, 'observation', 'observation_ecg_rr_min');
+  if (normalized.observation_ecg_rr_min === undefined && ecgRrMin !== undefined) {
+    normalized.observation_ecg_rr_min = ecgRrMin;
+  }
+
+  const ecgRrMax = readSectionAliasValue(value, 'observation', 'observation_ecg_rr_max');
+  if (normalized.observation_ecg_rr_max === undefined && ecgRrMax !== undefined) {
+    normalized.observation_ecg_rr_max = ecgRrMax;
+  }
+
+  const ecgMood = readSectionAliasValue(value, 'observation', 'observation_ecg_mood');
+  if (normalized.observation_ecg_mood === undefined && ecgMood !== undefined) {
+    normalized.observation_ecg_mood = ecgMood;
   }
 
   const unit = normalizeAliasValue(readSectionAliasValue(value, 'observation', 'observation_unit'));
@@ -9782,8 +9800,21 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
         readMongoWrappedString(observationPayload.breatheRate)
         || readMongoWrappedString(observationPayload.breathe_rate)
         || readMongoWrappedString(observationPayload.observation_ecg_breathe_rate);
+      const rrMin =
+        readMongoWrappedString(observationPayload.RRMin)
+        || readMongoWrappedString(observationPayload.rrMin)
+        || readMongoWrappedString(observationPayload.rr_min)
+        || readMongoWrappedString(observationPayload.observation_ecg_rr_min);
+      const rrMax =
+        readMongoWrappedString(observationPayload.RRMax)
+        || readMongoWrappedString(observationPayload.rrMax)
+        || readMongoWrappedString(observationPayload.rr_max)
+        || readMongoWrappedString(observationPayload.observation_ecg_rr_max);
+      const mood =
+        readMongoWrappedString(observationPayload.mood)
+        || readMongoWrappedString(observationPayload.observation_ecg_mood);
 
-      if (waves || heartRate || heartRateVariability || breatheRate) {
+      if (waves || heartRate || heartRateVariability || breatheRate || rrMin || rrMax || mood) {
         pushRow({
           observation_id: payloadId ? `${payloadId}-nested-ecg` : undefined,
           observation_type: 'ecg',
@@ -9791,6 +9822,9 @@ function buildRowsFromScanboConsultationPayload(payload: Record<string, unknown>
           observation_ecg_heart_rate: heartRate,
           observation_ecg_hrv: heartRateVariability,
           observation_ecg_breathe_rate: breatheRate,
+          observation_ecg_rr_min: rrMin,
+          observation_ecg_rr_max: rrMax,
+          observation_ecg_mood: mood,
           observation_date: nestedDate,
           observation_status: 'final'
         });
@@ -13449,7 +13483,10 @@ function buildCanonicalObservationGlobal(obs: z.infer<typeof GlobalObservationSc
     || obs.observation_ecg_waves !== undefined
     || obs.observation_ecg_heart_rate !== undefined
     || obs.observation_ecg_hrv !== undefined
-    || obs.observation_ecg_breathe_rate !== undefined;
+    || obs.observation_ecg_breathe_rate !== undefined
+    || obs.observation_ecg_rr_min !== undefined
+    || obs.observation_ecg_rr_max !== undefined
+    || obs.observation_ecg_mood !== undefined;
 
   if (looksLikeEcg) {
     const components: NonNullable<CanonicalObservation['components']> = [];
@@ -13498,12 +13535,55 @@ function buildCanonicalObservationGlobal(obs: z.infer<typeof GlobalObservationSc
         }
       });
     }
+    if (obs.observation_ecg_rr_min !== undefined) {
+      components.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'rr-min',
+          display: 'RR minimum'
+        },
+        valueQuantity: {
+          value: Number(obs.observation_ecg_rr_min),
+          unit: 'ms',
+          code: 'ms',
+          system: 'http://unitsofmeasure.org'
+        }
+      });
+    }
+    if (obs.observation_ecg_rr_max !== undefined) {
+      components.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'rr-max',
+          display: 'RR maximum'
+        },
+        valueQuantity: {
+          value: Number(obs.observation_ecg_rr_max),
+          unit: 'ms',
+          code: 'ms',
+          system: 'http://unitsofmeasure.org'
+        }
+      });
+    }
+    if (obs.observation_ecg_mood !== undefined) {
+      components.push({
+        code: {
+          system: 'urn:hl7-org:local',
+          code: 'ecg-mood',
+          display: 'Mood'
+        },
+        valueInteger: Number(obs.observation_ecg_mood)
+      });
+    }
 
     return [{
       setId: obs.observation_id,
       subject,
       code: {
-        system: obs.observation_code_system || 'http://loinc.org',
+        system: obs.observation_code_system
+          || (obs.observation_code
+            ? (/^\d{1,7}-\d{1,2}$/.test(String(obs.observation_code)) ? 'http://loinc.org' : 'urn:hl7-org:local')
+            : 'http://loinc.org'),
         code: obs.observation_code || '11524-6',
         display: obs.observation_display || 'EKG study'
       },
